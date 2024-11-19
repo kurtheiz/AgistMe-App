@@ -1,0 +1,45 @@
+import { OpenAPI } from '../types/generated/core/OpenAPI';
+
+class AuthService {
+  private static TOKEN_KEY = 'auth_token';
+
+  static setAuthToken(token: string | null) {
+    if (token) {
+      console.log('Setting auth token:', token);
+      localStorage.setItem(this.TOKEN_KEY, token);
+      OpenAPI.TOKEN = token;
+      OpenAPI.HEADERS = {
+        'Authorization': `Bearer ${token}`
+      };
+    } else {
+      console.log('Clearing auth token');
+      localStorage.removeItem(this.TOKEN_KEY);
+      OpenAPI.TOKEN = undefined;
+      OpenAPI.HEADERS = undefined;
+    }
+  }
+
+  static getAuthToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  static initializeAuth() {
+    const token = this.getAuthToken();
+    if (token) {
+      console.log('Initializing with stored token:', token);
+      this.setAuthToken(token);
+    } else {
+      console.log('No stored token found');
+    }
+  }
+
+  static isAuthenticated(): boolean {
+    return !!this.getAuthToken();
+  }
+
+  static clearAuth() {
+    this.setAuthToken(null);
+  }
+}
+
+export default AuthService;
