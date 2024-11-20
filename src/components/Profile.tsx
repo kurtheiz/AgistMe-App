@@ -22,7 +22,7 @@ export default function Profile() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingHorseIndex, setUploadingHorseIndex] = useState<number | null>(null);
-  const { token } = useAuthToken();
+  useAuthToken();
 
   const [formData, setFormData] = useState<ProfileType>({
     id: '',

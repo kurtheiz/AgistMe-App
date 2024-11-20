@@ -8,7 +8,7 @@ export const Header = () => {
   const { openSignIn, openSignUp } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
-  const { token } = useAuthToken();
+  useAuthToken();
 
   const handleAvatarClick = () => {
     if (isSignedIn) {
