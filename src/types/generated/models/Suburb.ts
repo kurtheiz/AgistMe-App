@@ -6,7 +6,7 @@ import type { LocationType } from './LocationType';
 export type Suburb = {
     id: string;
     suburb: string;
-    postCode: string;
+    postcode: string;
     state: string;
     region: string;
     geohash: string;

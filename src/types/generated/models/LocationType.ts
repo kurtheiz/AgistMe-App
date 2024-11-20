@@ -5,4 +5,5 @@
 export enum LocationType {
     REGION = 'REGION',
     SUBURB = 'SUBURB',
+    STATE = 'STATE'
 }

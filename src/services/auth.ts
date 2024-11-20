@@ -42,4 +42,32 @@ class AuthService {
   }
 }
 
+let authToken: string | null = null;
+
+export const setAuthToken = (token: string | null) => {
+  authToken = token;
+  if (token) {
+    localStorage.setItem('auth_token', token);
+    OpenAPI.TOKEN = token;
+    OpenAPI.HEADERS = {
+      'Authorization': `Bearer ${token}`
+    };
+  } else {
+    localStorage.removeItem('auth_token');
+    OpenAPI.TOKEN = undefined;
+    OpenAPI.HEADERS = undefined;
+  }
+};
+
+export const getAuthToken = async (): Promise<string | null> => {
+  if (!authToken) {
+    authToken = localStorage.getItem('auth_token');
+  }
+  return authToken;
+};
+
+export const isAuthenticated = (): boolean => {
+  return !!(authToken || localStorage.getItem('auth_token'));
+};
+
 export default AuthService;

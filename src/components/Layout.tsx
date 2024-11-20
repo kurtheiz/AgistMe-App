@@ -1,20 +1,75 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { ErrorBoundary } from './ErrorBoundary';
+import { useAuth, useUser } from '@clerk/clerk-react';
+import { useEffect, useRef } from 'react';
+import { useProfile } from '../context/ProfileContext';
+import { setAuthToken } from '../services/auth';
+import { useReferenceStore } from '../stores/reference.store';
+import { referenceService } from '../services/reference.service';
 
 export const Layout = () => {
+  const { isLoaded, getToken } = useAuth();
+  const { isSignedIn, user } = useUser();
+  const navigate = useNavigate();
+  const { refreshProfile } = useProfile();
+  const { setReferenceData } = useReferenceStore();
+  const profileLoadedRef = useRef(false);
+
+  // Handle auth state changes
+  useEffect(() => {
+    const handleAuthChange = async () => {
+      if (!isLoaded || profileLoadedRef.current) return;
+
+      try {
+        if (isSignedIn && user) {
+          const token = await getToken({ template: "AgistMe" });
+          if (token) {
+            setAuthToken(token);
+            await refreshProfile();
+            profileLoadedRef.current = true;
+            navigate('/profile');
+          }
+        } else {
+          setAuthToken(null);
+          profileLoadedRef.current = false;
+        }
+      } catch (error) {
+        console.error('Error handling auth change:', error);
+        setAuthToken(null);
+        profileLoadedRef.current = false;
+      }
+    };
+
+    handleAuthChange();
+  }, [isSignedIn, isLoaded]);
+
+  // Load reference data
+  useEffect(() => {
+    const loadReferenceData = async () => {
+      try {
+        const data = await referenceService.getReferenceData();
+        setReferenceData(data);
+      } catch {
+        /* Silently handle error */
+      }
+    };
+
+    if (isLoaded) {
+      loadReferenceData();
+    }
+  }, [isLoaded, setReferenceData]);
+
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-100">
-      <ErrorBoundary>
+    <ErrorBoundary>
+      <div className="flex flex-col min-h-screen pt-16">
         <Header />
-        <main className="flex-1 pt-16 h-[calc(100vh-4rem)]">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Outlet />
-          </div>
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <Outlet />
         </main>
         <Footer />
-      </ErrorBoundary>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };

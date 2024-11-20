@@ -2,15 +2,15 @@ import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   return (
-    <footer className="h-16 bg-white dark:bg-neutral-900 border-t dark:border-neutral-800">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} AgistMe. All rights reserved.
-          </p>
-          <div className="flex space-x-4">
-            <Link to="/privacy" className="text-sm text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">Privacy</Link>
-            <Link to="/terms" className="text-sm text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">Terms</Link>
+    <footer className="border-t border-neutral-200 dark:border-neutral-700">
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center">
+          <div className="text-neutral-500 dark:text-neutral-400 text-sm">
+            &copy; {new Date().getFullYear()} Agist Me by heizlogic. All rights reserved.
+          </div>
+          <div className="flex space-x-6">
+            <Link to="/privacy" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Privacy Policy</Link>
+            <Link to="/terms" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Terms of Service</Link>
           </div>
         </div>
       </div>

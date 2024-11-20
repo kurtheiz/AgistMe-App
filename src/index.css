@@ -8,32 +8,17 @@
   font-weight: 400;
 }
 
-body {
-  margin: 0;
+html, body, #root {
   min-height: 100vh;
-}
-
-/* Light mode styles */
-:root {
-  --background-color: #ffffff;
-  --text-color: #213547;
-}
-
-/* Dark mode styles */
-:root[class="dark"] {
-  --background-color: #1a1a1a;
-  --text-color: #ffffff;
-}
-
-body {
-  background-color: var(--background-color);
-  color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  background-color: rgb(250 249 247); /* neutral-50 from our theme */
+}
+
+:root.dark #root {
+  background-color: rgb(38 38 38); /* neutral-800 from our theme */
 }

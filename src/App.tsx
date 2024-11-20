@@ -1,4 +1,4 @@
-import { ClerkProvider, useAuth } from '@clerk/clerk-react';
+import { ClerkProvider, useAuth, SignIn } from '@clerk/clerk-react';
 import { createBrowserRouter, RouterProvider, Route, createRoutesFromElements } from 'react-router-dom';
 import { ThemeProvider } from './hooks/useTheme';
 import { Layout } from './components/Layout';
@@ -7,11 +7,13 @@ import { About } from './components/About';
 import { ErrorPage } from './components/ErrorPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useEffect } from 'react';
-import AuthService from './services/auth';
-import { Profile } from './components/Profile';
-import { ProtectedRoute } from './components/ProtectedRoute';
 import { useReferenceStore } from './stores/reference.store';
 import { referenceService } from './services/reference.service';
+import { useAuthToken } from './hooks/useAuthToken';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import Profile from './components/Profile';
+import { ProfileProvider } from './context/ProfileContext';
+import AuthService from './services/auth';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -19,7 +21,6 @@ if (!clerkPubKey) {
   throw new Error('Missing Clerk Publishable Key');
 }
 
-// Create router with future flags enabled
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Layout />} errorElement={<ErrorPage />}>
@@ -44,42 +45,47 @@ const router = createBrowserRouter(
   }
 );
 
-function AppContent() {
-  const { getToken, isLoaded } = useAuth();
-  const { setReferenceData } = useReferenceStore();
+// Component to handle auth initialization
+const AuthInitializer = () => {
+  const { getToken } = useAuth();
 
-  // Silent reference data loading
   useEffect(() => {
-    const loadReferenceData = async () => {
+    const setupAuth = async () => {
       try {
+        // Initialize authentication on app load
+        AuthService.initializeAuth();
+        
+        // Get fresh token from Clerk
         const token = await getToken({ template: "AgistMe" });
         if (token) {
           AuthService.setAuthToken(token);
         }
-        const data = await referenceService.getReferenceData();
-        setReferenceData(data);
-      } catch {
-        /* Silently handle error */
+      } catch (error) {
+        console.error('Error refreshing token:', error);
+        AuthService.clearAuth();
       }
     };
+    
+    setupAuth();
+  }, [getToken]);
 
-    if (isLoaded) {
-      loadReferenceData();
-    }
-  }, [getToken, isLoaded]); // Dependencies for auth token
-
-  return <RouterProvider router={router} />;
-}
+  return null;
+};
 
 function App() {
   return (
-    <ErrorBoundary>
-      <ThemeProvider>
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-800">
+      <ErrorBoundary>
         <ClerkProvider publishableKey={clerkPubKey}>
-          <AppContent />
+          <AuthInitializer />
+          <ThemeProvider>
+            <ProfileProvider>
+              <RouterProvider router={router} />
+            </ProfileProvider>
+          </ThemeProvider>
         </ClerkProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </div>
   );
 }
 
