@@ -215,7 +215,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full pb-16">
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Contact Info Panel */}
         <div className="bg-white dark:bg-neutral-900 rounded-none sm:rounded-xl shadow-lg p-2 sm:p-8">
@@ -434,20 +434,16 @@ export default function Profile() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className={`bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                className={`min-w-[100px] flex items-center justify-center bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
                   isSaving ? 'opacity-80 cursor-not-allowed' : ''
                 }`}
               >
                 {isSaving ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Saving Changes...
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   </>
                 ) : (
-                  'Save Changes'
+                  'Save'
                 )}
               </button>
             </div>
@@ -480,81 +476,7 @@ export default function Profile() {
 
                   {/* Horse Details Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Left Column - Photo and Comments Only */}
-                    <div className="flex flex-col h-full">
-                      {/* Horse Photo */}
-                      <div className="relative group">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          ref={horsePhotoInputRef}
-                          onChange={handleHorsePhotoUpload}
-                        />
-                        <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-200 dark:bg-neutral-700 transition-all duration-300">
-                          {isUploading && uploadingHorseIndex === index && (
-                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                            </div>
-                          )}
-                          {horse.profilePhoto ? (
-                            <img 
-                              src={horse.profilePhoto} 
-                              alt={horse.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <PhotoIcon className="h-12 w-12 text-neutral-400" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center gap-4 transition-all duration-300">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setUploadingHorseIndex(index);
-                                horsePhotoInputRef.current?.click();
-                              }}
-                              className="p-1.5 rounded-full bg-white bg-opacity-0 hover:bg-opacity-100 text-white hover:text-neutral-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                            >
-                              <PencilSquareIcon className="h-6 w-6" />
-                            </button>
-                            {horse.profilePhoto && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const updatedHorses = formData.horses.map((h, i) => 
-                                    i === index ? { ...h, profilePhoto: '' } : h
-                                  );
-                                  setFormData(prev => ({ ...prev, horses: updatedHorses }));
-                                }}
-                                className="p-1.5 rounded-full bg-white bg-opacity-0 hover:bg-opacity-100 text-white hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                              >
-                                <TrashIcon className="h-6 w-6" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Comments Section - Same width as photo */}
-                      <div className="flex-1 flex flex-col mt-4">
-                        <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Comments</label>
-                        <textarea
-                          value={horse.comments || ''}
-                          onChange={(e) => {
-                            const updatedHorses = formData.horses.map((h, i) =>
-                              i === index ? { ...h, comments: e.target.value } : h
-                            );
-                            setFormData(prev => ({ ...prev, horses: updatedHorses }));
-                          }}
-                          className="flex-1 mt-1 block w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm text-neutral-700 dark:text-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 resize-none"
-                          placeholder="Add any additional information about your horse..."
-                        />
-                      </div>
-                    </div>
-
-                    {/* Right Column - All Horse Details Fields */}
+                    {/* Left Column - Horse Details */}
                     <div className="space-y-4">
                       {/* Horse Name */}
                       <div>
@@ -684,9 +606,83 @@ export default function Profile() {
                             className="mt-1 block w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm text-neutral-700 dark:text-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                           />
                           <span className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                            Age: {horse.yearOfBirth ? new Date().getFullYear() - horse.yearOfBirth : '-'} years
+                            Age: {horse.yearOfBirth ? new Date().getFullYear() - horse.yearOfBirth : '-'}
                           </span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column - Photo and Comments */}
+                    <div className="flex flex-col h-full">
+                      {/* Horse Photo */}
+                      <div className="relative group">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          ref={horsePhotoInputRef}
+                          onChange={handleHorsePhotoUpload}
+                        />
+                        <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-200 dark:bg-neutral-700 transition-all duration-300">
+                          {isUploading && uploadingHorseIndex === index && (
+                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                            </div>
+                          )}
+                          {horse.profilePhoto ? (
+                            <img 
+                              src={horse.profilePhoto} 
+                              alt={horse.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <PhotoIcon className="h-12 w-12 text-neutral-400" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center gap-4 transition-all duration-300">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUploadingHorseIndex(index);
+                                horsePhotoInputRef.current?.click();
+                              }}
+                              className="p-1.5 rounded-full bg-white bg-opacity-0 hover:bg-opacity-100 text-white hover:text-neutral-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                            >
+                              <PencilSquareIcon className="h-6 w-6" />
+                            </button>
+                            {horse.profilePhoto && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updatedHorses = formData.horses.map((h, i) => 
+                                    i === index ? { ...h, profilePhoto: '' } : h
+                                  );
+                                  setFormData(prev => ({ ...prev, horses: updatedHorses }));
+                                }}
+                                className="p-1.5 rounded-full bg-white bg-opacity-0 hover:bg-opacity-100 text-white hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                              >
+                                <TrashIcon className="h-6 w-6" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Comments Section - Same width as photo */}
+                      <div className="flex-1 flex flex-col mt-4">
+                        <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Comments</label>
+                        <textarea
+                          value={horse.comments || ''}
+                          onChange={(e) => {
+                            const updatedHorses = formData.horses.map((h, i) =>
+                              i === index ? { ...h, comments: e.target.value } : h
+                            );
+                            setFormData(prev => ({ ...prev, horses: updatedHorses }));
+                          }}
+                          className="flex-1 mt-1 block w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm text-neutral-700 dark:text-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 resize-none"
+                          placeholder="Add any additional information about your horse..."
+                        />
                       </div>
                     </div>
                   </div>
