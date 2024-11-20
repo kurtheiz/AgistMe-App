@@ -158,7 +158,7 @@ export default function Profile() {
 
     try {
       setIsUploading(true);
-      const photoUrl = await profileService.uploadHorsePhoto(file);
+      const photoUrl = await profileService.uploadHorsePhoto(file, "horseName");
       
       setFormData(prev => ({
         ...prev,
@@ -281,7 +281,7 @@ export default function Profile() {
             <div className="text-center">
               <span className="text-sm text-neutral-500 dark:text-neutral-400">Email:</span>
               <p className="text-neutral-800 dark:text-neutral-200 font-medium">
-                {user.primaryEmailAddress?.emailAddress}
+                {user?.primaryEmailAddress?.emailAddress}
               </p>
             </div>
 
