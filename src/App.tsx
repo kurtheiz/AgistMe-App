@@ -1,4 +1,4 @@
-import { ClerkProvider, useAuth, SignIn } from '@clerk/clerk-react';
+import { ClerkProvider, useAuth } from '@clerk/clerk-react';
 import { createBrowserRouter, RouterProvider, Route, createRoutesFromElements } from 'react-router-dom';
 import { ThemeProvider } from './hooks/useTheme';
 import { Layout } from './components/Layout';
@@ -7,13 +7,10 @@ import { About } from './components/About';
 import { ErrorPage } from './components/ErrorPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useEffect } from 'react';
-import { useReferenceStore } from './stores/reference.store';
-import { referenceService } from './services/reference.service';
-import { useAuthToken } from './hooks/useAuthToken';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './components/Profile';
 import { ProfileProvider } from './context/ProfileContext';
-import { setAuthToken, getAuthToken } from './services/auth';
+import { getAuthToken } from './services/auth';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -53,20 +50,19 @@ const AuthInitializer = () => {
     const setupAuth = async () => {
       try {
         // Check if we already have a valid token
-        const existingToken = getAuthToken();
+        const existingToken = await getAuthToken();
         if (existingToken) {
-          setAuthToken(existingToken);
           return;
         }
 
         // Only get a fresh token if we don't have one
         const token = await getToken({ template: "AgistMe" });
         if (token) {
-          setAuthToken(token);
+          // Store the token
+          localStorage.setItem('auth_token', token);
         }
       } catch (error) {
         console.error('Error setting up auth:', error);
-        // AuthService.clearAuth();
       }
     };
     

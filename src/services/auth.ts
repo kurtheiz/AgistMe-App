@@ -30,8 +30,8 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-export const getAuthToken = (): string | null => {
-  return authToken;
+export const getAuthToken = async (): Promise<string | null> => {
+  return localStorage.getItem('auth_token');
 };
 
 export const isAuthenticated = (): boolean => {

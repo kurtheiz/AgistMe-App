@@ -32,6 +32,7 @@ export interface ApiError extends BaseApiError {
   status: number;
   statusText: string;
   body: unknown;
+  message: string;
 }
 
 const getTokenWithRetry = async (getToken: () => Promise<string | null>, retryCount = 3): Promise<string | null> => {
@@ -133,18 +134,13 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
       }
 
       onRequestEnd?.();
-      const apiError: ApiError = new ApiError(
-        { url: error.config?.url || '' }, 
-        { 
-          url: error.config?.url || '',
-          status: error.response?.status || 500,
-          statusText: error.response?.statusText || 'Internal Server Error',
-          body: error.response?.data,
-          ok: false
-        },
-        error.message 
-      );
-      return Promise.reject(apiError);
+      throw {
+        url: error.config?.url || '',
+        status: error.response?.status || 500,
+        statusText: error.response?.statusText || 'Internal Server Error',
+        body: error.response?.data,
+        message: error.message || 'An error occurred'
+      } as ApiError;
     }
   );
 

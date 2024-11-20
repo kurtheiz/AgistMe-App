@@ -16,7 +16,7 @@ export const ProgressBar = () => {
           }}
         />
       </div>
-      <style jsx>{`
+      <style>{`
         @keyframes progress-bar {
           0% {
             transform: translateX(-100%);

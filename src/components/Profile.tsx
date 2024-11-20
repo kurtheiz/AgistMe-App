@@ -8,7 +8,7 @@ import { profileService } from '../services/profile.service';
 import { Profile as ProfileType } from '../types/profile';
 import { useProfile } from '../context/ProfileContext';
 import { ProgressBar } from './ProgressBar';
-import { ArrowRightOnRectangleIcon, PencilSquareIcon, TrashIcon, PhotoIcon, CameraIcon } from '@heroicons/react/24/outline';
+import { ArrowRightOnRectangleIcon, PencilSquareIcon, TrashIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
 export default function Profile() {
   const { profile, loading, error, refreshProfile, updateProfileData } = useProfile();

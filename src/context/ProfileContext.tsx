@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Profile } from '../types/profile';
 import { profileService } from '../services/profile.service';
-import { setAuthToken } from '../services/auth';
 
 interface ProfileContextType {
   profile: Profile | null;

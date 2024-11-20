@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useDebounce } from '../../hooks/useDebounce';
 import { Suburb } from '../../types/generated/models/Suburb';

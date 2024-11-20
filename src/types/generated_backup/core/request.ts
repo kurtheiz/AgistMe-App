@@ -219,7 +219,12 @@ export const sendRequest = async (
         return await axios(requestConfig);
     } catch (error) {
         if (axios.isCancel(error)) {
-            throw new ApiError({ status: 499, statusText: 'Cancelled', body: error });
+            throw {
+                status: 499,
+                statusText: 'Cancelled',
+                body: error,
+                message: 'Request cancelled'
+            } as ApiError;
         }
         throw error;
     }
