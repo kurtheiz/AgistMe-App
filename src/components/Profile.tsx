@@ -9,6 +9,7 @@ import { Profile as ProfileType } from '../types/profile';
 import { useProfile } from '../context/ProfileContext';
 import { ProgressBar } from './ProgressBar';
 import { ArrowRightOnRectangleIcon, PencilSquareIcon, TrashIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { useAuthToken } from '../hooks/useAuthToken';
 
 export default function Profile() {
   const { profile, loading, error, refreshProfile, updateProfileData } = useProfile();
@@ -21,6 +22,7 @@ export default function Profile() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingHorseIndex, setUploadingHorseIndex] = useState<number | null>(null);
+  const { token } = useAuthToken();
 
   const [formData, setFormData] = useState<ProfileType>({
     id: '',

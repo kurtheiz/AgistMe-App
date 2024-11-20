@@ -1,10 +1,11 @@
 import { useAuth } from '@clerk/clerk-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { setAuthToken, getAuthToken } from '../services/auth';
 
 export const useAuthToken = () => {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const tokenUpdateInProgress = useRef(false);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     const updateToken = async () => {
@@ -16,15 +17,20 @@ export const useAuthToken = () => {
         // If not signed in, clear token
         if (!isSignedIn) {
           setAuthToken(null);
+          setToken(null);
           return;
         }
 
         // Get new token only if we don't have one
-        if (!getAuthToken()) {
-          const token = await getToken({ template: "AgistMe" });
-          if (token) {
-            setAuthToken(token);
+        const currentToken = await getAuthToken();
+        if (!currentToken) {
+          const newToken = await getToken({ template: "AgistMe" });
+          if (newToken) {
+            setAuthToken(newToken);
+            setToken(newToken);
           }
+        } else {
+          setToken(currentToken);
         }
       } finally {
         tokenUpdateInProgress.current = false;
@@ -33,4 +39,6 @@ export const useAuthToken = () => {
 
     updateToken();
   }, [getToken, isLoaded, isSignedIn]);
+
+  return { token };
 };

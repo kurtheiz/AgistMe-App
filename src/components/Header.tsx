@@ -1,12 +1,14 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { useClerk, useUser } from '@clerk/clerk-react';
+import { useAuthToken } from '../hooks/useAuthToken';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
   const { openSignIn, openSignUp } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
+  const { token } = useAuthToken();
 
   const handleAvatarClick = () => {
     if (isSignedIn) {
