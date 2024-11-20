@@ -5,19 +5,12 @@ import { getAuthToken } from './auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
-// Configure the OpenAPI base URL
-// OpenAPI.BASE = API_BASE_URL;
-
 class ReferenceService {
   private api = createApi(API_BASE_URL, getAuthToken);
 
   async getReferenceData(): Promise<ReferenceData[]> {
     try {
-      console.log('Fetching reference data from:', `${API_BASE_URL}/v1/rd`);
       const response = await this.api.get<{ pricingPlans: PricingPlan[] }>('/v1/rd');
-      console.log('Reference data response:', response);
-      
-      // Map PricingPlan[] to ReferenceData[]
       return response.data.pricingPlans.map((plan: PricingPlan) => ({
         id: plan.name.toLowerCase().replace(/\s+/g, '-'), // Generate an ID from the name
         name: plan.name,

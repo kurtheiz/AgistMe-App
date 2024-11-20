@@ -22,7 +22,6 @@ class ProfileService {
 
   constructor() {
     this.api = createApi(API_BASE_URL, async () => {
-      // Get the session token from Clerk
       const session = await window.Clerk?.session;
       return session?.getToken() || null;
     });
@@ -33,7 +32,7 @@ class ProfileService {
       const response = await this.api.get<Profile>('/v1/profile');
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch profile:', error);
+      console.error('Error fetching profile:', error);
       throw error;
     }
   }
