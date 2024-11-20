@@ -1,50 +1,21 @@
 import { OpenAPI } from '../types/generated/core/OpenAPI';
 
-class AuthService {
-  private static TOKEN_KEY = 'auth_token';
-
-  static setAuthToken(token: string | null) {
-    if (token) {
-      console.log('Setting auth token:', token);
-      localStorage.setItem(this.TOKEN_KEY, token);
-      OpenAPI.TOKEN = token;
-      OpenAPI.HEADERS = {
-        'Authorization': `Bearer ${token}`
-      };
-    } else {
-      console.log('Clearing auth token');
-      localStorage.removeItem(this.TOKEN_KEY);
-      OpenAPI.TOKEN = undefined;
-      OpenAPI.HEADERS = undefined;
-    }
-  }
-
-  static getAuthToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  static initializeAuth() {
-    const token = this.getAuthToken();
-    if (token) {
-      console.log('Initializing with stored token:', token);
-      this.setAuthToken(token);
-    } else {
-      console.log('No stored token found');
-    }
-  }
-
-  static isAuthenticated(): boolean {
-    return !!this.getAuthToken();
-  }
-
-  static clearAuth() {
-    this.setAuthToken(null);
-  }
-}
-
+// In-memory token cache
 let authToken: string | null = null;
 
+// Initialize token from localStorage on module load
+authToken = localStorage.getItem('auth_token');
+if (authToken) {
+  OpenAPI.TOKEN = authToken;
+  OpenAPI.HEADERS = {
+    'Authorization': `Bearer ${authToken}`
+  };
+}
+
 export const setAuthToken = (token: string | null) => {
+  // If token hasn't changed, do nothing
+  if (token === authToken) return;
+
   authToken = token;
   if (token) {
     localStorage.setItem('auth_token', token);
@@ -59,15 +30,10 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-export const getAuthToken = async (): Promise<string | null> => {
-  if (!authToken) {
-    authToken = localStorage.getItem('auth_token');
-  }
+export const getAuthToken = (): string | null => {
   return authToken;
 };
 
 export const isAuthenticated = (): boolean => {
-  return !!(authToken || localStorage.getItem('auth_token'));
+  return !!authToken;
 };
-
-export default AuthService;

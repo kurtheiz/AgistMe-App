@@ -2,6 +2,22 @@ import { useAuth } from '@clerk/clerk-react';
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { useCallback, useMemo } from 'react';
 import { ApiError as BaseApiError } from '../types/api';
+import { useProgressStore } from '../stores/progress.store';
+
+// Token management
+const TOKEN_KEY = 'auth_token';
+
+const getStoredToken = (): string | null => {
+  return localStorage.getItem(TOKEN_KEY);
+};
+
+const setStoredToken = (token: string | null) => {
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+};
 
 // Generic API Response type that works with our generated types
 export interface ApiResponse<T> {
@@ -21,11 +37,16 @@ export interface ApiError extends BaseApiError {
 const getTokenWithRetry = async (getToken: () => Promise<string | null>, retryCount = 3): Promise<string | null> => {
   for (let i = 0; i < retryCount; i++) {
     try {
-      const token = await getToken();
-      if (token) {
-        return token;
+      // First try to get token from storage
+      let token = getStoredToken();
+      if (!token) {
+        // If no stored token, get a new one
+        token = await getToken();
+        if (token) {
+          setStoredToken(token);
+        }
       }
-      console.warn(`Attempt ${i + 1}: Token is null`);
+      return token;
     } catch (error) {
       console.error(`Attempt ${i + 1}: Error getting token:`, error);
     }
@@ -37,7 +58,7 @@ const getTokenWithRetry = async (getToken: () => Promise<string | null>, retryCo
 };
 
 // Create an API instance that can be used outside of React components
-export const createApi = (baseURL: string, getToken?: () => Promise<string | null>) => {
+export const createApi = (baseURL: string, getToken?: () => Promise<string | null>, onRequestStart?: () => void, onRequestEnd?: () => void) => {
   const instance = axios.create({
     baseURL,
     headers: {
@@ -50,29 +71,37 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
     async (config: InternalAxiosRequestConfig) => {
       if (getToken) {
         try {
-          console.log('Getting token for request:', config.url);
           const token = await getTokenWithRetry(getToken);
           if (token && config.headers) {
-            console.log('Token obtained successfully');
             config.headers.Authorization = `Bearer ${token}`;
           } else {
-            console.warn('No token available for request');
+            console.warn('No token available for request to:', config.url);
+            // For requests requiring authentication, reject if no token
+            if (config.url?.includes('/v1/')) {
+              return Promise.reject(new Error('Authentication required'));
+            }
           }
         } catch (error) {
           console.error('Error in request interceptor:', error);
+          return Promise.reject(error);
         }
       }
+      onRequestStart?.();
       return config;
     },
     (error) => {
       console.error('Request interceptor error:', error);
+      onRequestEnd?.();
       return Promise.reject(error);
     }
   );
 
   // Response interceptor
   instance.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      onRequestEnd?.();
+      return response;
+    },
     async (error: AxiosError) => {
       console.log('Response error:', {
         status: error.response?.status,
@@ -83,6 +112,8 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
       if (error.response?.status === 401 && getToken && error.config) {
         try {
           console.log('Attempting to refresh token after 401');
+          // Clear stored token on 401
+          setStoredToken(null);
           const token = await getTokenWithRetry(getToken);
           
           if (token) {
@@ -101,6 +132,7 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
         }
       }
 
+      onRequestEnd?.();
       const apiError: ApiError = {
         message: error.message,
         url: error.config?.url || '',
@@ -117,19 +149,25 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
 
 export const useApi = (baseURL: string) => {
   const { getToken } = useAuth();
+  const { increment, decrement } = useProgressStore();
 
   const api: AxiosInstance = useMemo(() => {
-    return createApi(baseURL, async () => {
-      try {
-        const token = await getToken({ template: "AgistMe" });
-        console.log('Token obtained in useApi:', token ? 'Token present' : 'No token');
-        return token;
-      } catch (error) {
-        console.error('Error getting auth token in useApi:', error);
-        return null;
-      }
-    });
-  }, [baseURL, getToken]);
+    return createApi(
+      baseURL,
+      async () => {
+        try {
+          const token = await getToken({ template: "AgistMe" });
+          console.log('Token obtained in useApi:', token ? 'Token present' : 'No token');
+          return token;
+        } catch (error) {
+          console.error('Error getting auth token in useApi:', error);
+          return null;
+        }
+      },
+      increment,
+      decrement
+    );
+  }, [baseURL, getToken, increment, decrement]);
 
   const get = useCallback(async <T>(url: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> => {
     const response = await api.get<T>(url, { params });

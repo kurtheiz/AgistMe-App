@@ -13,7 +13,7 @@ import { useAuthToken } from './hooks/useAuthToken';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './components/Profile';
 import { ProfileProvider } from './context/ProfileContext';
-import AuthService from './services/auth';
+import { setAuthToken, getAuthToken } from './services/auth';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -52,17 +52,21 @@ const AuthInitializer = () => {
   useEffect(() => {
     const setupAuth = async () => {
       try {
-        // Initialize authentication on app load
-        AuthService.initializeAuth();
-        
-        // Get fresh token from Clerk
+        // Check if we already have a valid token
+        const existingToken = getAuthToken();
+        if (existingToken) {
+          setAuthToken(existingToken);
+          return;
+        }
+
+        // Only get a fresh token if we don't have one
         const token = await getToken({ template: "AgistMe" });
         if (token) {
-          AuthService.setAuthToken(token);
+          setAuthToken(token);
         }
       } catch (error) {
-        console.error('Error refreshing token:', error);
-        AuthService.clearAuth();
+        console.error('Error setting up auth:', error);
+        // AuthService.clearAuth();
       }
     };
     

@@ -1,23 +1,36 @@
 import { useAuth } from '@clerk/clerk-react';
-import { useEffect } from 'react';
-import { setAuthToken } from '../services/auth';
+import { useEffect, useRef } from 'react';
+import { setAuthToken, getAuthToken } from '../services/auth';
 
 export const useAuthToken = () => {
-  const { getToken, isLoaded } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const tokenUpdateInProgress = useRef(false);
 
   useEffect(() => {
     const updateToken = async () => {
+      if (!isLoaded || tokenUpdateInProgress.current) return;
+
       try {
-        const token = await getToken({ template: "AgistMe" });
-        setAuthToken(token);
-      } catch (error) {
-        console.error('Error getting auth token:', error);
-        setAuthToken(null);
+        tokenUpdateInProgress.current = true;
+
+        // If not signed in, clear token
+        if (!isSignedIn) {
+          setAuthToken(null);
+          return;
+        }
+
+        // Get new token only if we don't have one
+        if (!getAuthToken()) {
+          const token = await getToken({ template: "AgistMe" });
+          if (token) {
+            setAuthToken(token);
+          }
+        }
+      } finally {
+        tokenUpdateInProgress.current = false;
       }
     };
 
-    if (isLoaded) {
-      updateToken();
-    }
-  }, [getToken, isLoaded]);
+    updateToken();
+  }, [getToken, isLoaded, isSignedIn]);
 };

@@ -15,6 +15,12 @@ html, body, #root {
   border: none;
 }
 
+/* Force scrollbar to prevent layout shift */
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 #root {
   background-color: rgb(250 249 247); /* neutral-50 from our theme */
 }
