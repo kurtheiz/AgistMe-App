@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Profile } from '../types/profile';
-import { User } from '@clerk/clerk-react';
+import type { UserResource } from '@clerk/types';
 import { profileService } from '../services/profile.service';
 import { Suburb } from '../types/generated/models/Suburb';
 
-export const useProfileForm = (user: User | null | undefined, profile: Profile | null) => {
+export const useProfileForm = (user: UserResource | null | undefined, profile: Profile | null) => {
   const [formData, setFormData] = useState<Profile>({
     id: '',
     firstName: '',

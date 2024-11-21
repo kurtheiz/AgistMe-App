@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { SearchModal } from './SearchModal';
 import { SearchCriteria } from '../../types/search';
 
