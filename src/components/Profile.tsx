@@ -9,7 +9,7 @@ import { ArrowRightOnRectangleIcon, CheckIcon } from '@heroicons/react/24/outlin
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfileForm } from '../hooks/useProfileForm';
 import { ProfilePhoto } from './Profile/ProfilePhoto';
-import { HorseForm } from './Profile/HorseForm';
+import { HorseFormModal } from './Profile/HorseFormModal';
 import { PageToolbar } from './PageToolbar';
 
 export default function Profile() {
@@ -100,11 +100,59 @@ export default function Profile() {
     }
   };
 
-  const handleDeleteHorse = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      horses: prev.horses.filter((_, i) => i !== index)
-    }));
+  const [selectedHorseIndex, setSelectedHorseIndex] = useState<number | null>(null);
+  const [isHorseModalOpen, setIsHorseModalOpen] = useState(false);
+  const [newHorse, setNewHorse] = useState<any | null>(null);
+
+  const openHorseModal = (index: number | null) => {
+    setSelectedHorseIndex(index);
+    setIsHorseModalOpen(true);
+  };
+
+  const closeHorseModal = () => {
+    setIsHorseModalOpen(false);
+    setSelectedHorseIndex(null);
+    setNewHorse(null);
+  };
+
+  const handleAddHorse = () => {
+    const emptyHorse = {
+      name: '',
+      breed: '',
+      gender: '',
+      colour: '',
+      height: '',
+      profilePhoto: '',
+      microchip: '',
+      brand: '',
+      notes: '',
+    };
+    setNewHorse(emptyHorse);
+    openHorseModal(null);
+  };
+
+  const handleSaveHorse = async (horse: any) => {
+    if (selectedHorseIndex !== null) {
+      // Edit existing horse
+      setFormData(prev => ({
+        ...prev,
+        horses: prev.horses.map((h, i) => i === selectedHorseIndex ? horse : h)
+      }));
+    } else {
+      // Add new horse
+      setFormData(prev => ({
+        ...prev,
+        horses: [...prev.horses, horse]
+      }));
+    }
+    
+    try {
+      const updatedProfile = await saveProfile();
+      updateProfileData(updatedProfile);
+    } catch (err) {
+      console.error('Error saving horse:', err);
+      // You might want to show an error toast here
+    }
   };
 
   if (!isLoaded || loading) {
@@ -335,49 +383,68 @@ export default function Profile() {
             </div>
 
             {/* Right Panel - My Horses */}
-            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg p-8">
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">My Horses</h2>
+            <section className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Horses</h2>
+                <button
+                  type="button"
+                  onClick={handleAddHorse}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                >
+                  Add Horse
+                </button>
               </div>
 
-              {/* Horses List */}
-              <div className="space-y-6">
-                {formData.horses.length === 0 ? (
-                  <p className="text-neutral-500 dark:text-neutral-400 text-center py-8">
-                    No horses added yet. Click "Add Horse" to get started.
-                  </p>
-                ) : (
-                  formData.horses.map((horse, index) => (
-                    <HorseForm
-                      key={index}
-                      horse={horse}
-                      index={index}
-                      onHorseChange={handleHorseChange}
-                      onDelete={handleDeleteHorse}
-                      isUploading={uploadingHorseIndex === index}
-                      onPhotoUpload={handleHorsePhotoUpload}
-                    />
-                  ))
-                )}
+              <div className="overflow-y-auto max-h-[600px] space-y-4 pr-2">
+                {formData.horses.map((horse, index) => (
+                  <div
+                    key={index}
+                    onClick={() => openHorseModal(index)}
+                    className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                  >
+                    <div className="flex items-center space-x-4">
+                      {horse.profilePhoto && (
+                        <img
+                          src={horse.profilePhoto}
+                          alt={horse.name}
+                          className="h-16 w-16 rounded-full object-cover"
+                        />
+                      )}
+                      <div>
+                        <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">
+                          {horse.name || 'Unnamed Horse'}
+                        </h3>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                          {horse.breed} • {horse.gender} • {horse.colour}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {/* Add Horse Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setFormData(prev => ({
-                    ...prev,
-                    horses: [
-                      ...prev.horses,
-                      { name: '', breed: '', gender: '', colour: '', size: 0, yearOfBirth: new Date().getFullYear(), profilePhoto: '' }
-                    ]
-                  }));
-                }}
-                className="mt-6 w-full flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              >
-                Add Horse
-              </button>
-            </div>
+              {/* Horse Form Modal */}
+              <HorseFormModal
+                isOpen={isHorseModalOpen}
+                onClose={closeHorseModal}
+                horse={newHorse || (selectedHorseIndex !== null ? formData.horses[selectedHorseIndex] : {
+                  name: '',
+                  breed: '',
+                  gender: '',
+                  colour: '',
+                  height: '',
+                  profilePhoto: '',
+                  microchip: '',
+                  brand: '',
+                  notes: '',
+                })}
+                index={selectedHorseIndex}
+                onSave={handleSaveHorse}
+                onCancel={closeHorseModal}
+                isUploading={uploadingHorseIndex === selectedHorseIndex}
+                onPhotoUpload={handleHorsePhotoUpload}
+              />
+            </section>
           </div>
         </div>
       </div>
