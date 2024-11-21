@@ -26,12 +26,10 @@ export const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow pt-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto w-full">
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
-        </div>
+      <main className="flex-grow pt-16">
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       <Footer />
     </div>

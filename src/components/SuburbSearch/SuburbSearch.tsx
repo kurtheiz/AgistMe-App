@@ -80,7 +80,7 @@ export function SuburbSearch({ onSelect, multiple = false }: SuburbSearchProps) 
               setSearchTerm(e.target.value);
             }}
             placeholder="Search suburbs..."
-            className="h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-500"
+            className="h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500"
           />
         </div>
       </div>
