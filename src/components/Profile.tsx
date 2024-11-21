@@ -5,7 +5,7 @@ import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDa
 import { SuburbSearch } from './SuburbSearch/SuburbSearch';
 import { useProfile } from '../context/ProfileContext';
 import { ProgressBar } from './ProgressBar';
-import { ArrowRightOnRectangleIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { ArrowRightOnRectangleIcon, CheckIcon } from './Icons';
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfileForm } from '../hooks/useProfileForm';
 import { ProfilePhoto } from './Profile/ProfilePhoto';
@@ -28,7 +28,6 @@ export default function Profile() {
     isDirty,
     uploadingHorseIndex,
     setUploadingHorseIndex,
-    handleSuburbSelect,
     handleInputChange,
     handleHorseChange,
     handleProfilePhotoUpload,
@@ -309,7 +308,21 @@ export default function Profile() {
                     Search Suburb
                   </label>
                   <SuburbSearch
-                    onSelect={handleSuburbSelect}
+                    selectedSuburbs={formData.suburb && typeof formData.suburb !== 'string' ? [formData.suburb] : []}
+                    onSuburbsChange={(suburbs) => {
+                      const suburb = suburbs[0];
+                      if (suburb) {
+                        setFormData(prev => ({
+                          ...prev,
+                          suburb,
+                          state: suburb.state,
+                          postcode: suburb.postcode,
+                          suburbId: suburb.id,
+                          region: suburb.region || '',
+                          geohash: suburb.geohash || ''
+                        }));
+                      }
+                    }}
                     multiple={false}
                   />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -335,9 +348,9 @@ export default function Profile() {
                       <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Suburb</label>
                       <input
                         type="text"
-                        value={formData.suburb}
+                        value={typeof formData.suburb === 'string' ? formData.suburb : formData.suburb?.suburb || ''}
                         readOnly
-                        className="form-input form-input-compact bg-neutral-100 dark:bg-neutral-800"
+                        className="mt-1 block w-full rounded-md border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
                       />
                     </div>
                     <div>

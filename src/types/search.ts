@@ -1,4 +1,4 @@
-import { Suburb } from './generated/models/Suburb';
+import { Suburb } from './suburb';
 
 export type PaddockType = 'Private' | 'Shared' | 'Group';
 export type CareType = 'Full' | 'Part' | 'Self';
@@ -15,11 +15,11 @@ export interface Facility {
 export interface SearchCriteria {
   suburbs: Suburb[];
   radius: number;
-  paddockType: PaddockType;
+  paddockTypes: PaddockType[];
   spaces: number;
   maxPrice: number;
   hasArena: boolean;
   hasRoundYard: boolean;
   facilities: Facility;
-  careType: CareType;
+  careTypes: CareType[];
 }

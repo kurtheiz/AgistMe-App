@@ -1,3 +1,5 @@
+import { Suburb } from './suburb';
+
 export interface Horse {
     id?: string;
     name: string;
@@ -24,7 +26,7 @@ export interface Profile {
     profilePhoto: string;
     region: string;
     state: string;
-    suburb: string;
+    suburb: string | Suburb;  // Allow both string and Suburb type for backward compatibility
     suburbId: string;
     lastUpdate: string;
     comments?: string;

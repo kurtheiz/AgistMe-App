@@ -1,22 +1,29 @@
 import { useState, useEffect, useCallback } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useDebounce } from '../../hooks/useDebounce';
-import { Suburb } from '../../types/generated/models/Suburb';
+import { Suburb, LocationType } from '../../types/suburb';
 import { suburbService } from '../../services/suburb.service';
+import { XMarkIcon } from '../Icons';
 
 interface SuburbSearchProps {
-  onSelect: (locations: Suburb[]) => void;
+  selectedSuburbs: Suburb[];
+  onSuburbsChange: (suburbs: Suburb[]) => void;
   multiple?: boolean;
+  includeRegions?: boolean;
 }
 
-export function SuburbSearch({ onSelect, multiple = false }: SuburbSearchProps) {
+export function SuburbSearch({ selectedSuburbs, onSuburbsChange, multiple = true, includeRegions = true }: SuburbSearchProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<Suburb[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedLocations, setSelectedLocations] = useState<Suburb[]>([]);
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   const formatDisplayText = (suburb: Suburb): string => {
+    if (suburb.locationType === LocationType.STATE) {
+      return suburb.suburb || suburb.state;
+    }
+    if (suburb.locationType === LocationType.REGION) {
+      return `${suburb.region}, ${suburb.state}`;
+    }
     return `${suburb.suburb}, ${suburb.state} ${suburb.postcode}`;
   };
 
@@ -28,43 +35,63 @@ export function SuburbSearch({ onSelect, multiple = false }: SuburbSearchProps) 
 
     try {
       setLoading(true);
-      const response = await suburbService.searchSuburbs(term, 10, false);
-      setResults(response.suburbs || []);
+      const response = await suburbService.searchSuburbs(term, 10, includeRegions);
+      const suburbs = response.suburbs?.map(suburb => ({
+        ...suburb,
+        locationType: suburb.locationType || (
+          suburb.locationType === 'STATE' ? LocationType.STATE :
+          suburb.locationType === 'REGION' ? LocationType.REGION :
+          LocationType.SUBURB
+        )
+      })) || [];
+      setResults(suburbs);
     } catch (error) {
       console.error('Error searching locations:', error);
       setResults([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [includeRegions]);
 
   useEffect(() => {
     searchLocations(debouncedSearch);
   }, [debouncedSearch, searchLocations]);
 
   const handleSelect = (suburb: Suburb) => {
-    const newLocations = multiple ? [...selectedLocations, suburb] : [suburb];
-    setSelectedLocations(newLocations);
-    onSelect(newLocations);
+    const newLocations = multiple ? [...selectedSuburbs, suburb] : [suburb];
+    onSuburbsChange(newLocations);
     setSearchTerm('');
+    
+    // Scroll the chips container to the bottom after a short delay to ensure the new chip is rendered
+    setTimeout(() => {
+      const container = document.querySelector('.suburb-chips-container');
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }, 50);
   };
 
   const handleRemove = (locationId: string) => {
-    const newLocations = selectedLocations.filter(loc => loc.id !== locationId);
-    setSelectedLocations(newLocations);
-    onSelect(newLocations);
+    const newLocations = selectedSuburbs.filter(loc => loc.id !== locationId);
+    onSuburbsChange(newLocations);
   };
 
   return (
     <div className="relative">
-      <div className="flex flex-wrap gap-1.5 p-2 border-2 rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 h-[72px] overflow-y-auto">
+      <div className="flex flex-wrap gap-1.5 p-2 border-2 rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 h-[72px] overflow-y-auto suburb-chips-container">
         <div className="flex flex-wrap gap-1.5 w-full">
-          {multiple && selectedLocations.map((location) => (
+          {multiple && selectedSuburbs.map((location) => (
             <div
               key={location.id}
               className="inline-flex items-center gap-1 px-2 h-7 text-sm bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 rounded-md"
             >
-              <span className="truncate">{formatDisplayText(location)}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="truncate">{formatDisplayText(location)}</span>
+                <span className="text-xs px-1.5 py-0.5 rounded-full bg-primary-200 dark:bg-primary-800">
+                  {location.locationType === LocationType.STATE ? 'State' : 
+                   location.locationType === LocationType.REGION ? 'Region' : 'Suburb'}
+                </span>
+              </div>
               <button
                 onClick={() => handleRemove(location.id)}
                 className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 p-0.5"
@@ -104,7 +131,19 @@ export function SuburbSearch({ onSelect, multiple = false }: SuburbSearchProps) 
                   onClick={() => handleSelect(suburb)}
                   className="w-full text-left px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
                 >
-                  {formatDisplayText(suburb)}
+                  <div className="flex items-center justify-between">
+                    <span>{formatDisplayText(suburb)}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      suburb.locationType === LocationType.STATE 
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        : suburb.locationType === LocationType.REGION
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-neutral-100 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-300'
+                    }`}>
+                      {suburb.locationType === LocationType.STATE ? 'State' : 
+                       suburb.locationType === LocationType.REGION ? 'Region' : 'Suburb'}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -113,4 +152,4 @@ export function SuburbSearch({ onSelect, multiple = false }: SuburbSearchProps) 
       )}
     </div>
   );
-};
+}

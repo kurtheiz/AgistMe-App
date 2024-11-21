@@ -1,4 +1,10 @@
-import { OpenAPI } from '../types/generated/core/OpenAPI';
+// Custom OpenAPI configuration
+interface OpenAPI {
+  TOKEN?: string;
+  HEADERS?: Record<string, string>;
+}
+
+export const OpenAPI: OpenAPI = {};
 
 // In-memory token cache
 let authToken: string | null = null;

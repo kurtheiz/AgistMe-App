@@ -1,5 +1,5 @@
 import { createApi } from '../hooks/useApi';
-import type { PricingPlan } from '../types/generated/models/PricingPlan';
+import type { PricingPlan } from '../types/pricing';
 import type { ReferenceData } from '../types/reference';
 import { getAuthToken } from './auth';
 

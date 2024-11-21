@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Profile } from '../types/profile';
 import type { UserResource } from '@clerk/types';
 import { profileService } from '../services/profile.service';
-import { Suburb } from '../types/generated/models/Suburb';
 
 export const useProfileForm = (user: UserResource | null | undefined, profile: Profile | null) => {
   const [formData, setFormData] = useState<Profile>({
@@ -41,7 +40,7 @@ export const useProfileForm = (user: UserResource | null | undefined, profile: P
         profilePhoto: profile.profilePhoto || user.imageUrl || '',
         address: profile.address || '',
         postcode: profile.postcode || '',
-        suburb: profile.suburb || '',
+        suburb: profile.suburb ? (typeof profile.suburb === 'object' ? profile.suburb.suburb : profile.suburb) : '',  
         state: profile.state || '',
         region: profile.region || '',
         suburbId: profile.suburbId || '',
@@ -91,25 +90,6 @@ export const useProfileForm = (user: UserResource | null | undefined, profile: P
     });
   };
 
-  const handleSuburbSelect = (suburbs: Suburb[]) => {
-    if (suburbs.length > 0) {
-      const suburb = suburbs[0];
-      setFormData(prev => {
-        const newData = {
-          ...prev,
-          suburb: suburb.suburb,
-          state: suburb.state,
-          region: suburb.region,
-          postcode: suburb.postcode || '',
-          geohash: suburb.geohash,
-          suburbId: suburb.id
-        };
-        setIsDirty(checkIfDirty(newData));
-        return newData;
-      });
-    }
-  };
-
   const handleProfilePhotoUpload = async (file: File) => {
     try {
       setIsUploading(true);
@@ -151,7 +131,6 @@ export const useProfileForm = (user: UserResource | null | undefined, profile: P
     isDirty,
     uploadingHorseIndex,
     setUploadingHorseIndex,
-    handleSuburbSelect,
     handleInputChange,
     handleHorseChange,
     handleProfilePhotoUpload,
