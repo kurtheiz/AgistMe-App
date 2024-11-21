@@ -2,12 +2,15 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
+import { Search } from './Search/Search';
+import { useState } from 'react';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
   const { openSignIn, openSignUp } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   useAuthToken();
 
   const handleAvatarClick = () => {
@@ -35,7 +38,12 @@ export const Header = () => {
             <Link to="/" className="text-2xl font-bold text-gray-900 dark:text-white">AgistMe</Link>
             <nav className="hidden md:flex space-x-4">
               <Link to="/about" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">About</Link>
-              <Link to="/Search" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">Search</Link>
+              <button
+                onClick={() => setIsSearchModalOpen(true)}
+                className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
+              >
+                Search
+              </button>
               <Link to="/Pricing" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">Pricing</Link>
             </nav>
           </div>
@@ -89,6 +97,7 @@ export const Header = () => {
           </div>
         </div>
       </div>
+      <Search isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
     </header>
   );
 };
