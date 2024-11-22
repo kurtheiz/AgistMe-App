@@ -31,28 +31,35 @@ interface SearchModalProps {
 export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: SearchModalProps) {
   useEffect(() => {
     if (isOpen) {
+      // Only add padding if there's a scrollbar
+      const hasScrollbar = window.innerHeight < document.documentElement.scrollHeight;
+      if (hasScrollbar) {
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      } else {
+        document.documentElement.style.setProperty('--scrollbar-width', '0px');
+        document.body.style.paddingRight = '0px';
+      }
       document.documentElement.classList.add('modal-open');
       document.body.classList.add('overflow-hidden');
     } else {
-      // Add a small delay before removing classes to let the modal transition finish
+      const transitionDuration = 200;
       setTimeout(() => {
         document.documentElement.classList.remove('modal-open');
         document.body.classList.remove('overflow-hidden');
-      }, 150);
+        document.body.style.paddingRight = '';
+        document.documentElement.style.setProperty('--scrollbar-width', '0px');
+      }, transitionDuration);
     }
 
-    // Cleanup on unmount
     return () => {
       document.documentElement.classList.remove('modal-open');
       document.body.classList.remove('overflow-hidden');
+      document.body.style.paddingRight = '';
+      document.documentElement.style.setProperty('--scrollbar-width', '0px');
     };
   }, [isOpen]);
-
-  // Calculate scrollbar width on mount
-  useEffect(() => {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
-  }, []);
 
   const decodeSearchHash = (hash: string): SearchCriteria => {
     try {
@@ -241,25 +248,25 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
           <div className="flex min-h-screen items-center justify-center md:p-4">
             <Transition.Child
               as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
+              enter="ease-out duration-300 transform"
+              enterFrom="-translate-x-full"
+              enterTo="translate-x-0"
+              leave="ease-in duration-200 transform"
+              leaveFrom="translate-x-0"
+              leaveTo="translate-x-full"
             >
               <Dialog.Panel
-                className="w-full min-h-screen md:min-h-0 md:max-w-md transform overflow-hidden bg-white dark:bg-neutral-800 md:rounded-2xl p-6 text-left align-middle shadow-xl transition-all"
+                className="fixed left-0 md:left-auto w-full h-full md:h-auto md:min-h-0 md:max-w-md transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all flex flex-col overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Dialog.Title
                   as="h3"
-                  className="modal-header"
+                  className="text-lg font-medium leading-6 text-white bg-primary-600 flex justify-between items-center p-4 md:rounded-t-2xl"
                 >
-                  Search Agistment
+                  <span>Search Agistment</span>
                   <button
                     onClick={onClose}
-                    className="rounded-full p-1 hover:bg-neutral-700"
+                    className="rounded-full p-1 hover:bg-primary-700 transition-colors"
                   >
                     <XMarkIcon className="h-5 w-5 text-white" />
                   </button>
@@ -330,7 +337,26 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                               e.stopPropagation();
                               resetFilters();
                             }}
-                            className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                            disabled={
+                              criteria.spaces === 0 &&
+                              criteria.maxPrice === 0 &&
+                              criteria.paddockTypes.length === 0 &&
+                              !criteria.hasArena &&
+                              !criteria.hasRoundYard &&
+                              criteria.facilities.length === 0 &&
+                              criteria.careTypes.length === 0
+                            }
+                            className={`text-sm transition-colors ${
+                              criteria.spaces === 0 &&
+                              criteria.maxPrice === 0 &&
+                              criteria.paddockTypes.length === 0 &&
+                              !criteria.hasArena &&
+                              !criteria.hasRoundYard &&
+                              criteria.facilities.length === 0 &&
+                              criteria.careTypes.length === 0
+                                ? 'text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
+                                : 'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
+                            }`}
                           >
                             Reset Filters
                           </button>
@@ -520,7 +546,12 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                   <div className="p-4 sm:p-6 border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 absolute bottom-0 left-0 right-0">
                     <button
                       type="submit"
-                      className="w-full px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                      disabled={criteria.suburbs.length === 0}
+                      className={`w-full px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+                        criteria.suburbs.length === 0 
+                          ? 'bg-neutral-400 cursor-not-allowed' 
+                          : 'bg-primary-600 hover:bg-primary-700'
+                      }`}
                     >
                       Search
                     </button>

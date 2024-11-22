@@ -31,7 +31,7 @@ html {
 
 /* Modal open state - prevent layout shifts */
 html.modal-open {
-  padding-right: var(--scrollbar-width);
+  overflow: hidden;
 }
 
 /* Hide scrollbar when modal is open but maintain spacing */
@@ -40,14 +40,19 @@ html.modal-open body {
 }
 
 /* Prevent header shift when modal opens */
-html.modal-open header {
-  padding-right: var(--scrollbar-width);
-  width: 100%;
-}
-
-/* Ensure header stays fixed width */
 header {
   width: 100%;
+  transition: padding-right 200ms ease-in-out;
+  will-change: padding-right;
+}
+
+html.modal-open header {
+  padding-right: var(--scrollbar-width, 0px);
+}
+
+/* Smooth transition for body padding */
+body {
+  transition: padding-right 200ms ease-in-out;
   will-change: padding-right;
 }
 

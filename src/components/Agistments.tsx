@@ -96,8 +96,8 @@ export function Agistments() {
     setLoading(true);
     
     try {
-      // First try to load from storage if not forcing refresh
-      if (!forceRefresh) {
+      // First try to load from storage if not forcing refresh and we're not on the search page
+      if (!forceRefresh && !location.pathname.includes('/search')) {
         const loadedFromStorage = loadStoredSearch();
         if (loadedFromStorage) {
           return; // loadStoredSearch already sets the state
@@ -196,7 +196,11 @@ export function Agistments() {
                     setRefreshKey(prev => prev + 1);
                   }
                 }}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/50 transition-colors"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  searchHash 
+                    ? 'text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/50' 
+                    : 'text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
+                }`}
                 aria-label="Refresh Results"
                 disabled={!searchHash}
               >

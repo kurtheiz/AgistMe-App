@@ -27,7 +27,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 w-full">
+    <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 w-full">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative">
         <div className="flex h-16 items-center justify-between">
           {/* Left side */}
