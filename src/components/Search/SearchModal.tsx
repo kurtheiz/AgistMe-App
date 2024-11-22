@@ -256,25 +256,25 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               leaveTo="translate-x-full"
             >
               <Dialog.Panel
-                className="fixed left-0 md:left-auto w-full h-full md:h-auto md:min-h-0 md:max-w-md transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all flex flex-col overflow-hidden"
+                className="fixed left-0 md:left-auto w-full h-full md:h-auto md:min-h-0 md:max-w-md transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Dialog.Title
-                  as="h3"
-                  className="text-lg font-medium leading-6 text-white bg-primary-600 flex justify-between items-center p-4 md:rounded-t-2xl"
-                >
-                  <span>Search Agistment</span>
-                  <button
-                    onClick={onClose}
-                    className="rounded-full p-1 hover:bg-primary-700 transition-colors"
-                  >
-                    <XMarkIcon className="h-5 w-5 text-white" />
-                  </button>
-                </Dialog.Title>
-
-                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                <div className="h-full flex flex-col overflow-hidden">
                   <div className="flex-1 overflow-y-auto">
-                    <div className="pb-20">
+                    <Dialog.Title
+                      as="h3"
+                      className="text-lg font-medium leading-6 text-white bg-primary-600 flex justify-between items-center p-4 md:rounded-t-2xl"
+                    >
+                      <span>Search Agistment</span>
+                      <button
+                        onClick={onClose}
+                        className="rounded-full p-1 hover:bg-primary-700 transition-colors"
+                      >
+                        <XMarkIcon className="h-5 w-5 text-white" />
+                      </button>
+                    </Dialog.Title>
+
+                    <form onSubmit={handleSubmit} className="pb-20">
                       {/* Location Section */}
                       <div className="p-4 sm:p-6">
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Location</h2>
@@ -539,10 +539,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </form>
                   </div>
-
-                  {/* Submit Button */}
                   <div className="p-4 sm:p-6 border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 absolute bottom-0 left-0 right-0">
                     <button
                       type="submit"
@@ -556,7 +554,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                       Search
                     </button>
                   </div>
-                </form>
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
