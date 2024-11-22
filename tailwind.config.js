@@ -8,18 +8,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary colors - Horse Bay (warm browns)
+        // Primary colors - Forest Green
         primary: {
-          50: '#faf6f3',
-          100: '#f2ebe4',
-          200: '#e6d5c7',
-          300: '#d9bea9',
-          400: '#c49c7f', // Light bay
-          500: '#b07b57', // Medium bay
-          600: '#95613f', // Dark bay
-          700: '#7a4d32',
-          800: '#633e29',
-          900: '#513224',
+          50: '#f3f6f3',
+          100: '#e5ede5',
+          200: '#c2d6c2',
+          300: '#9cbc9c',
+          400: '#729b72', // Light forest
+          500: '#4a774a', // Medium forest
+          600: '#355935', // Dark forest
+          700: '#274527',
+          800: '#1e361e',
+          900: '#162b16',
         },
         // Secondary colors - Matte Green
         secondary: {
@@ -42,28 +42,28 @@ export default {
           moss: '#869d7f',    // Soft moss
           olive: '#737c3f',   // Olive green
         },
-        // Neutral colors (warm grays)
+        // Neutral colors (cool grays for dark mode)
         neutral: {
-          50: '#faf9f7',
-          100: '#f5f3f0',
-          200: '#e8e4df',
-          300: '#d5cec7',
-          400: '#b3aaa1',
-          500: '#958b81',
-          600: '#7d7268',
-          700: '#665c54',
-          800: '#504943',
-          900: '#3d3733',
+          50: '#f8f9fa',
+          100: '#f1f3f5',
+          200: '#e9ecef',
+          300: '#dee2e6',
+          400: '#ced4da',
+          500: '#adb5bd',
+          600: '#868e96',
+          700: '#495057',
+          800: '#343a40',
+          900: '#212529',
         },
         // Background colors
         background: {
-          light: '#faf9f7',    // Warm white
-          dark: '#2c2521',     // Deep warm brown
+          light: '#f8f9fa',    // Cool white
+          dark: '#1a1f2c',     // Deep blue-gray
         },
         // Text colors
         text: {
-          light: '#3d3733',    // Deep warm gray
-          dark: '#f5f3f0',     // Soft white
+          light: '#212529',    // Deep cool gray
+          dark: '#f8f9fa',     // Cool white
         },
         // Utility colors with earth tones
         success: {

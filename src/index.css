@@ -71,4 +71,9 @@ header {
   .form-textarea {
     @apply form-input resize-none;
   }
+
+  /* Modal header styling */
+  .modal-header {
+    @apply text-lg font-medium leading-6 text-white bg-primary-600 flex justify-between items-center mb-4 p-4 -mx-6 -mt-6;
+  }
 }

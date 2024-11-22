@@ -238,7 +238,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center p-4">
+          <div className="flex min-h-screen items-center justify-center md:p-4">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -249,19 +249,19 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel
-                className="w-full max-w-md transform overflow-hidden bg-white dark:bg-neutral-800 rounded-2xl p-6 text-left align-middle shadow-xl transition-all"
+                className="w-full min-h-screen md:min-h-0 md:max-w-md transform overflow-hidden bg-white dark:bg-neutral-800 md:rounded-2xl p-6 text-left align-middle shadow-xl transition-all"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Dialog.Title
                   as="h3"
-                  className="text-lg font-medium leading-6 text-neutral-900 dark:text-white flex justify-between items-center mb-4"
+                  className="modal-header"
                 >
                   Search Agistment
                   <button
                     onClick={onClose}
-                    className="rounded-full p-1 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                    className="rounded-full p-1 hover:bg-neutral-700"
                   >
-                    <XMarkIcon className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+                    <XMarkIcon className="h-5 w-5 text-white" />
                   </button>
                 </Dialog.Title>
 

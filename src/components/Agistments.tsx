@@ -188,7 +188,7 @@ export function Agistments() {
                 aria-label="Search Agistments"
               >
                 <MagnifyingGlassIcon className="h-5 w-5" />
-                <span className="font-medium">Search</span>
+                <span className="hidden md:inline font-medium">Search</span>
               </button>
               <button 
                 onClick={() => {
@@ -201,7 +201,7 @@ export function Agistments() {
                 disabled={!searchHash}
               >
                 <ArrowPathIcon className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-                <span className="font-medium">Refresh</span>
+                <span className="hidden md:inline font-medium">Refresh</span>
               </button>
             </div>
             <div>

@@ -40,7 +40,7 @@ export const Header = () => {
               }} 
               className="text-2xl font-bold text-gray-900 dark:text-white"
             >
-              AgistMe
+              Agist Me
             </Link>
             <nav className="hidden md:flex space-x-4">
               <Link to="/about" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">About</Link>
