@@ -10,7 +10,7 @@ class AgistmentService {
 
   async searchAgistments(searchHash: string): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.get<AgistmentResponse>(`/v1/agistments?q=${searchHash}`);
+      const response = await this.api.get<AgistmentResponse>(`/v1/agistments?q=${encodeURIComponent(searchHash)}`);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to search agistments:', error);
