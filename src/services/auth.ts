@@ -1,3 +1,7 @@
+/**
+ * @deprecated This file is deprecated as authentication is now handled centrally in useApi hook
+ */
+
 // Custom OpenAPI configuration
 interface OpenAPI {
   TOKEN?: string;
@@ -36,16 +40,9 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-export const getAuthToken = async (): Promise<string | null> => {
-  const token = localStorage.getItem('auth_token');
-  if (token && token !== OpenAPI.TOKEN) {
-    // Sync OpenAPI configuration if token exists but doesn't match
-    OpenAPI.TOKEN = token;
-    OpenAPI.HEADERS = {
-      'Authorization': `Bearer ${token}`
-    };
-  }
-  return token;
+export const getAuthToken = async () => {
+  console.warn('getAuthToken in auth.ts is deprecated. Authentication is now handled centrally in useApi hook.');
+  return null;
 };
 
 export const isAuthenticated = (): boolean => {

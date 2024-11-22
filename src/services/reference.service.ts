@@ -1,12 +1,13 @@
-import { createApi } from '../hooks/useApi';
+import { createApi, API_BASE_URL } from '../hooks/useApi';
 import type { PricingPlan } from '../types/pricing';
 import type { ReferenceData } from '../types/reference';
-import { getAuthToken } from './auth';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 class ReferenceService {
-  private api = createApi(API_BASE_URL, getAuthToken);
+  private api;
+
+  constructor() {
+    this.api = createApi(API_BASE_URL);
+  }
 
   async getReferenceData(): Promise<ReferenceData[]> {
     try {

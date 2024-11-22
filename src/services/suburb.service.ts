@@ -1,12 +1,13 @@
-import { createApi } from '../hooks/useApi';
+import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { SuburbResponse } from '../types/suburb';
-import { getAuthToken } from './auth';
 import { AUSTRALIAN_STATES } from '../utils/australianStates';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 class SuburbService {
-  private api = createApi(API_BASE_URL, getAuthToken);
+  private api;
+
+  constructor() {
+    this.api = createApi(API_BASE_URL);
+  }
 
   async searchSuburbs(query: string, limit: number = 10, includeRegions: boolean = false): Promise<SuburbResponse> {
     try {

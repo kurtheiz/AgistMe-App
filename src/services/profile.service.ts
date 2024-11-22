@@ -1,7 +1,5 @@
-import { createApi } from '../hooks/useApi';
+import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { Profile, UpdateProfileRequest } from '../types/profile';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 interface PresignedUrlRequest {
   filenames: string[];
@@ -21,17 +19,14 @@ class ProfileService {
   private api;
 
   constructor() {
-    this.api = createApi(API_BASE_URL, async () => {
-      const session = await window.Clerk?.session;
-      return session?.getToken() || null;
-    });
+    this.api = createApi(API_BASE_URL);
   }
 
   async getProfile(): Promise<Profile> {
     try {
-      const response = await this.api.get<Profile>('/v1/profile');
+      const response = await this.api.get<Profile>('/v1/protected/profile');
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching profile:', error);
       throw error;
     }
@@ -39,7 +34,7 @@ class ProfileService {
 
   async updateProfile(profileData: UpdateProfileRequest): Promise<Profile> {
     try {
-      const response = await this.api.put<Profile>('/v1/profile', profileData);
+      const response = await this.api.put<Profile>('/v1/protected/profile', profileData);
       return response.data;
     } catch (error) {
       console.error('Failed to update profile:', error);

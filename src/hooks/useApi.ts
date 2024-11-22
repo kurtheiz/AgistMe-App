@@ -4,6 +4,8 @@ import { useCallback, useMemo } from 'react';
 import { ApiError as BaseApiError } from '../types/api';
 import { useProgressStore } from '../stores/progress.store';
 
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 // Token management
 const TOKEN_KEY = 'auth_token';
 
@@ -49,10 +51,12 @@ const getTokenWithRetry = async (getToken: () => Promise<string | null>, retryCo
       }
       return token;
     } catch (error) {
-      console.error(`Attempt ${i + 1}: Error getting token:`, error);
-    }
-    if (i < retryCount - 1) {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+      console.error(`Error getting token (attempt ${i + 1}/${retryCount}):`, error);
+      if (i === retryCount - 1) {
+        throw error;
+      }
+      // Clear stored token on error
+      setStoredToken(null);
     }
   }
   return null;
@@ -70,29 +74,46 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
   // Request interceptor
   instance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
-      if (getToken) {
-        try {
-          // Only add auth token for protected endpoints
-          const isProtectedEndpoint = config.url?.includes('/v1/') && 
-            !config.url?.includes('/v1/suburbs/') && 
-            !config.url?.includes('/v1/public/');
+      try {
+        // Check if this is a protected route
+        const isProtectedEndpoint = config.url?.includes('/v1/protected');
 
-          if (isProtectedEndpoint) {
-            const token = await getTokenWithRetry(getToken);
-            if (token && config.headers) {
-              config.headers.Authorization = `Bearer ${token}`;
-            } else {
-              console.warn('No token available for protected request to:', config.url);
-              return Promise.reject(new Error('Authentication required'));
-            }
+        if (isProtectedEndpoint) {
+          const session = await window.Clerk?.session;
+          if (!session) {
+            console.warn('No Clerk session available for protected request');
+            return Promise.reject(new Error('Authentication required'));
           }
-        } catch (error) {
-          console.error('Error in request interceptor:', error);
-          return Promise.reject(error);
+
+          const token = await session.getToken({ template: 'AgistMe' });
+          if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+          } else {
+            console.warn('No AgistMe JWT token available for protected request to:', config.url);
+            return Promise.reject(new Error('Authentication required'));
+          }
+        } else {
+          // For non-protected routes, try to add auth if available
+          try {
+            const session = await window.Clerk?.session;
+            if (session) {
+              const token = await session.getToken({ template: 'AgistMe' });
+              if (token && config.headers) {
+                config.headers.Authorization = `Bearer ${token}`;
+              }
+            }
+          } catch (error) {
+            // Continue without auth for non-protected routes
+            console.warn('Failed to get optional auth token:', error);
+          }
         }
+
+        onRequestStart?.();
+        return config;
+      } catch (error) {
+        console.error('Error in request interceptor:', error);
+        return Promise.reject(error);
       }
-      onRequestStart?.();
-      return config;
     },
     (error) => {
       console.error('Request interceptor error:', error);
@@ -151,16 +172,22 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
   return instance;
 };
 
-export const useApi = (baseURL: string) => {
+export const useApi = () => {
   const { getToken } = useAuth();
   const { increment, decrement } = useProgressStore();
 
   const api: AxiosInstance = useMemo(() => {
     return createApi(
-      baseURL,
+      API_BASE_URL,
       async () => {
         try {
-          const token = await getToken({ template: "AgistMe" });
+          const session = await window.Clerk?.session;
+          if (!session) {
+            console.warn('No Clerk session available for protected request');
+            return null;
+          }
+
+          const token = await session.getToken({ template: 'AgistMe' });
           console.log('Token obtained in useApi:', token ? 'Token present' : 'No token');
           return token;
         } catch (error) {
@@ -171,7 +198,7 @@ export const useApi = (baseURL: string) => {
       increment,
       decrement
     );
-  }, [baseURL, getToken, increment, decrement]);
+  }, [getToken, increment, decrement]);
 
   const get = useCallback(async <T>(url: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> => {
     const response = await api.get<T>(url, { params });
