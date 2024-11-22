@@ -256,11 +256,11 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               leaveTo="translate-x-full"
             >
               <Dialog.Panel
-                className="fixed left-0 md:left-auto w-full h-full md:h-auto md:min-h-0 md:max-w-md transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all"
+                className="fixed left-0 md:left-auto w-full h-[100dvh] md:h-auto md:min-h-0 md:max-w-md transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="h-full flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-y-auto">
+                  <div className="flex-1 overflow-y-auto pb-safe">
                     <Dialog.Title
                       as="h3"
                       className="text-lg font-medium leading-6 text-white bg-primary-600 flex justify-between items-center p-4 md:rounded-t-2xl"
@@ -274,7 +274,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                       </button>
                     </Dialog.Title>
 
-                    <form onSubmit={handleSubmit} className="pb-20">
+                    <form onSubmit={handleSubmit} id="search-form" className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
                       {/* Location Section */}
                       <div className="p-4 sm:p-6">
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Location</h2>
@@ -541,9 +541,10 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                       </div>
                     </form>
                   </div>
-                  <div className="p-4 sm:p-6 border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 absolute bottom-0 left-0 right-0">
+                  <div className="p-4 sm:p-6 border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 fixed bottom-0 left-0 right-0 pb-safe">
                     <button
                       type="submit"
+                      form="search-form"
                       disabled={criteria.suburbs.length === 0}
                       className={`w-full px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
                         criteria.suburbs.length === 0 
