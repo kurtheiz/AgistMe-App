@@ -11,6 +11,7 @@ import { useProfileForm } from '../hooks/useProfileForm';
 import { ProfilePhoto } from './Profile/ProfilePhoto';
 import { HorseFormModal } from './Profile/HorseFormModal';
 import { PageToolbar } from './PageToolbar';
+import { ProfileSkeleton } from './Profile/ProfileSkeleton';
 
 export default function Profile() {
   const { profile, loading, error, refreshProfile, updateProfileData } = useProfile();
@@ -155,7 +156,12 @@ export default function Profile() {
   };
 
   if (!isLoaded || loading) {
-    return <ProgressBar />;
+    return (
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
+        <PageToolbar title="Profile" />
+        <ProfileSkeleton />
+      </div>
+    );
   }
 
   if (error) {
@@ -167,7 +173,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-800">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
       <PageToolbar
         actions={
           <div className="flex items-center justify-between w-full">

@@ -256,7 +256,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               leaveTo="translate-x-full"
             >
               <Dialog.Panel
-                className="fixed left-0 md:left-auto w-full h-[100dvh] md:h-auto md:min-h-0 md:max-w-md transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all"
+                className="fixed inset-0 md:inset-auto w-full h-[100dvh] md:h-auto md:min-h-0 md:max-w-md transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="h-full flex flex-col overflow-hidden">
