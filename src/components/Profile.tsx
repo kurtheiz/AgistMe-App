@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDateOfBirth } from '../utils/inputValidation';
 import { SuburbSearch } from './SuburbSearch/SuburbSearch';
 import { useProfile } from '../context/ProfileContext';
-import { ProgressBar } from './ProgressBar';
 import { ArrowRightOnRectangleIcon, CheckIcon } from './Icons';
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfileForm } from '../hooks/useProfileForm';
@@ -158,7 +157,15 @@ export default function Profile() {
   if (!isLoaded || loading) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-        <PageToolbar title="Profile" />
+        <PageToolbar actions={<div className="flex items-center gap-2">
+          <button
+            onClick={handleSignOut}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md"
+          >
+            <ArrowRightOnRectangleIcon className="h-5 w-5" />
+            Sign Out
+          </button>
+        </div>} />
         <ProfileSkeleton />
       </div>
     );
@@ -174,29 +181,25 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <PageToolbar
-        actions={
-          <div className="flex items-center justify-between w-full">
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={isSaving || !isDirty}
-              className="inline-flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <CheckIcon className="h-5 w-5" />
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="inline-flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white"
-            >
-              <ArrowRightOnRectangleIcon className="h-5 w-5" />
-              Sign Out
-            </button>
-          </div>
-        }
-      />
+      <PageToolbar actions={<div className="flex items-center gap-2">
+        <button
+          type="submit"
+          onClick={handleSubmit}
+          disabled={isSaving || !isDirty}
+          className="inline-flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <CheckIcon className="h-5 w-5" />
+          {isSaving ? 'Saving...' : 'Save Changes'}
+        </button>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md"
+        >
+          <ArrowRightOnRectangleIcon className="h-5 w-5" />
+          Sign Out
+        </button>
+      </div>} />
 
       <div className="w-full pb-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

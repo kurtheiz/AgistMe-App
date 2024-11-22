@@ -7,6 +7,22 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      keyframes: {
+        moveLeftToRight: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' }
+        },
+        searchMove: {
+          '0%, 100%': { transform: 'translate(0px, 0px)' },
+          '25%': { transform: 'translate(15px, -5px)' },
+          '50%': { transform: 'translate(5px, 15px)' },
+          '75%': { transform: 'translate(-10px, 5px)' }
+        }
+      },
+      animation: {
+        'moveLeftToRight': 'moveLeftToRight 8s linear infinite',
+        'searchMove': 'searchMove 4s ease-in-out infinite',
+      },
       colors: {
         // Primary colors - Forest Green
         primary: {

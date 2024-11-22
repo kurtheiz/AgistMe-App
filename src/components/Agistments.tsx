@@ -156,10 +156,64 @@ export function Agistments() {
 
   const EmptyState = ({ onSearch }: EmptyStateProps) => (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
-      <div className="bg-neutral-100 dark:bg-neutral-800 rounded-full p-4 mb-6">
-        <MagnifyingGlassIcon className="h-12 w-12 text-neutral-400 dark:text-neutral-500" />
+      <div className="relative mb-8 w-48 h-48">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-100 via-primary-50 to-transparent dark:from-primary-900/30 dark:via-primary-800/10 rounded-full blur-2xl"></div>
+        <div className="relative w-full h-full">
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 100 100"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Background circle */}
+            <circle cx="50" cy="50" r="45" className="stroke-primary-200 dark:stroke-primary-800" strokeWidth="1" />
+            
+            {/* AgistMe Logo in the center */}
+            <image
+              href="/src/components/Icons/AgistMeLogo.svg"
+              x="30"
+              y="30"
+              width="40"
+              height="40"
+              className="opacity-80"
+            />
+            
+            {/* Animated magnifying glass */}
+            <g className="animate-[searchMove_4s_ease-in-out_infinite]">
+              <g className="transform translate-x-2 translate-y-2">
+                {/* Glass background with slight transparency */}
+                <circle
+                  cx="42"
+                  cy="42"
+                  r="16"
+                  className="fill-white/80 dark:fill-neutral-800/80 backdrop-blur-sm"
+                />
+                
+                {/* Glass border */}
+                <circle
+                  cx="42"
+                  cy="42"
+                  r="16"
+                  className="fill-none stroke-primary-600 dark:stroke-primary-400"
+                  strokeWidth="2"
+                />
+                
+                {/* Handle */}
+                <line
+                  x1="54"
+                  y1="54"
+                  x2="64"
+                  y2="64"
+                  className="stroke-primary-600 dark:stroke-primary-400"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </g>
+            </g>
+          </svg>
+        </div>
       </div>
-      <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-2">
+      <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-3">
         {searchHash ? 'No agistments found' : 'Find your perfect agistment'}
       </h2>
       <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md">
@@ -169,8 +223,9 @@ export function Agistments() {
       </p>
       <button
         onClick={onSearch}
-        className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+        className="group inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg shadow-sm hover:shadow transition-all duration-200"
       >
+        <MagnifyingGlassIcon className="h-5 w-5 transition-transform group-hover:scale-110" />
         {searchHash ? 'Modify Search' : 'Start Searching'}
       </button>
     </div>
