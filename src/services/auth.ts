@@ -37,9 +37,19 @@ export const setAuthToken = (token: string | null) => {
 };
 
 export const getAuthToken = async (): Promise<string | null> => {
-  return localStorage.getItem('auth_token');
+  const token = localStorage.getItem('auth_token');
+  if (token && token !== OpenAPI.TOKEN) {
+    // Sync OpenAPI configuration if token exists but doesn't match
+    OpenAPI.TOKEN = token;
+    OpenAPI.HEADERS = {
+      'Authorization': `Bearer ${token}`
+    };
+  }
+  return token;
 };
 
 export const isAuthenticated = (): boolean => {
-  return !!authToken;
+  return !!OpenAPI.TOKEN;
 };
+
+export default OpenAPI;

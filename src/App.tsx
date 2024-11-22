@@ -10,7 +10,8 @@ import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './components/Profile';
 import { ProfileProvider } from './context/ProfileContext';
-import { getAuthToken } from './services/auth';
+import { setAuthToken } from './services/auth';
+import { Agistments } from './components/Agistments';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -23,6 +24,8 @@ const router = createBrowserRouter(
     <Route element={<Layout />} errorElement={<ErrorPage />}>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+      <Route path="/agistments" element={<Agistments />} />
+      <Route path="/agistments/search" element={<Agistments />} />
       <Route 
         path="/profile" 
         element={
@@ -49,17 +52,13 @@ const AuthInitializer = () => {
   useEffect(() => {
     const setupAuth = async () => {
       try {
-        // Check if we already have a valid token
-        const existingToken = await getAuthToken();
-        if (existingToken) {
-          return;
-        }
-
-        // Only get a fresh token if we don't have one
-        const token = await getToken({ template: "AgistMe" });
+        // Always get a fresh token
+        const token = await getToken();
         if (token) {
-          // Store the token
+          // Update both localStorage and OpenAPI configuration
           localStorage.setItem('auth_token', token);
+          // Update OpenAPI configuration
+          setAuthToken(token);
         }
       } catch (error) {
         console.error('Error setting up auth:', error);
@@ -67,6 +66,10 @@ const AuthInitializer = () => {
     };
     
     setupAuth();
+
+    // Set up token refresh interval (every 55 minutes)
+    const refreshInterval = setInterval(setupAuth, 55 * 60 * 1000);
+    return () => clearInterval(refreshInterval);
   }, [getToken]);
 
   return null;

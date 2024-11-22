@@ -26,7 +26,29 @@ html {
 }
 
 :root.dark #root {
-  background-color: rgb(38 38 38); /* neutral-800 from our theme */
+  background-color: rgb(23 23 23); /* neutral-900 from our theme */
+}
+
+/* Modal open state - prevent layout shifts */
+html.modal-open {
+  padding-right: var(--scrollbar-width);
+}
+
+/* Hide scrollbar when modal is open but maintain spacing */
+html.modal-open body {
+  overflow: hidden;
+}
+
+/* Prevent header shift when modal opens */
+html.modal-open header {
+  padding-right: var(--scrollbar-width);
+  width: 100%;
+}
+
+/* Ensure header stays fixed width */
+header {
+  width: 100%;
+  will-change: padding-right;
 }
 
 /* Base form styles */

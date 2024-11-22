@@ -11,7 +11,7 @@ export type Suburb = {
     state: string;
     region: string;
     geohash: string;
-    locationType?: LocationType;
+    locationType: LocationType;
 };
 
 export type SuburbResponse = {

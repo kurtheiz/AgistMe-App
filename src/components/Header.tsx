@@ -2,15 +2,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
-import { Search } from './Search/Search';
-import { useState } from 'react';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
   const { openSignIn, openSignUp } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   useAuthToken();
 
   const handleAvatarClick = () => {
@@ -30,20 +27,29 @@ export const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 w-full">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative">
         <div className="flex h-16 items-center justify-between">
           {/* Left side */}
           <div className="flex items-center space-x-4">
-            <Link to="/" className="text-2xl font-bold text-gray-900 dark:text-white">AgistMe</Link>
+            <Link 
+              to="/" 
+              onClick={() => {
+                // Clear the stored search from localStorage
+                localStorage.removeItem('agistme_last_search');
+              }} 
+              className="text-2xl font-bold text-gray-900 dark:text-white"
+            >
+              AgistMe
+            </Link>
             <nav className="hidden md:flex space-x-4">
               <Link to="/about" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">About</Link>
-              <button
-                onClick={() => setIsSearchModalOpen(true)}
+              <Link 
+                to="/agistments"
                 className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
               >
-                Search
-              </button>
+                Agistments
+              </Link>
               <Link to="/Pricing" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">Pricing</Link>
             </nav>
           </div>
@@ -97,7 +103,6 @@ export const Header = () => {
           </div>
         </div>
       </div>
-      <Search isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
     </header>
   );
 };

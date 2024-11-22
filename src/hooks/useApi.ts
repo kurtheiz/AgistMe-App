@@ -72,13 +72,17 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
     async (config: InternalAxiosRequestConfig) => {
       if (getToken) {
         try {
-          const token = await getTokenWithRetry(getToken);
-          if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
-          } else {
-            console.warn('No token available for request to:', config.url);
-            // For requests requiring authentication, reject if no token
-            if (config.url?.includes('/v1/')) {
+          // Only add auth token for protected endpoints
+          const isProtectedEndpoint = config.url?.includes('/v1/') && 
+            !config.url?.includes('/v1/suburbs/') && 
+            !config.url?.includes('/v1/public/');
+
+          if (isProtectedEndpoint) {
+            const token = await getTokenWithRetry(getToken);
+            if (token && config.headers) {
+              config.headers.Authorization = `Bearer ${token}`;
+            } else {
+              console.warn('No token available for protected request to:', config.url);
               return Promise.reject(new Error('Authentication required'));
             }
           }

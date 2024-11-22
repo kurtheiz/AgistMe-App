@@ -1,37 +1,118 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
-import { SearchCriteria, PaddockType, CareType, Facility } from '../../types/search';
+import { SearchCriteria, PaddockType, CareType, FacilityType } from '../../types/search';
 import { LocationType } from '../../types/suburb';
-import { XIcon, PlusIcon, MinusIcon } from '../Icons';
+import { 
+  XMarkIcon,
+  PlusIcon,
+  MinusIcon,
+  ArenaIcon,
+  RoundYardIcon,
+  FeedRoomIcon,
+  TackRoomIcon,
+  FloatParkingIcon,
+  HotWashIcon,
+  StableIcon,
+  TieUpIcon,
+  HeartIcon
+} from '../Icons';
+import { useNavigate } from 'react-router-dom';
 
-const initialFacilities: Facility = {
-  feedRoom: false,
-  tackRoom: false,
-  floatParking: false,
-  hotWash: false,
-  tieUp: false,
-  stable: false,
-};
+const initialFacilities: FacilityType[] = [];
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSearch: (criteria: SearchCriteria) => void;
+  initialSearchHash?: string;
 }
 
-export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
-  const [criteria, setCriteria] = useState<SearchCriteria>({
-    suburbs: [],
-    radius: 0,
-    paddockTypes: [],
-    spaces: 0,
-    maxPrice: 0,
-    hasArena: false,
-    hasRoundYard: false,
-    facilities: initialFacilities,
-    careTypes: [],
-  });
+export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: SearchModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.documentElement.classList.add('modal-open');
+      document.body.classList.add('overflow-hidden');
+    } else {
+      // Add a small delay before removing classes to let the modal transition finish
+      setTimeout(() => {
+        document.documentElement.classList.remove('modal-open');
+        document.body.classList.remove('overflow-hidden');
+      }, 150);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [isOpen]);
+
+  // Calculate scrollbar width on mount
+  useEffect(() => {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+  }, []);
+
+  const decodeSearchHash = (hash: string): SearchCriteria => {
+    try {
+      const decodedSearch = JSON.parse(atob(hash));
+      return {
+        suburbs: decodedSearch.s?.map((s: any) => ({
+          id: s.i,
+          suburb: s.n,
+          postcode: s.p,
+          state: s.t,
+          region: s.r,
+          geohash: s.g,
+          locationType: s.l
+        })) || [],
+        radius: decodedSearch.r || 0,
+        paddockTypes: decodedSearch.pt || [],
+        spaces: decodedSearch.sp || 0,
+        maxPrice: decodedSearch.mp || 0,
+        hasArena: decodedSearch.a || false,
+        hasRoundYard: decodedSearch.ry || false,
+        facilities: decodedSearch.f || initialFacilities,
+        careTypes: decodedSearch.ct || []
+      };
+    } catch (error) {
+      console.error('Error decoding search hash:', error);
+      return {
+        suburbs: [],
+        radius: 0,
+        paddockTypes: [],
+        spaces: 0,
+        maxPrice: 0,
+        hasArena: false,
+        hasRoundYard: false,
+        facilities: initialFacilities,
+        careTypes: []
+      };
+    }
+  };
+
+  const [criteria, setCriteria] = useState<SearchCriteria>(() => 
+    initialSearchHash ? decodeSearchHash(initialSearchHash) : {
+      suburbs: [],
+      radius: 0,
+      paddockTypes: [],
+      spaces: 0,
+      maxPrice: 0,
+      hasArena: false,
+      hasRoundYard: false,
+      facilities: initialFacilities,
+      careTypes: []
+    }
+  );
+
+  useEffect(() => {
+    if (initialSearchHash) {
+      setCriteria(decodeSearchHash(initialSearchHash));
+    }
+  }, [initialSearchHash]);
+
+  const navigate = useNavigate();
 
   const togglePaddockType = (type: PaddockType) => {
     setCriteria(prev => ({
@@ -51,25 +132,94 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(criteria);
-    onClose();
-  };
-
-  const handleReset = () => {
+  const toggleFacility = (facility: FacilityType) => {
     setCriteria(prev => ({
       ...prev,
-      suburbs: prev.suburbs,
-      radius: prev.radius,
-      paddockTypes: [],
+      facilities: prev.facilities.includes(facility)
+        ? prev.facilities.filter(f => f !== facility)
+        : [...prev.facilities, facility]
+    }));
+  };
+
+  const toggleArena = () => {
+    setCriteria(prev => ({
+      ...prev,
+      hasArena: !prev.hasArena
+    }));
+  };
+
+  const toggleRoundYard = () => {
+    setCriteria(prev => ({
+      ...prev,
+      hasRoundYard: !prev.hasRoundYard
+    }));
+  };
+
+  const resetFilters = () => {
+    setCriteria(prev => ({
+      ...prev,
       spaces: 0,
       maxPrice: 0,
+      paddockTypes: [],
       hasArena: false,
       hasRoundYard: false,
       facilities: initialFacilities,
-      careTypes: [],
+      careTypes: []
     }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Clean up suburbs based on selected regions and states
+    let cleanedSuburbs = [...criteria.suburbs];
+    
+    // Remove any location if its ID starts with another selected location's ID
+    cleanedSuburbs = cleanedSuburbs.filter(suburb => {
+      // Check if any other selected location's ID is a prefix of this suburb's ID
+      return !cleanedSuburbs.some(other => 
+        other !== suburb && // Don't compare with itself
+        suburb.id.startsWith(other.id) // Check if other.id is a prefix
+      );
+    });
+
+    // Create a compact search object
+    const compactSearch = {
+      s: cleanedSuburbs.map(s => ({
+        i: s.id,
+        n: s.suburb,
+        p: s.postcode,
+        t: s.state,
+        r: s.region,
+        g: s.geohash,
+        l: s.locationType
+      })),
+      r: criteria.radius,
+      sp: criteria.spaces,
+      mp: criteria.maxPrice,
+      pt: criteria.paddockTypes,
+      ct: criteria.careTypes,
+      f: criteria.facilities,
+      a: criteria.hasArena,
+      ry: criteria.hasRoundYard
+    };
+
+    // Convert to base64 string
+    const searchHash = btoa(JSON.stringify(compactSearch));
+    
+    // Ensure all required fields are included in the search criteria
+    const searchCriteria: SearchCriteria = {
+      ...criteria,
+      suburbs: cleanedSuburbs,
+      hasArena: criteria.hasArena || false,
+      hasRoundYard: criteria.hasRoundYard || false,
+      facilities: criteria.facilities || [],
+      careTypes: criteria.careTypes || []
+    };
+    
+    onSearch(searchCriteria);
+    navigate(`/agistments/search?q=${searchHash}`);
+    onClose();
   };
 
   return (
@@ -84,11 +234,11 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 dark:bg-black/80" />
+          <div className="fixed inset-0 bg-black/25 dark:bg-black/50" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-4">
+          <div className="flex min-h-screen items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -98,218 +248,268 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full h-full max-w-md transform overflow-hidden bg-white dark:bg-neutral-800 text-left align-middle shadow-xl transition-all flex flex-col sm:rounded-2xl sm:max-h-[90vh] fixed sm:relative inset-0 sm:inset-auto">
+              <Dialog.Panel
+                className="w-full max-w-md transform overflow-hidden bg-white dark:bg-neutral-800 rounded-2xl p-6 text-left align-middle shadow-xl transition-all"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Dialog.Title
                   as="h3"
-                  className="text-lg font-medium leading-6 text-neutral-900 dark:text-white flex justify-between items-center p-4 sm:p-6 border-b border-neutral-200 dark:border-neutral-700"
+                  className="text-lg font-medium leading-6 text-neutral-900 dark:text-white flex justify-between items-center mb-4"
                 >
                   Search Agistment
                   <button
                     onClick={onClose}
                     className="rounded-full p-1 hover:bg-neutral-100 dark:hover:bg-neutral-700"
                   >
-                    <XIcon className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+                    <XMarkIcon className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
                   </button>
                 </Dialog.Title>
 
-                <form onSubmit={handleSubmit} className="h-full">
-                  <div className="h-full overflow-y-auto">
-                    {/* Location Section */}
-                    <div className="p-4 sm:p-6">
-                      <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Location</h2>
-                      
-                      {/* Location Search */}
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-2">
-                            {criteria.suburbs.length === 0 ? (
-                              "Location"
-                            ) : (
-                              `${criteria.suburbs.length} ${criteria.suburbs.length === 1 ? 'location' : 'locations'} selected`
-                            )}
-                          </label>
-                          <SuburbSearch
-                            selectedSuburbs={criteria.suburbs}
-                            onSuburbsChange={(suburbs) => setCriteria(prev => ({ ...prev, suburbs }))}
-                          />
-                        </div>
-
-                        {/* Radius */}
-                        {criteria.suburbs.some(suburb => suburb.locationType && suburb.locationType === LocationType.SUBURB) && (
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="pb-20">
+                      {/* Location Section */}
+                      <div className="p-4 sm:p-6">
+                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Location</h2>
+                        
+                        {/* Location Search */}
+                        <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-2">
-                              Radius <span className="text-neutral-500 dark:text-neutral-400">{criteria.radius}km</span>
+                              {criteria.suburbs.length === 0 ? (
+                                "Select at least one location"
+                              ) : (
+                                `${criteria.suburbs.length} ${criteria.suburbs.length === 1 ? 'location' : 'locations'} selected`
+                              )}
                             </label>
+                            <SuburbSearch
+                              selectedSuburbs={criteria.suburbs}
+                              onSuburbsChange={(suburbs) => setCriteria(prev => ({ ...prev, suburbs }))}
+                            />
+                          </div>
+
+                          {/* Radius */}
+                          {criteria.suburbs.some(suburb => suburb.locationType && suburb.locationType === LocationType.SUBURB) && (
+                            <div>
+                              <div className="flex justify-between items-center mb-1">
+                                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                  Radius
+                                </label>
+                                <span className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                  {criteria.radius === 0 ? 'Any' : `${criteria.radius}km`}
+                                </span>
+                              </div>
+                              <input
+                                type="range"
+                                min="0"
+                                max="50"
+                                value={criteria.radius}
+                                onChange={(e) => setCriteria(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
+                                className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer"
+                              />
+                              <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                                <span>0km</span>
+                                <span>50km</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="h-2 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700" />
+
+                      {/* Filters Section */}
+                      <div className="p-4 sm:p-6 pb-0">
+                        <div className="flex items-center justify-between mb-4">
+                          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Filters</h2>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              resetFilters();
+                            }}
+                            className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                          >
+                            Reset Filters
+                          </button>
+                        </div>
+                        <div className="space-y-6 mb-0">
+                          {/* Number of Spaces */}
+                          <div>
+                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                              Number of spaces
+                            </label>
+                            <div className="flex items-center justify-center space-x-4">
+                              <button
+                                type="button"
+                                disabled={criteria.suburbs.length === 0}
+                                onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.max(0, prev.spaces - 1) }))}
+                                className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${
+                                  criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                }`}
+                              >
+                                <MinusIcon className="h-5 w-5" />
+                              </button>
+                              <div className="text-3xl font-semibold text-neutral-900 dark:text-white min-w-[3ch] text-center">
+                                {criteria.spaces === 0 ? 'Any' : criteria.spaces < 10 ? criteria.spaces : '10+'}
+                              </div>
+                              <button
+                                type="button"
+                                disabled={criteria.suburbs.length === 0}
+                                onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.min(10, prev.spaces + 1) }))}
+                                className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${
+                                  criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                }`}
+                              >
+                                <PlusIcon className="h-5 w-5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Maximum Weekly Price */}
+                          <div>
+                            <div className="flex justify-between items-center mb-1">
+                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                Max price per space
+                              </label>
+                              <span className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                {criteria.maxPrice === 0 ? 'Any' : criteria.maxPrice === 300 ? '$300+/week' : `$${criteria.maxPrice}/week`}
+                              </span>
+                            </div>
                             <input
                               type="range"
                               min="0"
-                              max="50"
-                              value={criteria.radius}
-                              onChange={(e) => setCriteria(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
-                              className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer"
+                              max="300"
+                              step="10"
+                              disabled={criteria.suburbs.length === 0}
+                              value={criteria.maxPrice}
+                              onChange={(e) => setCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
+                              className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none ${
+                                criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                              }`}
                             />
                             <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                              <span>0km</span>
-                              <span>50km</span>
+                              <span>Any</span>
+                              <span>$300+/week</span>
                             </div>
                           </div>
-                        )}
-                      </div>
-                    </div>
 
-                    {/* Divider */}
-                    <div className="h-2 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700" />
-
-                    {/* Filters Section */}
-                    <div className="p-4 sm:p-6">
-                      <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Filters</h2>
-                      <div className="space-y-6">
-                        {/* Number of Spaces */}
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                            Number of Spaces
-                          </label>
-                          <div className="flex items-center justify-center space-x-4">
-                            <button
-                              type="button"
-                              onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.max(0, prev.spaces - 1) }))}
-                              className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                            >
-                              <MinusIcon className="h-5 w-5" />
-                            </button>
-                            <div className="text-3xl font-semibold text-neutral-900 dark:text-white min-w-[3ch] text-center">
-                              {criteria.spaces === 0 ? 'Any' : criteria.spaces < 10 ? criteria.spaces : '10+'}
+                          {/* Paddock Types */}
+                          <div>
+                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                              Paddock Types
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  disabled={criteria.suburbs.length === 0}
+                                  onClick={() => togglePaddockType(type)}
+                                  className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                    criteria.paddockTypes.includes(type)
+                                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                                  } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                >
+                                  {type}
+                                </button>
+                              ))}
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.min(10, prev.spaces + 1) }))}
-                              className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                            >
-                              <PlusIcon className="h-5 w-5" />
-                            </button>
                           </div>
-                        </div>
 
-                        {/* Maximum Weekly Price */}
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-2">
-                            Max Price per Space <span className="text-neutral-500 dark:text-neutral-400">
-                              {criteria.maxPrice === 0 ? 'Any' : criteria.maxPrice === 300 ? '$300+/week' : `$${criteria.maxPrice}/week`}
-                            </span>
-                          </label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="300"
-                            step="10"
-                            value={criteria.maxPrice}
-                            onChange={(e) => setCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
-                            className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer"
-                          />
-                          <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                            <span>Any</span>
-                            <span>$300+/week</span>
-                          </div>
-                        </div>
-
-                        {/* Paddock Types */}
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                            Paddock Types
-                          </label>
-                          <div className="grid grid-cols-3 gap-2">
-                            {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
-                              <button
-                                key={type}
-                                type="button"
-                                onClick={() => togglePaddockType(type)}
-                                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                  criteria.paddockTypes.includes(type)
-                                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200'
-                                    : 'bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600'
-                                }`}
-                              >
-                                {type}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Arena and Round Yard */}
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                            Facilities Available
-                          </label>
-                          <div className="space-y-2">
-                            <label className="flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={criteria.hasArena}
-                                onChange={(e) => setCriteria(prev => ({ ...prev, hasArena: e.target.checked }))}
-                                className="rounded border-neutral-300 dark:border-neutral-600 text-primary-600 focus:ring-primary-500"
-                              />
-                              <span className="ml-2 text-sm text-neutral-700 dark:text-neutral-300">Arena</span>
+                          {/* Arena and Round Yard */}
+                          <div>
+                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                              Riding Facilities
                             </label>
-                            <label className="flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={criteria.hasRoundYard}
-                                onChange={(e) => setCriteria(prev => ({ ...prev, hasRoundYard: e.target.checked }))}
-                                className="rounded border-neutral-300 dark:border-neutral-600 text-primary-600 focus:ring-primary-500"
-                              />
-                              <span className="ml-2 text-sm text-neutral-700 dark:text-neutral-300">Round Yard</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        {/* Additional Facilities */}
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                            Additional Facilities
-                          </label>
-                          <div className="grid grid-cols-2 gap-2">
-                            {Object.entries(criteria.facilities).map(([key, value]) => (
-                              <label key={key} className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={value}
-                                  onChange={(e) => setCriteria(prev => ({
-                                    ...prev,
-                                    facilities: {
-                                      ...prev.facilities,
-                                      [key]: e.target.checked
-                                    }
-                                  }))}
-                                  className="rounded border-neutral-300 dark:border-neutral-600 text-primary-600 focus:ring-primary-500"
-                                />
-                                <span className="ml-2 text-sm text-neutral-700 dark:text-neutral-300">
-                                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Care Types */}
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                            Care Types
-                          </label>
-                          <div className="grid grid-cols-3 gap-2">
-                            {(['Full', 'Part', 'Self'] as CareType[]).map((type) => (
+                            <div className="grid grid-cols-2 gap-2">
                               <button
-                                key={type}
                                 type="button"
-                                onClick={() => toggleCareType(type)}
-                                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                  criteria.careTypes.includes(type)
-                                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200'
-                                    : 'bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600'
-                                }`}
+                                disabled={criteria.suburbs.length === 0}
+                                onClick={toggleArena}
+                                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                  criteria.hasArena
+                                    ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                                } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                               >
-                                {type}
+                                <ArenaIcon className="h-5 w-5" />
+                                Arena
                               </button>
-                            ))}
+                              <button
+                                type="button"
+                                disabled={criteria.suburbs.length === 0}
+                                onClick={toggleRoundYard}
+                                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                  criteria.hasRoundYard
+                                    ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                                } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                              >
+                                <RoundYardIcon className="h-5 w-5" />
+                                Round Yard
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Additional Facilities */}
+                          <div>
+                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                              Additional Facilities
+                            </label>
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                { key: 'feedRoom' as FacilityType, icon: FeedRoomIcon, label: 'Feed Room' },
+                                { key: 'tackRoom' as FacilityType, icon: TackRoomIcon, label: 'Tack Room' },
+                                { key: 'floatParking' as FacilityType, icon: FloatParkingIcon, label: 'Float' },
+                                { key: 'hotWash' as FacilityType, icon: HotWashIcon, label: 'Hot Wash' },
+                                { key: 'stable' as FacilityType, icon: StableIcon, label: 'Stable' },
+                                { key: 'tieUp' as FacilityType, icon: TieUpIcon, label: 'Tie Up' }
+                              ].map(({ key, icon: Icon, label }) => (
+                                <button
+                                  key={key}
+                                  type="button"
+                                  disabled={criteria.suburbs.length === 0}
+                                  onClick={() => toggleFacility(key)}
+                                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                    criteria.facilities.includes(key)
+                                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                                  } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                >
+                                  <Icon className="h-5 w-5" />
+                                  {label}
+                                </button>
+                               ))}
+                            </div>
+                          </div>
+
+                          {/* Care Types */}
+                          <div className="mb-0">
+                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                              Care Types
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  disabled={criteria.suburbs.length === 0}
+                                  onClick={() => toggleCareType(type)}
+                                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                    criteria.careTypes.includes(type)
+                                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                                  } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                >
+                                  <HeartIcon className="h-5 w-5" />
+                                  {type}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -317,22 +517,13 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
                   </div>
 
                   {/* Submit Button */}
-                  <div className="p-4 sm:p-6 border-t border-neutral-200 dark:border-neutral-700 sticky bottom-0 bg-white dark:bg-neutral-800">
-                    <div className="mt-6 flex gap-3">
-                      <button
-                        type="button"
-                        onClick={handleReset}
-                        className="flex-1 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors"
-                      >
-                        Reset Filters
-                      </button>
-                      <button
-                        type="submit"
-                        className="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
-                      >
-                        Search
-                      </button>
-                    </div>
+                  <div className="p-4 sm:p-6 border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 absolute bottom-0 left-0 right-0">
+                    <button
+                      type="submit"
+                      className="w-full px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                    >
+                      Search
+                    </button>
                   </div>
                 </form>
               </Dialog.Panel>

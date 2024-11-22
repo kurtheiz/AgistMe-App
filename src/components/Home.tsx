@@ -1,14 +1,18 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SearchModal } from './Search/SearchModal';
 import { SearchIcon } from './Icons';
 import { SearchCriteria } from '../types/search';
 
 export const Home = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleSearch = (criteria: SearchCriteria) => {
-    console.log('Search criteria:', criteria);
-    // Handle search here
+    if (criteria.searchHash) {
+      navigate(`/agistments/search?q=${criteria.searchHash}`);
+    }
+    setIsSearchOpen(false);
   };
 
   return (

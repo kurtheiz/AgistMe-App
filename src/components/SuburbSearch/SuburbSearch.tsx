@@ -106,7 +106,7 @@ export function SuburbSearch({ selectedSuburbs, onSuburbsChange, multiple = true
             onChange={(e) => {
               setSearchTerm(e.target.value);
             }}
-            placeholder="Search suburbs..."
+            placeholder={multiple && includeRegions ? "State, region, suburb or post code" : "Suburb or post code"}
             className="h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500"
           />
         </div>
