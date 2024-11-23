@@ -16,6 +16,10 @@ interface OptimizedPostcodes {
 export class SuburbService {
   private optimizedPostcodes: OptimizedPostcodes | null = null;
 
+  private toProperCase(str: string): string {
+    return str.toLowerCase().replace(/(?:^|\s|')\w/g, letter => letter.toUpperCase());
+  }
+
   private async ensurePostcodesLoaded() {
     if (this.optimizedPostcodes) return;
 
@@ -50,10 +54,10 @@ export class SuburbService {
         const entry = this.optimizedPostcodes!.e[idx];
         return {
           id: `SUBURB#${entry.s}#${entry.r?.toUpperCase() || ''}#${entry.l.toUpperCase()}#${entry.p}`,
-          suburb: entry.l,
+          suburb: this.toProperCase(entry.l),
           state: entry.s,
           postcode: entry.p,
-          region: entry.r || '',
+          region: entry.r ? this.toProperCase(entry.r) : '',
           geohash: entry.g,
           locationType: LocationType.SUBURB
         };
@@ -64,10 +68,10 @@ export class SuburbService {
         .filter(entry => entry.p.toString().startsWith(query))
         .map(entry => ({
           id: `SUBURB#${entry.s}#${entry.r?.toUpperCase() || ''}#${entry.l.toUpperCase()}#${entry.p}`,
-          suburb: entry.l,
+          suburb: this.toProperCase(entry.l),
           state: entry.s,
           postcode: entry.p,
-          region: entry.r || '',
+          region: entry.r ? this.toProperCase(entry.r) : '',
           geohash: entry.g,
           locationType: LocationType.SUBURB
         }));
@@ -96,10 +100,10 @@ export class SuburbService {
             if (!unique.has(regionKey)) {
               unique.set(regionKey, {
                 id: `SUBURB#${entry.s}#${(entry.r || '').toUpperCase()}`,
-                suburb: entry.r || '',
+                suburb: this.toProperCase(entry.r || ''),
                 state: entry.s,
                 postcode: '',
-                region: entry.r || '',
+                region: entry.r ? this.toProperCase(entry.r) : '',
                 geohash: entry.g,
                 locationType: LocationType.REGION
               });
