@@ -210,7 +210,7 @@ export function AgistmentDetail() {
               >
                 <MapPinIcon className="h-5 w-5" />
                 <span>
-                  {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
+                {agistment.location.address}, {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
                 </span>
               </a>
             </div>
