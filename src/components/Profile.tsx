@@ -1,467 +1,169 @@
-import { useState, useEffect } from 'react';
-import { useClerk, useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth, useClerk } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDateOfBirth } from '../utils/inputValidation';
-import { SuburbSearch } from './SuburbSearch/SuburbSearch';
 import { useProfile } from '../context/ProfileContext';
-import { ArrowRightOnRectangleIcon, CheckIcon } from './Icons';
-import { useProfileForm } from '../hooks/useProfileForm';
-import { ProfilePhoto } from './Profile/ProfilePhoto';
-import { HorseFormModal } from './Profile/HorseFormModal';
 import { PageToolbar } from './PageToolbar';
-import { ProfileSkeleton } from './Profile/ProfileSkeleton';
-import { useApi } from '../hooks/useApi';
+import { ArrowRightOnRectangleIcon } from './Icons';
 
 export default function Profile() {
-  const { profile, loading, error, refreshProfile, updateProfileData } = useProfile();
-  const { isLoaded, isSignedIn } = useAuth();
-  const { user } = useUser();
-  const clerk = useClerk();
+  const { isSignedIn, isLoaded } = useAuth();
   const navigate = useNavigate();
-  const api = useApi();
+  const { signOut } = useClerk();
+  const { profile, loading, error, refreshProfile } = useProfile();
 
-  const {
-    formData,
-    setFormData,
-    isSaving,
-    isUploading,
-    isDirty,
-    uploadingHorseIndex,
-    setUploadingHorseIndex,
-    handleInputChange,
-    handleHorseChange,
-    handleProfilePhotoUpload,
-    saveProfile
-  } = useProfileForm(user, profile);
+  // If profile is not loaded yet, try to load it
+  if (isLoaded && isSignedIn && !profile && !loading && !error) {
+    refreshProfile(true);
+  }
 
-  const handleHorsePhotoUpload = async (index: number, file: File) => {
-    try {
-      setUploadingHorseIndex(index);
-      const formData = new FormData();
-      formData.append('file', file);
+  if (!isLoaded) {
+    return null;
+  }
 
-      const response = await api.post('/upload', formData);
-      
-      if (response.status !== 200) {
-        throw new Error('Failed to upload photo');
-      }
-
-      const { url } = response.data as { url: string };
-      const updatedHorses = [...(formData as any).horses];
-      updatedHorses[index] = {
-        ...updatedHorses[index],
-        photoUrl: url
-      };
-      handleHorseChange(index, 'profilePhoto', url);
-    } catch (error) {
-      console.error('Error uploading horse photo:', error);
-      // You might want to show an error toast here
-    } finally {
-      setUploadingHorseIndex(null);
-    }
-  };
-
-  useEffect(() => {
-    if (!isLoaded || !isSignedIn || !user) return;
-    
-    const loadProfile = async () => {
-      try {
-        await refreshProfile(false);
-      } catch (err) {
-        console.error('Failed to load profile:', err);
-      }
-    };
-    
-    loadProfile();
-  }, [isLoaded, isSignedIn, user]);
+  if (!isSignedIn) {
+    navigate('/');
+    return null;
+  }
 
   const handleSignOut = async () => {
     try {
-      await clerk.signOut();
+      await signOut();
       navigate('/');
     } catch (err) {
       console.error('Error signing out:', err);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const updatedProfile = await saveProfile();
-      updateProfileData(updatedProfile);
-    } catch (err) {
-      console.error('Error updating profile:', err);
-    }
-  };
-
-  const [selectedHorseIndex, setSelectedHorseIndex] = useState<number | null>(null);
-  const [isHorseModalOpen, setIsHorseModalOpen] = useState(false);
-  const [newHorse, setNewHorse] = useState<any | null>(null);
-
-  const openHorseModal = (index: number | null) => {
-    setSelectedHorseIndex(index);
-    setIsHorseModalOpen(true);
-  };
-
-  const closeHorseModal = () => {
-    setIsHorseModalOpen(false);
-    setSelectedHorseIndex(null);
-    setNewHorse(null);
-  };
-
-  const handleAddHorse = () => {
-    const emptyHorse = {
-      name: '',
-      breed: '',
-      gender: '',
-      colour: '',
-      height: '',
-      profilePhoto: '',
-      microchip: '',
-      brand: '',
-      notes: '',
-    };
-    setNewHorse(emptyHorse);
-    openHorseModal(null);
-  };
-
-  const handleSaveHorse = async (horse: any) => {
-    if (selectedHorseIndex !== null) {
-      // Edit existing horse
-      setFormData(prev => ({
-        ...prev,
-        horses: prev.horses.map((h, i) => i === selectedHorseIndex ? horse : h)
-      }));
-    } else {
-      // Add new horse
-      setFormData(prev => ({
-        ...prev,
-        horses: [...prev.horses, horse]
-      }));
-    }
-    
-    try {
-      const updatedProfile = await saveProfile();
-      updateProfileData(updatedProfile);
-    } catch (err) {
-      console.error('Error saving horse:', err);
-      // You might want to show an error toast here
-    }
-  };
-
-  if (!isLoaded || loading) {
-    return (
-      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-        <PageToolbar actions={<div className="flex items-center gap-2">
-          <button
-            onClick={handleSignOut}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md"
-          >
-            <ArrowRightOnRectangleIcon className="h-5 w-5" />
-            Sign Out
-          </button>
-        </div>} />
-        <ProfileSkeleton />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="text-red-500">Error loading profile: {error}</div>;
-  }
-
-  if (!profile) {
-    return <div>No profile data available</div>;
-  }
-
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <PageToolbar actions={<div className="flex items-center gap-2">
-        <button
-          type="submit"
-          onClick={handleSubmit}
-          disabled={isSaving || !isDirty}
-          className="inline-flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <CheckIcon className="h-5 w-5" />
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </button>
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md"
-        >
-          <ArrowRightOnRectangleIcon className="h-5 w-5" />
-          Sign Out
-        </button>
-      </div>} />
-
-      <div className="w-full pb-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Profile Settings</h1>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Manage your personal information and horses
-            </p>
+      <PageToolbar 
+        actions={
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate('/profile/view')}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md transition-colors"
+            >
+              View Bio
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md transition-colors"
+            >
+              <ArrowRightOnRectangleIcon className="h-5 w-5" />
+              Sign Out
+            </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            {/* Contact Info Panel */}
-            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg p-8">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Contact Information</h2>
+        }
+      />
+      <div className="max-w-5xl mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Profile Card */}
+          <div 
+            onClick={() => navigate('/profile/bio')}
+            className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 h-[280px] cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-6">Profile</h2>
+            
+            <div className="space-y-6">
+              <div className="flex items-center space-x-4">
+                {profile?.profilePhoto ? (
+                  <img
+                    src={profile.profilePhoto}
+                    alt="Profile"
+                    className="h-16 w-16 rounded-full object-cover bg-neutral-100 dark:bg-neutral-700"
+                  />
+                ) : (
+                  <div className="h-16 w-16 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-neutral-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
+                    {[profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Profile'}
+                  </h3>
+                  <p className="text-neutral-500 dark:text-neutral-400">{profile?.email}</p>
+                </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Profile Image */}
-                <ProfilePhoto
-                  photoUrl={formData.profilePhoto}
-                  isUploading={isUploading}
-                  onPhotoUpload={handleProfilePhotoUpload}
-                  onPhotoRemove={() => handleInputChange('profilePhoto', '')}
-                  fallbackUrl={user?.imageUrl || '/default-profile.png'}
-                />
-
-                {/* Email Display */}
-                <div className="text-center">
-                  <span className="text-sm text-neutral-500 dark:text-neutral-400">Email:</span>
-                  <p className="text-neutral-800 dark:text-neutral-200 font-medium">
-                    {user?.primaryEmailAddress?.emailAddress}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                    First Name
+                  </label>
+                  <p className="mt-1 text-neutral-900 dark:text-white">
+                    {profile?.firstName || 'Not provided'}
                   </p>
                 </div>
-
-                {/* Name Fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="relative">
-                    <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      First Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      required
-                      placeholder="First Name"
-                      className="form-input form-input-compact"
-                    />
-                  </div>
-                  <div className="relative">
-                    <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Last Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      required
-                      placeholder="Last Name"
-                      className="form-input form-input-compact"
-                    />
-                  </div>
-                </div>
-
-                {/* Date of Birth and Mobile Number */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="relative">
-                    <label htmlFor="dateOfBirth" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Date of Birth
-                    </label>
-                    <input
-                      type="date"
-                      id="dateOfBirth"
-                      name="dateOfBirth"
-                      value={formData.dateOfBirth}
-                      onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                      max={getMaxDateOfBirth()}
-                      min={getMinDateOfBirth()}
-                      className="form-input form-input-compact [color-scheme:light] dark:[color-scheme:dark]"
-                    />
-                    {formData.dateOfBirth && !isValidDateOfBirth(formData.dateOfBirth).isValid && (
-                      <p className="mt-1 text-sm text-red-500 dark:text-red-400">
-                        {isValidDateOfBirth(formData.dateOfBirth).error}
-                      </p>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <label htmlFor="mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Mobile Number
-                    </label>
-                    <input
-                      type="tel"
-                      id="mobile"
-                      name="mobile"
-                      value={formData.mobile}
-                      onChange={(e) => handleInputChange('mobile', e.target.value)}
-                      placeholder="Mobile Number"
-                      className="form-input form-input-compact"
-                    />
-                    {formData.mobile && !isValidAusMobileNumber(formData.mobile) && (
-                      <p className="mt-1 text-sm text-red-500 dark:text-red-400">
-                        Please enter a valid mobile number (xxxx-xxx-xxx)
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Suburb Search Section */}
-                <div className="space-y-4">
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Search Suburb
+                <div>
+                  <label className="block text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                    Last Name
                   </label>
-                  <SuburbSearch
-                    selectedSuburbs={formData.suburb && typeof formData.suburb !== 'string' ? [formData.suburb] : []}
-                    onSuburbsChange={(suburbs) => {
-                      const suburb = suburbs[0];
-                      if (suburb) {
-                        setFormData(prev => ({
-                          ...prev,
-                          suburb,
-                          state: suburb.state,
-                          postcode: suburb.postcode,
-                          suburbId: suburb.id,
-                          region: suburb.region || '',
-                          geohash: suburb.geohash || ''
-                        }));
-                      }
-                    }}
-                    multiple={false}
-                  />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400">State</label>
-                      <input
-                        type="text"
-                        value={formData.state}
-                        readOnly
-                        className="form-input form-input-compact bg-neutral-100 dark:bg-neutral-800"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Region</label>
-                      <input
-                        type="text"
-                        value={formData.region}
-                        readOnly
-                        className="form-input form-input-compact bg-neutral-100 dark:bg-neutral-800"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Suburb</label>
-                      <input
-                        type="text"
-                        value={typeof formData.suburb === 'string' ? formData.suburb : formData.suburb?.suburb || ''}
-                        readOnly
-                        className="mt-1 block w-full rounded-md border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Post Code</label>
-                      <input
-                        type="text"
-                        value={formData.postcode}
-                        readOnly
-                        className="form-input form-input-compact bg-neutral-100 dark:bg-neutral-800"
-                      />
-                    </div>
-                  </div>
-                  {/* Address Field */}
-                  <div className="col-span-full">
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Address
-                    </label>
-                    <input
-                      type="text"
-                      name="address"
-                      value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="Enter your street address"
-                      className="form-input"
-                    />
-                  </div>
-                  {/* Comments Field */}
-                  <div className="col-span-full">
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      About
-                    </label>
-                    <textarea
-                      name="comments"
-                      value={formData.comments}
-                      onChange={(e) => handleInputChange('comments', e.target.value)}
-                      placeholder={`Tell us more about ${formData.firstName || 'yourself'}`}
-                      rows={4}
-                      className="form-textarea"
-                    />
-                  </div>
+                  <p className="mt-1 text-neutral-900 dark:text-white">
+                    {profile?.lastName || 'Not provided'}
+                  </p>
                 </div>
-              </form>
+              </div>
             </div>
+          </div>
 
-            {/* Right Panel - My Horses */}
-            <section className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Horses</h2>
-                <button
-                  type="button"
-                  onClick={handleAddHorse}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  Add Horse
-                </button>
+          {/* My Horses Card */}
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 h-[280px]">
+            <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-6">My Horses</h2>
+            
+            <div className="flex flex-col items-center justify-center h-[calc(100%-3.5rem)] text-center space-y-4">
+              <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-700">
+                <span className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
+                  {profile?.horses?.length || 0}
+                </span>
               </div>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                {profile?.horses?.length === 0 
+                  ? "Adding your horses here will make it easier to find agistment"
+                  : profile?.horses?.length === 1
+                  ? "1 horse registered"
+                  : `${profile?.horses?.length} horses registered`
+                }
+              </p>
+            </div>
+          </div>
 
-              <div className="overflow-y-auto max-h-[600px] space-y-4 pr-2">
-                {formData.horses.map((horse, index) => (
-                  <div
-                    key={index}
-                    onClick={() => openHorseModal(index)}
-                    className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
-                  >
-                    <div className="flex items-center space-x-4">
-                      {horse.profilePhoto && (
-                        <img
-                          src={horse.profilePhoto}
-                          alt={horse.name}
-                          className="h-16 w-16 rounded-full object-cover"
-                        />
-                      )}
-                      <div>
-                        <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">
-                          {horse.name || 'Unnamed Horse'}
-                        </h3>
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                          {horse.breed} • {horse.gender} • {horse.colour}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          {/* Favourites Card */}
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 h-[280px]">
+            <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-6">Favourites</h2>
+
+            <div className="flex flex-col items-center justify-center h-[calc(100%-3.5rem)] text-center space-y-4">
+              <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-700">
+                <span className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
+                  {profile?.favourites?.length || 0}
+                </span>
               </div>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                {profile?.favourites?.length === 0
+                  ? "Save your favourite properties here"
+                  : profile?.favourites?.length === 1
+                  ? "1 favourite property"
+                  : `${profile?.favourites?.length} favourite properties`
+                }
+              </p>
+            </div>
+          </div>
 
-              {/* Horse Form Modal */}
-              <HorseFormModal
-                isOpen={isHorseModalOpen}
-                onClose={closeHorseModal}
-                horse={newHorse || (selectedHorseIndex !== null ? formData.horses[selectedHorseIndex] : {
-                  name: '',
-                  breed: '',
-                  gender: '',
-                  colour: '',
-                  height: '',
-                  profilePhoto: '',
-                  microchip: '',
-                  brand: '',
-                  notes: '',
-                })}
-                index={selectedHorseIndex}
-                onSave={handleSaveHorse}
-                onCancel={closeHorseModal}
-                isUploading={uploadingHorseIndex === selectedHorseIndex}
-                onPhotoUpload={handleHorsePhotoUpload}
-              />
-            </section>
+          {/* Settings Card */}
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 h-[280px]">
+            <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-6">Settings</h2>
+
+            <div className="flex flex-col items-center justify-center h-[calc(100%-3.5rem)] text-center space-y-4">
+              <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-700">
+                <svg className="w-6 h-6 text-neutral-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Configure your account settings and preferences
+              </p>
+            </div>
           </div>
         </div>
       </div>

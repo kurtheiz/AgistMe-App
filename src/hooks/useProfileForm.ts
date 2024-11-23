@@ -3,7 +3,7 @@ import { Profile } from '../types/profile';
 import type { UserResource } from '@clerk/types';
 import { profileService } from '../services/profile.service';
 
-export const useProfileForm = (user: UserResource | null | undefined, profile: Profile | null) => {
+export const useProfileForm = (user: UserResource | null | undefined) => {
   const [formData, setFormData] = useState<Profile>({
     id: '',
     firstName: '',
@@ -28,34 +28,47 @@ export const useProfileForm = (user: UserResource | null | undefined, profile: P
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [uploadingHorseIndex, setUploadingHorseIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (user && profile) {
-      const newFormData = {
-        id: profile.id || '',
-        firstName: profile.firstName || user.firstName || '',
-        lastName: profile.lastName || user.lastName || '',
-        mobile: profile.mobile || '',
-        profilePhoto: profile.profilePhoto || user.imageUrl || '',
-        address: profile.address || '',
-        postcode: profile.postcode || '',
-        suburb: profile.suburb ? (typeof profile.suburb === 'object' ? profile.suburb.suburb : profile.suburb) : '',  
-        state: profile.state || '',
-        region: profile.region || '',
-        suburbId: profile.suburbId || '',
-        geohash: profile.geohash || '',
-        horses: profile.horses || [],
-        email: profile.email || user.primaryEmailAddress?.emailAddress || '',
-        lastUpdate: profile.lastUpdate || '',
-        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '',
-        comments: profile.comments || ''
-      };
-      setFormData(newFormData);
-      setOriginalData(newFormData);
-      setIsDirty(false);
-    }
-  }, [user, profile]);
+    const loadProfile = async () => {
+      if (user) {
+        try {
+          setIsLoading(true);
+          const profileData = await profileService.getProfile();
+          const newFormData = {
+            id: profileData.id || '',
+            firstName: profileData.firstName || user.firstName || '',
+            lastName: profileData.lastName || user.lastName || '',
+            mobile: profileData.mobile || '',
+            profilePhoto: profileData.profilePhoto || '',
+            address: profileData.address || '',
+            postcode: profileData.postcode || '',
+            suburb: profileData.suburb ? (typeof profileData.suburb === 'object' ? profileData.suburb.suburb : profileData.suburb) : '',  
+            state: profileData.state || '',
+            region: profileData.region || '',
+            suburbId: profileData.suburbId || '',
+            geohash: profileData.geohash || '',
+            horses: profileData.horses || [],
+            email: profileData.email || user.primaryEmailAddress?.emailAddress || '',
+            lastUpdate: profileData.lastUpdate || '',
+            dateOfBirth: profileData.dateOfBirth ? profileData.dateOfBirth.split('T')[0] : '',
+            comments: profileData.comments || ''
+          };
+          setFormData(newFormData);
+          setOriginalData(newFormData);
+          setIsDirty(false);
+        } catch (error) {
+          console.error('Error loading profile:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadProfile();
+  }, [user]);
 
   const checkIfDirty = (newData: Profile) => {
     if (!originalData) return false;
@@ -81,7 +94,8 @@ export const useProfileForm = (user: UserResource | null | undefined, profile: P
 
   const handleHorseChange = (index: number, field: string, value: string | number) => {
     setFormData(prev => {
-      const newHorses = prev.horses.map((horse, i) =>
+      const horses = prev.horses || [];
+      const newHorses = horses.map((horse, i) =>
         i === index ? { ...horse, [field]: value } : horse
       );
       const newData = { ...prev, horses: newHorses };
@@ -128,6 +142,7 @@ export const useProfileForm = (user: UserResource | null | undefined, profile: P
     setFormData,
     isSaving,
     isUploading,
+    isLoading,
     isDirty,
     uploadingHorseIndex,
     setUploadingHorseIndex,

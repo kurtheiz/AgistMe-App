@@ -301,7 +301,7 @@ export function Agistments() {
         onClick={onSearch}
         className="mt-8 flex items-center gap-2 px-6 py-3 text-base font-medium text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 rounded-lg transition-colors"
       >
-        Start Your Search
+        Search
       </button>
     </div>
   );

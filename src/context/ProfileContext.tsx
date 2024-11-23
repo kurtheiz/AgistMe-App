@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Profile } from '../types/profile';
+import { Profile, UpdateProfileRequest } from '../types/profile';
 import { profileService } from '../services/profile.service';
 
 interface ProfileContextType {
@@ -7,7 +7,7 @@ interface ProfileContextType {
   loading: boolean;
   error: string | null;
   refreshProfile: (force: boolean) => Promise<void>;
-  updateProfileData: (newProfile: Profile) => void;
+  updateProfileData: (data: UpdateProfileRequest) => Promise<void>;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -53,10 +53,16 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   }, [loading, profile, lastFetch, error, retryCount]);
 
-  const updateProfileData = useCallback((newProfile: Profile) => {
-    setProfile(newProfile);
-    setLastFetch(Date.now());
-    setRetryCount(0); // Reset retry count when profile is manually updated
+  const updateProfileData = useCallback(async (data: UpdateProfileRequest) => {
+    try {
+      const updatedProfile = await profileService.updateProfile(data);
+      setProfile(updatedProfile);
+      setLastFetch(Date.now());
+      setRetryCount(0); // Reset retry count when profile is manually updated
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
   }, []);
 
   return (

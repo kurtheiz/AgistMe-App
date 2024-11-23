@@ -153,10 +153,10 @@ export const HorseForm = ({
         <div className="flex flex-col h-full">
           {/* Horse Photo */}
           <HorsePhoto
-            photoUrl={horse.profilePhoto}
+            photoUrl={horse.photo || ''}
             isUploading={isUploading}
             onPhotoUpload={(file) => onPhotoUpload(index, file)}
-            onPhotoRemove={() => onHorseChange(index, 'profilePhoto', '')}
+            onPhotoRemove={() => onHorseChange(index, 'photo', '')}
             horseName={horse.name || 'Horse'}
           />
 
@@ -166,8 +166,8 @@ export const HorseForm = ({
               About
             </label>
             <textarea
-              value={horse.comments || ''}
-              onChange={(e) => onHorseChange(index, 'comments', e.target.value)}
+              value={horse.description || ''}
+              onChange={(e) => onHorseChange(index, 'description', e.target.value)}
               className="form-textarea flex-1 min-h-[120px]"
               placeholder={`Tell us more about ${horse.name || 'your horse'}`}
             />

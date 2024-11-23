@@ -8,6 +8,7 @@ import { ErrorPage } from './components/ErrorPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import Bio from './components/Bio';
 import Profile from './components/Profile';
 import { ProfileProvider } from './context/ProfileContext';
 import { Agistments } from './components/Agistments';
@@ -30,10 +31,18 @@ const router = createBrowserRouter(
       <Route path="/agistments/search" element={<Agistments />} />
       <Route path="/agistment/:id" element={<AgistmentDetail />} />
       <Route 
-        path="/profile" 
+        path="/profile"
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/profile/bio" 
+        element={
+          <ProtectedRoute>
+            <Bio />
           </ProtectedRoute>
         } 
       />

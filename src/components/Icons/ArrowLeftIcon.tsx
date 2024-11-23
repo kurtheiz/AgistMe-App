@@ -1,25 +1,11 @@
-import { SVGProps } from 'react';
+import React from 'react';
 
-interface IconProps extends SVGProps<SVGSVGElement> {
+interface ArrowLeftIconProps {
   className?: string;
 }
 
-export const ArrowLeftIcon = ({ className = 'w-6 h-6', ...props }: IconProps) => {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className={className}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-      />
-    </svg>
-  );
-};
+export const ArrowLeftIcon: React.FC<ArrowLeftIconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+  </svg>
+);

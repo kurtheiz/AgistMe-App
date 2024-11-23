@@ -130,7 +130,7 @@ class ProfileService {
       const currentProfile = await this.getProfile();
       
       // Update the specific horse's photo
-      const updatedHorses = currentProfile.horses.map(horse => 
+      const updatedHorses = (currentProfile.horses || []).map(horse => 
         horse.name === horseName 
           ? { ...horse, photo: photoUrl }
           : horse

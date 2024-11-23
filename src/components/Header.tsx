@@ -2,6 +2,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
+import { useProfile } from '../context/ProfileContext';
+import { useEffect } from 'react';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -9,6 +11,13 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   useAuthToken();
+  const { refreshProfile } = useProfile();
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      refreshProfile(false);
+    }
+  }, [isLoaded, isSignedIn, refreshProfile]);
 
   const handleAvatarClick = () => {
     if (isSignedIn) {
@@ -21,7 +30,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-white dark:bg-neutral-900 w-full">
+    <header className="bg-white dark:bg-neutral-900 w-full border-b border-neutral-200 dark:border-neutral-800">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative">
         <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Left side */}
