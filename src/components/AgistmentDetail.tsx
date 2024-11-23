@@ -135,9 +135,9 @@ export function AgistmentDetail() {
       <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
         <div className="bg-white dark:bg-neutral-800 sm:rounded-lg sm:shadow-lg overflow-hidden">
           {/* Header Section */}
-          <div className="bg-primary-600 p-6">
+          <div className="bg-primary-600 dark:bg-primary-900/50 p-6">
             <div className="flex justify-between items-start">
-              <h1 className="text-2xl font-semibold text-white">{agistment.name}</h1>
+              <h1 className="text-2xl font-semibold text-white dark:text-primary-300">{agistment.name}</h1>
               {agistment.urgentAvailability && (
                 <ExclamationTriangleIcon 
                   className="w-8 h-8 text-red-500 dark:text-red-400" 

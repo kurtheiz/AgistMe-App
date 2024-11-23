@@ -85,7 +85,7 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
                     border border-neutral-200 dark:border-neutral-700 rounded-none sm:rounded-lg
                     ${property.hidden ? 'opacity-40' : ''}`}>
         {/* Property Name Header */}
-        <div className="w-full bg-primary-600 text-center relative p-4">
+        <div className="w-full bg-primary-600 dark:bg-primary-900/50 text-center relative p-4">
           <div className="flex justify-between items-start">
             {property.urgentAvailability && (
               <div className="absolute -top-1 -right-1 z-10">
@@ -96,7 +96,7 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
               </div>
             )}
           </div>
-          <h2 className="text-lg sm:text-xl font-medium leading-6 text-white">{property.name}</h2>
+          <h2 className="text-lg sm:text-xl font-medium leading-6 text-white dark:text-primary-300">{property.name}</h2>
         </div>
 
         {/* Photo */}
@@ -142,12 +142,12 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
             <div className="flex items-center gap-2 sm:gap-6">
               {/* Private Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg border-2 ${
+                <span className={`text-xl sm:text-2xl font-bold px-3 py-1.5 rounded-lg ${
                   property.privatePaddocks.total > 0 
                     ? property.privatePaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 border-primary-300 dark:border-primary-700'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700'
-                    : 'border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
+                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
                 }`}>
                   {property.privatePaddocks.total > 0 ? property.privatePaddocks.available : '-'}
                 </span>
@@ -158,12 +158,12 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
 
               {/* Shared Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg border-2 ${
+                <span className={`text-xl sm:text-2xl font-bold px-3 py-1.5 rounded-lg ${
                   property.sharedPaddocks.total > 0 
                     ? property.sharedPaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 border-primary-300 dark:border-primary-700'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700'
-                    : 'border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
+                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
                 }`}>
                   {property.sharedPaddocks.total > 0 ? property.sharedPaddocks.available : '-'}
                 </span>
@@ -174,12 +174,12 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
 
               {/* Group Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg border-2 ${
+                <span className={`text-xl sm:text-2xl font-bold px-3 py-1.5 rounded-lg ${
                   property.groupPaddocks.total > 0 
                     ? property.groupPaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 border-primary-300 dark:border-primary-700'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700'
-                    : 'border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
+                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
                 }`}>
                   {property.groupPaddocks.total > 0 ? property.groupPaddocks.available : '-'}
                 </span>
