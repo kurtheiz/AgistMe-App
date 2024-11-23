@@ -16,6 +16,7 @@ import {
 } from './Icons';
 import { Agistment } from '../types/agistment';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast'; // Import toast
 
 interface PropertyCardProps {
   property: Agistment;
@@ -50,6 +51,27 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
       onClick();
     } else {
       navigate(`/agistment/${property.id}`);
+    }
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/agistment/${property.id}`;
+    
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${property.location.suburb} Agistment on AgistMe`,
+          text: `Check out this agistment in ${property.location.suburb}, ${property.location.state}`,
+          url: shareUrl
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('Link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast.error('Failed to share');
     }
   };
 
@@ -214,17 +236,7 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
               Last updated: {formatDate(property.modifiedAt)}
             </div>
             <button 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (navigator.share) {
-                  navigator.share({
-                    title: property.name,
-                    text: `Check out this property: ${property.name}`,
-                    url: window.location.href
-                  });
-                }
-              }}
+              onClick={handleShare}
               className="inline-flex items-center gap-1 text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
               title="Share this listing"
             >

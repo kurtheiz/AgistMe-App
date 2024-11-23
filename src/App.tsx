@@ -13,6 +13,7 @@ import { ProfileProvider } from './context/ProfileContext';
 import { setAuthToken } from './services/auth';
 import { Agistments } from './components/Agistments';
 import { AgistmentDetail } from './components/AgistmentDetail';
+import { Toaster } from 'react-hot-toast';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -86,6 +87,7 @@ function App() {
           <ThemeProvider>
             <ProfileProvider>
               <RouterProvider router={router} />
+              <Toaster position="top-right" />
             </ProfileProvider>
           </ThemeProvider>
         </ClerkProvider>
