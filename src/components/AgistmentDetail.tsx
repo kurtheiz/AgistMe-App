@@ -248,7 +248,7 @@ export function AgistmentDetail() {
                   {Icon && <Icon className="w-5 h-5" />}
                   <span className="text-sm flex items-center gap-1">
                     {label}
-                    <span className="font-medium">
+                    <span className="text-neutral-600 dark:text-neutral-400">
                       {available ? '✔' : '✘'}
                     </span>
                   </span>
