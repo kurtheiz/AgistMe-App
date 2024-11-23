@@ -1,13 +1,13 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment, AgistmentResponse } from '../types/agistment';
 import { SearchModal } from './Search/SearchModal';
 import { SearchCriteria } from '../types/search';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { RefreshIcon } from './Icons';
 import { PageToolbar } from './PageToolbar';
 import { PropertyCard } from './PropertyCard';
+import { PropertyCardSkeleton } from './PropertyCardSkeleton';
 
 // Local storage key for last search
 const LAST_SEARCH_KEY = 'agistme_last_search';
@@ -26,7 +26,6 @@ export function Agistments() {
   const [agistments, setAgistments] = useState<Agistment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
   const searchHash = searchParams.get('q');
 
   // Store search in local storage if it has results
@@ -94,7 +93,7 @@ export function Agistments() {
     }
   }, [location.pathname]);
 
-  const fetchAgistments = async (forceRefresh = false) => {
+  const fetchAgistments = async () => {
     // Only clear state if we're on the home page
     if (location.pathname === '/') {
       setAgistments([]);
@@ -107,13 +106,11 @@ export function Agistments() {
       return;
     }
 
-    // Try to load from storage if not forcing refresh
-    if (!forceRefresh) {
-      const loaded = loadStoredSearch();
-      if (loaded) {
-        setLoading(false);
-        return;
-      }
+    // Try to load from storage
+    const loaded = loadStoredSearch();
+    if (loaded) {
+      setLoading(false);
+      return;
     }
 
     setLoading(true);
@@ -138,32 +135,44 @@ export function Agistments() {
   // Add effect to handle route changes
   useEffect(() => {
     if (location.pathname === '/agistments') {
-      fetchAgistments(false);
+      fetchAgistments();
     }
   }, [location.pathname]);
 
   useEffect(() => {
-    fetchAgistments(refreshKey > 0);
-  }, [searchParams, refreshKey]);
+    fetchAgistments();
+  }, [searchParams]);
 
   const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
     // Clear previous results before navigating
     setAgistments([]);
-    navigate(`/agistments/search?q=${criteria.searchHash}`);
+    navigate(`/agistment/search?q=${criteria.searchHash}`);
     setIsSearchModalOpen(false);
   };
 
-  const handleRefresh = useCallback(() => {
-    if (searchHash && !loading) {
-      setRefreshKey(prev => prev + 1);
-    }
-  }, [searchHash, loading]);
-
   if (loading && agistments.length === 0) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
-      </div>
+      <>
+        <PageToolbar
+          actions={
+            <div className="flex items-center justify-between w-full">
+              {/* Skeleton for agistments count */}
+              <div className="h-6 w-48 bg-neutral-200 dark:bg-neutral-600 rounded animate-pulse"></div>
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-24 bg-neutral-200 dark:bg-neutral-600 rounded animate-pulse"></div>
+                <div className="h-9 w-9 bg-neutral-200 dark:bg-neutral-600 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          }
+        />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <PropertyCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -251,34 +260,26 @@ export function Agistments() {
     <div className="flex flex-col flex-grow">
       <PageToolbar 
         actions={
-          <div className="w-full flex justify-between items-center">
+          <div className="flex items-center gap-2">
             <button 
               onClick={() => setIsSearchModalOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
               aria-label="Search Agistments"
             >
               <MagnifyingGlassIcon className="h-5 w-5" />
-              <span className="hidden md:inline font-medium">Search</span>
-            </button>
-            <button 
-              onClick={handleRefresh}
-              disabled={!searchHash || loading}
-              className={`hidden sm:flex items-center px-3 py-2 rounded-lg transition-colors ${
-                searchHash && !loading
-                  ? 'text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800' 
-                  : 'text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
-              }`}
-              aria-label="Refresh Results"
-            >
-              <RefreshIcon className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden md:inline">Search</span>
             </button>
           </div>
         }
       />
       <div className="flex-grow max-w-5xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-8">
         {loading && agistments.length === 0 ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <PropertyCardSkeleton key={i} />
+              ))}
+            </div>
           </div>
         ) : agistments.length === 0 ? (
           <EmptyState onSearch={() => setIsSearchModalOpen(true)} />

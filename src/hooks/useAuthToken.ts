@@ -1,11 +1,25 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useEffect, useRef, useState } from 'react';
-import { setAuthToken, getAuthToken } from '../services/auth';
+
+const TOKEN_KEY = 'auth_token';
 
 export const useAuthToken = () => {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const tokenUpdateInProgress = useRef(false);
   const [token, setToken] = useState<string | null>(null);
+
+  // Helper functions for token management
+  const setAuthToken = (token: string | null) => {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  };
+
+  const getAuthToken = (): string | null => {
+    return localStorage.getItem(TOKEN_KEY);
+  };
 
   useEffect(() => {
     const updateToken = async () => {
@@ -22,7 +36,7 @@ export const useAuthToken = () => {
         }
 
         // Get new token only if we don't have one
-        const currentToken = await getAuthToken();
+        const currentToken = getAuthToken();
         if (!currentToken) {
           const newToken = await getToken({ template: "AgistMe" });
           if (newToken) {
@@ -40,5 +54,5 @@ export const useAuthToken = () => {
     updateToken();
   }, [getToken, isLoaded, isSignedIn]);
 
-  return { token };
+  return { token, setAuthToken };
 };

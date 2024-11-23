@@ -131,7 +131,7 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
               <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
             <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-200 truncate">
-              {property.location.suburb}, {property.location.state}
+            {property.location.address}, {property.location.suburb}, {property.location.state}
             </p>
           </div>
         )}

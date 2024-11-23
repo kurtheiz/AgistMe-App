@@ -10,10 +10,10 @@ import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './components/Profile';
 import { ProfileProvider } from './context/ProfileContext';
-import { setAuthToken } from './services/auth';
 import { Agistments } from './components/Agistments';
 import { AgistmentDetail } from './components/AgistmentDetail';
 import { Toaster } from 'react-hot-toast';
+import { useAuthToken } from './hooks/useAuthToken';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -51,6 +51,7 @@ const router = createBrowserRouter(
 // Component to handle auth initialization
 const AuthInitializer = () => {
   const { getToken } = useAuth();
+  const { setAuthToken } = useAuthToken();
 
   useEffect(() => {
     const setupAuth = async () => {
@@ -73,7 +74,7 @@ const AuthInitializer = () => {
     // Set up token refresh interval (every 55 minutes)
     const refreshInterval = setInterval(setupAuth, 55 * 60 * 1000);
     return () => clearInterval(refreshInterval);
-  }, [getToken]);
+  }, [getToken, setAuthToken]);
 
   return null;
 };

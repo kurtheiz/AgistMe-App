@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { agistmentService } from '../services/agistment.service';
@@ -14,8 +14,7 @@ import {
   TieUpIcon,
   PhotoIcon,
   MapPinIcon,
-  ArrowLeftIcon,
-  RefreshIcon
+  ArrowLeftIcon
 } from './Icons';
 import { PageToolbar } from './PageToolbar';
 
@@ -27,7 +26,6 @@ export function AgistmentDetail() {
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -47,7 +45,11 @@ export function AgistmentDetail() {
         const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
         if (storedSearch) {
           const lastSearch = JSON.parse(storedSearch);
-          const foundAgistment = lastSearch.response.original.find((a: Agistment) => a.id === id);
+          // Check both original and adjacent arrays
+          const foundAgistment = 
+            (lastSearch.response.original && lastSearch.response.original.find((a: Agistment) => a.id === id)) ||
+            (lastSearch.response.adjacent && lastSearch.response.adjacent.find((a: Agistment) => a.id === id));
+          
           if (foundAgistment) {
             setAgistment(foundAgistment);
             setLoading(false);
@@ -73,34 +75,6 @@ export function AgistmentDetail() {
 
     loadAgistment();
   }, [id]);
-
-  // Function to refresh agistment data
-  const refreshAgistment = useCallback(async () => {
-    if (!id || refreshing) return;
-    
-    setRefreshing(true);
-    try {
-      const data = await agistmentService.getAgistment(id);
-      setAgistment(data);
-      setError(null);
-
-      // Update the agistment in localStorage if it exists there
-      const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
-      if (storedSearch) {
-        const lastSearch = JSON.parse(storedSearch);
-        const index = lastSearch.response.original.findIndex((a: Agistment) => a.id === id);
-        if (index !== -1) {
-          lastSearch.response.original[index] = data;
-        }
-        localStorage.setItem(LAST_SEARCH_KEY, JSON.stringify(lastSearch));
-      }
-    } catch (err) {
-      setError('Failed to refresh agistment details');
-      console.error(err);
-    } finally {
-      setRefreshing(false);
-    }
-  }, [id, refreshing]);
 
   if (loading) {
     return (
@@ -136,7 +110,7 @@ export function AgistmentDetail() {
     <div className="min-h-screen flex flex-col relative">
       <PageToolbar 
         actions={
-          <div className="w-full flex items-center justify-between -ml-2 sm:-ml-3">
+          <div className="w-full flex items-center -ml-2 sm:-ml-3">
             <div className="flex items-center">
               <button
                 onClick={() => navigate(-1)}
@@ -154,14 +128,6 @@ export function AgistmentDetail() {
                 <span className="truncate">{agistment.location.suburb}</span>
               </div>
             </div>
-            <button
-              onClick={refreshAgistment}
-              disabled={refreshing}
-              className="hidden sm:flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
-              aria-label="Refresh"
-            >
-              <RefreshIcon className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-            </button>
           </div>
         }
       />
@@ -278,15 +244,13 @@ export function AgistmentDetail() {
                 { key: 'stables', label: 'Stables', icon: StableIcon, available: agistment.stables.available },
                 { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.tieUp.available }
               ].map(({ key, label, icon: Icon, available }) => (
-                <div key={key} className={`flex items-center gap-2 ${available ? 'text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-600'}`}>
+                <div key={key} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                   {Icon && <Icon className="w-5 h-5" />}
                   <span className="text-sm flex items-center gap-1">
                     {label}
-                    {available ? (
-                      <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
-                    ) : (
-                      <span className="inline-block w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-700" />
-                    )}
+                    <span className="font-medium">
+                      {available ? '✔' : '✘'}
+                    </span>
                   </span>
                 </div>
               ))}

@@ -69,7 +69,7 @@ class AgistmentService {
 
   async getFeaturedAgistments(): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.get<AgistmentResponse>('/v1/agistments/featured');
+      const response = await this.api.get<AgistmentResponse>('/v1/protected/agistments/featured');
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get featured agistments:', error);

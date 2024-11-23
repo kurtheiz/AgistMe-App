@@ -5,12 +5,12 @@ import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDa
 import { SuburbSearch } from './SuburbSearch/SuburbSearch';
 import { useProfile } from '../context/ProfileContext';
 import { ArrowRightOnRectangleIcon, CheckIcon } from './Icons';
-import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfileForm } from '../hooks/useProfileForm';
 import { ProfilePhoto } from './Profile/ProfilePhoto';
 import { HorseFormModal } from './Profile/HorseFormModal';
 import { PageToolbar } from './PageToolbar';
 import { ProfileSkeleton } from './Profile/ProfileSkeleton';
+import { useApi } from '../hooks/useApi';
 
 export default function Profile() {
   const { profile, loading, error, refreshProfile, updateProfileData } = useProfile();
@@ -18,7 +18,7 @@ export default function Profile() {
   const { user } = useUser();
   const clerk = useClerk();
   const navigate = useNavigate();
-  const { token } = useAuthToken();
+  const api = useApi();
 
   const {
     formData,
@@ -36,27 +36,22 @@ export default function Profile() {
 
   const handleHorsePhotoUpload = async (index: number, file: File) => {
     try {
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
       setUploadingHorseIndex(index);
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) {
+      const response = await api.post('/upload', formData);
+      
+      if (response.status !== 200) {
         throw new Error('Failed to upload photo');
       }
 
-      const { url } = await response.json();
+      const { url } = response.data as { url: string };
+      const updatedHorses = [...(formData as any).horses];
+      updatedHorses[index] = {
+        ...updatedHorses[index],
+        photoUrl: url
+      };
       handleHorseChange(index, 'profilePhoto', url);
     } catch (error) {
       console.error('Error uploading horse photo:', error);
