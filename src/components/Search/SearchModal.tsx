@@ -172,30 +172,6 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }));
   };
 
-  const encodeSearchCriteria = (criteria: SearchCriteria): string => {
-    const compactSearch = {
-      s: criteria.suburbs.map(s => ({
-        i: s.id,
-        n: s.suburb,
-        p: s.postcode,
-        t: s.state,
-        r: s.region,
-        g: s.geohash,
-        l: s.locationType
-      })),
-      r: criteria.radius,
-      sp: criteria.spaces,
-      mp: criteria.maxPrice,
-      pt: criteria.paddockTypes,
-      ct: criteria.careTypes,
-      f: criteria.facilities,
-      a: criteria.hasArena,
-      ry: criteria.hasRoundYard
-    };
-
-    return btoa(JSON.stringify(compactSearch));
-  };
-
   const handleSearch = () => {
     // Clear any previous search results from local storage
     localStorage.removeItem('agistme_last_search');
