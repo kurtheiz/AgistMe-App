@@ -28,9 +28,6 @@ export function Agistments() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const searchHash = searchParams.get('q');
-  const [pullStartY, setPullStartY] = useState(0);
-  const [pullMoveY, setPullMoveY] = useState(0);
-  const [isPulling, setIsPulling] = useState(false);
 
   // Store search in local storage if it has results
   const storeSearchInLocalStorage = (hash: string, response: AgistmentResponse) => {
@@ -160,58 +157,6 @@ export function Agistments() {
     }
   }, [searchHash, loading]);
 
-  // Pull to refresh handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // Only enable pull to refresh when at the top of the page
-    if (window.scrollY === 0) {
-      setPullStartY(e.touches[0].clientY);
-      setIsPulling(true);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isPulling) return;
-    
-    const touch = e.touches[0].clientY;
-    const pull = touch - pullStartY;
-    
-    // Only allow pulling down
-    if (pull > 0 && pull <= 150) { // Max pull of 150px
-      setPullMoveY(pull);
-    }
-  };
-
-  const handleScroll = useCallback((e: Event) => {
-    if (isPulling) {
-      e.preventDefault();
-    }
-  }, [isPulling]);
-
-  useEffect(() => {
-    // Add event listener with passive: false to prevent scroll during pull
-    window.addEventListener('touchmove', handleScroll, { passive: false });
-    return () => {
-      window.removeEventListener('touchmove', handleScroll);
-    };
-  }, [handleScroll]);
-
-  const handleTouchEnd = () => {
-    if (!isPulling) return;
-    
-    if (pullMoveY > 100) { // Threshold to trigger refresh
-      handleRefresh();
-    }
-    setPullMoveY(0);
-    setIsPulling(false);
-  };
-
-  useEffect(() => {
-    if (!loading) {
-      setPullMoveY(0);
-      setIsPulling(false);
-    }
-  }, [loading]);
-
   if (loading && agistments.length === 0) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -302,25 +247,7 @@ export function Agistments() {
   );
   
   return (
-    <div 
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      className="min-h-screen flex flex-col relative"
-    >
-      {/* Pull to refresh indicator */}
-      <div 
-        className="absolute top-0 left-0 w-full flex justify-center transition-transform duration-300 pointer-events-none z-50"
-        style={{ 
-          transform: `translateY(${pullMoveY}px)`,
-          opacity: Math.min(pullMoveY / 100, 1)
-        }}
-      >
-        <div className="bg-white dark:bg-neutral-800 rounded-full p-2 shadow-lg mt-2">
-          <div className={`w-6 h-6 border-2 border-t-primary-600 border-r-primary-600 border-b-transparent border-l-transparent rounded-full ${loading ? 'animate-spin' : ''}`} />
-        </div>
-      </div>
-
+    <div className="min-h-screen flex flex-col relative">
       <PageToolbar 
         actions={
           <div className="w-full flex justify-between items-center">

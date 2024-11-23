@@ -28,9 +28,6 @@ export function AgistmentDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [pullStartY, setPullStartY] = useState(0);
-  const [pullMoveY, setPullMoveY] = useState(0);
-  const [isPulling, setIsPulling] = useState(false);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -102,55 +99,8 @@ export function AgistmentDetail() {
       console.error(err);
     } finally {
       setRefreshing(false);
-      setPullMoveY(0);
-      setIsPulling(false);
     }
   }, [id, refreshing]);
-
-  // Pull to refresh handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // Only enable pull to refresh when at the top of the page
-    if (window.scrollY === 0) {
-      setPullStartY(e.touches[0].clientY);
-      setIsPulling(true);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isPulling) return;
-    
-    const touch = e.touches[0].clientY;
-    const pull = touch - pullStartY;
-    
-    // Only allow pulling down
-    if (pull > 0 && pull <= 150) { // Max pull of 150px
-      setPullMoveY(pull);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (!isPulling) return;
-    
-    if (pullMoveY > 100) { // Threshold to trigger refresh
-      refreshAgistment();
-    }
-    setPullMoveY(0);
-    setIsPulling(false);
-  };
-
-  const handleScroll = useCallback((e: Event) => {
-    if (isPulling) {
-      e.preventDefault();
-    }
-  }, [isPulling]);
-
-  useEffect(() => {
-    // Add event listener with passive: false to prevent scroll during pull
-    window.addEventListener('touchmove', handleScroll, { passive: false });
-    return () => {
-      window.removeEventListener('touchmove', handleScroll);
-    };
-  }, [handleScroll]);
 
   if (loading) {
     return (
@@ -183,25 +133,7 @@ export function AgistmentDetail() {
   };
 
   return (
-    <div 
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      className="min-h-screen flex flex-col relative"
-    >
-      {/* Pull to refresh indicator */}
-      <div 
-        className="absolute top-0 left-0 w-full flex justify-center transition-transform duration-300 pointer-events-none z-50"
-        style={{ 
-          transform: `translateY(${pullMoveY}px)`,
-          opacity: Math.min(pullMoveY / 100, 1)
-        }}
-      >
-        <div className="bg-white dark:bg-neutral-800 rounded-full p-2 shadow-lg mt-2">
-          <div className={`w-6 h-6 border-2 border-t-primary-600 border-r-primary-600 border-b-transparent border-l-transparent rounded-full ${refreshing ? 'animate-spin' : ''}`} />
-        </div>
-      </div>
-
+    <div className="min-h-screen flex flex-col relative">
       <PageToolbar 
         actions={
           <div className="w-full flex items-center justify-between -ml-2 sm:-ml-3">
