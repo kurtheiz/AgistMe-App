@@ -142,12 +142,12 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
             <div className="flex items-center gap-2 sm:gap-6">
               {/* Private Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg ${
+                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg border-2 ${
                   property.privatePaddocks.total > 0 
                     ? property.privatePaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
-                    : 'border-2 border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 border-primary-300 dark:border-primary-700'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700'
+                    : 'border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
                 }`}>
                   {property.privatePaddocks.total > 0 ? property.privatePaddocks.available : '-'}
                 </span>
@@ -158,12 +158,12 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
 
               {/* Shared Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg ${
+                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg border-2 ${
                   property.sharedPaddocks.total > 0 
                     ? property.sharedPaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
-                    : 'border-2 border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 border-primary-300 dark:border-primary-700'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700'
+                    : 'border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
                 }`}>
                   {property.sharedPaddocks.total > 0 ? property.sharedPaddocks.available : '-'}
                 </span>
@@ -174,12 +174,12 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
 
               {/* Group Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg ${
+                <span className={`text-xl sm:text-2xl font-bold px-4 py-2 rounded-lg border-2 ${
                   property.groupPaddocks.total > 0 
                     ? property.groupPaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
-                    : 'border-2 border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 border-primary-300 dark:border-primary-700'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700'
+                    : 'border-dashed border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
                 }`}>
                   {property.groupPaddocks.total > 0 ? property.groupPaddocks.available : '-'}
                 </span>
@@ -190,8 +190,8 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
             </div>
             
             {/* Price Range */}
-            <div className="text-right">
-              <div className="text-sm text-neutral-500 dark:text-neutral-400">From</div>
+            <div className="text-right flex flex-col justify-start h-[72px]">
+              <div className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">From</div>
               <div className="font-bold text-lg text-neutral-900 dark:text-neutral-100">
                 ${Math.min(
                   property.privatePaddocks?.weeklyPrice || Infinity,

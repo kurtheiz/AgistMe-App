@@ -146,7 +146,7 @@ export function Agistments() {
   const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
     // Clear previous results before navigating
     setAgistments([]);
-    navigate(`/agistment/search?q=${criteria.searchHash}`);
+    navigate(`/agistments/search?q=${criteria.searchHash}`);
     setIsSearchModalOpen(false);
   };
 
