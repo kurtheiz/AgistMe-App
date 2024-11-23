@@ -131,17 +131,17 @@ export default function Bio() {
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
       <PageToolbar 
         actions={
-          <div className="w-full flex items-center -ml-2 sm:-ml-3">
+          <div className="w-full flex items-center -ml-1 sm:-ml-3">
             <div className="flex items-center">
               <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
+                className="flex items-center gap-1 px-2 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
               >
                 <ArrowLeftIcon className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base">Back</span>
+                <span className="font-medium text-sm">Back</span>
               </button>
               <span className="text-neutral-300 dark:text-neutral-600 mx-1">|</span>
-              <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
+              <div className="flex items-center gap-1 text-xs text-neutral-600 dark:text-neutral-400">
                 <span>Profile</span>
                 <span className="text-neutral-300 dark:text-neutral-600">&gt;</span>
                 <span>Bio</span>
@@ -151,51 +151,49 @@ export default function Bio() {
         }
       />
       
-      <div className="w-full pb-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Bio Settings</h1>
+      <div className="w-full pb-20">
+        <div className="max-w-2xl mx-auto px-3 sm:px-6">
+          <div className="py-4 sm:py-6">
+            <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-white">Bio Settings</h1>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
               Manage your personal information
             </p>
           </div>
-          <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Contact Information</h2>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg p-4 sm:p-6">
+            <form onSubmit={handleSubmit} id="profile-form" className="space-y-4 sm:space-y-6">
               {/* Profile Image */}
-              <ProfilePhoto
-                photoUrl={formData.profilePhoto || ''}
-                isUploading={isUploading}
-                onPhotoUpload={async (file: File) => {
-                  try {
-                    setIsUploading(true);
-                    const photoUrl = await profileService.uploadProfilePhoto(file);
+              <div className="flex justify-center">
+                <ProfilePhoto
+                  photoUrl={formData.profilePhoto || ''}
+                  isUploading={isUploading}
+                  onPhotoUpload={async (file: File) => {
+                    try {
+                      setIsUploading(true);
+                      const photoUrl = await profileService.uploadProfilePhoto(file);
+                      setFormData(prev => ({
+                        ...prev,
+                        profilePhoto: photoUrl
+                      }));
+                      return photoUrl;
+                    } catch (error) {
+                      console.error('Error uploading photo:', error);
+                      return '';
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  }}
+                  onPhotoRemove={() => {
                     setFormData(prev => ({
                       ...prev,
-                      profilePhoto: photoUrl
+                      profilePhoto: ''
                     }));
-                    return photoUrl;
-                  } catch (error) {
-                    console.error('Error uploading photo:', error);
-                    return '';
-                  } finally {
-                    setIsUploading(false);
-                  }
-                }}
-                onPhotoRemove={() => {
-                  setFormData(prev => ({
-                    ...prev,
-                    profilePhoto: ''
-                  }));
-                }}
-                fallbackUrl={user?.imageUrl || '/default-profile.png'}
-              />
+                  }}
+                  fallbackUrl={user?.imageUrl || '/default-profile.png'}
+                />
+              </div>
 
               {/* Email Display */}
-              <div className="text-center">
+              <div className="text-center mb-4">
                 <span className="text-sm text-neutral-500 dark:text-neutral-400">Email:</span>
                 <p className="text-neutral-800 dark:text-neutral-200 font-medium">
                   {user?.primaryEmailAddress?.emailAddress}
@@ -203,8 +201,8 @@ export default function Bio() {
               </div>
 
               {/* Name Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="relative">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                     First Name
                   </label>
@@ -215,10 +213,10 @@ export default function Bio() {
                     value={formData.firstName}
                     onChange={handleInputChange}
                     placeholder="First Name"
-                    className="form-input form-input-compact"
+                    className="form-input h-10 text-sm w-full"
                   />
                 </div>
-                <div className="relative">
+                <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                     Last Name
                   </label>
@@ -229,14 +227,14 @@ export default function Bio() {
                     value={formData.lastName}
                     onChange={handleInputChange}
                     placeholder="Last Name"
-                    className="form-input form-input-compact"
+                    className="form-input h-10 text-sm w-full"
                   />
                 </div>
               </div>
 
               {/* Date of Birth and Mobile Number */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="relative">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                     Date of Birth
                   </label>
@@ -248,15 +246,15 @@ export default function Bio() {
                     onChange={handleInputChange}
                     max={getMaxDateOfBirth()}
                     min={getMinDateOfBirth()}
-                    className="form-input form-input-compact [color-scheme:light] dark:[color-scheme:dark]"
+                    className="form-input h-10 text-sm w-full [color-scheme:light] dark:[color-scheme:dark]"
                   />
                   {formData.dateOfBirth && !isValidDateOfBirth(formData.dateOfBirth).isValid && (
-                    <p className="mt-1 text-sm text-red-500 dark:text-red-400">
+                    <p className="mt-1 text-xs text-red-500 dark:text-red-400">
                       {isValidDateOfBirth(formData.dateOfBirth).error}
                     </p>
                   )}
                 </div>
-                <div className="relative">
+                <div>
                   <label htmlFor="mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                     Mobile Number
                   </label>
@@ -267,10 +265,10 @@ export default function Bio() {
                     value={formData.mobile}
                     onChange={handleInputChange}
                     placeholder="Mobile Number"
-                    className="form-input form-input-compact"
+                    className="form-input h-10 text-sm w-full"
                   />
                   {formData.mobile && !isValidAusMobileNumber(formData.mobile) && (
-                    <p className="mt-1 text-sm text-red-500 dark:text-red-400">
+                    <p className="mt-1 text-xs text-red-500 dark:text-red-400">
                       Please enter a valid mobile number (xxxx-xxx-xxx)
                     </p>
                   )}
@@ -278,7 +276,7 @@ export default function Bio() {
               </div>
 
               {/* Suburb Search Section */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Search Suburb
@@ -297,7 +295,7 @@ export default function Bio() {
                         region: ''
                       }));
                     }}
-                    className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Clear Address
                   </button>
@@ -316,18 +314,11 @@ export default function Bio() {
                         region: suburb.region || '',
                         geohash: suburb.geohash || ''
                       }));
-                      const syntheticEvent = {
-                        target: {
-                          name: 'postcode',
-                          value: suburb.postcode
-                        }
-                      } as React.ChangeEvent<HTMLInputElement>;
-                      handleInputChange(syntheticEvent);
                     }
                   }}
                   multiple={false}
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                       State
@@ -336,29 +327,7 @@ export default function Bio() {
                       type="text"
                       value={formData.state}
                       readOnly
-                      className="form-input form-input-compact bg-neutral-100 dark:bg-neutral-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Region
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.region}
-                      readOnly
-                      className="form-input form-input-compact bg-neutral-100 dark:bg-neutral-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Suburb
-                    </label>
-                    <input
-                      type="text"
-                      value={typeof formData.suburb === 'string' ? formData.suburb : formData.suburb?.suburb || ''}
-                      readOnly
-                      className="form-input form-input-compact bg-neutral-100 dark:bg-neutral-800"
+                      className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
                     />
                   </div>
                   <div>
@@ -369,12 +338,12 @@ export default function Bio() {
                       type="text"
                       value={formData.postcode}
                       readOnly
-                      className="form-input form-input-compact bg-neutral-100 dark:bg-neutral-800"
+                      className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
                     />
                   </div>
                 </div>
                 {/* Address Field */}
-                <div className="col-span-full">
+                <div>
                   <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                     Address
                   </label>
@@ -384,11 +353,11 @@ export default function Bio() {
                     value={formData.address}
                     onChange={handleInputChange}
                     placeholder="Enter your street address"
-                    className="form-input"
+                    className="form-input h-10 text-sm w-full"
                   />
                 </div>
                 {/* Comments Field */}
-                <div className="col-span-full">
+                <div>
                   <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                     About
                   </label>
@@ -397,44 +366,48 @@ export default function Bio() {
                     value={formData.comments || ''}
                     onChange={handleInputChange}
                     placeholder={`Tell us more about ${formData.firstName || 'yourself'}`}
-                    rows={4}
-                    className="form-textarea w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-100"
+                    rows={3}
+                    className="form-textarea text-sm w-full resize-none"
                   />
                 </div>
               </div>
-              {/* Save button at the bottom */}
-              <div className="flex justify-center pt-6 mt-6 border-t border-neutral-200 dark:border-neutral-700">
-                <button
-                  type="submit"
-                  disabled={saving || !hasChanges || isUploading}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-primary-600/50 disabled:cursor-not-allowed rounded-md min-w-[140px] justify-center"
-                >
-                  {saving ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      <span>Saving...</span>
-                    </>
-                  ) : isUploading ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      <span>Uploading Photo...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckIcon className="h-5 w-5" />
-                      <span>{hasChanges ? 'Save Changes' : 'No Changes'}</span>
-                    </>
-                  )}
-                </button>
-              </div>
             </form>
           </div>
+        </div>
+      </div>
+
+      {/* Sticky Save Button */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-700 p-3">
+        <div className="max-w-2xl mx-auto">
+          <button
+            type="submit"
+            form="profile-form"
+            disabled={saving || !hasChanges || isUploading}
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-primary-600/50 disabled:cursor-not-allowed rounded-lg"
+          >
+            {saving ? (
+              <>
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span>Saving...</span>
+              </>
+            ) : isUploading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span>Uploading Photo...</span>
+              </>
+            ) : (
+              <>
+                <CheckIcon className="h-5 w-5" />
+                <span>{hasChanges ? 'Save Changes' : 'No Changes'}</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>
