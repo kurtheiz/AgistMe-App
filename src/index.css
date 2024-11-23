@@ -79,6 +79,6 @@ body {
 
   /* Modal header styling */
   .modal-header {
-    @apply text-lg font-medium leading-6 text-white bg-primary-600 flex justify-between items-center mb-4 p-4 -mx-6 -mt-6;
+    @apply text-lg font-medium leading-6 text-white bg-primary-600 dark:bg-neutral-800 flex justify-between items-center mb-4 p-4 -mx-6 -mt-6 dark:border-b dark:border-neutral-700;
   }
 }

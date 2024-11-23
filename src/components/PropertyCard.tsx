@@ -220,7 +220,7 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
                 {Icon && <Icon className="w-5 h-5" />}
                 <span className="text-sm flex items-center gap-1">
                   {label}
-                  <span className={`font-medium ${available ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  <span className="font-medium">
                     {available ? '✔' : '✘'}
                   </span>
                 </span>

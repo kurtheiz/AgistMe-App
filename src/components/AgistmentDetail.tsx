@@ -265,8 +265,8 @@ export function AgistmentDetail() {
           </div>
 
           {/* Facilities */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 sm:p-6">
-            <h2 className="text-lg font-semibold mb-4">Facilities</h2>
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Facilities</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[
                 { key: 'arena', label: 'Arena', icon: ArenaIcon, available: agistment.arenas.length > 0 },
@@ -282,7 +282,7 @@ export function AgistmentDetail() {
                   {Icon && <Icon className="w-5 h-5" />}
                   <span className="text-sm flex items-center gap-1">
                     {label}
-                    <span className={`font-medium ${available ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    <span className="font-medium">
                       {available ? '✔' : '✘'}
                     </span>
                   </span>
