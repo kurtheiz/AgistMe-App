@@ -27,31 +27,31 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 w-full">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative">
-        <div className="flex h-16 items-center justify-between">
+    <header className="bg-white dark:bg-neutral-900 w-full">
+      <div className="mx-auto max-w-5xl px-3 sm:px-6 lg:px-8 relative">
+        <div className="flex h-10 sm:h-12 items-center justify-between">
           {/* Left side */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <Link 
               to="/" 
               onClick={() => {
                 // Clear the stored search from localStorage
                 localStorage.removeItem('agistme_last_search');
               }} 
-              className="flex items-center space-x-2 text-2xl font-bold text-gray-900 dark:text-white"
+              className="flex items-center space-x-1.5 sm:space-x-2 text-base sm:text-xl font-bold text-gray-900 dark:text-white"
             >
-              <img src="/AgistMeLogo.svg" alt="Agist Me Logo" className="h-8 w-8 dark:invert" />
+              <img src="/AgistMeLogo.svg" alt="Agist Me Logo" className="h-5 w-5 sm:h-6 sm:w-6 dark:invert" />
               <span>Agist Me</span>
             </Link>
-            <nav className="hidden md:flex space-x-4">
-              <Link to="/about" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">About</Link>
+            <nav className="hidden md:flex space-x-2 sm:space-x-3">
+              <Link to="/about" className="text-sm sm:text-base text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">About</Link>
               <Link 
                 to="/agistments/search"
-                className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
+                className="text-sm sm:text-base text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
               >
                 Agistments
               </Link>
-              <Link to="/Pricing" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">Pricing</Link>
+              <Link to="/Pricing" className="text-sm sm:text-base text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">Pricing</Link>
             </nav>
           </div>
 
@@ -63,7 +63,7 @@ export const Header = () => {
                 {!isSignedIn && (
                   <button
                     onClick={handleSignUpClick}
-                    className="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                    className="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-white dark:hover:text-primary-200"
                   >
                     Sign Up
                   </button>

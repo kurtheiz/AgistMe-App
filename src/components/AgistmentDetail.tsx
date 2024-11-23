@@ -278,13 +278,15 @@ export function AgistmentDetail() {
                 { key: 'stables', label: 'Stables', icon: StableIcon, available: agistment.stables.available },
                 { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.tieUp.available }
               ].map(({ key, label, icon: Icon, available }) => (
-                <div key={key} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+                <div key={key} className={`flex items-center gap-2 ${available ? 'text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-600'}`}>
                   {Icon && <Icon className="w-5 h-5" />}
                   <span className="text-sm flex items-center gap-1">
                     {label}
-                    <span className="font-medium">
-                      {available ? '✔' : '✘'}
-                    </span>
+                    {available ? (
+                      <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+                    ) : (
+                      <span className="inline-block w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+                    )}
                   </span>
                 </div>
               ))}

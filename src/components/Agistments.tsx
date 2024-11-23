@@ -230,10 +230,10 @@ export function Agistments() {
           </svg>
         </div>
       </div>
-      <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-3">
+      <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-3 px-4 sm:px-0 text-center">
         {searchHash ? 'No agistments found' : 'Find your perfect agistment'}
       </h2>
-      <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md">
+      <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md px-4 sm:px-0 text-center">
         {searchHash 
           ? 'Try adjusting your search criteria to find more options'
           : 'Start by searching for agistments in your area. You can filter by facilities, care types, and more.'}
