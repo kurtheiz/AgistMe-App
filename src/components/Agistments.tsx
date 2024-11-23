@@ -166,7 +166,7 @@ export function Agistments() {
             xmlns="http://www.w3.org/2000/svg"
           >
             {/* Background circle */}
-            <circle cx="50" cy="50" r="45" className="stroke-primary-200 dark:stroke-primary-800" strokeWidth="1" />
+            <circle cx="50" cy="50" r="45" className="stroke-primary-200 dark:stroke-primary-400" strokeWidth="1" />
             
             {/* AgistMe Logo in the center */}
             <image
@@ -175,7 +175,7 @@ export function Agistments() {
               y="30"
               width="40"
               height="40"
-              className="opacity-80"
+              className="opacity-80 dark:invert"
             />
             
             {/* Animated magnifying glass */}

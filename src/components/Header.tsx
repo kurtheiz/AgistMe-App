@@ -40,7 +40,7 @@ export const Header = () => {
               }} 
               className="flex items-center space-x-2 text-2xl font-bold text-gray-900 dark:text-white"
             >
-              <img src="/AgistMeLogo.svg" alt="Agist Me Logo" className="h-8 w-8" />
+              <img src="/AgistMeLogo.svg" alt="Agist Me Logo" className="h-8 w-8 dark:invert" />
               <span>Agist Me</span>
             </Link>
             <nav className="hidden md:flex space-x-4">
