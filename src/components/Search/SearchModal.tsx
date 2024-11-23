@@ -29,28 +29,29 @@ interface SearchModalProps {
 export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: SearchModalProps) {
   useEffect(() => {
     if (isOpen) {
-      // Only add padding if there's a scrollbar
-      const hasScrollbar = window.innerHeight < document.documentElement.scrollHeight;
+      // Check if content will cause overflow
+      const modalContent = document.querySelector('[role="dialog"]');
+      const hasScrollbar = modalContent && modalContent.scrollHeight > window.innerHeight;
+      
       if (hasScrollbar) {
+        // Only add padding if there's actually a scrollbar
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-        document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
-      } else {
-        document.documentElement.style.setProperty('--scrollbar-width', '0px');
-        document.body.style.paddingRight = '0px';
+        if (scrollbarWidth > 0) {
+          document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+          document.body.style.paddingRight = `${scrollbarWidth}px`;
+        }
       }
       document.documentElement.classList.add('modal-open');
       document.body.classList.add('overflow-hidden');
     } else {
-      const transitionDuration = 200;
-      setTimeout(() => {
-        document.documentElement.classList.remove('modal-open');
-        document.body.classList.remove('overflow-hidden');
-        document.body.style.paddingRight = '';
-        document.documentElement.style.setProperty('--scrollbar-width', '0px');
-      }, transitionDuration);
+      // Clean up immediately instead of using setTimeout
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('overflow-hidden');
+      document.body.style.paddingRight = '';
+      document.documentElement.style.setProperty('--scrollbar-width', '0px');
     }
 
+    // Cleanup function
     return () => {
       document.documentElement.classList.remove('modal-open');
       document.body.classList.remove('overflow-hidden');
@@ -196,7 +197,29 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
   };
 
   const handleSearch = () => {
-    const searchHash = encodeSearchCriteria(criteria);
+    // Clear any previous search results from local storage
+    localStorage.removeItem('agistme_last_search');
+    
+    const searchHash = btoa(JSON.stringify({
+      s: criteria.suburbs.map(s => ({
+        i: s.id,
+        n: s.suburb,
+        p: s.postcode,
+        t: s.state,
+        r: s.region,
+        g: s.geohash,
+        l: s.locationType
+      })),
+      r: criteria.radius,
+      pt: criteria.paddockTypes,
+      sp: criteria.spaces,
+      mp: criteria.maxPrice,
+      a: criteria.hasArena,
+      ry: criteria.hasRoundYard,
+      f: criteria.facilities,
+      ct: criteria.careTypes
+    }));
+
     onSearch({ ...criteria, searchHash });
     onClose();
   };

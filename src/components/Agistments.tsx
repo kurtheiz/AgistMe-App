@@ -147,6 +147,8 @@ export function Agistments() {
   }, [searchParams, refreshKey]);
 
   const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
+    // Clear previous results before navigating
+    setAgistments([]);
     navigate(`/agistments/search?q=${criteria.searchHash}`);
     setIsSearchModalOpen(false);
   };
@@ -170,7 +172,7 @@ export function Agistments() {
   }
 
   const EmptyState = ({ onSearch }: EmptyStateProps) => (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+    <div className="flex flex-col items-center justify-center flex-grow">
       <div className="relative mb-8 w-48 h-48">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-100 via-primary-50 to-transparent dark:from-primary-900/30 dark:via-primary-800/10 rounded-full blur-2xl"></div>
         <div className="relative w-full h-full">
@@ -247,7 +249,7 @@ export function Agistments() {
   );
   
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="flex flex-col flex-grow">
       <PageToolbar 
         actions={
           <div className="w-full flex justify-between items-center">
@@ -274,7 +276,7 @@ export function Agistments() {
           </div>
         }
       />
-      <div className="max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 pt-8 pb-12">
+      <div className="flex-grow max-w-5xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-8">
         {loading && agistments.length === 0 ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
