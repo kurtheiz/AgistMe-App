@@ -4,6 +4,7 @@ import { agistmentService } from '../services/agistment.service';
 import { Agistment, AgistmentResponse } from '../types/agistment';
 import { SearchModal } from './Search/SearchModal';
 import { SearchCriteria } from '../types/search';
+import { LocationType } from '../types/suburb';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from './PageToolbar';
 import { PropertyCard } from './PropertyCard';
@@ -11,6 +12,7 @@ import { PropertyCardSkeleton } from './PropertyCardSkeleton';
 
 // Local storage key for last search
 const LAST_SEARCH_KEY = 'agistme_last_search';
+const initialFacilities: any[] = [];
 
 interface StoredSearch {
   hash: string;
@@ -19,13 +21,54 @@ interface StoredSearch {
   response: AgistmentResponse;
 }
 
+const decodeSearchHash = (hash: string): SearchCriteria => {
+  try {
+    const decodedSearch = JSON.parse(atob(hash));
+    return {
+      suburbs: decodedSearch.s?.map((s: any) => ({
+        id: s.i,
+        suburb: s.n,
+        postcode: s.p,
+        state: s.t,
+        region: s.r,
+        geohash: s.g,
+        locationType: s.l
+      })) || [],
+      radius: decodedSearch.r || 0,
+      paddockTypes: decodedSearch.pt || [],
+      spaces: decodedSearch.sp || 0,
+      maxPrice: decodedSearch.mp || 0,
+      hasArena: decodedSearch.a || false,
+      hasRoundYard: decodedSearch.ry || false,
+      facilities: decodedSearch.f || initialFacilities,
+      careTypes: decodedSearch.ct || []
+    };
+  } catch (error) {
+    console.error('Error decoding search hash:', error);
+    return {
+      suburbs: [],
+      radius: 0,
+      paddockTypes: [],
+      spaces: 0,
+      maxPrice: 0,
+      hasArena: false,
+      hasRoundYard: false,
+      facilities: initialFacilities,
+      careTypes: []
+    };
+  }
+};
+
 export function Agistments() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [agistments, setAgistments] = useState<Agistment[]>([]);
+  const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
+  const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [filterCount, setFilterCount] = useState(0);
+  const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
   const searchHash = searchParams.get('q');
 
   // Store search in local storage if it has results
@@ -54,12 +97,11 @@ export function Agistments() {
         const isRecent = Date.now() - lastSearch.timestamp < 24 * 60 * 60 * 1000;
         
         if (isRecent && lastSearch.response) {
-          const allAgistments = [
-            ...(lastSearch.response.original || []),
-            ...(lastSearch.response.adjacent || [])
-          ];
-          console.log('Loading from storage:', allAgistments.length, 'agistments');
-          setAgistments(allAgistments);
+          const original = lastSearch.response.original || [];
+          const adjacent = lastSearch.response.adjacent || [];
+          console.log('Loading from storage:', original.length + adjacent.length, 'agistments');
+          setOriginalAgistments(original);
+          setAdjacentAgistments(adjacent);
           
           // Update URL with the stored search hash if we're on the agistments page
           if (location.pathname === '/agistments' && !searchHash) {
@@ -78,8 +120,8 @@ export function Agistments() {
   // Add effect to clear state when navigating home
   useEffect(() => {
     if (location.pathname === '/') {
-      setAgistments([]);
-      setSearchParams({});
+      setOriginalAgistments([]);
+      setAdjacentAgistments([]);
     } else if (location.pathname === '/agistments/search' && !searchHash) {
       // Try to load from storage when navigating to agistments/search without a search hash
       const loaded = loadStoredSearch();
@@ -93,10 +135,24 @@ export function Agistments() {
     }
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (searchHash) {
+      try {
+        const decodedCriteria = decodeSearchHash(searchHash);
+        setCurrentCriteria(decodedCriteria);
+      } catch (error) {
+        console.error('Error decoding search hash:', error);
+      }
+    } else {
+      setCurrentCriteria(null);
+    }
+  }, [searchHash]);
+
   const fetchAgistments = async () => {
     // Only clear state if we're on the home page
     if (location.pathname === '/') {
-      setAgistments([]);
+      setOriginalAgistments([]);
+      setAdjacentAgistments([]);
       setLoading(false);
       return;
     }
@@ -116,14 +172,8 @@ export function Agistments() {
     setLoading(true);
     try {
       const response = await agistmentService.searchAgistments(searchHash);
-      const allAgistments = [
-        ...(response.original || []),
-        ...(response.adjacent || [])
-      ];
-      console.log('List view - First agistment photos:', allAgistments[0]?.photos);
-      console.log('List view - First photo type:', typeof allAgistments[0]?.photos[0]);
-      console.log('List view photos:', allAgistments.map(a => a.photos));
-      setAgistments(allAgistments);
+      setOriginalAgistments(response.original || []);
+      setAdjacentAgistments(response.adjacent || []);
       storeSearchInLocalStorage(searchHash, response);
     } catch (error) {
       console.error('Error fetching agistments:', error);
@@ -145,12 +195,13 @@ export function Agistments() {
 
   const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
     // Clear previous results before navigating
-    setAgistments([]);
+    setOriginalAgistments([]);
+    setAdjacentAgistments([]);
     navigate(`/agistments/search?q=${criteria.searchHash}`);
     setIsSearchModalOpen(false);
   };
 
-  if (loading && agistments.length === 0) {
+  if (loading && originalAgistments.length === 0 && adjacentAgistments.length === 0) {
     return (
       <>
         <PageToolbar
@@ -263,17 +314,22 @@ export function Agistments() {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setIsSearchModalOpen(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors relative"
               aria-label="Search Agistments"
             >
               <MagnifyingGlassIcon className="h-5 w-5" />
-              <span className="hidden md:inline">Search</span>
+              <span>Search</span>
+              {filterCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-primary-600 rounded-full">
+                  {filterCount}
+                </span>
+              )}
             </button>
           </div>
         }
       />
-      <div className="flex-grow max-w-5xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-8">
-        {loading && agistments.length === 0 ? (
+      <div className="flex-grow max-w-5xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-4">
+        {loading && originalAgistments.length === 0 && adjacentAgistments.length === 0 ? (
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
@@ -281,24 +337,67 @@ export function Agistments() {
               ))}
             </div>
           </div>
-        ) : agistments.length === 0 ? (
+        ) : originalAgistments.length === 0 && adjacentAgistments.length === 0 ? (
           <EmptyState onSearch={() => setIsSearchModalOpen(true)} />
         ) : (
           <>
-            <div className="mb-6 px-2 sm:px-0">
-              <h1 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                {agistments.length} {agistments.length === 1 ? 'Agistment' : 'Agistments'} Found
-              </h1>
-            </div>
-            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 ${loading ? 'opacity-50 transition-opacity duration-200' : ''}`}>
-              {agistments.map((agistment) => (
-                <PropertyCard
-                  key={agistment.id}
-                  property={agistment}
-                  onClick={() => navigate(`/agistment/${agistment.id}`)}
-                />
-              ))}
-            </div>
+            {originalAgistments.length > 0 && (
+              <>
+                <div className="mb-3 px-2 sm:px-0">
+                  <h1 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                    {originalAgistments.length} {originalAgistments.length === 1 ? 'Agistment' : 'Agistments'} found
+                    {currentCriteria?.suburbs && currentCriteria.suburbs.length > 0 && (
+                      <> in {(() => {
+                        const firstLocation = currentCriteria.suburbs[0];
+                        console.log('Location type:', firstLocation.locationType);
+                        console.log('Full location:', firstLocation);
+                        const locationType = firstLocation.locationType;
+                        switch (locationType) {
+                          case 'SUBURB':
+                            return `${firstLocation.suburb}, ${firstLocation.state} ${firstLocation.postcode}`;
+                          case 'STATE':
+                            return `${firstLocation.suburb} state`;
+                          case 'REGION':
+                            return `${firstLocation.region} region`;
+                          default:
+                            return firstLocation.suburb;
+                        }
+                      })()}
+                        {currentCriteria.suburbs.length > 1 && ' and other locations'}
+                      </>
+                    )}
+                  </h1>
+                </div>
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 ${loading ? 'opacity-50 transition-opacity duration-200' : ''}`}>
+                  {originalAgistments.map((agistment) => (
+                    <PropertyCard
+                      key={agistment.id}
+                      property={agistment}
+                      onClick={() => navigate(`/agistment/${agistment.id}`)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {adjacentAgistments.length > 0 && (
+              <>
+                <div className="mb-3 px-2 sm:px-0">
+                  <h2 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                    {adjacentAgistments.length} {adjacentAgistments.length === 1 ? 'Agistment' : 'Agistments'} found in adjacent locations
+                  </h2>
+                </div>
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 ${loading ? 'opacity-50 transition-opacity duration-200' : ''}`}>
+                  {adjacentAgistments.map((agistment) => (
+                    <PropertyCard
+                      key={agistment.id}
+                      property={agistment}
+                      onClick={() => navigate(`/agistment/${agistment.id}`)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
         
@@ -307,6 +406,7 @@ export function Agistments() {
           onClose={() => setIsSearchModalOpen(false)}
           onSearch={handleSearch}
           initialSearchHash={searchHash || undefined}
+          onFilterCountChange={setFilterCount}
         />
       </div>
     </div>

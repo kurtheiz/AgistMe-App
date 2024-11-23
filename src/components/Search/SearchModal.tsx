@@ -24,9 +24,10 @@ interface SearchModalProps {
   onClose: () => void;
   onSearch: (criteria: SearchCriteria & { searchHash: string }) => void;
   initialSearchHash?: string;
+  onFilterCountChange?: (count: number) => void;
 }
 
-export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: SearchModalProps) {
+export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFilterCountChange }: SearchModalProps) {
   useEffect(() => {
     if (isOpen) {
       // Check if content will cause overflow
@@ -117,6 +118,19 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
       setCriteria(decodeSearchHash(initialSearchHash));
     }
   }, [initialSearchHash]);
+
+  useEffect(() => {
+    const filterCount = 
+      criteria.paddockTypes.length + 
+      (criteria.spaces > 0 ? 1 : 0) +
+      (criteria.maxPrice > 0 ? 1 : 0) +
+      (criteria.hasArena ? 1 : 0) +
+      (criteria.hasRoundYard ? 1 : 0) +
+      criteria.facilities.length +
+      criteria.careTypes.length;
+    
+    onFilterCountChange?.(filterCount);
+  }, [criteria, onFilterCountChange]);
 
   const togglePaddockType = (type: PaddockType) => {
     setCriteria(prev => ({
