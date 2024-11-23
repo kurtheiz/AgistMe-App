@@ -190,7 +190,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
     // Clear any previous search results from local storage
     localStorage.removeItem('agistme_last_search');
     
-    const searchHash = btoa(JSON.stringify({
+    const searchData = {
       s: criteria.suburbs.map(s => ({
         i: s.id,
         n: s.suburb,
@@ -208,7 +208,10 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
       ry: criteria.hasRoundYard,
       f: criteria.facilities,
       ct: criteria.careTypes
-    }));
+    };
+
+    console.log('Search data before encoding:', JSON.stringify(searchData, null, 2));
+    const searchHash = btoa(JSON.stringify(searchData));
 
     onSearch({ ...criteria, searchHash });
     onClose();
