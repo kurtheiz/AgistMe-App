@@ -53,12 +53,26 @@ export interface Stables extends Facility {
   quantity: number;
 }
 
+export interface SocialMedia {
+  link: string;
+  type: 'SITE' | 'INSTA' | 'FB';
+}
+
+export interface Photo {
+  link: string;
+  comment: string;
+}
+
+export type ListingType = 'PROFESSIONAL' | 'PRIVATE';
+export type Status = 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
+
 export interface Agistment {
   id: string;
+  status: Status;
   arena: boolean;
   arenas: Arena[];
   contactDetails: ContactDetails;
-  createdAt: string;
+  createdAt: string | null;
   description: string;
   feedRoom: Facility;
   floatParking: PricedFacility;
@@ -68,19 +82,19 @@ export interface Agistment {
   GSI1PK: string;
   hidden: boolean;
   hotWash: Facility;
-  listingType: string;
+  listingType: ListingType;
   location: Location;
   modifiedAt: string;
   name: string;
   partCare: PricedFacility;
-  photos: string[];
+  photos: Photo[];
   privatePaddocks: Paddock;
   roundYard: boolean;
   roundYards: RoundYard[];
   selfCare: PricedFacility;
   services: string[];
   sharedPaddocks: Paddock;
-  socialMedia: string[];
+  socialMedia: SocialMedia[];
   stables: Stables;
   tackRoom: Facility;
   tieUp: Facility;

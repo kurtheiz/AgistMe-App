@@ -14,17 +14,15 @@ import {
   FloatParkingIcon,
   HotWashIcon,
   StableIcon,
-  TieUpIcon,
-  HeartIcon
+  TieUpIcon
 } from '../Icons';
-import { useNavigate } from 'react-router-dom';
 
 const initialFacilities: FacilityType[] = [];
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSearch: (criteria: SearchCriteria) => void;
+  onSearch: (criteria: SearchCriteria & { searchHash: string }) => void;
   initialSearchHash?: string;
 }
 
@@ -119,8 +117,6 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }
   }, [initialSearchHash]);
 
-  const navigate = useNavigate();
-
   const togglePaddockType = (type: PaddockType) => {
     setCriteria(prev => ({
       ...prev,
@@ -175,24 +171,9 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Clean up suburbs based on selected regions and states
-    let cleanedSuburbs = [...criteria.suburbs];
-    
-    // Remove any location if its ID starts with another selected location's ID
-    cleanedSuburbs = cleanedSuburbs.filter(suburb => {
-      // Check if any other selected location's ID is a prefix of this suburb's ID
-      return !cleanedSuburbs.some(other => 
-        other !== suburb && // Don't compare with itself
-        suburb.id.startsWith(other.id) // Check if other.id is a prefix
-      );
-    });
-
-    // Create a compact search object
+  const encodeSearchCriteria = (criteria: SearchCriteria): string => {
     const compactSearch = {
-      s: cleanedSuburbs.map(s => ({
+      s: criteria.suburbs.map(s => ({
         i: s.id,
         n: s.suburb,
         p: s.postcode,
@@ -211,21 +192,12 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
       ry: criteria.hasRoundYard
     };
 
-    // Convert to base64 string
-    const searchHash = btoa(JSON.stringify(compactSearch));
-    
-    // Ensure all required fields are included in the search criteria
-    const searchCriteria: SearchCriteria = {
-      ...criteria,
-      suburbs: cleanedSuburbs,
-      hasArena: criteria.hasArena || false,
-      hasRoundYard: criteria.hasRoundYard || false,
-      facilities: criteria.facilities || [],
-      careTypes: criteria.careTypes || []
-    };
-    
-    onSearch(searchCriteria);
-    navigate(`/agistments/search?q=${searchHash}`);
+    return btoa(JSON.stringify(compactSearch));
+  };
+
+  const handleSearch = () => {
+    const searchHash = encodeSearchCriteria(criteria);
+    onSearch({ ...criteria, searchHash });
     onClose();
   };
 
@@ -274,7 +246,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                       </button>
                     </Dialog.Title>
 
-                    <form onSubmit={handleSubmit} id="search-form" className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
+                    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
                       {/* Location Section */}
                       <div className="p-4 sm:p-6">
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Location</h2>
@@ -531,7 +503,6 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                                       : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
                                   } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
-                                  <HeartIcon className="h-5 w-5" />
                                   {type}
                                 </button>
                               ))}
@@ -546,7 +517,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                       type="submit"
                       form="search-form"
                       disabled={criteria.suburbs.length === 0}
-                      className={`w-full px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+                      className={`w-full px-4 py-3 text-sm font-medium text-white rounded-lg transition-colors ${
                         criteria.suburbs.length === 0 
                           ? 'bg-neutral-400 cursor-not-allowed' 
                           : 'bg-primary-600 hover:bg-primary-700'

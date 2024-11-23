@@ -12,6 +12,7 @@ import Profile from './components/Profile';
 import { ProfileProvider } from './context/ProfileContext';
 import { setAuthToken } from './services/auth';
 import { Agistments } from './components/Agistments';
+import { AgistmentDetail } from './components/AgistmentDetail';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -26,6 +27,7 @@ const router = createBrowserRouter(
       <Route path="/about" element={<About />} />
       <Route path="/agistments" element={<Agistments />} />
       <Route path="/agistments/search" element={<Agistments />} />
+      <Route path="/agistment/:id" element={<AgistmentDetail />} />
       <Route 
         path="/profile" 
         element={

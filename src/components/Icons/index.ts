@@ -20,6 +20,10 @@ export * from './RoundYardIcon';
 export * from './XMarkIcon';
 export * from './TieUpIcon';
 export * from './HeartIcon';
+export * from './PhotoIcon';
+export * from './MapPinIcon';
+export * from './ArrowLeftIcon';
+export * from './RefreshIcon';
 
 export { SearchIcon } from './SearchIcon';
 export { FilterIcon } from './FilterIcon';

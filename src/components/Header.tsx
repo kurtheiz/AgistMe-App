@@ -46,7 +46,7 @@ export const Header = () => {
             <nav className="hidden md:flex space-x-4">
               <Link to="/about" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">About</Link>
               <Link 
-                to="/agistments"
+                to="/agistments/search"
                 className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
               >
                 Agistments
