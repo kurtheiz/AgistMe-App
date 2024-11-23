@@ -170,7 +170,7 @@ export function Agistments() {
             
             {/* AgistMe Logo in the center */}
             <image
-              href="/src/components/Icons/AgistMeLogo.svg"
+              href="/AgistMeLogo.svg"
               x="30"
               y="30"
               width="40"

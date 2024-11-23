@@ -38,9 +38,10 @@ export const Header = () => {
                 // Clear the stored search from localStorage
                 localStorage.removeItem('agistme_last_search');
               }} 
-              className="text-2xl font-bold text-gray-900 dark:text-white"
+              className="flex items-center space-x-2 text-2xl font-bold text-gray-900 dark:text-white"
             >
-              Agist Me
+              <img src="/AgistMeLogo.svg" alt="Agist Me Logo" className="h-8 w-8" />
+              <span>Agist Me</span>
             </Link>
             <nav className="hidden md:flex space-x-4">
               <Link to="/about" className="text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">About</Link>
