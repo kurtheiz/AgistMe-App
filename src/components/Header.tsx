@@ -5,7 +5,7 @@ import { useAuthToken } from '../hooks/useAuthToken';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
-  const { openSignIn, openSignUp } = useClerk();
+  const { openSignIn } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
   useAuthToken();

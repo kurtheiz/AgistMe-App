@@ -4,7 +4,6 @@ import { agistmentService } from '../services/agistment.service';
 import { Agistment, AgistmentResponse } from '../types/agistment';
 import { SearchModal } from './Search/SearchModal';
 import { SearchCriteria } from '../types/search';
-import { LocationType } from '../types/suburb';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from './PageToolbar';
 import { PropertyCard } from './PropertyCard';
