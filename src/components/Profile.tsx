@@ -1,28 +1,43 @@
 import { useAuth, useClerk } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
+import Bio from './Bio';
 import { useProfile } from '../context/ProfileContext';
 import { PageToolbar } from './PageToolbar';
-import { useState } from 'react';
-import Bio from './Bio';
-import { profileService } from '../services/profile.service';
+import { useState, useEffect } from 'react';
 import ViewIcon from "./Icons/ViewIcon";
 import LogoutIcon from "./Icons/LogoutIcon";
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
-  const navigate = useNavigate();
   const { signOut } = useClerk();
-  const { profile, loading, error, refreshProfile } = useProfile();
+  const navigate = useNavigate();
   const [isBioOpen, setIsBioOpen] = useState(false);
-  const [clearProfileData, setClearProfileData] = useState(false);
+  const { profile, refreshProfile } = useProfile();
 
-  // If profile is not loaded yet, try to load it
-  if (isLoaded && isSignedIn && !profile && !loading && !error) {
-    refreshProfile(true);
-  }
+  useEffect(() => {
+    let mounted = true;
+
+    const loadProfile = async () => {
+      try {
+        if (mounted) {
+          await refreshProfile(true);
+        }
+      } catch (error) {
+        if (mounted) {
+          console.error('Error refreshing profile:', error);
+        }
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, []); // refreshProfile is now stable, so we can keep empty dependency array
 
   if (!isLoaded) {
-    return null;
+    return <div>Loading...</div>;
   }
 
   if (!isSignedIn) {
@@ -34,8 +49,8 @@ export default function Profile() {
     try {
       await signOut();
       navigate('/');
-    } catch (err) {
-      console.error('Error signing out:', err);
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
@@ -49,27 +64,9 @@ export default function Profile() {
 
   const handleCloseBio = () => {
     setIsBioOpen(false);
-    setClearProfileData(false);
-  };
-
-  const handleClearProfile = async () => {
-    try {
-      const clearedProfile = {
-        id: profile?.id,
-        email: profile?.email,
-        shareId: profile?.shareId,
-        showProfileInEnquiry: false,
-        lastUpdate: new Date().toISOString()
-      };
-      await profileService.updateProfile(clearedProfile);
-      refreshProfile(true);
-    } catch (err) {
-      console.error('Error clearing profile:', err);
-    }
   };
 
   const handleClearProfileAndOpenBio = () => {
-    setClearProfileData(true);
     setIsBioOpen(true);
   };
 
@@ -207,30 +204,14 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                      First Name
-                    </label>
-                    <p className="mt-1 text-neutral-900 dark:text-white">
-                      {profile?.firstName || 'Not provided'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                      Last Name
-                    </label>
-                    <p className="mt-1 text-neutral-900 dark:text-white">
-                      {profile?.lastName || 'Not provided'}
-                    </p>
-                  </div>
-                </div>
+                
+        
               </div>
             </div>
           </div>
 
           {/* Bio Modal */}
-          <Bio isOpen={isBioOpen} onClose={handleCloseBio} clearFields={clearProfileData} />
+          <Bio isOpen={isBioOpen} onClose={handleCloseBio} />
         </div>
       </div>
     </div>

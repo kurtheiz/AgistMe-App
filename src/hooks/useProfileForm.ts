@@ -8,6 +8,7 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     id: '',
     firstName: '',
     lastName: '',
+    email: '',
     mobile: '',
     profilePhoto: '',
     address: '',
@@ -17,11 +18,14 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     region: '',
     suburbId: '',
     geohash: '',
-    horses: [],
-    email: '',
-    lastUpdate: '',
     dateOfBirth: '',
-    comments: ''
+    comments: '',
+    shareId: '',
+    showProfileInEnquiry: false,
+    horseExperience: '',
+    availability: '',
+    lastUpdate: new Date().toISOString(),
+    horses: []
   });
 
   const [originalData, setOriginalData] = useState<Profile | null>(null);
@@ -37,24 +41,39 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
         try {
           setIsLoading(true);
           const profileData = await profileService.getProfile();
+          
+          let suburbValue = '';
+          if (profileData && typeof profileData === 'object') {
+            const suburb = (profileData as any).suburb;
+            if (typeof suburb === 'string') {
+              suburbValue = suburb;
+            } else if (suburb && typeof suburb === 'object' && 'suburb' in suburb) {
+              suburbValue = suburb.suburb;
+            }
+          }
+
           const newFormData = {
             id: profileData.id || '',
             firstName: profileData.firstName || user.firstName || '',
             lastName: profileData.lastName || user.lastName || '',
+            email: profileData.email || user.primaryEmailAddress?.emailAddress || '',
             mobile: profileData.mobile || '',
             profilePhoto: profileData.profilePhoto || '',
             address: profileData.address || '',
             postcode: profileData.postcode || '',
-            suburb: profileData.suburb ? (typeof profileData.suburb === 'object' ? profileData.suburb.suburb : profileData.suburb) : '',  
+            suburb: suburbValue,
             state: profileData.state || '',
             region: profileData.region || '',
             suburbId: profileData.suburbId || '',
             geohash: profileData.geohash || '',
-            horses: profileData.horses || [],
-            email: profileData.email || user.primaryEmailAddress?.emailAddress || '',
-            lastUpdate: profileData.lastUpdate || '',
             dateOfBirth: profileData.dateOfBirth ? profileData.dateOfBirth.split('T')[0] : '',
-            comments: profileData.comments || ''
+            comments: profileData.comments || '',
+            shareId: profileData.shareId || '',
+            showProfileInEnquiry: profileData.showProfileInEnquiry || false,
+            horseExperience: profileData.horseExperience || '',
+            availability: profileData.availability || '',
+            lastUpdate: profileData.lastUpdate || new Date().toISOString(),
+            horses: profileData.horses || []
           };
           setFormData(newFormData);
           setOriginalData(newFormData);

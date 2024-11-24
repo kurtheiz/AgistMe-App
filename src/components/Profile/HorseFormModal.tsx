@@ -28,7 +28,7 @@ export const HorseFormModal = ({
   const [editedHorse, setEditedHorse] = useState<Horse>({ ...horse });
 
   const handleHorseChange = (field: string, value: string | number) => {
-    setEditedHorse(prev => ({
+    setEditedHorse((prev: Horse) => ({
       ...prev,
       [field]: value
     }));

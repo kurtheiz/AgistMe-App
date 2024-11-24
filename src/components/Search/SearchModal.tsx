@@ -233,7 +233,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center md:p-4">
+          <div className="flex min-h-screen items-center justify-center">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300 transform"
@@ -243,48 +243,45 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
               leaveFrom="translate-x-0"
               leaveTo="translate-x-full"
             >
-              <Dialog.Panel
-                className="modal-panel md:max-w-md"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="h-full flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-y-auto pb-safe">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg font-medium leading-6 text-white bg-primary-600 flex justify-between items-center p-4 md:rounded-t-2xl"
-                    >
-                      <span>Search Agistment</span>
+              <Dialog.Panel className="modal-panel w-full h-full md:max-w-md md:h-[85vh] md:rounded-lg overflow-hidden">
+                <div className="flex flex-col h-full">
+                  <div className="sticky top-0 z-10 bg-primary-500 dark:bg-primary-600 md:rounded-t-lg">
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-white">
+                        Search Agistment
+                      </Dialog.Title>
                       <button
                         onClick={onClose}
-                        className="rounded-full p-1 hover:bg-primary-700 transition-colors"
+                        className="rounded-full p-1 hover:bg-primary-600 dark:hover:bg-primary-500 transition-colors"
                       >
                         <XMarkIcon className="h-5 w-5 text-white" />
                       </button>
-                    </Dialog.Title>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-y-auto min-h-0">
+                    <div className="px-4 py-3">
+                      <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="space-y-4">
+                        {/* Location Section */}
+                        <div className="space-y-3">
+                          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Location</h2>
+                          
+                          {/* Location Search */}
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-2">
+                                {criteria.suburbs.length === 0 ? (
+                                  "Select at least one location"
+                                ) : (
+                                  `${criteria.suburbs.length} ${criteria.suburbs.length === 1 ? 'location' : 'locations'} selected`
+                                )}
+                              </label>
+                              <SuburbSearch
+                                selectedSuburbs={criteria.suburbs}
+                                onSuburbsChange={(suburbs) => setCriteria(prev => ({ ...prev, suburbs }))}
+                              />
+                            </div>
 
-                    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
-                      {/* Location Section */}
-                      <div className="p-4 sm:p-6">
-                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Location</h2>
-                        
-                        {/* Location Search */}
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-2">
-                              {criteria.suburbs.length === 0 ? (
-                                "Select at least one location"
-                              ) : (
-                                `${criteria.suburbs.length} ${criteria.suburbs.length === 1 ? 'location' : 'locations'} selected`
-                              )}
-                            </label>
-                            <SuburbSearch
-                              selectedSuburbs={criteria.suburbs}
-                              onSuburbsChange={(suburbs) => setCriteria(prev => ({ ...prev, suburbs }))}
-                            />
-                          </div>
-
-                          {/* Radius */}
-                          {criteria.suburbs.some(suburb => suburb.locationType && suburb.locationType === LocationType.SUBURB) && (
+                            {/* Radius */}
                             <div>
                               <div className="flex justify-between items-center mb-1">
                                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -299,248 +296,252 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                                 min="0"
                                 max="50"
                                 value={criteria.radius}
+                                disabled={!criteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)}
                                 onChange={(e) => setCriteria(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
-                                className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer"
+                                className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer ${
+                                  !criteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                               />
                               <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                 <span>0km</span>
                                 <span>50km</span>
                               </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Divider */}
-                      <div className="h-2 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700" />
-
-                      {/* Filters Section */}
-                      <div className="p-4 sm:p-6 pb-0">
-                        <div className="flex items-center justify-between mb-4">
-                          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Filters</h2>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              resetFilters();
-                            }}
-                            disabled={
-                              criteria.spaces === 0 &&
-                              criteria.maxPrice === 0 &&
-                              criteria.paddockTypes.length === 0 &&
-                              !criteria.hasArena &&
-                              !criteria.hasRoundYard &&
-                              criteria.facilities.length === 0 &&
-                              criteria.careTypes.length === 0
-                            }
-                            className={`text-sm transition-colors ${
-                              criteria.spaces === 0 &&
-                              criteria.maxPrice === 0 &&
-                              criteria.paddockTypes.length === 0 &&
-                              !criteria.hasArena &&
-                              !criteria.hasRoundYard &&
-                              criteria.facilities.length === 0 &&
-                              criteria.careTypes.length === 0
-                                ? 'text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
-                                : 'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
-                            }`}
-                          >
-                            Reset Filters
-                          </button>
-                        </div>
-                        <div className="space-y-6 mb-0">
-                          {/* Number of Spaces */}
-                          <div>
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                              Number of spaces
-                            </label>
-                            <div className="flex items-center justify-center space-x-4">
-                              <button
-                                type="button"
-                                disabled={criteria.suburbs.length === 0}
-                                onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.max(0, prev.spaces - 1) }))}
-                                className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${
-                                  criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                                }`}
-                              >
-                                <MinusIcon className="h-5 w-5" />
-                              </button>
-                              <div className="text-3xl font-semibold text-neutral-900 dark:text-white min-w-[3ch] text-center">
-                                {criteria.spaces === 0 ? 'Any' : criteria.spaces < 10 ? criteria.spaces : '10+'}
-                              </div>
-                              <button
-                                type="button"
-                                disabled={criteria.suburbs.length === 0}
-                                onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.min(10, prev.spaces + 1) }))}
-                                className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${
-                                  criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                                }`}
-                              >
-                                <PlusIcon className="h-5 w-5" />
-                              </button>
+                              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                                Radius search will only be available when a suburb is selected
+                              </p>
                             </div>
                           </div>
+                        </div>
 
-                          {/* Maximum Weekly Price */}
-                          <div>
-                            <div className="flex justify-between items-center mb-1">
-                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                Max price per space
-                              </label>
-                              <span className="text-lg font-semibold text-neutral-900 dark:text-white">
-                                {criteria.maxPrice === 0 ? 'Any' : criteria.maxPrice === 300 ? '$300+/week' : `$${criteria.maxPrice}/week`}
-                              </span>
-                            </div>
-                            <input
-                              type="range"
-                              min="0"
-                              max="300"
-                              step="10"
-                              disabled={criteria.suburbs.length === 0}
-                              value={criteria.maxPrice}
-                              onChange={(e) => setCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
-                              className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none ${
-                                criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                        {/* Divider */}
+                        <div className="h-2 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700" />
+
+                        {/* Filters Section */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Filters</h2>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                resetFilters();
+                              }}
+                              disabled={
+                                criteria.spaces === 0 &&
+                                criteria.maxPrice === 0 &&
+                                criteria.paddockTypes.length === 0 &&
+                                !criteria.hasArena &&
+                                !criteria.hasRoundYard &&
+                                criteria.facilities.length === 0 &&
+                                criteria.careTypes.length === 0
+                              }
+                              className={`text-sm transition-colors ${
+                                criteria.spaces === 0 &&
+                                criteria.maxPrice === 0 &&
+                                criteria.paddockTypes.length === 0 &&
+                                !criteria.hasArena &&
+                                !criteria.hasRoundYard &&
+                                criteria.facilities.length === 0 &&
+                                criteria.careTypes.length === 0
+                                  ? 'text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
+                                  : 'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
                               }`}
-                            />
-                            <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                              <span>Any</span>
-                              <span>$300+/week</span>
-                            </div>
+                            >
+                              Reset Filters
+                            </button>
                           </div>
-
-                          {/* Paddock Types */}
-                          <div>
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                              Paddock Types
-                            </label>
-                            <div className="grid grid-cols-3 gap-2">
-                              {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
+                          <div className="space-y-4">
+                            {/* Number of Spaces */}
+                            <div>
+                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                                Number of spaces
+                              </label>
+                              <div className="flex items-center justify-center space-x-4">
                                 <button
-                                  key={type}
                                   type="button"
                                   disabled={criteria.suburbs.length === 0}
-                                  onClick={() => togglePaddockType(type)}
-                                  className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                    criteria.paddockTypes.includes(type)
-                                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                                  } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                  onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.max(0, prev.spaces - 1) }))}
+                                  className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${
+                                    criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                  }`}
                                 >
-                                  {type}
+                                  <MinusIcon className="h-5 w-5" />
                                 </button>
-                              ))}
+                                <div className="text-3xl font-semibold text-neutral-900 dark:text-white min-w-[3ch] text-center">
+                                  {criteria.spaces === 0 ? 'Any' : criteria.spaces < 10 ? criteria.spaces : '10+'}
+                                </div>
+                                <button
+                                  type="button"
+                                  disabled={criteria.suburbs.length === 0}
+                                  onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.min(10, prev.spaces + 1) }))}
+                                  className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${
+                                    criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                  }`}
+                                >
+                                  <PlusIcon className="h-5 w-5" />
+                                </button>
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Arena and Round Yard */}
-                          <div>
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                              Riding Facilities
-                            </label>
-                            <div className="grid grid-cols-2 gap-2">
-                              <button
-                                type="button"
+                            {/* Maximum Weekly Price */}
+                            <div>
+                              <div className="flex justify-between items-center mb-1">
+                                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                  Max price per space
+                                </label>
+                                <span className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                  {criteria.maxPrice === 0 ? 'Any' : criteria.maxPrice === 300 ? '$300+/week' : `$${criteria.maxPrice}/week`}
+                                </span>
+                              </div>
+                              <input
+                                type="range"
+                                min="0"
+                                max="300"
+                                step="10"
                                 disabled={criteria.suburbs.length === 0}
-                                onClick={toggleArena}
-                                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                  criteria.hasArena
-                                    ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                                } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                              >
-                                <ArenaIcon className="h-5 w-5" />
-                                Arena
-                              </button>
-                              <button
-                                type="button"
-                                disabled={criteria.suburbs.length === 0}
-                                onClick={toggleRoundYard}
-                                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                  criteria.hasRoundYard
-                                    ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                                } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                              >
-                                <RoundYardIcon className="h-5 w-5" />
-                                Round Yard
-                              </button>
+                                value={criteria.maxPrice}
+                                onChange={(e) => setCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
+                                className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none ${
+                                  criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                }`}
+                              />
+                              <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                                <span>Any</span>
+                                <span>$300+/week</span>
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Additional Facilities */}
-                          <div>
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                              Additional Facilities
-                            </label>
-                            <div className="grid grid-cols-2 gap-2">
-                              {[
-                                { key: 'feedRoom' as FacilityType, icon: FeedRoomIcon, label: 'Feed Room' },
-                                { key: 'tackRoom' as FacilityType, icon: TackRoomIcon, label: 'Tack Room' },
-                                { key: 'floatParking' as FacilityType, icon: FloatParkingIcon, label: 'Float' },
-                                { key: 'hotWash' as FacilityType, icon: HotWashIcon, label: 'Hot Wash' },
-                                { key: 'stable' as FacilityType, icon: StableIcon, label: 'Stable' },
-                                { key: 'tieUp' as FacilityType, icon: TieUpIcon, label: 'Tie Up' }
-                              ].map(({ key, icon: Icon, label }) => (
+                            {/* Paddock Types */}
+                            <div>
+                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                                Paddock Types
+                              </label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
+                                  <button
+                                    key={type}
+                                    type="button"
+                                    disabled={criteria.suburbs.length === 0}
+                                    onClick={() => togglePaddockType(type)}
+                                    className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                      criteria.paddockTypes.includes(type)
+                                        ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                                        : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                                    } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                  >
+                                    {type}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Arena and Round Yard */}
+                            <div>
+                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                                Riding Facilities
+                              </label>
+                              <div className="grid grid-cols-2 gap-2">
                                 <button
-                                  key={key}
                                   type="button"
                                   disabled={criteria.suburbs.length === 0}
-                                  onClick={() => toggleFacility(key)}
+                                  onClick={toggleArena}
                                   className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                    criteria.facilities.includes(key)
+                                    criteria.hasArena
                                       ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
                                       : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
                                   } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
-                                  <Icon className="h-5 w-5" />
-                                  {label}
+                                  <ArenaIcon className="h-5 w-5" />
+                                  Arena
                                 </button>
-                               ))}
-                            </div>
-                          </div>
-
-                          {/* Care Types */}
-                          <div className="mb-0">
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                              Care Types
-                            </label>
-                            <div className="grid grid-cols-3 gap-2">
-                              {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
                                 <button
-                                  key={type}
                                   type="button"
                                   disabled={criteria.suburbs.length === 0}
-                                  onClick={() => toggleCareType(type)}
+                                  onClick={toggleRoundYard}
                                   className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                    criteria.careTypes.includes(type)
+                                    criteria.hasRoundYard
                                       ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
                                       : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
                                   } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
-                                  {type}
+                                  <RoundYardIcon className="h-5 w-5" />
+                                  Round Yard
                                 </button>
-                              ))}
+                              </div>
+                            </div>
+
+                            {/* Additional Facilities */}
+                            <div>
+                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                                Additional Facilities
+                              </label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  { key: 'feedRoom' as FacilityType, icon: FeedRoomIcon, label: 'Feed Room' },
+                                  { key: 'tackRoom' as FacilityType, icon: TackRoomIcon, label: 'Tack Room' },
+                                  { key: 'floatParking' as FacilityType, icon: FloatParkingIcon, label: 'Float' },
+                                  { key: 'hotWash' as FacilityType, icon: HotWashIcon, label: 'Hot Wash' },
+                                  { key: 'stable' as FacilityType, icon: StableIcon, label: 'Stable' },
+                                  { key: 'tieUp' as FacilityType, icon: TieUpIcon, label: 'Tie Up' }
+                                ].map(({ key, icon: Icon, label }) => (
+                                  <button
+                                    key={key}
+                                    type="button"
+                                    disabled={criteria.suburbs.length === 0}
+                                    onClick={() => toggleFacility(key)}
+                                    className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                      criteria.facilities.includes(key)
+                                        ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                                        : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                                    } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                  >
+                                    <Icon className="h-5 w-5" />
+                                    {label}
+                                  </button>
+                                 ))}
+                              </div>
+                            </div>
+
+                            {/* Care Types */}
+                            <div>
+                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                                Care Types
+                              </label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
+                                  <button
+                                    key={type}
+                                    type="button"
+                                    disabled={criteria.suburbs.length === 0}
+                                    onClick={() => toggleCareType(type)}
+                                    className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                                      criteria.careTypes.includes(type)
+                                        ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                                        : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                                    } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                  >
+                                    {type}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </form>
+                      </form>
+                    </div>
                   </div>
-                  <div className="p-4 sm:p-6 border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 fixed bottom-0 left-0 right-0 pb-safe">
-                    <button
-                      type="submit"
-                      form="search-form"
-                      disabled={criteria.suburbs.length === 0}
-                      className={`w-full px-4 py-3 text-sm font-medium text-white rounded-lg transition-colors ${
-                        criteria.suburbs.length === 0 
-                          ? 'bg-neutral-400 cursor-not-allowed' 
-                          : 'bg-primary-600 hover:bg-primary-700'
-                      }`}
-                    >
-                      Search
-                    </button>
+                  <div className="sticky bottom-0 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 mt-auto md:rounded-b-lg">
+                    <div className="px-4 py-3">
+                      <button
+                        type="submit"
+                        form="search-form"
+                        className="modal-button-primary w-full"
+                        disabled={criteria.suburbs.length === 0}
+                      >
+                        Search
+                      </button>
+                    </div>
                   </div>
                 </div>
               </Dialog.Panel>

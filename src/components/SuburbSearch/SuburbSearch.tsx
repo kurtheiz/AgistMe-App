@@ -87,7 +87,7 @@ export function SuburbSearch({
 
   return (
     <div className={`relative ${className}`}>
-      <div className={`flex flex-wrap gap-1.5 p-2 border-2 rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 ${multiple ? 'h-[72px] overflow-y-auto' : 'h-10'} suburb-chips-container`}>
+      <div className={`flex flex-wrap gap-1.5 p-2 border-2 rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 ${multiple ? 'h-[72px] overflow-y-auto' : 'h-10'} suburb-chips-container ${disabled ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}>
         <div className="flex flex-wrap gap-1.5 w-full">
           {multiple && selectedSuburbs.map((location) => (
             <div
@@ -118,7 +118,7 @@ export function SuburbSearch({
             className={`h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500 ${
               disabled 
                 ? 'bg-neutral-100 dark:bg-neutral-800 cursor-not-allowed border-neutral-300 dark:border-neutral-600' 
-                : 'bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600 focus:border-primary-500 focus:ring-primary-500'
+                : 'bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-600 focus:border-primary-500 focus:ring-primary-500'
             }`}
           />
         </div>
@@ -126,7 +126,7 @@ export function SuburbSearch({
 
       {/* Search Results Dropdown */}
       {searchTerm && !disabled && (
-        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-200 dark:border-neutral-700 max-h-60 overflow-auto">
+        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-neutral-900 rounded-lg shadow-lg border border-neutral-200 dark:border-neutral-700 max-h-60 overflow-auto">
           {loading ? (
             <div key="loading" className="p-4 text-center text-neutral-600 dark:text-neutral-400">
               Loading...

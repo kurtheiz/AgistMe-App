@@ -142,13 +142,13 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
             <div className="flex items-center gap-2 sm:gap-6">
               {/* Private Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-3 py-1.5 rounded-lg ${
+                <span className={`text-xl sm:text-2xl font-bold ${
                   property.privatePaddocks.total > 0 
                     ? property.privatePaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
-                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
-                }`}>
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
+                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                } rounded-lg`}>
                   {property.privatePaddocks.total > 0 ? property.privatePaddocks.available : '-'}
                 </span>
                 <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
@@ -158,13 +158,13 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
 
               {/* Shared Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-3 py-1.5 rounded-lg ${
+                <span className={`text-xl sm:text-2xl font-bold ${
                   property.sharedPaddocks.total > 0 
                     ? property.sharedPaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
-                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
-                }`}>
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
+                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                } rounded-lg`}>
                   {property.sharedPaddocks.total > 0 ? property.sharedPaddocks.available : '-'}
                 </span>
                 <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
@@ -174,13 +174,13 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
 
               {/* Group Paddocks */}
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold px-3 py-1.5 rounded-lg ${
+                <span className={`text-xl sm:text-2xl font-bold ${
                   property.groupPaddocks.total > 0 
                     ? property.groupPaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
-                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600'
-                }`}>
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
+                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                } rounded-lg`}>
                   {property.groupPaddocks.total > 0 ? property.groupPaddocks.available : '-'}
                 </span>
                 <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">

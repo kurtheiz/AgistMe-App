@@ -23,35 +23,39 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const refreshProfile = useCallback(async (force: boolean = false) => {
     const now = Date.now();
-    if (loading) return; // Prevent concurrent refreshes
-    if (!force && profile && (now - lastFetch < CACHE_DURATION)) {
-      // Use cached data if it's fresh enough
-      return;
-    }
     
-    // If we've hit the retry limit and there's an error, don't try again
-    if (error && retryCount >= MAX_RETRIES) {
-      console.warn('Max retries reached, not attempting to refresh profile');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const profileData = await profileService.getProfile();
-      setProfile(profileData);
-      setLastFetch(now);
-      setRetryCount(0); // Reset retry count on success
-    } catch (err) {
-      setRetryCount(prev => prev + 1);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
-      setError(errorMessage);
-      console.error('Error loading profile:', err);
-      throw err; // Re-throw to let components handle the error
-    } finally {
-      setLoading(false);
-    }
-  }, [loading, profile, lastFetch, error, retryCount]);
+    // Use state updater functions to access latest state values
+    setLoading(prevLoading => {
+      if (prevLoading) return prevLoading; // Prevent concurrent refreshes
+      
+      // Wrap the entire operation in the loading state updater
+      (async () => {
+        try {
+          const profileData = await profileService.getProfile();
+          setProfile(profileData);
+          setLastFetch(now);
+          setRetryCount(0); // Reset retry count on success
+          setError(null);
+        } catch (err) {
+          setRetryCount(prev => {
+            const newCount = prev + 1;
+            if (newCount >= MAX_RETRIES) {
+              console.warn('Max retries reached, not attempting to refresh profile');
+            }
+            return newCount;
+          });
+          const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
+          setError(errorMessage);
+          console.error('Error loading profile:', err);
+          throw err;
+        } finally {
+          setLoading(false);
+        }
+      })();
+      
+      return true; // Set loading to true
+    });
+  }, []); // No dependencies needed as we use state updaters
 
   const updateProfileData = useCallback(async (data: UpdateProfileRequest) => {
     try {

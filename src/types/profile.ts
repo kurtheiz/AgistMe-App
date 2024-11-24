@@ -1,35 +1,42 @@
-import { Suburb } from './suburb';
-
 export interface Horse {
+  name: string;
+  breed: string;
+  gender: string;
+  description?: string;
+  colour?: string;
+  size?: number;
+  yearOfBirth?: number;
+  photo?: string;
+}
+
+export interface LocalHorse {
     name: string;
     breed: string;
     gender: string;
-    colour: string;
-    size: number;
-    yearOfBirth: number;
-    photo?: string;
     description?: string;
 }
 
 export interface Profile {
     id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    mobile: string;
+    profilePhoto: string;
+    address: string;
+    postcode: string;
+    suburb: string;
+    state: string;
+    region: string;
+    suburbId: string;
+    geohash: string;
+    dateOfBirth: string;
+    comments: string;
     shareId: string;
     showProfileInEnquiry: boolean;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    address?: string;
-    geohash?: string;
-    mobile?: string;
-    dateOfBirth?: string;  // ISO date string format
-    postcode?: string;
-    profilePhoto?: string;
-    region?: string;
-    state?: string;
-    suburb?: string | Suburb;
-    suburbId?: string;
+    horseExperience?: string;
+    availability?: string;
     lastUpdate: string;
-    comments?: string;
     horses?: Horse[];
     favourites?: string[];
 }

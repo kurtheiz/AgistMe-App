@@ -4,9 +4,8 @@ import { PencilSquareIcon, TrashIcon, UserCircleIcon } from '@heroicons/react/24
 interface ProfilePhotoProps {
   photoUrl: string;
   isUploading: boolean;
-  onPhotoUpload: (file: File) => Promise<string>;
+  onPhotoUpload: (file: File) => void;
   onPhotoRemove: () => void;
-  fallbackUrl?: string;
   disabled?: boolean;
 }
 
@@ -15,7 +14,6 @@ export const ProfilePhoto = ({
   isUploading,
   onPhotoUpload,
   onPhotoRemove,
-  fallbackUrl,
   disabled = false
 }: ProfilePhotoProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -5,10 +5,8 @@ import { Layout } from './components/Layout';
 import { Home } from './components/Home';
 import { About } from './components/About';
 import { ErrorPage } from './components/ErrorPage';
-import { ErrorBoundary } from './components/ErrorBoundary';
 import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { BioModal } from './components/Bio';
 import Profile from './components/Profile';
 import BioView from './components/BioView';
 import { ProfileProvider } from './context/ProfileContext';
@@ -16,6 +14,7 @@ import { Agistments } from './components/Agistments';
 import { AgistmentDetail } from './components/AgistmentDetail';
 import { Toaster } from 'react-hot-toast';
 import { useAuthToken } from './hooks/useAuthToken';
+import { ErrorBoundary } from './components/ErrorBoundary'; // Add this line
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
