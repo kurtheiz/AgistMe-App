@@ -12,7 +12,7 @@ export default function Profile() {
   const { signOut } = useClerk();
   const navigate = useNavigate();
   const [isBioOpen, setIsBioOpen] = useState(false);
-  const { profile, refreshProfile } = useProfile();
+  const { profile, refreshProfile, loading, error } = useProfile();
 
   useEffect(() => {
     let mounted = true;
@@ -20,7 +20,7 @@ export default function Profile() {
     const loadProfile = async () => {
       try {
         if (mounted) {
-          await refreshProfile(true);
+          await refreshProfile();
         }
       } catch (error) {
         if (mounted) {
@@ -29,12 +29,14 @@ export default function Profile() {
       }
     };
 
-    loadProfile();
+    if (isLoaded && isSignedIn && !profile && !loading && !error) {
+      loadProfile();
+    }
 
     return () => {
       mounted = false;
     };
-  }, []); // refreshProfile is now stable, so we can keep empty dependency array
+  }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile]); // refreshProfile is now stable, so we can keep empty dependency array
 
   if (!isLoaded) {
     return <div>Loading...</div>;
@@ -64,10 +66,6 @@ export default function Profile() {
 
   const handleCloseBio = () => {
     setIsBioOpen(false);
-  };
-
-  const handleClearProfileAndOpenBio = () => {
-    setIsBioOpen(true);
   };
 
   return (
@@ -126,14 +124,6 @@ export default function Profile() {
                     </svg>
                   </div>
                 )}
-                <div className="flex flex-col w-full space-y-2">
-                  <button
-                    onClick={handleClearProfileAndOpenBio}
-                    className="w-full inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    Delete My Bio
-                  </button>
-                </div>
               </div>
             </div>
           </div>

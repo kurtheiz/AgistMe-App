@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { useAuth, useUser } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
 import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDateOfBirth } from '../utils/inputValidation';
 import { SuburbSearch } from './SuburbSearch/SuburbSearch';
 import { useProfile } from '../context/ProfileContext';
@@ -19,7 +18,6 @@ interface BioModalProps {
 export default function Bio({ isOpen = false, onClose = () => {}, clearFields = false }: BioModalProps) {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
-  const navigate = useNavigate();
   const { profile, loading, error, refreshProfile, updateProfileData } = useProfile();
   const [saving, setSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -68,7 +66,7 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
 
   useEffect(() => {
     if (isLoaded && isSignedIn && !profile && !loading && !error) {
-      refreshProfile(true);
+      refreshProfile();
     }
   }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile]);
 
@@ -197,6 +195,26 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
     }));
   };
 
+  const handleClearBio = () => {
+    setFormData({
+      ...profile,
+      firstName: '',
+      lastName: '',
+      comments: '',
+      profilePhoto: '',
+      mobile: '',
+      dateOfBirth: '',
+      address: '',
+      suburb: '',
+      postcode: '',
+      geohash: '',
+      suburbId: '',
+      region: '',
+      state: '',
+      showProfileInEnquiry: false
+    });
+  };
+
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="fixed inset-0 z-50 overflow-y-auto" onClose={onClose}>
@@ -246,9 +264,18 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
                   <form id="profile-form" onSubmit={handleSubmit} className="space-y-6">
                     {/* Privacy Settings */}
                     <div className="border-b border-neutral-200 dark:border-neutral-700 pb-4">
-                      <h4 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">
-                        Privacy Settings
-                      </h4>
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-lg font-medium text-neutral-900 dark:text-white">
+                          Privacy Settings
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={handleClearBio}
+                          className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                        >
+                          Clear Bio
+                        </button>
+                      </div>
                       <div className="flex flex-col gap-2">
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input

@@ -15,7 +15,7 @@ export const Header = () => {
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      refreshProfile(false);
+      refreshProfile();
     }
   }, [isLoaded, isSignedIn, refreshProfile]);
 

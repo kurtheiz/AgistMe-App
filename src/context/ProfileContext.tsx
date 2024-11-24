@@ -6,7 +6,7 @@ interface ProfileContextType {
   profile: Profile | null;
   loading: boolean;
   error: string | null;
-  refreshProfile: (force: boolean) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   updateProfileData: (data: UpdateProfileRequest) => Promise<void>;
 }
 
@@ -14,55 +14,30 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastFetch, setLastFetch] = useState<number>(0);
-  const [retryCount, setRetryCount] = useState(0);
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
-  const MAX_RETRIES = 3;
 
-  const refreshProfile = useCallback(async (force: boolean = false) => {
-    const now = Date.now();
-    
-    // Use state updater functions to access latest state values
-    setLoading(prevLoading => {
-      if (prevLoading) return prevLoading; // Prevent concurrent refreshes
-      
-      // Wrap the entire operation in the loading state updater
-      (async () => {
-        try {
-          const profileData = await profileService.getProfile();
-          setProfile(profileData);
-          setLastFetch(now);
-          setRetryCount(0); // Reset retry count on success
-          setError(null);
-        } catch (err) {
-          setRetryCount(prev => {
-            const newCount = prev + 1;
-            if (newCount >= MAX_RETRIES) {
-              console.warn('Max retries reached, not attempting to refresh profile');
-            }
-            return newCount;
-          });
-          const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
-          setError(errorMessage);
-          console.error('Error loading profile:', err);
-          throw err;
-        } finally {
-          setLoading(false);
-        }
-      })();
-      
-      return true; // Set loading to true
-    });
+  const refreshProfile = useCallback(async () => {
+    // Wrap the entire operation in the loading state updater
+    setLoading(true);
+    try {
+      const profileData = await profileService.getProfile();
+      setProfile(profileData);
+      setError(null);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
+      setError(errorMessage);
+      console.error('Error loading profile:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   }, []); // No dependencies needed as we use state updaters
 
   const updateProfileData = useCallback(async (data: UpdateProfileRequest) => {
     try {
       const updatedProfile = await profileService.updateProfile(data);
       setProfile(updatedProfile);
-      setLastFetch(Date.now());
-      setRetryCount(0); // Reset retry count when profile is manually updated
     } catch (error) {
       console.error('Failed to update profile:', error);
       throw error;

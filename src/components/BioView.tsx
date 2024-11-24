@@ -8,7 +8,7 @@ import Bio from './Bio';
 export default function BioView() {
   const { isSignedIn, isLoaded } = useAuth();
   const navigate = useNavigate();
-  const { profile, loading, error } = useProfile();
+  const { loading, error } = useProfile();
 
   if (!isLoaded) {
     return null;
