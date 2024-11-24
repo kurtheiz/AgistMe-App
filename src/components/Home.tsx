@@ -4,10 +4,17 @@ import { SearchModal } from './Search/SearchModal';
 import { SearchIcon } from './Icons';
 import { SearchCriteria } from '../types/search';
 
+const LAST_SEARCH_KEY = 'agistme_last_search';
+
 export const Home = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Clear search from localStorage when Home mounts
+  useEffect(() => {
+    localStorage.removeItem(LAST_SEARCH_KEY);
+  }, []);
 
   useEffect(() => {
     if (location.search.includes('openSearch=true')) {

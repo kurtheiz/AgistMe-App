@@ -28,7 +28,7 @@ interface SearchModalProps {
   onFilterCountChange?: (count: number) => void;
 }
 
-export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFilterCountChange }: SearchModalProps) {
+export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: SearchModalProps) {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -108,18 +108,6 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
     }
   }, [searchHash, isOpen]);
 
-  useEffect(() => {
-    const filterCount = 
-      searchCriteria.paddockTypes.length + 
-      (searchCriteria.spaces > 0 ? 1 : 0) +
-      (searchCriteria.maxPrice > 0 ? 1 : 0) +
-      (searchCriteria.hasArena ? 1 : 0) +
-      (searchCriteria.hasRoundYard ? 1 : 0) +
-      searchCriteria.facilities.length +
-      searchCriteria.careTypes.length;
-    
-    onFilterCountChange?.(filterCount);
-  }, [searchCriteria, onFilterCountChange]);
 
   const togglePaddockType = (type: PaddockType) => {
     setSearchCriteria(prev => ({
@@ -176,6 +164,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
   };
 
   const handleSearch = () => {
+
     // Create the search hash
     const searchData = {
       s: searchCriteria.suburbs.map(s => ({
