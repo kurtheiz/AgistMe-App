@@ -120,35 +120,6 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
     }));
   };
 
-  const handleSave = async (e: React.FormEvent | null) => {
-    if (clearFields) {
-      try {
-        await updateProfileData({
-          firstName: '',
-          lastName: '',
-          mobile: '',
-          profilePhoto: '',
-          dateOfBirth: '',
-          address: '',
-          suburb: '',
-          postcode: '',
-          geohash: '',
-          suburbId: '',
-          region: '',
-          state: '',
-          comments: '',
-          shareId: profile?.shareId || '',
-          showProfileInEnquiry: false
-        });
-        onClose();
-      } catch (error) {
-        console.error('Error clearing profile:', error);
-      }
-    } else if (e) {
-      handleSubmit(e);
-    }
-  };
-
   const handleClose = () => {
     // Reset form to original values
     if (profile) {

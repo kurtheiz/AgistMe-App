@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment, AgistmentResponse } from '../types/agistment';
 import { SearchModal } from './Search/SearchModal';
@@ -7,7 +7,6 @@ import { SearchCriteria } from '../types/search';
 import { SearchIcon } from './Icons';
 import { PageToolbar } from './PageToolbar';
 import { PropertyCard } from './PropertyCard';
-import { PropertyCardSkeleton } from './PropertyCardSkeleton';
 
 // Local storage key for last search
 const LAST_SEARCH_KEY = 'agistme_last_search';
@@ -59,17 +58,15 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
 };
 
 export function Agistments() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
   const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
-  const [loading, setLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
   const [filterCount, setFilterCount] = useState(0);
   const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
-  const searchHash = searchParams.get('q');
+  const searchHash = searchParams.get('q') || undefined;
 
   // Load last search from localStorage on mount or when navigating to /agistments
   useEffect(() => {
@@ -89,7 +86,6 @@ export function Agistments() {
               const decodedCriteria = decodeSearchHash(searchHash);
               setCurrentCriteria(decodedCriteria);
               setFilterCount(lastSearch.count);
-              setLoading(false);
               return;
             }
           }
@@ -114,7 +110,6 @@ export function Agistments() {
           setAdjacentAgistments([]);
         })
         .finally(() => {
-          setLoading(false);
           setIsFetching(false);
         });
       return;
@@ -134,7 +129,6 @@ export function Agistments() {
           const newParams = new URLSearchParams(searchParams);
           newParams.set('q', lastSearch.hash);
           navigate({ search: newParams.toString() }, { replace: true });
-          setLoading(false);
           return;
         }
       } catch (error) {
@@ -146,7 +140,6 @@ export function Agistments() {
     setOriginalAgistments([]);
     setAdjacentAgistments([]);
     setCurrentCriteria(null);
-    setLoading(false);
   }, [searchHash, navigate, searchParams]);
 
   useEffect(() => {
@@ -190,7 +183,6 @@ export function Agistments() {
       setOriginalAgistments([]);
       setAdjacentAgistments([]);
     } finally {
-      setLoading(false);
       setIsFetching(false);
     }
   };
