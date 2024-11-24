@@ -35,7 +35,7 @@ export const Header = () => {
   const agistmentsPath = searchHash ? `/agistments/search?q=${searchHash}` : '/agistments/search';
 
   return (
-    <header className="bg-white dark:bg-neutral-900 w-full border-b border-neutral-200 dark:border-neutral-800">
+    <header className={`bg-white dark:bg-neutral-900 w-full ${location.pathname !== '/' && 'border-b border-neutral-200 dark:border-neutral-800'}`}>
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative">
         <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Left side */}

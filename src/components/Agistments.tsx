@@ -15,7 +15,6 @@ const initialFacilities: any[] = [];
 interface StoredSearch {
   hash: string;
   timestamp: number;
-  count: number;
   response: AgistmentResponse;
 }
 
@@ -64,7 +63,6 @@ export function Agistments() {
   const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
-  const [filterCount, setFilterCount] = useState(0);
   const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
   const searchHash = searchParams.get('q') || undefined;
 
@@ -85,7 +83,6 @@ export function Agistments() {
               setAdjacentAgistments(lastSearch.response.adjacent || []);
               const decodedCriteria = decodeSearchHash(searchHash);
               setCurrentCriteria(decodedCriteria);
-              setFilterCount(lastSearch.count);
               return;
             }
           }
@@ -156,18 +153,6 @@ export function Agistments() {
     setIsSearchModalOpen(false);
     setIsFetching(true);
     
-    // Calculate filter count from the received criteria
-    const newFilterCount = 
-      criteria.paddockTypes.length + 
-      (criteria.spaces > 0 ? 1 : 0) +
-      (criteria.maxPrice > 0 ? 1 : 0) +
-      (criteria.hasArena ? 1 : 0) +
-      (criteria.hasRoundYard ? 1 : 0) +
-      criteria.facilities.length +
-      criteria.careTypes.length;
-    console.log('Agistments - Setting filter count:', newFilterCount, 'Criteria:', criteria);
-    setFilterCount(newFilterCount);
-    
     setCurrentCriteria(criteria);
     try {
       const response = await agistmentService.searchAgistments(criteria.searchHash);
@@ -192,7 +177,6 @@ export function Agistments() {
     const storedSearch: StoredSearch = {
       hash,
       timestamp: Date.now(),
-      count: filterCount,
       response
     };
     localStorage.setItem(LAST_SEARCH_KEY, JSON.stringify(storedSearch));
@@ -297,11 +281,6 @@ export function Agistments() {
               >
                 <SearchIcon className="w-5 h-5" />
                 <span>Search</span>
-                {filterCount > 0 && (
-                  <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">
-                    {filterCount}
-                  </div>
-                )}
               </button>
             </div>
           </div>

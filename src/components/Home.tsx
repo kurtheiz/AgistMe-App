@@ -32,7 +32,7 @@ export const Home = () => {
   };
 
   return (
-    <div className="flex-1 relative flex flex-col items-center text-lg pt-4 sm:pt-16 bg-white dark:bg-neutral-900">
+    <div className="flex-1 relative flex flex-col items-center text-lg pt-4 sm:pt-16 bg-white dark:bg-neutral-900 border-0">
  
       {/* Hero Section */}
       <div className="relative w-full max-w-5xl aspect-[3/2] sm:aspect-[5/2]">

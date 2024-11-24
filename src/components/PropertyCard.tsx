@@ -96,7 +96,7 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
               </div>
             )}
           </div>
-          <h2 className="text-lg sm:text-xl font-medium leading-6 text-white dark:text-primary-300">{property.name}</h2>
+          <h2 className="text-lg sm:text-xl font-medium leading-6 text-white dark:text-primary-300 truncate px-2">{property.name}</h2>
         </div>
 
         {/* Photo */}
@@ -145,7 +145,9 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
                 <span className={`text-xl sm:text-2xl font-bold ${
                   property.privatePaddocks.total > 0 
                     ? property.privatePaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                      ? property.privatePaddocks.whenAvailable && new Date(property.privatePaddocks.whenAvailable) > new Date()
+                        ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
+                        : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
                       : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
                     : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
                 } rounded-lg`}>
@@ -161,7 +163,9 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
                 <span className={`text-xl sm:text-2xl font-bold ${
                   property.sharedPaddocks.total > 0 
                     ? property.sharedPaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                      ? property.sharedPaddocks.whenAvailable && new Date(property.sharedPaddocks.whenAvailable) > new Date()
+                        ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
+                        : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
                       : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
                     : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
                 } rounded-lg`}>
@@ -177,7 +181,9 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
                 <span className={`text-xl sm:text-2xl font-bold ${
                   property.groupPaddocks.total > 0 
                     ? property.groupPaddocks.available > 0
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                      ? property.groupPaddocks.whenAvailable && new Date(property.groupPaddocks.whenAvailable) > new Date()
+                        ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
+                        : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
                       : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
                     : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
                 } rounded-lg`}>
@@ -221,7 +227,9 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
                 <span className="text-sm flex items-center gap-1">
                   {label}
                   <span className="text-neutral-600 dark:text-neutral-400">
-                    {available ? '✔' : '✘'}
+                    {available ? (
+                      <span className="text-neutral-600 dark:text-neutral-400">✔</span>
+                    ) : '✘'}
                   </span>
                 </span>
               </div>
