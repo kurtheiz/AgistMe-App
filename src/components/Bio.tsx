@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { useState, useEffect, useMemo } from 'react';
+import { Dialog, Transition, TransitionChild } from '@headlessui/react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDateOfBirth } from '../utils/inputValidation';
 import { SuburbSearch } from './SuburbSearch/SuburbSearch';
@@ -15,7 +15,7 @@ interface BioModalProps {
   clearFields?: boolean;
 }
 
-export default function Bio({ isOpen = false, onClose = () => {}, clearFields = false }: BioModalProps) {
+export default function Bio({ isOpen = false, onClose = () => { }, clearFields = false }: BioModalProps) {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
   const { profile, loading, error, refreshProfile, updateProfileData } = useProfile();
@@ -87,7 +87,7 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
     if (!hasChanges || saving || isUploading) return;
     try {
       setSaving(true);
-      
+
       await updateProfileData({
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -155,11 +155,11 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
   };
 
   return (
-    <Transition.Root show={isOpen} as={Fragment}>
+    <Transition show={isOpen} as="div">
       <Dialog as="div" className="fixed inset-0 z-50 overflow-y-auto" onClose={onClose}>
         <div className="flex min-h-screen items-end justify-center sm:items-center sm:p-0">
-          <Transition.Child
-            as={Fragment}
+          <TransitionChild
+            as="div"
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -168,23 +168,23 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
             leaveTo="opacity-0"
           >
             <div className="fixed inset-0 bg-black/25 dark:bg-black/50 transition-opacity" />
-          </Transition.Child>
+          </TransitionChild>
 
           {/* This element is to trick the browser into centering the modal contents. */}
           <span className="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">
             &#8203;
           </span>
 
-          <Transition.Child
-            as={Fragment}
+          <TransitionChild
+            as="div"
             enter="ease-out duration-300"
-            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            enterTo="opacity-100 translate-y-0 sm:scale-100"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
             leave="ease-in duration-200"
-            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
           >
-            <Dialog.Panel className="relative w-full h-[100dvh] transform overflow-hidden bg-white dark:bg-neutral-800 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:h-[85vh] sm:align-middle sm:rounded-lg">
+            <div className="relative w-full h-[100dvh] transform overflow-hidden bg-white dark:bg-neutral-800 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:h-[85vh] sm:align-middle sm:rounded-lg">
               <div className="flex flex-col h-full">
                 {/* Header */}
                 <div className="flex-shrink-0 bg-primary-500 dark:bg-primary-600">
@@ -229,7 +229,7 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
                               className={`sr-only peer ${clearFields ? 'cursor-not-allowed' : ''}`}
                             />
                             <div className={`w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-offset-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-neutral-600 peer-checked:bg-primary-600 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
-                            <span className={`ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}>Share my bio with enquiries</span>
+                            <span className={`ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}>Share my bio with agistors</span>
                           </label>
                           <p className="text-sm text-neutral-500 dark:text-neutral-400 ml-[3.5rem]">
                             When enabled, your bio and horse information will be available to agistors who you have made an enquiry with.
@@ -490,11 +490,10 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
                         type="submit"
                         form="profile-form"
                         disabled={!hasChanges || saving || isUploading}
-                        className={`w-full inline-flex justify-center rounded-md px-4 py-3 text-sm font-medium text-white ${
-                          !hasChanges || saving || isUploading
+                        className={`w-full inline-flex justify-center rounded-md px-4 py-3 text-sm font-medium text-white ${!hasChanges || saving || isUploading
                             ? 'bg-neutral-400 dark:bg-neutral-600 cursor-not-allowed'
                             : 'bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600'
-                        } focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors`}
+                          } focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors`}
                       >
                         {saving ? 'Saving...' : 'Save'}
                       </button>
@@ -502,10 +501,11 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
                   </div>
                 </div>
               </div>
-            </Dialog.Panel>
-          </Transition.Child>
+            </div>
+           
+          </TransitionChild>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   );
 }
