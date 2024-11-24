@@ -12,7 +12,9 @@ import {
   HotWashIcon,
   StableIcon,
   TieUpIcon,
-  PhotoIcon
+  PhotoIcon,
+  CheckIcon,
+  CrossIcon
 } from './Icons';
 import { Agistment } from '../types/agistment';
 import { useNavigate } from 'react-router-dom';
@@ -212,12 +214,12 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
         {/* Facilities Grid */}
         <div className="p-3 sm:p-5 flex-grow bg-white dark:bg-neutral-700">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {[
+            {[/* eslint-disable @typescript-eslint/no-unused-vars */
               { key: 'arena', label: 'Arena', icon: ArenaIcon, available: property.arenas.length > 0 },
               { key: 'roundYard', label: 'Round Yard', icon: RoundYardIcon, available: property.roundYards.length > 0 },
               { key: 'feedRoom', label: 'Feed Room', icon: FeedRoomIcon, available: property.feedRoom.available },
               { key: 'tackRoom', label: 'Tack Room', icon: TackRoomIcon, available: property.tackRoom.available },
-              { key: 'floatParking', label: 'Float Parking', icon: FloatParkingIcon, available: property.floatParking.available },
+              { key: 'floatParking', label: 'Float', icon: FloatParkingIcon, available: property.floatParking.available },
               { key: 'hotWash', label: 'Hot Wash', icon: HotWashIcon, available: property.hotWash.available },
               { key: 'stables', label: 'Stables', icon: StableIcon, available: property.stables.available },
               { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: property.tieUp.available }
@@ -226,11 +228,11 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
                 {Icon && <Icon className="w-5 h-5" />}
                 <span className="text-sm flex items-center gap-1">
                   {label}
-                  <span className="text-neutral-600 dark:text-neutral-400">
-                    {available ? (
-                      <span className="text-neutral-600 dark:text-neutral-400">✔</span>
-                    ) : '✘'}
-                  </span>
+                  {available ? (
+                    <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <CrossIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  )}
                 </span>
               </div>
             ))}

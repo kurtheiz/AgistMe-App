@@ -6,8 +6,6 @@ import { Agistment } from '../types/agistment';
 import { formatAvailabilityDate } from '../utils/dates';
 import { calculateMonthlyPrice } from '../utils/prices';
 import { 
-  ArenaIcon,
-  RoundYardIcon,
   FeedRoomIcon,
   TackRoomIcon,
   FloatParkingIcon,
@@ -16,7 +14,9 @@ import {
   TieUpIcon,
   PhotoIcon,
   MapPinIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  CheckIcon,
+  CrossIcon
 } from './Icons';
 import { PageToolbar } from './PageToolbar';
 
@@ -379,8 +379,6 @@ export function AgistmentDetail() {
             <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Facilities</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[
-                { key: 'arena', label: 'Arena', icon: ArenaIcon, available: agistment.arenas.length > 0 },
-                { key: 'roundYard', label: 'Round Yard', icon: RoundYardIcon, available: agistment.roundYards.length > 0 },
                 { key: 'feedRoom', label: 'Feed Room', icon: FeedRoomIcon, available: agistment.feedRoom.available },
                 { key: 'tackRoom', label: 'Tack Room', icon: TackRoomIcon, available: agistment.tackRoom.available },
                 { key: 'floatParking', label: 'Float Parking', icon: FloatParkingIcon, available: agistment.floatParking.available },
@@ -393,9 +391,11 @@ export function AgistmentDetail() {
                   <span className="text-sm flex items-center gap-1">
                     {label}
                     <span className="text-neutral-600 dark:text-neutral-400">
-                      {available ? (
-                        <span className="text-neutral-600 dark:text-neutral-400">✔</span>
-                      ) : '✘'}
+                    {available ? (
+                    <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <CrossIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  )}
                     </span>
                   </span>
                 </div>

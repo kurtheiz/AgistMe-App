@@ -24,6 +24,7 @@ export * from './PhotoIcon';
 export * from './MapPinIcon';
 export * from './ArrowLeftIcon';
 export * from './RefreshIcon';
+export * from './CrossIcon';
 
 export { SearchIcon } from './SearchIcon';
 export { FilterIcon } from './FilterIcon';

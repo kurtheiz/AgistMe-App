@@ -235,7 +235,7 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto">
-                  <div className="px-4 py-4 pb-24">
+                  <div className="px-4 py-4 pb-6">
                     <form id="profile-form" onSubmit={handleSubmit} className="space-y-6">
                       {/* Privacy Settings */}
                       <div className="border-b border-neutral-200 dark:border-neutral-700 pb-4">
@@ -264,7 +264,7 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
                             <span className={`ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}>Share my bio with enquiries</span>
                           </label>
                           <p className="text-sm text-neutral-500 dark:text-neutral-400 ml-[3.5rem]">
-                            When enabled, your bio and horse information will be shared with agistors when you make an enquiry
+                            When enabled, your bio and horse information will be available to agistors who you have made an enquiry with.
                           </p>
                         </div>
                       </div>
@@ -503,8 +503,8 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
                             name="comments"
                             value={formData.comments || ''}
                             onChange={handleInputChange}
-                            placeholder={`Tell us more about ${formData.firstName || 'yourself'}`}
-                            rows={3}
+                            placeholder={'Tell us more about yourself'}
+                            rows={7}
                             disabled={clearFields}
                             className={`form-textarea text-sm w-full resize-none ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
                           />
