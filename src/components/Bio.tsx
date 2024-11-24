@@ -82,8 +82,9 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
     return <div>No profile data available</div>;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!hasChanges || saving || isUploading) return;
     try {
       setSaving(true);
       
@@ -118,39 +119,6 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
       ...prev,
       [name]: value
     }));
-  };
-
-  const handleClose = () => {
-    // Reset form to original values
-    if (profile) {
-      if (clearFields) {
-        setFormData({
-          id: profile.id,
-          email: profile.email,
-          shareId: profile.shareId,
-          showProfileInEnquiry: false,
-          lastUpdate: new Date().toISOString()
-        });
-      } else {
-        setFormData({
-          firstName: profile.firstName || '',
-          lastName: profile.lastName || '',
-          comments: profile.comments !== null ? profile.comments : '',
-          profilePhoto: profile.profilePhoto || '',
-          mobile: profile.mobile || '',
-          dateOfBirth: profile.dateOfBirth || '',
-          address: profile.address || '',
-          suburb: profile.suburb || '',
-          postcode: profile.postcode || '',
-          geohash: profile.geohash || '',
-          suburbId: profile.suburbId || '',
-          region: profile.region || '',
-          state: profile.state || '',
-          showProfileInEnquiry: profile.showProfileInEnquiry || false
-        });
-      }
-    }
-    onClose();
   };
 
   const handleClearAddress = () => {
@@ -219,7 +187,7 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
             <Dialog.Panel className="relative w-full h-[100dvh] transform overflow-hidden bg-white dark:bg-neutral-800 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:h-[85vh] sm:align-middle sm:rounded-lg">
               <div className="flex flex-col h-full">
                 {/* Header */}
-                <div className="sticky top-0 z-50 bg-primary-500 dark:bg-primary-600">
+                <div className="flex-shrink-0 bg-primary-500 dark:bg-primary-600">
                   <div className="flex items-center justify-between h-16 px-4">
                     <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-white">
                       {clearFields ? 'Delete Bio' : 'Edit Bio'}
@@ -519,17 +487,10 @@ export default function Bio({ isOpen = false, onClose = () => {}, clearFields = 
                   <div className="p-4">
                     <div className="flex justify-center gap-3">
                       <button
-                        type="button"
-                        onClick={handleClose}
-                        className="inline-flex justify-center rounded-md border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
                         type="submit"
                         form="profile-form"
                         disabled={!hasChanges || saving || isUploading}
-                        className={`inline-flex justify-center rounded-md px-4 py-2 text-sm font-medium text-white ${
+                        className={`w-full inline-flex justify-center rounded-md px-4 py-3 text-sm font-medium text-white ${
                           !hasChanges || saving || isUploading
                             ? 'bg-neutral-400 dark:bg-neutral-600 cursor-not-allowed'
                             : 'bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600'

@@ -522,7 +522,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                         type="submit"
                         form="search-form"
                         disabled={searchCriteria.suburbs.length === 0}
-                        className={`w-full inline-flex justify-center rounded-md px-4 py-2 text-sm font-medium text-white ${
+                        className={`w-full inline-flex justify-center rounded-md px-4 py-3 text-sm font-medium text-white ${
                           searchCriteria.suburbs.length === 0
                             ? 'bg-neutral-400 dark:bg-neutral-600 cursor-not-allowed'
                             : 'bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600'
