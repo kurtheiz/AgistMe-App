@@ -1,4 +1,5 @@
 export interface Horse {
+  id: string;
   name: string;
   breed: string;
   gender: string;
@@ -7,13 +8,6 @@ export interface Horse {
   size?: number;
   yearOfBirth?: number;
   photo?: string;
-}
-
-export interface LocalHorse {
-    name: string;
-    breed: string;
-    gender: string;
-    description?: string;
 }
 
 export interface Profile {
@@ -34,11 +28,10 @@ export interface Profile {
     comments: string;
     shareId: string;
     showProfileInEnquiry: boolean;
-    horseExperience?: string;
     availability?: string;
     lastUpdate: string;
-    horses?: Horse[];
-    favourites?: string[];
+    horses: Horse[];
+    favourites: string[];
 }
 
 export interface UpdateProfileRequest extends Omit<Profile, 'id' | 'email' | 'lastUpdate'> {}

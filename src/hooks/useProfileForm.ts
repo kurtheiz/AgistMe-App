@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Profile } from '../types/profile';
+import { Profile, Horse } from '../types/profile';
 import type { UserResource } from '@clerk/types';
 import { profileService } from '../services/profile.service';
 
@@ -22,10 +22,10 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     comments: '',
     shareId: '',
     showProfileInEnquiry: false,
-    horseExperience: '',
     availability: '',
     lastUpdate: new Date().toISOString(),
-    horses: []
+    horses: [],
+    favourites: []
   });
 
   const [originalData, setOriginalData] = useState<Profile | null>(null);
@@ -70,10 +70,10 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
             comments: profileData.comments || '',
             shareId: profileData.shareId || '',
             showProfileInEnquiry: profileData.showProfileInEnquiry || false,
-            horseExperience: profileData.horseExperience || '',
             availability: profileData.availability || '',
             lastUpdate: profileData.lastUpdate || new Date().toISOString(),
-            horses: profileData.horses || []
+            horses: profileData.horses || [],
+            favourites: profileData.favourites || []
           };
           setFormData(newFormData);
           setOriginalData(newFormData);
@@ -96,7 +96,7 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     const fieldsToCompare = Object.keys(newData).filter(key => key !== 'lastUpdate');
     return fieldsToCompare.some(key => {
       const field = key as keyof Profile;
-      if (field === 'horses') {
+      if (field === 'horses' || field === 'favourites') {
         return JSON.stringify(newData[field]) !== JSON.stringify(originalData[field]);
       }
       return newData[field] !== originalData[field];
@@ -111,13 +111,26 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     });
   };
 
-  const handleHorseChange = (index: number, field: string, value: string | number) => {
+  const handleHorseChange = (index: number, field: keyof Horse, value: string | number) => {
     setFormData(prev => {
-      const horses = prev.horses || [];
-      const newHorses = horses.map((horse, i) =>
-        i === index ? { ...horse, [field]: value } : horse
-      );
-      const newData = { ...prev, horses: newHorses };
+      const horses = [...prev.horses];
+      horses[index] = {
+        ...horses[index],
+        [field]: value
+      };
+      const newData = { ...prev, horses };
+      setIsDirty(checkIfDirty(newData));
+      return newData;
+    });
+  };
+
+  const handleFavouriteChange = (index: number, value: string) => {
+    setFormData(prev => {
+      const favourites = [...prev.favourites];
+      if (!favourites.includes(value)) {
+        favourites[index] = value;
+      }
+      const newData = { ...prev, favourites };
       setIsDirty(checkIfDirty(newData));
       return newData;
     });
@@ -167,6 +180,7 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     setUploadingHorseIndex,
     handleInputChange,
     handleHorseChange,
+    handleFavouriteChange,
     handleProfilePhotoUpload,
     saveProfile
   };
