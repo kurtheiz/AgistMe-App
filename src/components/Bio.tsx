@@ -1,17 +1,23 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Fragment } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDateOfBirth } from '../utils/inputValidation';
 import { SuburbSearch } from './SuburbSearch/SuburbSearch';
 import { useProfile } from '../context/ProfileContext';
-import { CheckIcon, ArrowLeftIcon } from './Icons';
+import { XMarkIcon } from './Icons';
 import { ProfilePhoto } from './Profile/ProfilePhoto';
 import { ProfileSkeleton } from './Profile/ProfileSkeleton';
-import { PageToolbar } from './PageToolbar';
 import { profileService } from '../services/profile.service';
 import { Profile, UpdateProfileRequest } from '../types/profile';
 
-export default function Bio() {
+interface BioModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  clearFields?: boolean;
+}
+
+const Bio = ({ isOpen = false, onClose = () => {}, clearFields = false }: BioModalProps) => {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
   const navigate = useNavigate();
@@ -19,21 +25,36 @@ export default function Bio() {
   const [saving, setSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [originalData, setOriginalData] = useState<Partial<Profile>>({});
-  const [formData, setFormData] = useState<Partial<Profile>>({
-    firstName: '',
-    lastName: '',
-    comments: '',
-    profilePhoto: '',
-    mobile: '',
-    dateOfBirth: '',
-    address: '',
-    suburb: '',
-    state: '',
-    postcode: '',
-    geohash: '',
-    suburbId: '',
-    region: ''
-  });
+  const [formData, setFormData] = useState<Partial<Profile>>({});
+
+  useEffect(() => {
+    if (clearFields) {
+      setFormData({
+        id: profile?.id,
+        email: profile?.email,
+        shareId: profile?.shareId,
+        showProfileInEnquiry: false,
+        lastUpdate: new Date().toISOString()
+      });
+    } else {
+      setFormData({
+        firstName: profile?.firstName || '',
+        lastName: profile?.lastName || '',
+        comments: profile?.comments !== null ? profile?.comments : '',
+        profilePhoto: profile?.profilePhoto || '',
+        mobile: profile?.mobile || '',
+        dateOfBirth: profile?.dateOfBirth || '',
+        address: profile?.address || '',
+        suburb: profile?.suburb || '',
+        postcode: profile?.postcode || '',
+        geohash: profile?.geohash || '',
+        suburbId: profile?.suburbId || '',
+        region: profile?.region || '',
+        state: profile?.state || '',
+        showProfileInEnquiry: profile?.showProfileInEnquiry || false
+      });
+    }
+  }, [profile, clearFields]);
 
   // Track if there are any changes to save
   const hasChanges = useMemo(() => {
@@ -45,31 +66,16 @@ export default function Bio() {
   }, [formData, originalData]);
 
   useEffect(() => {
+    if (isLoaded && isSignedIn && !profile && !loading && !error) {
+      refreshProfile(true);
+    }
+  }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile]);
+
+  useEffect(() => {
     if (profile) {
-      const initialData = {
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        comments: profile.comments !== null ? profile.comments : '',
-        profilePhoto: profile.profilePhoto || '',
-        mobile: profile.mobile || '',
-        dateOfBirth: profile.dateOfBirth || '',
-        address: profile.address || '',
-        suburb: profile.suburb || '',
-        state: profile.state || '',
-        postcode: profile.postcode || '',
-        geohash: profile.geohash || '',
-        suburbId: profile.suburbId || '',
-        region: profile.region || ''
-      };
-      setFormData(initialData);
-      setOriginalData(initialData);
+      setOriginalData(formData);
     }
   }, [profile]);
-
-  // If profile is not loaded yet, try to load it
-  if (isLoaded && isSignedIn && !profile && !loading && !error) {
-    refreshProfile(true);
-  }
 
   if (!isLoaded) {
     return null;
@@ -78,6 +84,18 @@ export default function Bio() {
   if (!isSignedIn) {
     navigate('/');
     return null;
+  }
+
+  if (loading) {
+    return null;
+  }
+
+  if (error) {
+    return <div className="text-red-500">Error loading profile: {error}</div>;
+  }
+
+  if (!profile) {
+    return <div>No profile data available</div>;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,8 +116,11 @@ export default function Bio() {
         postcode: formData.postcode,
         geohash: formData.geohash,
         suburbId: formData.suburbId,
-        region: formData.region
+        region: formData.region,
+        showProfileInEnquiry: formData.showProfileInEnquiry
       } as UpdateProfileRequest);
+
+      onClose();
     } catch (error) {
       console.error('Error updating profile:', error);
     } finally {
@@ -115,301 +136,386 @@ export default function Bio() {
     }));
   };
 
-    if (loading) {
-    return <ProfileSkeleton />;
-  }
-
-  if (error) {
-    return <div className="text-red-500">Error loading profile: {error}</div>;
-  }
-
-  if (!profile) {
-    return <div>No profile data available</div>;
-  }
+  const handleSave = async () => {
+    if (clearFields) {
+      try {
+        await updateProfileData({
+          firstName: '',
+          lastName: '',
+          comments: '',
+          profilePhoto: '',
+          mobile: '',
+          dateOfBirth: '',
+          address: '',
+          suburb: '',
+          state: '',
+          postcode: '',
+          geohash: '',
+          suburbId: '',
+          region: '',
+          showProfileInEnquiry: false
+        } as UpdateProfileRequest);
+        onClose();
+      } catch (error) {
+        console.error('Error clearing profile:', error);
+      }
+    } else {
+      handleSubmit(null);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <PageToolbar 
-        actions={
-          <div className="w-full flex items-center -ml-1 sm:-ml-3">
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate(-1)}
-                className="flex items-center gap-1 px-2 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-                <span className="font-medium text-sm">Back</span>
-              </button>
-              <span className="text-neutral-300 dark:text-neutral-600 mx-1">|</span>
-              <div className="flex items-center gap-1 text-xs text-neutral-600 dark:text-neutral-400">
-                <span>Profile</span>
-                <span className="text-neutral-300 dark:text-neutral-600">&gt;</span>
-                <span>Bio</span>
-              </div>
-            </div>
-          </div>
-        }
-      />
-      
-      <div className="w-full pb-20">
-        <div className="max-w-2xl mx-auto px-3 sm:px-6">
-          <div className="py-4 sm:py-6">
-            <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-white">Bio Settings</h1>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Manage your personal information
-            </p>
-          </div>
-          <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg p-4 sm:p-6">
-            <form onSubmit={handleSubmit} id="profile-form" className="space-y-4 sm:space-y-6">
-              {/* Profile Image */}
-              <div className="flex justify-center">
-                <ProfilePhoto
-                  photoUrl={formData.profilePhoto || ''}
-                  isUploading={isUploading}
-                  onPhotoUpload={async (file: File) => {
-                    try {
-                      setIsUploading(true);
-                      const photoUrl = await profileService.uploadProfilePhoto(file);
-                      setFormData(prev => ({
-                        ...prev,
-                        profilePhoto: photoUrl
-                      }));
-                      return photoUrl;
-                    } catch (error) {
-                      console.error('Error uploading photo:', error);
-                      return '';
-                    } finally {
-                      setIsUploading(false);
-                    }
-                  }}
-                  onPhotoRemove={() => {
-                    setFormData(prev => ({
-                      ...prev,
-                      profilePhoto: ''
-                    }));
-                  }}
-                  fallbackUrl={user?.imageUrl || '/default-profile.png'}
-                />
-              </div>
+    <Transition.Root show={isOpen} as={Fragment}>
+      <Dialog
+        as="div"
+        className="relative z-50"
+        onClose={onClose}
+      >
+        <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm" />
 
-              {/* Email Display */}
-              <div className="text-center mb-4">
-                <span className="text-sm text-neutral-500 dark:text-neutral-400">Email:</span>
-                <p className="text-neutral-800 dark:text-neutral-200 font-medium">
-                  {user?.primaryEmailAddress?.emailAddress}
-                </p>
-              </div>
-
-              {/* Name Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="First Name"
-                    className="form-input h-10 text-sm w-full"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    placeholder="Last Name"
-                    className="form-input h-10 text-sm w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Date of Birth and Mobile Number */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="dateOfBirth" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
-                    onChange={handleInputChange}
-                    max={getMaxDateOfBirth()}
-                    min={getMinDateOfBirth()}
-                    className="form-input h-10 text-sm w-full [color-scheme:light] dark:[color-scheme:dark]"
-                  />
-                  {formData.dateOfBirth && !isValidDateOfBirth(formData.dateOfBirth).isValid && (
-                    <p className="mt-1 text-xs text-red-500 dark:text-red-400">
-                      {isValidDateOfBirth(formData.dateOfBirth).error}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Mobile Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="mobile"
-                    name="mobile"
-                    value={formData.mobile}
-                    onChange={handleInputChange}
-                    placeholder="Mobile Number"
-                    className="form-input h-10 text-sm w-full"
-                  />
-                  {formData.mobile && !isValidAusMobileNumber(formData.mobile) && (
-                    <p className="mt-1 text-xs text-red-500 dark:text-red-400">
-                      Please enter a valid mobile number (xxxx-xxx-xxx)
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Suburb Search Section */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                    Search Suburb
-                  </label>
+        <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white dark:bg-neutral-900 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+              {/* Modal Content */}
+              <div className="flex flex-col max-h-[calc(100vh-8rem)]">
+                {/* Header - Fixed */}
+                <div className="bg-primary-600 dark:bg-secondary-600 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 relative">
+                  <div className="sm:flex sm:items-start">
+                    <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                      <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-white">
+                        {clearFields ? 'Delete My Bio' : 'Edit My Bio'}
+                      </Dialog.Title>
+                    </div>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      setFormData(prev => ({
-                        ...prev,
-                        address: '',
-                        suburb: '',
-                        state: '',
-                        postcode: '',
-                        geohash: '',
-                        suburbId: '',
-                        region: ''
-                      }));
-                    }}
-                    className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    className="absolute top-4 right-4 text-white hover:text-gray-200 focus:outline-none"
+                    onClick={onClose}
                   >
-                    Clear Address
+                    <XMarkIcon className="h-6 w-6" />
+                    <span className="sr-only">Close</span>
                   </button>
                 </div>
-                <SuburbSearch
-                  selectedSuburbs={formData.suburb && typeof formData.suburb !== 'string' ? [formData.suburb] : []}
-                  onSuburbsChange={(suburbs) => {
-                    const suburb = suburbs[0];
-                    if (suburb) {
-                      setFormData(prev => ({
-                        ...prev,
-                        suburb: suburb.suburb,
-                        state: suburb.state,
-                        postcode: suburb.postcode,
-                        suburbId: suburb.id,
-                        region: suburb.region || '',
-                        geohash: suburb.geohash || ''
-                      }));
-                    }
-                  }}
-                  multiple={false}
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.state}
-                      readOnly
-                      className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Post Code
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.postcode}
-                      readOnly
-                      className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
-                    />
-                  </div>
+
+                {/* Body - Scrollable */}
+                <div className="bg-white dark:bg-neutral-900 px-4 sm:px-6 overflow-y-auto">
+                  <form id="profile-form" onSubmit={handleSubmit} className="space-y-4">
+                    <div className="flex justify-center">
+                      <div className="w-full max-w-[240px]">
+                        <ProfilePhoto
+                          photoUrl={formData.profilePhoto || ''}
+                          isUploading={isUploading}
+                          onPhotoUpload={async (file: File) => {
+                            try {
+                              setIsUploading(true);
+                              const photoUrl = await profileService.uploadProfilePhoto(file);
+                              setFormData(prev => ({
+                                ...prev,
+                                profilePhoto: photoUrl
+                              }));
+                              return photoUrl;
+                            } catch (error) {
+                              console.error('Error uploading photo:', error);
+                              return '';
+                            } finally {
+                              setIsUploading(false);
+                            }
+                          }}
+                          onPhotoRemove={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              profilePhoto: ''
+                            }));
+                          }}
+                          disabled={clearFields}
+                        />
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
+                      {user?.primaryEmailAddress?.emailAddress}
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          id="firstName"
+                          name="firstName"
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          placeholder="First Name"
+                          disabled={clearFields}
+                          className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          id="lastName"
+                          name="lastName"
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          placeholder="Last Name"
+                          disabled={clearFields}
+                          className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label htmlFor="dateOfBirth" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Date of Birth
+                        </label>
+                        <input
+                          type="date"
+                          id="dateOfBirth"
+                          name="dateOfBirth"
+                          value={formData.dateOfBirth}
+                          onChange={handleInputChange}
+                          max={getMaxDateOfBirth()}
+                          min={getMinDateOfBirth()}
+                          disabled={clearFields}
+                          className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+                        />
+                        {formData.dateOfBirth && !isValidDateOfBirth(formData.dateOfBirth).isValid && (
+                          <p className="text-xs text-red-500 dark:text-red-400">
+                            {isValidDateOfBirth(formData.dateOfBirth).error}
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <label htmlFor="mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Mobile Number
+                        </label>
+                        <input
+                          type="tel"
+                          id="mobile"
+                          name="mobile"
+                          value={formData.mobile}
+                          onChange={handleInputChange}
+                          placeholder="Mobile Number"
+                          disabled={clearFields}
+                          className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+                        />
+                        {formData.mobile && !isValidAusMobileNumber(formData.mobile) && (
+                          <p className="text-xs text-red-500 dark:text-red-400">
+                            Please enter a valid mobile number (xxxx-xxx-xxx)
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Location Section */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Location
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              address: '',
+                              suburb: '',
+                              state: '',
+                              postcode: '',
+                              geohash: '',
+                              suburbId: ''
+                            }));
+                          }}
+                          disabled={!formData.postcode && !formData.address && !formData.suburb}
+                          className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Clear Address
+                        </button>
+                      </div>
+
+                      {/* Suburb Search and Address */}
+                      <div className="grid grid-cols-1 gap-4 items-start">
+                        <div className="w-full">
+                          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 block">
+                            Address
+                          </label>
+                          <input
+                            type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleInputChange}
+                            disabled={clearFields}
+                            className={`w-full rounded-md border px-3 py-2 text-sm ${
+                              clearFields
+                                ? 'bg-neutral-100 dark:bg-neutral-800 cursor-not-allowed border-neutral-300 dark:border-neutral-600'
+                                : 'bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600 focus:border-primary-500 focus:ring-primary-500'
+                            }`}
+                          />
+                        </div>
+                        <div className="w-full">
+                          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 block">
+                            Suburb
+                          </label>
+                          <SuburbSearch
+                            selectedSuburbs={[]}
+                            onSuburbsChange={(suburbs) => {
+                              const suburb = suburbs[0];
+                              if (suburb) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  suburb: suburb.suburb,
+                                  state: suburb.state,
+                                  postcode: suburb.postcode,
+                                  suburbId: suburb.id,
+                                  region: suburb.region || '',
+                                  geohash: suburb.geohash || ''
+                                }));
+                              }
+                            }}
+                            multiple={false}
+                            disabled={clearFields}
+                            className={`${clearFields ? 'opacity-50' : ''}`}
+                          />
+                          <div className="grid grid-cols-2 gap-4 mt-2">
+                            <div className="space-y-1">
+                              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                Selected Suburb
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.suburb ? `${formData.suburb}, ${formData.state} ${formData.postcode}` : ''}
+                                readOnly
+                                disabled
+                                className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                Region
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.region || ''}
+                                readOnly
+                                disabled
+                                className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* State and Postcode */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            State
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.state}
+                            readOnly
+                            disabled
+                            className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            Post Code
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.postcode}
+                            readOnly
+                            disabled
+                            className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
+                          />
+                        </div>
+                      </div>
+
+                      {/* About Section */}
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          About
+                        </label>
+                        <textarea
+                          name="comments"
+                          value={formData.comments || ''}
+                          onChange={handleInputChange}
+                          placeholder={`Tell us more about ${formData.firstName || 'yourself'}`}
+                          rows={3}
+                          disabled={clearFields}
+                          className={`form-textarea text-sm w-full resize-none ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Privacy Settings */}
+                    <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                      <h4 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">
+                        Privacy Settings
+                      </h4>
+                      <div className="flex flex-col gap-2">
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.showProfileInEnquiry}
+                            onChange={(e) => !clearFields && setFormData(prev => ({ ...prev, showProfileInEnquiry: e.target.checked }))}
+                            disabled={clearFields}
+                            className={`sr-only peer ${clearFields ? 'cursor-not-allowed' : ''}`}
+                          />
+                          <div className={`w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-offset-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-neutral-600 peer-checked:bg-primary-600 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+                          <span className={`ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}>Share my bio with enquiries</span>
+                        </label>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 ml-[3.5rem]">
+                          When enabled, your bio and horse information will be shared with agistors when you make an enquiry
+                        </p>
+                      </div>
+                    </div>
+                  </form>
                 </div>
-                {/* Address Field */}
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="Enter your street address"
-                    className="form-input h-10 text-sm w-full"
-                  />
-                </div>
-                {/* Comments Field */}
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    About
-                  </label>
-                  <textarea
-                    name="comments"
-                    value={formData.comments || ''}
-                    onChange={handleInputChange}
-                    placeholder={`Tell us more about ${formData.firstName || 'yourself'}`}
-                    rows={3}
-                    className="form-textarea text-sm w-full resize-none"
-                  />
+
+                {/* Footer - Fixed */}
+                <div className="bg-white dark:bg-neutral-900 px-4 py-3 sm:px-6 border-t border-neutral-200 dark:border-neutral-700">
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={onClose}
+                      className="modal-button-secondary"
+                    >
+                      Cancel
+                    </button>
+                    {clearFields ? (
+                      <button
+                        onClick={handleSave}
+                        className="modal-button-primary"
+                      >
+                        Confirm Delete
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        form="profile-form"
+                        disabled={!hasChanges || saving}
+                        className="modal-button-primary"
+                      >
+                        {saving ? 'Saving...' : 'Save Changes'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </form>
+            </Dialog.Panel>
           </div>
         </div>
-      </div>
-
-      {/* Sticky Save Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-700 p-3">
-        <div className="max-w-2xl mx-auto">
-          <button
-            type="submit"
-            form="profile-form"
-            disabled={saving || !hasChanges || isUploading}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-primary-600/50 disabled:cursor-not-allowed rounded-lg"
-          >
-            {saving ? (
-              <>
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span>Saving...</span>
-              </>
-            ) : isUploading ? (
-              <>
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span>Uploading Photo...</span>
-              </>
-            ) : (
-              <>
-                <CheckIcon className="h-5 w-5" />
-                <span>{hasChanges ? 'Save Changes' : 'No Changes'}</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+      </Dialog>
+    </Transition.Root>
   );
 }
+
+export default Bio;

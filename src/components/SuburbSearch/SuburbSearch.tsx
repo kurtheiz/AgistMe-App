@@ -9,9 +9,18 @@ interface SuburbSearchProps {
   onSuburbsChange: (suburbs: Suburb[]) => void;
   multiple?: boolean;
   includeRegions?: boolean;
+  disabled?: boolean;
+  className?: string;
 }
 
-export function SuburbSearch({ selectedSuburbs, onSuburbsChange, multiple = true, includeRegions = true }: SuburbSearchProps) {
+export function SuburbSearch({ 
+  selectedSuburbs, 
+  onSuburbsChange, 
+  multiple = true, 
+  includeRegions = true,
+  disabled = false,
+  className = ''
+}: SuburbSearchProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<Suburb[]>([]);
   const [loading, setLoading] = useState(false);
@@ -77,8 +86,8 @@ export function SuburbSearch({ selectedSuburbs, onSuburbsChange, multiple = true
   };
 
   return (
-    <div className="relative">
-      <div className="flex flex-wrap gap-1.5 p-2 border-2 rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 h-[72px] overflow-y-auto suburb-chips-container">
+    <div className={`relative ${className}`}>
+      <div className={`flex flex-wrap gap-1.5 p-2 border-2 rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 ${multiple ? 'h-[72px] overflow-y-auto' : 'h-10'} suburb-chips-container`}>
         <div className="flex flex-wrap gap-1.5 w-full">
           {multiple && selectedSuburbs.map((location) => (
             <div
@@ -103,17 +112,20 @@ export function SuburbSearch({ selectedSuburbs, onSuburbsChange, multiple = true
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-            }}
+            onChange={(e) => !disabled && setSearchTerm(e.target.value)}
             placeholder={multiple && includeRegions ? "State, region, suburb or post code" : "Suburb or post code"}
-            className="h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500"
+            disabled={disabled}
+            className={`h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500 ${
+              disabled 
+                ? 'bg-neutral-100 dark:bg-neutral-800 cursor-not-allowed border-neutral-300 dark:border-neutral-600' 
+                : 'bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600 focus:border-primary-500 focus:ring-primary-500'
+            }`}
           />
         </div>
       </div>
 
       {/* Search Results Dropdown */}
-      {searchTerm && (
+      {searchTerm && !disabled && (
         <div className="absolute z-10 w-full mt-1 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-200 dark:border-neutral-700 max-h-60 overflow-auto">
           {loading ? (
             <div key="loading" className="p-4 text-center text-neutral-600 dark:text-neutral-400">

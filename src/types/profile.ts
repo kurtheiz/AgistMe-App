@@ -13,6 +13,8 @@ export interface Horse {
 
 export interface Profile {
     id: string;
+    shareId: string;
+    showProfileInEnquiry: boolean;
     email: string;
     firstName?: string;
     lastName?: string;

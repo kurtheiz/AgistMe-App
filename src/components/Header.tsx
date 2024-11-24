@@ -64,19 +64,19 @@ export const Header = () => {
             {isLoaded ? (
               <button
                 onClick={handleAvatarClick}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 aria-label={isSignedIn ? 'Go to profile' : 'Sign In'}
               >
                 {isSignedIn && user?.imageUrl ? (
                   <img 
                     src={user.imageUrl} 
                     alt={user.fullName || 'User avatar'} 
-                    className="h-9 w-9 sm:h-10 sm:w-10 rounded-full"
+                    className="h-6 w-6 rounded-full"
                   />
                 ) : (
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 text-gray-600 dark:text-gray-300" 
+                    className="h-6 w-6 text-gray-600 dark:text-gray-300" 
                     fill="none" 
                     viewBox="0 0 24 24" 
                     stroke="currentColor"
@@ -92,7 +92,9 @@ export const Header = () => {
               </button>
             ) : (
               // Show a placeholder while loading
-              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+              <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+              </div>
             )}
           </div>
         </div>

@@ -81,4 +81,22 @@ body {
   .modal-header {
     @apply text-lg font-medium leading-6 text-white bg-primary-600 dark:bg-neutral-800 flex justify-between items-center mb-4 p-4 -mx-6 -mt-6 dark:border-b dark:border-neutral-700;
   }
+
+  /* Modal panel styling */
+  .modal-panel {
+    @apply fixed inset-0 md:inset-auto w-full h-[100dvh] md:h-auto md:min-h-0 transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all;
+  }
+
+  /* Modal button styling */
+  .modal-button-primary {
+    @apply px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-700 rounded-md transition-colors disabled:cursor-not-allowed;
+  }
+
+  .modal-button-secondary {
+    @apply px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-md transition-colors;
+  }
+
+  .modal-footer {
+    @apply sticky bottom-0 border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 sm:px-6 py-3;
+  }
 }

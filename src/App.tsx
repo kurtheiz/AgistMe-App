@@ -8,8 +8,9 @@ import { ErrorPage } from './components/ErrorPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import Bio from './components/Bio';
+import { BioModal } from './components/Bio';
 import Profile from './components/Profile';
+import BioView from './components/BioView';
 import { ProfileProvider } from './context/ProfileContext';
 import { Agistments } from './components/Agistments';
 import { AgistmentDetail } from './components/AgistmentDetail';
@@ -42,7 +43,7 @@ const router = createBrowserRouter(
         path="/profile/bio" 
         element={
           <ProtectedRoute>
-            <Bio />
+            <BioView />
           </ProtectedRoute>
         } 
       />
