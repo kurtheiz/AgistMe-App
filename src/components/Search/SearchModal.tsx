@@ -3,6 +3,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
 import { SearchCriteria, PaddockType, CareType, FacilityType } from '../../types/search';
 import { LocationType } from '../../types/suburb';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { 
   XMarkIcon,
   PlusIcon,
@@ -28,6 +29,23 @@ interface SearchModalProps {
 }
 
 export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFilterCountChange }: SearchModalProps) {
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchHash = searchParams.get('q') || initialSearchHash;
+
+  const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({
+    suburbs: [],
+    radius: 0,
+    paddockTypes: [],
+    spaces: 0,
+    maxPrice: 0,
+    hasArena: false,
+    hasRoundYard: false,
+    facilities: initialFacilities,
+    careTypes: []
+  });
+
   useEffect(() => {
     if (isOpen) {
       // Check if content will cause overflow
@@ -61,79 +79,50 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
     };
   }, [isOpen]);
 
-  const decodeSearchHash = (hash: string): SearchCriteria => {
-    try {
-      const decodedSearch = JSON.parse(atob(hash));
-      return {
-        suburbs: decodedSearch.s?.map((s: any) => ({
-          id: s.i,
-          suburb: s.n,
-          postcode: s.p,
-          state: s.t,
-          region: s.r,
-          geohash: s.g,
-          locationType: s.l
-        })) || [],
-        radius: decodedSearch.r || 0,
-        paddockTypes: decodedSearch.pt || [],
-        spaces: decodedSearch.sp || 0,
-        maxPrice: decodedSearch.mp || 0,
-        hasArena: decodedSearch.a || false,
-        hasRoundYard: decodedSearch.ry || false,
-        facilities: decodedSearch.f || initialFacilities,
-        careTypes: decodedSearch.ct || []
-      };
-    } catch (error) {
-      console.error('Error decoding search hash:', error);
-      return {
-        suburbs: [],
-        radius: 0,
-        paddockTypes: [],
-        spaces: 0,
-        maxPrice: 0,
-        hasArena: false,
-        hasRoundYard: false,
-        facilities: initialFacilities,
-        careTypes: []
-      };
-    }
-  };
-
-  const [criteria, setCriteria] = useState<SearchCriteria>(() => 
-    initialSearchHash ? decodeSearchHash(initialSearchHash) : {
-      suburbs: [],
-      radius: 0,
-      paddockTypes: [],
-      spaces: 0,
-      maxPrice: 0,
-      hasArena: false,
-      hasRoundYard: false,
-      facilities: initialFacilities,
-      careTypes: []
-    }
-  );
-
   useEffect(() => {
-    if (initialSearchHash) {
-      setCriteria(decodeSearchHash(initialSearchHash));
+    if (searchHash && isOpen) {
+      try {
+        const decodedSearch = JSON.parse(atob(searchHash));
+        setSearchCriteria({
+          suburbs: decodedSearch.s?.map((s: any) => ({
+            id: s.i,
+            suburb: s.n,
+            postcode: s.p,
+            state: s.t,
+            region: s.r,
+            geohash: s.g,
+            locationType: s.l
+          })) || [],
+          radius: decodedSearch.r || 0,
+          paddockTypes: decodedSearch.pt || [],
+          spaces: decodedSearch.sp || 0,
+          maxPrice: decodedSearch.mp || 0,
+          hasArena: decodedSearch.a || false,
+          hasRoundYard: decodedSearch.ry || false,
+          facilities: decodedSearch.f || initialFacilities,
+          careTypes: decodedSearch.ct || []
+        });
+      } catch (error) {
+        console.error('Error decoding search hash:', error);
+      }
     }
-  }, [initialSearchHash]);
+  }, [searchHash, isOpen]);
 
   useEffect(() => {
     const filterCount = 
-      criteria.paddockTypes.length + 
-      (criteria.spaces > 0 ? 1 : 0) +
-      (criteria.maxPrice > 0 ? 1 : 0) +
-      (criteria.hasArena ? 1 : 0) +
-      (criteria.hasRoundYard ? 1 : 0) +
-      criteria.facilities.length +
-      criteria.careTypes.length;
+      searchCriteria.paddockTypes.length + 
+      (searchCriteria.spaces > 0 ? 1 : 0) +
+      (searchCriteria.maxPrice > 0 ? 1 : 0) +
+      (searchCriteria.hasArena ? 1 : 0) +
+      (searchCriteria.hasRoundYard ? 1 : 0) +
+      searchCriteria.facilities.length +
+      searchCriteria.careTypes.length;
     
     onFilterCountChange?.(filterCount);
-  }, [criteria, onFilterCountChange]);
+  }, [searchCriteria, onFilterCountChange]);
 
   const togglePaddockType = (type: PaddockType) => {
-    setCriteria(prev => ({
+    setSearchCriteria(prev => ({
       ...prev,
       paddockTypes: prev.paddockTypes.includes(type)
         ? prev.paddockTypes.filter(t => t !== type)
@@ -142,7 +131,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
   };
 
   const toggleCareType = (type: CareType) => {
-    setCriteria(prev => ({
+    setSearchCriteria(prev => ({
       ...prev,
       careTypes: prev.careTypes.includes(type)
         ? prev.careTypes.filter(t => t !== type)
@@ -151,7 +140,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
   };
 
   const toggleFacility = (facility: FacilityType) => {
-    setCriteria(prev => ({
+    setSearchCriteria(prev => ({
       ...prev,
       facilities: prev.facilities.includes(facility)
         ? prev.facilities.filter(f => f !== facility)
@@ -160,21 +149,21 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
   };
 
   const toggleArena = () => {
-    setCriteria(prev => ({
+    setSearchCriteria(prev => ({
       ...prev,
       hasArena: !prev.hasArena
     }));
   };
 
   const toggleRoundYard = () => {
-    setCriteria(prev => ({
+    setSearchCriteria(prev => ({
       ...prev,
       hasRoundYard: !prev.hasRoundYard
     }));
   };
 
   const resetFilters = () => {
-    setCriteria(prev => ({
+    setSearchCriteria(prev => ({
       ...prev,
       spaces: 0,
       maxPrice: 0,
@@ -187,11 +176,9 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
   };
 
   const handleSearch = () => {
-    // Clear any previous search results from local storage
-    localStorage.removeItem('agistme_last_search');
-    
+    // Create the search hash
     const searchData = {
-      s: criteria.suburbs.map(s => ({
+      s: searchCriteria.suburbs.map(s => ({
         i: s.id,
         n: s.suburb,
         p: s.postcode,
@@ -200,20 +187,27 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
         g: s.geohash,
         l: s.locationType
       })),
-      r: criteria.radius,
-      pt: criteria.paddockTypes,
-      sp: criteria.spaces,
-      mp: criteria.maxPrice,
-      a: criteria.hasArena,
-      ry: criteria.hasRoundYard,
-      f: criteria.facilities,
-      ct: criteria.careTypes
+      r: searchCriteria.radius,
+      pt: searchCriteria.paddockTypes,
+      sp: searchCriteria.spaces,
+      mp: searchCriteria.maxPrice,
+      a: searchCriteria.hasArena,
+      ry: searchCriteria.hasRoundYard,
+      f: searchCriteria.facilities,
+      ct: searchCriteria.careTypes
     };
-
-    console.log('Search data before encoding:', JSON.stringify(searchData, null, 2));
-    const searchHash = btoa(JSON.stringify(searchData));
-
-    onSearch({ ...criteria, searchHash });
+    
+    const hash = btoa(JSON.stringify(searchData));
+    
+    // If not on agistments page, navigate there
+    if (!location.pathname.includes('/agistments')) {
+      navigate(`/agistments/search?q=${hash}`);
+    } else {
+      // Update URL without navigation if already on agistments page
+      navigate(`?q=${hash}`, { replace: true });
+    }
+    
+    onSearch({ ...searchCriteria, searchHash: hash });
     onClose();
   };
 
@@ -245,16 +239,17 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
             >
               <Dialog.Panel className="modal-panel w-full h-full md:max-w-md md:h-[85vh] md:rounded-lg overflow-hidden">
                 <div className="flex flex-col h-full">
-                  <div className="sticky top-0 z-10 bg-primary-500 dark:bg-primary-600 md:rounded-t-lg">
-                    <div className="flex items-center justify-between px-4 py-3">
-                      <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-white">
+                  {/* Header */}
+                  <div className="sticky top-0 z-50 bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700">
+                    <div className="flex items-center justify-between px-4 py-4">
+                      <Dialog.Title as="h3" className="text-lg font-medium text-white">
                         Search Agistment
                       </Dialog.Title>
                       <button
                         onClick={onClose}
-                        className="rounded-full p-1 hover:bg-primary-600 dark:hover:bg-primary-500 transition-colors"
+                        className="rounded-md p-2 text-primary-100 hover:text-white dark:text-primary-200 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-primary-500"
                       >
-                        <XMarkIcon className="h-5 w-5 text-white" />
+                        <XMarkIcon className="h-5 w-5" />
                       </button>
                     </div>
                   </div>
@@ -269,15 +264,15 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                           <div className="space-y-3">
                             <div>
                               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-2">
-                                {criteria.suburbs.length === 0 ? (
+                                {searchCriteria.suburbs.length === 0 ? (
                                   "Select at least one location"
                                 ) : (
-                                  `${criteria.suburbs.length} ${criteria.suburbs.length === 1 ? 'location' : 'locations'} selected`
+                                  `${searchCriteria.suburbs.length} ${searchCriteria.suburbs.length === 1 ? 'location' : 'locations'} selected`
                                 )}
                               </label>
                               <SuburbSearch
-                                selectedSuburbs={criteria.suburbs}
-                                onSuburbsChange={(suburbs) => setCriteria(prev => ({ ...prev, suburbs }))}
+                                selectedSuburbs={searchCriteria.suburbs}
+                                onSuburbsChange={(suburbs) => setSearchCriteria(prev => ({ ...prev, suburbs }))}
                               />
                             </div>
 
@@ -288,18 +283,18 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                                   Radius
                                 </label>
                                 <span className="text-lg font-semibold text-neutral-900 dark:text-white">
-                                  {criteria.radius === 0 ? 'Any' : `${criteria.radius}km`}
+                                  {searchCriteria.radius === 0 ? 'Any' : `${searchCriteria.radius}km`}
                                 </span>
                               </div>
                               <input
                                 type="range"
                                 min="0"
                                 max="50"
-                                value={criteria.radius}
-                                disabled={!criteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)}
-                                onChange={(e) => setCriteria(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
+                                value={searchCriteria.radius}
+                                disabled={!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)}
+                                onChange={(e) => setSearchCriteria(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
                                 className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer ${
-                                  !criteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 'opacity-50 cursor-not-allowed' : ''
+                                  !searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                               />
                               <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
@@ -328,22 +323,22 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                                 resetFilters();
                               }}
                               disabled={
-                                criteria.spaces === 0 &&
-                                criteria.maxPrice === 0 &&
-                                criteria.paddockTypes.length === 0 &&
-                                !criteria.hasArena &&
-                                !criteria.hasRoundYard &&
-                                criteria.facilities.length === 0 &&
-                                criteria.careTypes.length === 0
+                                searchCriteria.spaces === 0 &&
+                                searchCriteria.maxPrice === 0 &&
+                                searchCriteria.paddockTypes.length === 0 &&
+                                !searchCriteria.hasArena &&
+                                !searchCriteria.hasRoundYard &&
+                                searchCriteria.facilities.length === 0 &&
+                                searchCriteria.careTypes.length === 0
                               }
                               className={`text-sm transition-colors ${
-                                criteria.spaces === 0 &&
-                                criteria.maxPrice === 0 &&
-                                criteria.paddockTypes.length === 0 &&
-                                !criteria.hasArena &&
-                                !criteria.hasRoundYard &&
-                                criteria.facilities.length === 0 &&
-                                criteria.careTypes.length === 0
+                                searchCriteria.spaces === 0 &&
+                                searchCriteria.maxPrice === 0 &&
+                                searchCriteria.paddockTypes.length === 0 &&
+                                !searchCriteria.hasArena &&
+                                !searchCriteria.hasRoundYard &&
+                                searchCriteria.facilities.length === 0 &&
+                                searchCriteria.careTypes.length === 0
                                   ? 'text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
                                   : 'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
                               }`}
@@ -360,23 +355,23 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                               <div className="flex items-center justify-center space-x-4">
                                 <button
                                   type="button"
-                                  disabled={criteria.suburbs.length === 0}
-                                  onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.max(0, prev.spaces - 1) }))}
+                                  disabled={searchCriteria.suburbs.length === 0}
+                                  onClick={() => setSearchCriteria(prev => ({ ...prev, spaces: Math.max(0, prev.spaces - 1) }))}
                                   className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${
-                                    criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                    searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                                   }`}
                                 >
                                   <MinusIcon className="h-5 w-5" />
                                 </button>
                                 <div className="text-3xl font-semibold text-neutral-900 dark:text-white min-w-[3ch] text-center">
-                                  {criteria.spaces === 0 ? 'Any' : criteria.spaces < 10 ? criteria.spaces : '10+'}
+                                  {searchCriteria.spaces === 0 ? 'Any' : searchCriteria.spaces < 10 ? searchCriteria.spaces : '10+'}
                                 </div>
                                 <button
                                   type="button"
-                                  disabled={criteria.suburbs.length === 0}
-                                  onClick={() => setCriteria(prev => ({ ...prev, spaces: Math.min(10, prev.spaces + 1) }))}
+                                  disabled={searchCriteria.suburbs.length === 0}
+                                  onClick={() => setSearchCriteria(prev => ({ ...prev, spaces: Math.min(10, prev.spaces + 1) }))}
                                   className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${
-                                    criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                    searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                                   }`}
                                 >
                                   <PlusIcon className="h-5 w-5" />
@@ -391,7 +386,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                                   Max price per space
                                 </label>
                                 <span className="text-lg font-semibold text-neutral-900 dark:text-white">
-                                  {criteria.maxPrice === 0 ? 'Any' : criteria.maxPrice === 300 ? '$300+/week' : `$${criteria.maxPrice}/week`}
+                                  {searchCriteria.maxPrice === 0 ? 'Any' : searchCriteria.maxPrice === 300 ? '$300+/week' : `$${searchCriteria.maxPrice}/week`}
                                 </span>
                               </div>
                               <input
@@ -399,11 +394,11 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                                 min="0"
                                 max="300"
                                 step="10"
-                                disabled={criteria.suburbs.length === 0}
-                                value={criteria.maxPrice}
-                                onChange={(e) => setCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
+                                disabled={searchCriteria.suburbs.length === 0}
+                                value={searchCriteria.maxPrice}
+                                onChange={(e) => setSearchCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
                                 className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none ${
-                                  criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                  searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                                 }`}
                               />
                               <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
@@ -422,13 +417,13 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                                   <button
                                     key={type}
                                     type="button"
-                                    disabled={criteria.suburbs.length === 0}
+                                    disabled={searchCriteria.suburbs.length === 0}
                                     onClick={() => togglePaddockType(type)}
                                     className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                      criteria.paddockTypes.includes(type)
+                                      searchCriteria.paddockTypes.includes(type)
                                         ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
                                         : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                                    } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                    } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                   >
                                     {type}
                                   </button>
@@ -444,26 +439,26 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                               <div className="grid grid-cols-2 gap-2">
                                 <button
                                   type="button"
-                                  disabled={criteria.suburbs.length === 0}
+                                  disabled={searchCriteria.suburbs.length === 0}
                                   onClick={toggleArena}
                                   className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                    criteria.hasArena
+                                    searchCriteria.hasArena
                                       ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
                                       : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                                  } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                  } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
                                   <ArenaIcon className="h-5 w-5" />
                                   Arena
                                 </button>
                                 <button
                                   type="button"
-                                  disabled={criteria.suburbs.length === 0}
+                                  disabled={searchCriteria.suburbs.length === 0}
                                   onClick={toggleRoundYard}
                                   className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                    criteria.hasRoundYard
+                                    searchCriteria.hasRoundYard
                                       ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
                                       : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                                  } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                  } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
                                   <RoundYardIcon className="h-5 w-5" />
                                   Round Yard
@@ -488,13 +483,13 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                                   <button
                                     key={key}
                                     type="button"
-                                    disabled={criteria.suburbs.length === 0}
+                                    disabled={searchCriteria.suburbs.length === 0}
                                     onClick={() => toggleFacility(key)}
                                     className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                      criteria.facilities.includes(key)
+                                      searchCriteria.facilities.includes(key)
                                         ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
                                         : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                                    } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                    } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                   >
                                     <Icon className="h-5 w-5" />
                                     {label}
@@ -513,13 +508,13 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                                   <button
                                     key={type}
                                     type="button"
-                                    disabled={criteria.suburbs.length === 0}
+                                    disabled={searchCriteria.suburbs.length === 0}
                                     onClick={() => toggleCareType(type)}
                                     className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                                      criteria.careTypes.includes(type)
+                                      searchCriteria.careTypes.includes(type)
                                         ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
                                         : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                                    } ${criteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                    } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                   >
                                     {type}
                                   </button>
@@ -531,13 +526,18 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, onFi
                       </form>
                     </div>
                   </div>
-                  <div className="sticky bottom-0 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 mt-auto md:rounded-b-lg">
-                    <div className="px-4 py-3">
+                  {/* Footer */}
+                  <div className="sticky bottom-0 z-50 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700">
+                    <div className="p-4">
                       <button
                         type="submit"
                         form="search-form"
-                        className="modal-button-primary w-full"
-                        disabled={criteria.suburbs.length === 0}
+                        disabled={searchCriteria.suburbs.length === 0}
+                        className={`w-full inline-flex justify-center rounded-md px-4 py-2 text-sm font-medium text-white ${
+                          searchCriteria.suburbs.length === 0
+                            ? 'bg-neutral-400 dark:bg-neutral-600 cursor-not-allowed'
+                            : 'bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600'
+                        } focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors`}
                       >
                         Search
                       </button>

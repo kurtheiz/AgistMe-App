@@ -3,7 +3,10 @@ import { ThemeToggle } from './ThemeToggle';
 import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfile } from '../context/ProfileContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { SearchModal } from './Search/SearchModal';
+import { SearchIcon } from './Icons';
+import { SearchCriteria } from '../types/search';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -12,6 +15,7 @@ export const Header = () => {
   const location = useLocation();
   useAuthToken();
   const { refreshProfile } = useProfile();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -27,6 +31,18 @@ export const Header = () => {
         afterSignInUrl: location.pathname,
       });
     }
+  };
+
+  const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
+    navigate(`/agistments/search?q=${criteria.searchHash}`);
+    setIsSearchOpen(false);
+  };
+
+  const handleSearchClick = () => {
+    if (!location.pathname.includes('/agistments')) {
+      navigate('/agistments/search');
+    }
+    setIsSearchOpen(true);
   };
 
   return (
@@ -60,6 +76,13 @@ export const Header = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-5 z-50">
+            <button
+              onClick={handleSearchClick}
+              className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Open search"
+            >
+              <SearchIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+            </button>
             <ThemeToggle />
             {isLoaded ? (
               <button
@@ -99,6 +122,11 @@ export const Header = () => {
           </div>
         </div>
       </div>
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSearch={handleSearch}
+      />
     </header>
   );
 };

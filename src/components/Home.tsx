@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { SearchModal } from './Search/SearchModal';
 import { SearchIcon } from './Icons';
 import { SearchCriteria } from '../types/search';
@@ -7,12 +7,21 @@ import { SearchCriteria } from '../types/search';
 export const Home = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleSearch = (criteria: SearchCriteria) => {
-    if (criteria.searchHash) {
-      navigate(`/agistments/search?q=${criteria.searchHash}`);
+  useEffect(() => {
+    if (location.search.includes('openSearch=true')) {
+      setIsSearchOpen(true);
     }
+  }, [location.search]);
+
+  const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
+    navigate(`/agistments/search?q=${criteria.searchHash}`);
     setIsSearchOpen(false);
+  };
+
+  const handleSearchClick = () => {
+    navigate('/agistments/search?openSearch=true');
   };
 
   return (
@@ -31,7 +40,7 @@ export const Home = () => {
             Find the perfect home for your horse
           </h1>
           <button
-            onClick={() => setIsSearchOpen(true)}
+            onClick={handleSearchClick}
             className="flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-lg text-white text-lg font-medium transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
             <SearchIcon className="h-5 w-5" />

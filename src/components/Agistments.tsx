@@ -4,7 +4,7 @@ import { agistmentService } from '../services/agistment.service';
 import { Agistment, AgistmentResponse } from '../types/agistment';
 import { SearchModal } from './Search/SearchModal';
 import { SearchCriteria } from '../types/search';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { FilterIcon } from './Icons';
 import { PageToolbar } from './PageToolbar';
 import { PropertyCard } from './PropertyCard';
 import { PropertyCardSkeleton } from './PropertyCardSkeleton';
@@ -65,10 +65,90 @@ export function Agistments() {
   const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
   const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
   const [filterCount, setFilterCount] = useState(0);
   const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
   const searchHash = searchParams.get('q');
+
+  // Reset to empty state when navigating directly to /agistments
+  useEffect(() => {
+    if (location.pathname === '/agistments') {
+      setOriginalAgistments([]);
+      setAdjacentAgistments([]);
+      setLoading(false);
+      setCurrentCriteria(null);
+      return;
+    }
+
+    // Check local storage for search results when on search page with hash
+    if (location.pathname === '/agistments/search' && searchHash) {
+      const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
+      if (storedSearch) {
+        try {
+          const lastSearch: StoredSearch = JSON.parse(storedSearch);
+          if (lastSearch.hash === searchHash) {
+            // Only use stored results if they're less than 24 hours old
+            const isRecent = Date.now() - lastSearch.timestamp < 24 * 60 * 60 * 1000;
+            if (isRecent && lastSearch.response) {
+              setOriginalAgistments(lastSearch.response.original || []);
+              setAdjacentAgistments(lastSearch.response.adjacent || []);
+              const decodedCriteria = decodeSearchHash(searchHash);
+              setCurrentCriteria(decodedCriteria);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading stored search:', error);
+        }
+      }
+      // If we get here, either there was no stored search or it was invalid/expired
+      setOriginalAgistments([]);
+      setAdjacentAgistments([]);
+      const decodedCriteria = decodeSearchHash(searchHash);
+      setCurrentCriteria(decodedCriteria);
+      setLoading(false);
+    }
+
+    // Reset to empty state for any other cases
+    if (!searchHash) {
+      setOriginalAgistments([]);
+      setAdjacentAgistments([]);
+      setLoading(false);
+      setCurrentCriteria(null);
+    }
+  }, [location.pathname, searchHash]);
+
+  useEffect(() => {
+    if (searchParams.get('openSearch') === 'true') {
+      setIsSearchModalOpen(true);
+      // Remove the openSearch parameter to prevent reopening
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('openSearch');
+      navigate({ search: newParams.toString() }, { replace: true });
+    }
+  }, [searchParams, navigate]);
+
+  const handleSearch = async (criteria: SearchCriteria & { searchHash: string }) => {
+    setIsSearchModalOpen(false);
+    setLoading(true);
+    try {
+      const response = await agistmentService.searchAgistments(criteria.searchHash);
+      setOriginalAgistments(response.original || []);
+      setAdjacentAgistments(response.adjacent || []);
+      storeSearchInLocalStorage(criteria.searchHash, response);
+      // Update URL after successful search
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('q', criteria.searchHash);
+      navigate({ search: newParams.toString() });
+    } catch (error) {
+      console.error('Error fetching agistments:', error);
+      setOriginalAgistments([]);
+      setAdjacentAgistments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Store search in local storage if it has results
   const storeSearchInLocalStorage = (hash: string, response: AgistmentResponse) => {
@@ -84,120 +164,6 @@ export function Agistments() {
     } catch (error) {
       console.error('Error storing search in local storage:', error);
     }
-  };
-
-  // Load last search from local storage
-  const loadStoredSearch = () => {
-    try {
-      const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
-      if (storedSearch) {
-        const lastSearch: StoredSearch = JSON.parse(storedSearch);
-        // Only use stored results if they're less than 24 hours old
-        const isRecent = Date.now() - lastSearch.timestamp < 24 * 60 * 60 * 1000;
-        
-        if (isRecent && lastSearch.response) {
-          const original = lastSearch.response.original || [];
-          const adjacent = lastSearch.response.adjacent || [];
-          console.log('Loading from storage:', original.length + adjacent.length, 'agistments');
-          setOriginalAgistments(original);
-          setAdjacentAgistments(adjacent);
-          
-          // Update URL with the stored search hash if we're on the agistments page
-          if (location.pathname === '/agistments' && !searchHash) {
-            setSearchParams({ q: lastSearch.hash });
-          }
-          return true;
-        }
-      }
-      return false;
-    } catch (error) {
-      console.error('Error loading stored search:', error);
-      return false;
-    }
-  };
-
-  // Add effect to clear state when navigating home
-  useEffect(() => {
-    if (location.pathname === '/') {
-      setOriginalAgistments([]);
-      setAdjacentAgistments([]);
-    } else if (location.pathname === '/agistments/search' && !searchHash) {
-      // Try to load from storage when navigating to agistments/search without a search hash
-      const loaded = loadStoredSearch();
-      if (loaded) {
-        const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
-        if (storedSearch) {
-          const lastSearch: StoredSearch = JSON.parse(storedSearch);
-          navigate(`/agistments/search?q=${lastSearch.hash}`, { replace: true });
-        }
-      }
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    if (searchHash) {
-      try {
-        const decodedCriteria = decodeSearchHash(searchHash);
-        setCurrentCriteria(decodedCriteria);
-      } catch (error) {
-        console.error('Error decoding search hash:', error);
-      }
-    } else {
-      setCurrentCriteria(null);
-    }
-  }, [searchHash]);
-
-  const fetchAgistments = async () => {
-    // Only clear state if we're on the home page
-    if (location.pathname === '/') {
-      setOriginalAgistments([]);
-      setAdjacentAgistments([]);
-      setLoading(false);
-      return;
-    }
-
-    if (!searchHash) {
-      setLoading(false);
-      return;
-    }
-
-    // Try to load from storage
-    const loaded = loadStoredSearch();
-    if (loaded) {
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await agistmentService.searchAgistments(searchHash);
-      setOriginalAgistments(response.original || []);
-      setAdjacentAgistments(response.adjacent || []);
-      storeSearchInLocalStorage(searchHash, response);
-    } catch (error) {
-      console.error('Error fetching agistments:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Add effect to handle route changes
-  useEffect(() => {
-    if (location.pathname === '/agistments') {
-      fetchAgistments();
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    fetchAgistments();
-  }, [searchParams]);
-
-  const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
-    // Clear previous results before navigating
-    setOriginalAgistments([]);
-    setAdjacentAgistments([]);
-    navigate(`/agistments/search?q=${criteria.searchHash}`);
-    setIsSearchModalOpen(false);
   };
 
   if (loading && originalAgistments.length === 0 && adjacentAgistments.length === 0) {
@@ -316,8 +282,8 @@ export function Agistments() {
               className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors relative"
               aria-label="Search Agistments"
             >
-              <MagnifyingGlassIcon className="h-5 w-5" />
-              <span>Search</span>
+              <FilterIcon className="h-5 w-5" />
+              <span>Filters</span>
               {filterCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-primary-600 rounded-full">
                   {filterCount}
