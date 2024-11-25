@@ -83,22 +83,9 @@ export default function Profile() {
                       Bio sharing {profile?.showProfileInEnquiry ? 'enabled' : 'disabled'}
                     </span>
                   </div>
-                </div>
-
-                <div className="flex flex-col items-center space-y-4">
-                  {profile?.profilePhoto ? (
-                    <img
-                      src={profile.profilePhoto}
-                      alt="Profile"
-                      className="h-16 w-16 rounded-full object-cover bg-neutral-100 dark:bg-neutral-700"
-                    />
-                  ) : (
-                    <div className="h-16 w-16 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-neutral-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                  )}
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">
+                    Update your personal contact information and address details here, as well as set your bio privacy
+                  </p>
                 </div>
               </div>
             </div>
@@ -108,19 +95,10 @@ export default function Profile() {
               <div className="flex flex-col h-full">
                 <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-6">My Horses</h2>
                 
-                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-700">
-                    <span className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
-                      {profile?.horses?.length || 0}
-                    </span>
-                  </div>
-                  <p className="text-neutral-600 dark:text-neutral-400">
-                    {profile?.horses?.length === 0 
-                      ? "Adding your horses here will make it easier to find agistment"
-                      : profile?.horses?.length === 1
-                      ? "1 horse registered"
-                      : `${profile?.horses?.length} horses registered`
-                    }
+                <div className="flex-1 flex flex-col items-left justify-left text-left space-y-3">
+                  
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    Add and manage your horses that will appear on your bio
                   </p>
                 </div>
               </div>
@@ -131,19 +109,9 @@ export default function Profile() {
               <div className="flex flex-col h-full">
                 <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-6">Favourites</h2>
 
-                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-700">
-                    <span className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
-                      {profile?.favourites?.length || 0}
-                    </span>
-                  </div>
-                  <p className="text-neutral-600 dark:text-neutral-400">
-                    {profile?.favourites?.length === 0
-                      ? "Save your favourite properties here"
-                      : profile?.favourites?.length === 1
-                      ? "1 favourite agistment"
-                      : `${profile?.favourites?.length} favourite agistments`
-                    }
+                <div className="flex-1 flex flex-col items-left justify-left text-left">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    Manage your favourited agistment properties as well as notifications for updates
                   </p>
                 </div>
               </div>
@@ -154,17 +122,10 @@ export default function Profile() {
               <div className="flex flex-col space-y-4">
                 <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">Searches</h2>
 
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <div>
-                      <p className="text-neutral-600 dark:text-neutral-400">
-                        Saved searches and notifications
-                      </p>
-                    </div>
-                  </div>
-
-                  
-          
+                <div className="flex flex-col items-left justify-left text-left">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    Manage your saved searches and notification preferences
+                  </p>
                 </div>
               </div>
             </div>
