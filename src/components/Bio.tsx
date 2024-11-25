@@ -190,7 +190,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             <span className={`ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}>Share my bio with agistors</span>
           </label>
           <p className="text-sm text-neutral-500 dark:text-neutral-400 ml-[3.5rem]">
-            When enabled, your bio and horse information will be available to agistors who you have made an enquiry with.
+            When enabled, your bio and horse information will be shared with agistors you've made an enquiry with, so they can better understand you and your horses.
           </p>
         </div>
       </div>
