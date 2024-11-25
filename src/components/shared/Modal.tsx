@@ -22,41 +22,6 @@ const sizeClasses = {
   full: 'md:max-w-full'
 };
 
-const slideTransitions = {
-  left: {
-    enter: 'transform transition ease-out duration-300',
-    enterFrom: '-translate-x-full',
-    enterTo: 'translate-x-0',
-    leave: 'transform transition ease-in duration-200',
-    leaveFrom: 'translate-x-0',
-    leaveTo: '-translate-x-full'
-  },
-  right: {
-    enter: 'transform transition ease-out duration-300',
-    enterFrom: 'translate-x-full',
-    enterTo: 'translate-x-0',
-    leave: 'transform transition ease-in duration-200',
-    leaveFrom: 'translate-x-0',
-    leaveTo: 'translate-x-full'
-  },
-  top: {
-    enter: 'transform transition ease-out duration-300',
-    enterFrom: '-translate-y-full',
-    enterTo: 'translate-y-0',
-    leave: 'transform transition ease-in duration-200',
-    leaveFrom: 'translate-y-0',
-    leaveTo: '-translate-y-full'
-  },
-  bottom: {
-    enter: 'transform transition ease-out duration-300',
-    enterFrom: 'translate-y-full',
-    enterTo: 'translate-y-0',
-    leave: 'transform transition ease-in duration-200',
-    leaveFrom: 'translate-y-0',
-    leaveTo: 'translate-y-full'
-  }
-};
-
 export function Modal({
   isOpen,
   onClose,
