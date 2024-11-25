@@ -4,6 +4,7 @@ import Bio from './Bio';
 import { useProfile } from '../context/ProfileContext';
 import { useState, useEffect } from 'react';
 import LogoutIcon from "./Icons/LogoutIcon";
+import { ThemeToggle } from './ThemeToggle';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -34,7 +35,7 @@ export default function Profile() {
     return () => {
       mounted = false;
     };
-  }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile]); // refreshProfile is now stable, so we can keep empty dependency array
+  }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile]);
 
   if (!isLoaded) {
     return <div>Loading...</div>;
@@ -64,8 +65,12 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 md:pb-12 pt-6">
-        <div className="flex flex-col space-y-6">
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Profile</h1>
+          <ThemeToggle />
+        </div>
+        <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
             {/* Profile Card */}
             <div 

@@ -1,5 +1,4 @@
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { ThemeToggle } from './ThemeToggle';
 import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfile } from '../context/ProfileContext';
@@ -36,7 +35,7 @@ export const Header = () => {
 
   return (
     <header className={`bg-white dark:bg-neutral-900 w-full ${location.pathname !== '/' && 'border-b border-neutral-200 dark:border-neutral-800'}`}>
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-1 relative">
         <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Left side */}
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -61,18 +60,17 @@ export const Header = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-5 z-50">
-            <ThemeToggle />
             {isLoaded ? (
               <button
                 onClick={handleAvatarClick}
-                className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center justify-center"
                 aria-label={isSignedIn ? 'Go to profile' : 'Sign In'}
               >
                 {isSignedIn && user?.imageUrl ? (
                   <img 
                     src={user.imageUrl} 
                     alt={user.fullName || 'User avatar'} 
-                    className="h-6 w-6 rounded-full"
+                    className="h-8 w-8 rounded-full"
                   />
                 ) : (
                   <svg 
@@ -81,7 +79,7 @@ export const Header = () => {
                     viewBox="0 0 24 24" 
                     strokeWidth={1.5} 
                     stroke="currentColor" 
-                    className="w-6 h-6"
+                    className="w-8 h-8 text-gray-800 dark:text-white"
                   >
                     <path 
                       strokeLinecap="round" 
