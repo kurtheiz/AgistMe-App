@@ -10,7 +10,7 @@ export const Footer = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Agist Me</h3>
             <div className="flex flex-col space-y-2">
               <Link to="/about" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">About</Link>
-              <Link to="/agistments/search" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Agistments</Link>
+              <Link to="/agistments" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Agistments</Link>
               <Link to="/Pricing" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Pricing</Link>
             </div>
           </div>

@@ -32,7 +32,7 @@ export const Header = () => {
 
   // Get the current search hash if it exists
   const searchHash = searchParams.get('q');
-  const agistmentsPath = searchHash ? `/agistments/search?q=${searchHash}` : '/agistments/search';
+  const agistmentsPath = searchHash ? `/agistments?q=${searchHash}` : '/agistments';
 
   return (
     <header className={`bg-white dark:bg-neutral-900 w-full ${location.pathname !== '/' && 'border-b border-neutral-200 dark:border-neutral-800'}`}>

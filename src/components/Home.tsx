@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { SearchModal } from './Search/SearchModal';
 import { SearchIcon } from './Icons';
 import { SearchCriteria } from '../types/search';
@@ -9,26 +9,15 @@ const LAST_SEARCH_KEY = 'agistme_last_search';
 export const Home = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Clear search from localStorage when Home mounts
   useEffect(() => {
     localStorage.removeItem(LAST_SEARCH_KEY);
   }, []);
 
-  useEffect(() => {
-    if (location.search.includes('openSearch=true')) {
-      setIsSearchOpen(true);
-    }
-  }, [location.search]);
-
   const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
-    navigate(`/agistments/search?q=${criteria.searchHash}`);
+    navigate(`/agistments?q=${criteria.searchHash}`);
     setIsSearchOpen(false);
-  };
-
-  const handleSearchClick = () => {
-    navigate('/agistments/search?openSearch=true');
   };
 
   return (
@@ -47,7 +36,7 @@ export const Home = () => {
             Find the perfect home for your horse
           </h1>
           <button
-            onClick={handleSearchClick}
+            onClick={() => setIsSearchOpen(true)}
             className="flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-lg text-white text-lg font-medium transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
             <SearchIcon className="h-5 w-5" />
