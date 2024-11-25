@@ -17,8 +17,8 @@ import {
   ArrowLeftIcon,
   CheckIcon,
   CrossIcon
-} from './Icons';
-import { PageToolbar } from './PageToolbar';
+} from '../components/Icons';
+import { PageToolbar } from '../components/PageToolbar';
 
 const LAST_SEARCH_KEY = 'agistme_last_search';
 

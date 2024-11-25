@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SearchModal } from './Search/SearchModal';
-import { SearchIcon } from './Icons';
+import { SearchModal } from '../components/Search/SearchModal';
+import { SearchIcon } from '../components/Icons';
 import { SearchCriteria } from '../types/search';
 
 const LAST_SEARCH_KEY = 'agistme_last_search';

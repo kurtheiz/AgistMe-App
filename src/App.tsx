@@ -2,19 +2,20 @@ import { ClerkProvider, useAuth } from '@clerk/clerk-react';
 import { createBrowserRouter, RouterProvider, Route, createRoutesFromElements } from 'react-router-dom';
 import { ThemeProvider } from './hooks/useTheme';
 import { Layout } from './components/Layout';
-import { Home } from './components/Home';
-import { About } from './components/About';
+import { Home } from './pages/Home';
+import { About } from './pages/About';
 import { ErrorPage } from './components/ErrorPage';
 import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import Profile from './components/Profile';
-import BioView from './components/BioView';
+import Profile from './pages/Profile';
 import { ProfileProvider } from './context/ProfileContext';
 import { Agistments } from './components/Agistments';
-import { AgistmentDetail } from './components/AgistmentDetail';
+import { AgistmentDetail } from './pages/AgistmentDetail';
 import { Toaster } from 'react-hot-toast';
 import { useAuthToken } from './hooks/useAuthToken';
-import { ErrorBoundary } from './components/ErrorBoundary'; // Add this line
+import { ErrorBoundary } from './components/ErrorBoundary';
+import  ListAgistment  from './pages/ListAgistment';
+import { CreateAgsitment } from './pages/CreateAgsitment';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -29,20 +30,14 @@ const router = createBrowserRouter(
       <Route path="/about" element={<About />} />
       <Route path="/agistments" element={<Agistments />} />
       <Route path="/agistments/search" element={<Agistments />} />
+      <Route path="/agistments/create" element={<CreateAgsitment />} />
       <Route path="/agistment/:id" element={<AgistmentDetail />} />
+      <Route path="/listagistment" element={<ListAgistment />} />
       <Route 
         path="/profile"
         element={
           <ProtectedRoute>
             <Profile />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/profile/bio" 
-        element={
-          <ProtectedRoute>
-            <BioView />
           </ProtectedRoute>
         } 
       />

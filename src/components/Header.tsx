@@ -47,14 +47,13 @@ export const Header = () => {
               <span>Agist Me</span>
             </Link>
             <nav className="hidden md:flex space-x-4">
-              <Link to="/about" className="text-base sm:text-lg text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">About</Link>
               <Link 
                 to={agistmentsPath}
-                className="text-base sm:text-lg text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
+                className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
               >
-                Agistments
+                Search Agistments
               </Link>
-              <Link to="/Pricing" className="text-base sm:text-lg text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">Pricing</Link>
+              <Link to="/listagistment" className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">List Agistment</Link>
             </nav>
           </div>
 

@@ -2,10 +2,10 @@ import { create } from 'zustand';
 import { ReferenceData } from '../types/reference';
 
 interface ReferenceStore {
-  referenceData: ReferenceData[] | null;
+  referenceData: ReferenceData | null;
   isLoading: boolean;
   error: string | null;
-  setReferenceData: (data: ReferenceData[]) => void;
+  setReferenceData: (data: ReferenceData) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
 }

@@ -1,8 +1,34 @@
-export interface ReferenceData {
-  id: string;
+export type BillingPeriod = 'Free' | 'Weekly' | 'Monthly';
+export type SearchPlacement = 'Standard' | 'Enhanced' | 'Premium';
+
+export interface NotificationPreferences {
+  email: boolean;
+  sms: boolean;
+}
+
+export interface PhotosLimit {
+  included: boolean;
+  limit: number;
+}
+
+export type FeatureValue = boolean | string | NotificationPreferences | PhotosLimit;
+
+export interface PlanFeature {
+  key: string;
   name: string;
   description: string;
+  value: FeatureValue;
+}
+
+export interface PricePlan {
+  name: string;
+  shortDescription: string;
   price: number;
-  features: string[];
-  recommended?: boolean;
+  billingPeriod: BillingPeriod;
+  features: PlanFeature[];
+  recommended: boolean;
+}
+
+export interface ReferenceData {
+  pricingPlans: PricePlan[];
 }

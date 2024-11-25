@@ -1,10 +1,10 @@
 import { useAuth, useClerk } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import Bio from './Bio';
+import Bio from '../components/Bio';
 import { useProfile } from '../context/ProfileContext';
 import { useState, useEffect } from 'react';
-import LogoutIcon from "./Icons/LogoutIcon";
-import { ThemeToggle } from './ThemeToggle';
+import LogoutIcon from "../components/Icons/LogoutIcon";
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
