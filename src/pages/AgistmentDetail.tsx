@@ -12,6 +12,12 @@ import {
   HeartIcon,
   EmailIcon,
   PhoneIcon,
+  FeedRoomIcon,
+  TackRoomIcon,
+  FloatParkingIcon,
+  HotWashIcon,
+  StableIcon,
+  TieUpIcon,
 } from '../components/Icons';
 import { ShareIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
@@ -562,160 +568,92 @@ export function AgistmentDetail() {
           {/* Facilities */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
             <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Facilities</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               {/* Feed Room */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Feed Room
-                  </span>
-                  {agistment.feedRoom.available ? (
-                    <div className="flex flex-col items-center">
-                      <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
-                        Available
-                      </span>
-                      {agistment.feedRoom.comments && (
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                          {agistment.feedRoom.comments}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-sm font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 px-3 py-1.5 rounded-lg">
-                      Unavailable
-                    </span>
-                  )}
+              <div className="flex flex-col items-center">
+                <div className={`w-12 h-12 mb-2 ${agistment.feedRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                  <FeedRoomIcon className="w-full h-full" />
                 </div>
+                <span className="text-sm font-medium text-neutral-900 dark:text-white">Feed Room</span>
+                {agistment.feedRoom.comments && (
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                    {agistment.feedRoom.comments}
+                  </p>
+                )}
               </div>
 
               {/* Tack Room */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Tack Room
-                  </span>
-                  {agistment.tackRoom.available ? (
-                    <div className="flex flex-col items-center">
-                      <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
-                        Available
-                      </span>
-                      {agistment.tackRoom.comments && (
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                          {agistment.tackRoom.comments}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-sm font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 px-3 py-1.5 rounded-lg">
-                      Unavailable
-                    </span>
-                  )}
+              <div className="flex flex-col items-center">
+                <div className={`w-12 h-12 mb-2 ${agistment.tackRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                  <TackRoomIcon className="w-full h-full" />
                 </div>
+                <span className="text-sm font-medium text-neutral-900 dark:text-white">Tack Room</span>
+                {agistment.tackRoom.comments && (
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                    {agistment.tackRoom.comments}
+                  </p>
+                )}
               </div>
 
               {/* Float Parking */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Float Parking
-                  </span>
-                  {agistment.floatParking.available ? (
-                    <div className="flex flex-col items-center">
-                      <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
-                        Available
-                      </span>
-                      {agistment.floatParking.comments && (
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                          {agistment.floatParking.comments}
-                        </p>
-                      )}
-                      {agistment.floatParking.monthlyPrice && (
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                          ${agistment.floatParking.monthlyPrice}/month
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-sm font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 px-3 py-1.5 rounded-lg">
-                      Unavailable
-                    </span>
-                  )}
+              <div className="flex flex-col items-center">
+                <div className={`w-12 h-12 mb-2 ${agistment.floatParking.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                  <FloatParkingIcon className="w-full h-full" />
                 </div>
+                <span className="text-sm font-medium text-neutral-900 dark:text-white">Float Parking</span>
+                {agistment.floatParking.available && (
+                  <>
+                    {agistment.floatParking.monthlyPrice && (
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                        ${agistment.floatParking.monthlyPrice}/month
+                      </p>
+                    )}
+                    {agistment.floatParking.comments && (
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                        {agistment.floatParking.comments}
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
 
               {/* Hot Wash */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Hot Wash
-                  </span>
-                  {agistment.hotWash.available ? (
-                    <div className="flex flex-col items-center">
-                      <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
-                        Available
-                      </span>
-                      {agistment.hotWash.comments && (
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                          {agistment.hotWash.comments}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-sm font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 px-3 py-1.5 rounded-lg">
-                      Unavailable
-                    </span>
-                  )}
+              <div className="flex flex-col items-center">
+                <div className={`w-12 h-12 mb-2 ${agistment.hotWash.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                  <HotWashIcon className="w-full h-full" />
                 </div>
+                <span className="text-sm font-medium text-neutral-900 dark:text-white">Hot Wash</span>
+                {agistment.hotWash.comments && (
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                    {agistment.hotWash.comments}
+                  </p>
+                )}
               </div>
 
               {/* Stables */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Stables
-                  </span>
-                  {agistment.stables.available ? (
-                    <div className="flex flex-col items-center">
-                      <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
-                        Available
-                      </span>
-                      {agistment.stables.comments && (
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                          {agistment.stables.comments}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-sm font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 px-3 py-1.5 rounded-lg">
-                      Unavailable
-                    </span>
-                  )}
+              <div className="flex flex-col items-center">
+                <div className={`w-12 h-12 mb-2 ${agistment.stables.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                  <StableIcon className="w-full h-full" />
                 </div>
+                <span className="text-sm font-medium text-neutral-900 dark:text-white">Stables</span>
+                {agistment.stables.comments && (
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                    {agistment.stables.comments}
+                  </p>
+                )}
               </div>
 
               {/* Tie Up */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Tie Up
-                  </span>
-                  {agistment.tieUp.available ? (
-                    <div className="flex flex-col items-center">
-                      <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
-                        Available
-                      </span>
-                      {agistment.tieUp.comments && (
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                          {agistment.tieUp.comments}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-sm font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 px-3 py-1.5 rounded-lg">
-                      Unavailable
-                    </span>
-                  )}
+              <div className="flex flex-col items-center">
+                <div className={`w-12 h-12 mb-2 ${agistment.tieUp.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                  <TieUpIcon className="w-full h-full" />
                 </div>
+                <span className="text-sm font-medium text-neutral-900 dark:text-white">Tie Up</span>
+                {agistment.tieUp.comments && (
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                    {agistment.tieUp.comments}
+                  </p>
+                )}
               </div>
             </div>
           </div>
