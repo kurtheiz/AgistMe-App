@@ -7,8 +7,6 @@ import { SearchCriteria } from '../types/search';
 import { SearchIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
 import { PropertyCard } from '../components/PropertyCard';
-import { useUser } from '@clerk/clerk-react';
-import { toast } from 'react-hot-toast';
 
 // Local storage key for last search
 const LAST_SEARCH_KEY = 'agistme_last_search';
@@ -59,9 +57,8 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
 };
 
 export function Agistments() {
-  const { isSignedIn } = useUser();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
   const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
   const [isFetching, setIsFetching] = useState(false);
@@ -183,16 +180,6 @@ export function Agistments() {
       response
     };
     localStorage.setItem(LAST_SEARCH_KEY, JSON.stringify(storedSearch));
-  };
-
-  const handleFavorite = async (agistmentId: string) => {
-    try {
-      // TODO: Implement favorite functionality with your backend
-      toast.success('Favorite functionality coming soon!');
-    } catch (error) {
-      console.error('Error handling favorite:', error);
-      toast.error('Failed to update favorite');
-    }
   };
 
   interface EmptyStateProps {
@@ -324,13 +311,11 @@ export function Agistments() {
                 </h1>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
-                {originalAgistments.map((agistment) => (
+                {originalAgistments.map((agistment: Agistment) => (
                   <PropertyCard
                     key={agistment.id}
                     property={agistment}
                     onClick={() => navigate(`/agistment/${agistment.id}`)}
-                    isAuthenticated={isSignedIn}
-                    handleFavorite={() => handleFavorite(agistment.id)}
                   />
                 ))}
               </div>
@@ -345,13 +330,11 @@ export function Agistments() {
                 </h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                {adjacentAgistments.map((agistment) => (
+                {adjacentAgistments.map((agistment: Agistment) => (
                   <PropertyCard
                     key={agistment.id}
                     property={agistment}
                     onClick={() => navigate(`/agistment/${agistment.id}`)}
-                    isAuthenticated={isSignedIn}
-                    handleFavorite={() => handleFavorite(agistment.id)}
                   />
                 ))}
               </div>

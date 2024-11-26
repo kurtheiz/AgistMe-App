@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
+import { Agistment, Status, ListingType } from '../types/agistment';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { useAgistmentStore } from '../stores/agistment.store';
@@ -26,13 +26,13 @@ const CreateAgistment: React.FC = () => {
   const createEmptyAgistment = (tempId: string): Agistment => {
     return {
       id: tempId,
-      status: 'DRAFT',
+      status: 'DRAFT' as Status,
       arena: false,
       arenas: [],
       contactDetails: {
-        email: '',
-        name: '',
-        number: ''
+        email: profile?.email || '',
+        name: profile ? `${profile.firstName} ${profile.lastName}`.trim() : '',
+        number: profile?.mobile || ''
       },
       createdAt: null,
       description: '',
@@ -50,7 +50,7 @@ const CreateAgistment: React.FC = () => {
         comments: '',
         monthlyPrice: 0
       },
-      geohash: '',
+      geohash: profile?.geohash || '',
       groupPaddocks: {
         available: 0,
         comments: '',
@@ -59,19 +59,19 @@ const CreateAgistment: React.FC = () => {
         whenAvailable: null
       },
       GSI1PK: '',
-      hidden: true,
+      hidden: false,
       hotWash: {
         available: false,
         comments: ''
       },
-      listingType: 'STANDARD',
+      listingType: 'STANDARD' as ListingType,
       location: {
-        address: '',
-        hidden: false,
-        postCode: '',
-        region: '',
-        state: '',
-        suburb: ''
+        address: profile?.address || '',
+        postCode: profile?.postcode || '',
+        region: profile?.region || '',
+        state: profile?.state || '',
+        suburb: profile?.suburb || '',
+        hidden: false
       },
       modifiedAt: new Date().toISOString(),
       name: '',
@@ -140,14 +140,12 @@ const CreateAgistment: React.FC = () => {
           number: profile?.mobile || ''
         },
         location: {
-          ...result.location,
           address: profile?.address || result.location.address,
           postCode: profile?.postcode || result.location.postCode,
           region: profile?.region || result.location.region,
           state: profile?.state || result.location.state,
           suburb: profile?.suburb || result.location.suburb,
-          latitude: profile?.latitude || result.location.latitude,
-          longitude: profile?.longitude || result.location.longitude
+          hidden: false
         },
         geohash: profile?.geohash || result.geohash
       };
@@ -181,7 +179,7 @@ const CreateAgistment: React.FC = () => {
       id: tempId,
       name: 'New Agistment',
       description: '',
-      status: 'DRAFT',
+      status: 'DRAFT' as Status,
       arena: false,
       arenas: [],
       contactDetails: {
@@ -208,8 +206,9 @@ const CreateAgistment: React.FC = () => {
       groupPaddocks: {
         total: 0,
         available: 0,
-        size: '',
-        horses: 0
+        comments: '',
+        weeklyPrice: 0,
+        whenAvailable: null
       },
       GSI1PK: '',
       hidden: false,
@@ -217,7 +216,7 @@ const CreateAgistment: React.FC = () => {
         available: false,
         comments: ''
       },
-      listingType: 'PRIVATE',
+      listingType: 'PRIVATE' as ListingType,
       location: {
         address: profile?.address || '',
         hidden: false,
@@ -236,7 +235,7 @@ const CreateAgistment: React.FC = () => {
       privatePaddocks: {
         total: 0,
         available: 0,
-        size: '',
+        comments: '',
         weeklyPrice: 0,
         whenAvailable: null
       },
@@ -251,14 +250,15 @@ const CreateAgistment: React.FC = () => {
       sharedPaddocks: {
         total: 0,
         available: 0,
-        size: '',
+        comments: '',
         weeklyPrice: 0,
         whenAvailable: null
       },
       socialMedia: [],
       stables: {
         available: false,
-        comments: ''
+        comments: '',
+        quantity: 0
       },
       tackRoom: {
         available: false,

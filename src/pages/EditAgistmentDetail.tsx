@@ -4,11 +4,9 @@ import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { formatAvailabilityDate } from '../utils/dates';
 import { calculateMonthlyPrice } from '../utils/prices';
-import { getGoogleMapsUrl } from '../utils/location';
 import { 
   PhotoIcon,
   ArrowLeftIcon,
-  CheckIcon,
   EmailIcon,
   PhoneIcon,
   UserIcon,
@@ -20,16 +18,13 @@ import {
   TieUpIcon,
   FavouriteIcon
 } from '../components/Icons';
-import { ShareIcon } from '@heroicons/react/24/outline';
+import { ShareIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
 import ImageGallery from 'react-image-gallery';
 import "react-image-gallery/styles/css/image-gallery.css";
 import '../styles/gallery.css';
-import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { useAgistmentStore } from '../stores/agistment.store';
-
-const LAST_SEARCH_KEY = 'agistme_last_search';
 
 export function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
