@@ -4,6 +4,7 @@ import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { formatAvailabilityDate } from '../utils/dates';
 import { calculateMonthlyPrice } from '../utils/prices';
+import { getGoogleMapsUrl } from '../utils/location';
 import { 
   PhotoIcon,
   ArrowLeftIcon,
@@ -35,6 +36,33 @@ export function AgistmentDetail() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    const preventScroll = (e: Event) => {
+      if (isGalleryExpanded) {
+        e.preventDefault();
+      }
+    };
+
+    if (isGalleryExpanded) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.addEventListener('wheel', preventScroll, { passive: false });
+      document.addEventListener('touchmove', preventScroll, { passive: false });
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.removeEventListener('wheel', preventScroll);
+      document.removeEventListener('touchmove', preventScroll);
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.removeEventListener('wheel', preventScroll);
+      document.removeEventListener('touchmove', preventScroll);
+    };
+  }, [isGalleryExpanded]);
 
   useEffect(() => {
     const loadAgistment = async () => {
@@ -131,7 +159,7 @@ export function AgistmentDetail() {
                 <span className="font-medium text-sm sm:text-base">Back</span>
               </button>
               <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
-              <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
+              <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
                 <span>{agistment.location.state}</span>
                 <span className="text-neutral-300 dark:text-neutral-600 shrink-0">&gt;</span>
                 <span>{agistment.location.region}</span>
@@ -151,9 +179,12 @@ export function AgistmentDetail() {
               {/* Photo Gallery - 66% width on desktop */}
               <div className="w-full lg:w-2/3 px-4">
                 {galleryImages.length > 0 ? (
-                  <div className={`relative w-full ${
-                    isGalleryExpanded ? 'fixed inset-0 z-50 h-screen flex items-center justify-center bg-black' : ''
-                  }`}>
+                  <div 
+                    className={`relative w-full ${
+                      isGalleryExpanded ? 'fixed inset-0 z-[9999] h-screen w-screen bg-black/95 overflow-hidden' : ''
+                    }`}
+                    onClick={(e) => isGalleryExpanded && e.stopPropagation()}
+                  >
                     <ImageGallery
                       items={galleryImages}
                       thumbnailPosition="bottom"
@@ -163,6 +194,7 @@ export function AgistmentDetail() {
                       showFullscreenButton={true}
                       useBrowserFullscreen={false}
                       onScreenChange={setIsGalleryExpanded}
+                      additionalClass={isGalleryExpanded ? 'fullscreen-gallery' : ''}
                       renderItem={(item) => (
                         <div className='image-gallery-image'>
                           <img
@@ -213,14 +245,14 @@ export function AgistmentDetail() {
                         toast.error('Failed to share');
                       }
                     }}
-                    className="inline-flex items-center gap-1 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                    className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                   >
                     <ShareIcon className="w-5 h-5" />
                     <span className="text-sm">Share</span>
                   </button>
                   {isAuthenticated && (
                     <button
-                      className="inline-flex items-center gap-1 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                      className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                     >
                       <HeartIcon className="w-5 h-5" />
                       <span className="text-sm">Favorite</span>
@@ -239,12 +271,19 @@ export function AgistmentDetail() {
                 <div className="space-y-4">
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
-                      <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
-                        {agistment.location.address}
-                      </h3>
-                      <p className="text-neutral-600 dark:text-neutral-400">
-                        {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
-                      </p>
+                      <a 
+                        href={getGoogleMapsUrl(agistment.location)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="group"
+                      >
+                        <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                          {agistment.location.address}
+                        </h3>
+                        <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                          {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
+                        </p>
+                      </a>
                     </div>
                   </div>
 
@@ -252,10 +291,10 @@ export function AgistmentDetail() {
                   <div className="space-y-2">
                     {agistment.contactDetails.number && (
                       <div className="flex items-center gap-2">
-                        <PhoneIcon className="w-5 h-5 text-neutral-400" />
+                        <PhoneIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                         <a
                           href={`tel:${agistment.contactDetails.number}`}
-                          className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                          className="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                         >
                           {agistment.contactDetails.number}
                         </a>
@@ -263,10 +302,10 @@ export function AgistmentDetail() {
                     )}
                     {agistment.contactDetails.email && (
                       <div className="flex items-center gap-2">
-                        <EmailIcon className="w-5 h-5 text-neutral-400" />
+                        <EmailIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                         <a
                           href={`mailto:${agistment.contactDetails.email}`}
-                          className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                          className="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                         >
                           {agistment.contactDetails.email}
                         </a>
@@ -293,11 +332,11 @@ export function AgistmentDetail() {
             <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Paddocks Available</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Private Paddocks */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Private
-                  </span>
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                  Private
+                </span>
+                <div className="flex flex-col items-center pt-2">
                   {agistment.privatePaddocks.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
@@ -339,11 +378,11 @@ export function AgistmentDetail() {
               </div>
 
               {/* Shared Paddocks */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Shared
-                  </span>
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                  Shared
+                </span>
+                <div className="flex flex-col items-center pt-2">
                   {agistment.sharedPaddocks.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
@@ -385,11 +424,11 @@ export function AgistmentDetail() {
               </div>
 
               {/* Group Paddocks */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Group
-                  </span>
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                  Group
+                </span>
+                <div className="flex flex-col items-center pt-2">
                   {agistment.groupPaddocks.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
@@ -437,11 +476,11 @@ export function AgistmentDetail() {
             <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Riding Facilities</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Arenas */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Arenas
-                  </span>
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                  Arenas
+                </span>
+                <div className="flex flex-col items-center pt-2">
                   {agistment.arenas && agistment.arenas.length > 0 ? (
                     <div className="w-full">
                       {agistment.arenas.map((arena, index) => (
@@ -484,11 +523,11 @@ export function AgistmentDetail() {
               </div>
 
               {/* Round Yards */}
-              <div className="p-4 rounded-lg">
-                <div className="flex flex-col items-center">
-                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
-                    Round Yards
-                  </span>
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                  Round Yards
+                </span>
+                <div className="flex flex-col items-center pt-2">
                   {agistment.roundYards && agistment.roundYards.length > 0 ? (
                     <div className="w-full">
                       {agistment.roundYards.map((yard, index) => (
@@ -687,9 +726,11 @@ export function AgistmentDetail() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Full Care */}
               {agistment.fullCare.available && (
-                <div className="p-4 rounded-lg">
-                  <div className="flex flex-col items-center">
-                    <span className="text-base font-medium text-neutral-900 dark:text-white mb-2">Full Care</span>
+                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                  <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                    Full Care
+                  </span>
+                  <div className="flex flex-col items-center pt-2">
                     <p className="text-base font-bold text-neutral-900 dark:text-white">
                       ${agistment.fullCare.monthlyPrice}
                       <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
@@ -703,9 +744,11 @@ export function AgistmentDetail() {
 
               {/* Part Care */}
               {agistment.partCare.available && (
-                <div className="p-4 rounded-lg">
-                  <div className="flex flex-col items-center">
-                    <span className="text-base font-medium text-neutral-900 dark:text-white mb-2">Part Care</span>
+                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                  <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                    Part Care
+                  </span>
+                  <div className="flex flex-col items-center pt-2">
                     <p className="text-base font-bold text-neutral-900 dark:text-white">
                       ${agistment.partCare.monthlyPrice}
                       <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
@@ -719,9 +762,11 @@ export function AgistmentDetail() {
 
               {/* Self Care */}
               {agistment.selfCare.available && (
-                <div className="p-4 rounded-lg">
-                  <div className="flex flex-col items-center">
-                    <span className="text-base font-medium text-neutral-900 dark:text-white mb-2">Self Care</span>
+                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                  <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                    Self Care
+                  </span>
+                  <div className="flex flex-col items-center pt-2">
                     <p className="text-base font-bold text-neutral-900 dark:text-white">
                       ${agistment.selfCare.monthlyPrice}
                       <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>

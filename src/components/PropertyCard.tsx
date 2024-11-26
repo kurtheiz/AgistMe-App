@@ -18,7 +18,8 @@ import {
 } from './Icons';
 import { Agistment } from '../types/agistment';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast'; // Import toast
+import toast from 'react-hot-toast';
+import { getGoogleMapsUrl } from '../utils/location';
 
 interface PropertyCardProps {
   property: Agistment;
@@ -28,11 +29,6 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCardProps) {
   const navigate = useNavigate();
-  const getGoogleMapsUrl = (location: { suburb: string; state: string }) => {
-    if (!location) return '#';
-    const query = `${location.suburb}, ${location.state}`;
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-  };
 
   const formatDate = (date?: string) => {
     if (!date) return 'Unknown';
