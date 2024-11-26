@@ -267,19 +267,12 @@ const EditAgistmentDetail: React.FC = () => {
                 <div className="space-y-6">
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
-                      <a 
-                        href={getGoogleMapsUrl(agistment?.location)} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="group"
-                      >
-                        <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                          {agistment?.location?.address}
-                        </h3>
-                        <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                          {agistment?.location?.suburb}, {agistment?.location?.state} {agistment?.location?.postCode}
-                        </p>
-                      </a>
+                      <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">
+                        {agistment?.location?.address}
+                      </h3>
+                      <p className="text-neutral-700 dark:text-neutral-400">
+                        {agistment?.location?.suburb}, {agistment?.location?.state} {agistment?.location?.postCode}
+                      </p>
                     </div>
                   </div>
 

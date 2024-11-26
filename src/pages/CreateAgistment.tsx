@@ -5,12 +5,14 @@ import { Agistment } from '../types/agistment';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { useAgistmentStore } from '../stores/agistment.store';
+import { useProfile } from '../context/ProfileContext';
 
 const CreateAgistment: React.FC = () => {
   const navigate = useNavigate();
   const { isSignedIn, isLoaded } = useUser();
   const [text, setText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const { profile } = useProfile();
 
   const handleCreateFromText = async () => {
     if (!text.trim()) return;
@@ -19,112 +21,30 @@ const CreateAgistment: React.FC = () => {
     const tempId = `temp_${Date.now()}`;
 
     try {
-      // Create a blank agistment to store the text
-      const blankAgistment = {
-        id: tempId,
-        name: 'New Agistment',
-        description: '',
-        status: 'DRAFT',
-        arena: false,
-        arenas: [],
-        contactDetails: {
-          email: '',
-          name: '',
-          number: ''
-        },
-        createdAt: new Date().toISOString(),
-        feedRoom: {
-          available: false,
-          comments: ''
-        },
-        floatParking: {
-          available: false,
-          comments: '',
-          monthlyPrice: 0
-        },
-        fullCare: {
-          available: false,
-          comments: '',
-          monthlyPrice: 0
-        },
-        geohash: '',
-        groupPaddocks: {
-          available: 0,
-          comments: '',
-          total: 0,
-          weeklyPrice: 0,
-          whenAvailable: null
-        },
-        GSI1PK: '',
-        hidden: false,
-        hotWash: {
-          available: false,
-          comments: ''
-        },
-        listingType: 'PRIVATE',
-        location: {
-          address: '',
-          hidden: false,
-          postCode: '',
-          region: '',
-          state: '',
-          suburb: ''
-        },
-        modifiedAt: new Date().toISOString(),
-        partCare: {
-          available: false,
-          comments: '',
-          monthlyPrice: 0
-        },
-        photos: [],
-        privatePaddocks: {
-          available: 0,
-          comments: '',
-          total: 0,
-          weeklyPrice: 0,
-          whenAvailable: null
-        },
-        roundYard: false,
-        roundYards: [],
-        selfCare: {
-          available: false,
-          comments: '',
-          monthlyPrice: 0
-        },
-        services: [],
-        sharedPaddocks: {
-          available: 0,
-          comments: '',
-          total: 0,
-          weeklyPrice: 0,
-          whenAvailable: null
-        },
-        socialMedia: [],
-        stables: {
-          available: false,
-          comments: '',
-          quantity: 0
-        },
-        tackRoom: {
-          available: false,
-          comments: ''
-        },
-        tieUp: {
-          available: false,
-          comments: ''
-        },
-        urgentAvailability: false
-      };
-
-      // Store the text and blank agistment
-      useAgistmentStore.getState().setTempAgistmentText(tempId, text);
-      useAgistmentStore.getState().setTempAgistment(tempId, blankAgistment);
-
       // Call the API
       const result = await agistmentService.createFromText(text);
       
+      // Add profile information to the result
+      const agistmentWithProfile = {
+        ...result,
+        contactDetails: {
+          email: profile?.email || '',
+          name: profile ? `${profile.firstName} ${profile.lastName}` : '',
+          number: profile?.mobile || ''
+        },
+        location: {
+          ...result.location,
+          address: profile?.address || result.location.address,
+          postCode: profile?.postcode || result.location.postCode,
+          region: profile?.region || result.location.region,
+          state: profile?.state || result.location.state,
+          suburb: profile?.suburb || result.location.suburb
+        },
+        geohash: profile?.geohash || result.geohash
+      };
+      
       // Store the result in Zustand store
-      useAgistmentStore.getState().setTempAgistment(tempId, result);
+      useAgistmentStore.getState().setTempAgistment(tempId, agistmentWithProfile);
       navigate(`/agistments/${tempId}/edit`);
     } catch (error) {
       console.error('Error creating agistment:', error);
@@ -133,6 +53,108 @@ const CreateAgistment: React.FC = () => {
       setIsGenerating(false);
       setText('');
     }
+  };
+
+  const handleCreateFromScratch = () => {
+    const tempId = `temp_${Date.now()}`;
+    const blankAgistment = {
+      id: tempId,
+      name: 'New Agistment',
+      description: '',
+      status: 'DRAFT',
+      arena: false,
+      arenas: [],
+      contactDetails: {
+        email: profile?.email || '',
+        name: profile ? `${profile.firstName} ${profile.lastName}` : '',
+        number: profile?.mobile || ''
+      },
+      createdAt: new Date().toISOString(),
+      feedRoom: {
+        available: false,
+        comments: ''
+      },
+      floatParking: {
+        available: false,
+        comments: '',
+        monthlyPrice: 0
+      },
+      fullCare: {
+        available: false,
+        comments: '',
+        monthlyPrice: 0
+      },
+      geohash: profile?.geohash || '',
+      groupPaddocks: {
+        available: 0,
+        comments: '',
+        total: 0,
+        weeklyPrice: 0,
+        whenAvailable: null
+      },
+      GSI1PK: '',
+      hidden: false,
+      hotWash: {
+        available: false,
+        comments: ''
+      },
+      listingType: 'PRIVATE',
+      location: {
+        address: profile?.address || '',
+        hidden: false,
+        postCode: profile?.postcode || '',
+        region: profile?.region || '',
+        state: profile?.state || '',
+        suburb: profile?.suburb || ''
+      },
+      modifiedAt: new Date().toISOString(),
+      partCare: {
+        available: false,
+        comments: '',
+        monthlyPrice: 0
+      },
+      photos: [],
+      privatePaddocks: {
+        available: 0,
+        comments: '',
+        total: 0,
+        weeklyPrice: 0,
+        whenAvailable: null
+      },
+      roundYard: false,
+      roundYards: [],
+      selfCare: {
+        available: false,
+        comments: '',
+        monthlyPrice: 0
+      },
+      services: [],
+      sharedPaddocks: {
+        available: 0,
+        comments: '',
+        total: 0,
+        weeklyPrice: 0,
+        whenAvailable: null
+      },
+      socialMedia: [],
+      stables: {
+        available: false,
+        comments: '',
+        quantity: 0
+      },
+      tackRoom: {
+        available: false,
+        comments: ''
+      },
+      tieUp: {
+        available: false,
+        comments: ''
+      },
+      urgentAvailability: false
+    };
+
+    useAgistmentStore.getState().setTempAgistment(tempId, blankAgistment);
+    navigate(`/agistments/${tempId}/edit`);
   };
 
   if (!isLoaded) {
@@ -176,6 +198,16 @@ const CreateAgistment: React.FC = () => {
               </button>
             )}
           </div>
+        </div>
+        
+        <div className="mt-4">
+          <button
+            onClick={handleCreateFromScratch}
+            disabled={!isSignedIn}
+            className="w-full py-2 px-4 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 focus:ring-2 focus:ring-offset-2 focus:ring-secondary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSignedIn ? 'Or Create from Scratch' : 'Sign in to Create'}
+          </button>
         </div>
       </div>
     </div>
