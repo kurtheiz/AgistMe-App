@@ -19,6 +19,9 @@ import {
   CrossIcon
 } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
+import ImageGallery from 'react-image-gallery';
+import "react-image-gallery/styles/css/image-gallery.css";
+import '../styles/gallery.css';
 
 const LAST_SEARCH_KEY = 'agistme_last_search';
 
@@ -32,6 +35,7 @@ export function AgistmentDetail() {
   const maxLength = 300; // Maximum characters to show before "Read More"
   const [contentHeight, setContentHeight] = useState<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -81,6 +85,17 @@ export function AgistmentDetail() {
 
     loadAgistment();
   }, [id]);
+
+  useEffect(() => {
+    if (agistment?.photos) {
+      const images = agistment.photos.map(photo => ({
+        original: photo.link,
+        thumbnail: photo.link,
+        description: photo.comment || '',
+      }));
+      setGalleryImages(images);
+    }
+  }, [agistment?.photos]);
 
   // Update content height when content changes
   useEffect(() => {
@@ -145,28 +160,55 @@ export function AgistmentDetail() {
         }
       />
       
-      <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
-        <div className="bg-white dark:bg-neutral-800 sm:rounded-lg sm:shadow-lg overflow-hidden">
-          {/* Header Section */}
-          <div className="bg-primary-600 dark:bg-primary-900/50 p-6">
-            <div className="flex justify-between items-start gap-4">
-              <h1 className="text-lg sm:text-xl font-medium text-white dark:text-primary-300 truncate">{agistment.name}</h1>
-              {agistment.urgentAvailability && (
-                <ExclamationTriangleIcon 
-                  className="w-8 h-8 shrink-0 text-red-500 dark:text-red-400" 
-                  aria-label="Urgent listing"
-                />
-              )}
-            </div>
+      {/* Header Section - Full Width */}
+      <div className="w-full bg-primary-600 dark:bg-primary-900/50">
+        <div className="w-full max-w-5xl mx-auto px-6 py-3 sm:py-6">
+          <div className="flex justify-center items-center gap-4">
+            <h1 className="text-lg sm:text-xl font-medium text-white dark:text-primary-300 truncate">{agistment.name}</h1>
           </div>
+        </div>
+      </div>
 
+      <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
+        
           {/* Photo Gallery */}
-          {agistment.photos && agistment.photos.length > 0 ? (
-            <div className="relative w-full aspect-[16/9] bg-neutral-100 dark:bg-neutral-700">
-              <img 
-                src={agistment.photos[0].link} 
-                alt={`${agistment.name} - ${agistment.photos[0].comment || 'Primary photo'}`}
-                className="absolute inset-0 w-full h-full object-cover object-center"
+          {galleryImages.length > 0 ? (
+            <div className="relative w-full bg-neutral-100 dark:bg-neutral-700">
+              <ImageGallery
+                items={galleryImages}
+                infinite={true}
+                lazyLoad={true}
+                showNav={true}
+                showThumbnails={false}
+                showFullscreenButton={true}
+                showPlayButton={false}
+                showBullets={false}
+                showIndex={false}
+                autoPlay={false}
+                disableSwipe={false}
+                slideDuration={300}
+                slideInterval={3000}
+                swipeThreshold={30}
+                additionalClass="custom-image-gallery"
+                renderItem={(item) => (
+                  <div className='image-gallery-image'>
+                    <img
+                      src={item.original}
+                      alt={item.description || ''}
+                      className="gallery-image"
+                      style={{
+                        width: '100%',
+                        height: '500px',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    {item.description && (
+                      <span className='image-gallery-description'>
+                        {item.description}
+                      </span>
+                    )}
+                  </div>
+                )}
               />
             </div>
           ) : (
@@ -232,7 +274,7 @@ export function AgistmentDetail() {
 
           {/* Paddocks */}
           <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Paddocks</h2>
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Paddocks Available</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Private Paddocks */}
               <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
@@ -422,6 +464,6 @@ export function AgistmentDetail() {
           )}
         </div>
       </div>
-    </div>
+
   );
 }

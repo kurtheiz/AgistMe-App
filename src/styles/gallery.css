@@ -1,0 +1,113 @@
+.custom-image-gallery {
+  width: 100%;
+  background-color: transparent;
+}
+
+.image-gallery-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-gallery-slide-wrapper {
+  height: 500px;
+  background-color: rgb(17 24 39);
+}
+
+.image-gallery-swipe {
+  height: 100%;
+}
+
+.image-gallery-slides {
+  height: 100%;
+}
+
+.image-gallery-slide {
+  height: 100%;
+}
+
+.image-gallery-image {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(17 24 39);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.custom-image-gallery .image-gallery-icon {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.custom-image-gallery .image-gallery-icon:hover {
+  color: var(--primary-600);
+}
+
+.dark .custom-image-gallery .image-gallery-icon:hover {
+  color: var(--primary-400);
+}
+
+.custom-image-gallery .image-gallery-icon.image-gallery-left-nav,
+.custom-image-gallery .image-gallery-icon.image-gallery-right-nav {
+  padding: 0 10px;
+}
+
+.custom-image-gallery .image-gallery-description {
+  background-color: rgba(0, 0, 0, 0.7);
+  bottom: 0;
+  padding: 8px 16px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Fullscreen styles */
+.image-gallery-content.fullscreen {
+  height: 100vh !important;
+  background-color: rgb(17 24 39);
+}
+
+.image-gallery-content.fullscreen .image-gallery-slide-wrapper {
+  height: 100vh !important;
+}
+
+.image-gallery-content.fullscreen .image-gallery-slide {
+  height: 100vh !important;
+}
+
+.image-gallery-content.fullscreen .image-gallery-image {
+  height: 100vh !important;
+}
+
+.image-gallery-content.fullscreen .gallery-image {
+  max-height: 100vh !important;
+  max-width: 100vw !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+@media (max-width: 768px) {
+  .image-gallery-slide-wrapper {
+    height: 300px;
+  }
+  
+  .custom-image-gallery .image-gallery-description {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  /* Maintain fullscreen on mobile */
+  .image-gallery-content.fullscreen {
+    height: 100vh !important;
+  }
+  
+  .image-gallery-content.fullscreen .image-gallery-slide-wrapper {
+    height: 100vh !important;
+  }
+}
