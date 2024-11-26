@@ -63,8 +63,8 @@ export interface Photo {
   comment: string;
 }
 
-export type ListingType = 'PROFESSIONAL' | 'PRIVATE';
-export type Status = 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
+export type ListingType = 'PROFESSIONAL' | 'STANDARD';
+export type Status = 'PUBLISHED' | 'DRAFT' ;
 
 export interface Agistment {
   id: string;

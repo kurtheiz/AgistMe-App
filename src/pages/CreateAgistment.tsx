@@ -12,64 +12,30 @@ const CreateAgistment: React.FC = () => {
   const { isSignedIn, isLoaded } = useUser();
   const [text, setText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
 
-  const handleCreateFromText = async () => {
-    if (!text.trim()) return;
+  // Wait for both Clerk and profile to be loaded
+  if (!isLoaded || profileLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white"></div>
+      </div>
+    );
+  }
 
-    setIsGenerating(true);
-    const tempId = `temp_${Date.now()}`;
-
-    try {
-      // Call the API
-      const result = await agistmentService.createFromText(text);
-      
-      // Add profile information to the result
-      const agistmentWithProfile = {
-        ...result,
-        contactDetails: {
-          email: profile?.email || '',
-          name: profile ? `${profile.firstName} ${profile.lastName}` : '',
-          number: profile?.mobile || ''
-        },
-        location: {
-          ...result.location,
-          address: profile?.address || result.location.address,
-          postCode: profile?.postcode || result.location.postCode,
-          region: profile?.region || result.location.region,
-          state: profile?.state || result.location.state,
-          suburb: profile?.suburb || result.location.suburb
-        },
-        geohash: profile?.geohash || result.geohash
-      };
-      
-      // Store the result in Zustand store
-      useAgistmentStore.getState().setTempAgistment(tempId, agistmentWithProfile);
-      navigate(`/agistments/${tempId}/edit`);
-    } catch (error) {
-      console.error('Error creating agistment:', error);
-      toast.error('Failed to create agistment');
-    } finally {
-      setIsGenerating(false);
-      setText('');
-    }
-  };
-
-  const handleCreateFromScratch = () => {
-    const tempId = `temp_${Date.now()}`;
-    const blankAgistment = {
+  const createEmptyAgistment = (tempId: string): Agistment => {
+    return {
       id: tempId,
-      name: 'New Agistment',
-      description: '',
       status: 'DRAFT',
       arena: false,
       arenas: [],
       contactDetails: {
-        email: profile?.email || '',
-        name: profile ? `${profile.firstName} ${profile.lastName}` : '',
-        number: profile?.mobile || ''
+        email: '',
+        name: '',
+        number: ''
       },
-      createdAt: new Date().toISOString(),
+      createdAt: null,
+      description: '',
       feedRoom: {
         available: false,
         comments: ''
@@ -84,7 +50,7 @@ const CreateAgistment: React.FC = () => {
         comments: '',
         monthlyPrice: 0
       },
-      geohash: profile?.geohash || '',
+      geohash: '',
       groupPaddocks: {
         available: 0,
         comments: '',
@@ -93,21 +59,22 @@ const CreateAgistment: React.FC = () => {
         whenAvailable: null
       },
       GSI1PK: '',
-      hidden: false,
+      hidden: true,
       hotWash: {
         available: false,
         comments: ''
       },
-      listingType: 'PRIVATE',
+      listingType: 'STANDARD',
       location: {
-        address: profile?.address || '',
+        address: '',
         hidden: false,
-        postCode: profile?.postcode || '',
-        region: profile?.region || '',
-        state: profile?.state || '',
-        suburb: profile?.suburb || ''
+        postCode: '',
+        region: '',
+        state: '',
+        suburb: ''
       },
       modifiedAt: new Date().toISOString(),
+      name: '',
       partCare: {
         available: false,
         comments: '',
@@ -152,14 +119,161 @@ const CreateAgistment: React.FC = () => {
       },
       urgentAvailability: false
     };
+  };
+
+  const handleCreateFromText = async () => {
+    if (!text.trim()) return;
+
+    setIsGenerating(true);
+    const tempId = `temp_${Date.now()}`;
+
+    try {
+      // Call the API
+      const result = await agistmentService.createFromText(text);
+      
+      // Add profile information to the result
+      const agistmentWithProfile = {
+        ...result,
+        contactDetails: {
+          email: profile?.email || '',
+          name: profile ? `${profile.firstName} ${profile.lastName}`.trim() : '',
+          number: profile?.mobile || ''
+        },
+        location: {
+          ...result.location,
+          address: profile?.address || result.location.address,
+          postCode: profile?.postcode || result.location.postCode,
+          region: profile?.region || result.location.region,
+          state: profile?.state || result.location.state,
+          suburb: profile?.suburb || result.location.suburb,
+          latitude: profile?.latitude || result.location.latitude,
+          longitude: profile?.longitude || result.location.longitude
+        },
+        geohash: profile?.geohash || result.geohash
+      };
+      
+      // Store the result in Zustand store
+      useAgistmentStore.getState().setTempAgistment(tempId, agistmentWithProfile);
+      useAgistmentStore.getState().setTempAgistmentText(tempId, text);
+      navigate(`/agistments/${tempId}/edit`);
+    } catch (error) {
+      console.error('Error creating agistment from text:', error);
+      toast.error('Could not generate agistment from text. Starting with a blank form instead.');
+      
+      // Create an empty agistment with profile details
+      const emptyAgistment = createEmptyAgistment(tempId);
+      
+      // Store the empty agistment and the original text
+      useAgistmentStore.getState().setTempAgistment(tempId, emptyAgistment);
+      useAgistmentStore.getState().setTempAgistmentText(tempId, text);
+      
+      // Navigate to edit page
+      navigate(`/agistments/${tempId}/edit`);
+    } finally {
+      setIsGenerating(false);
+      setText('');
+    }
+  };
+
+  const handleCreateFromScratch = () => {
+    const tempId = `temp_${Date.now()}`;
+    const blankAgistment = {
+      id: tempId,
+      name: 'New Agistment',
+      description: '',
+      status: 'DRAFT',
+      arena: false,
+      arenas: [],
+      contactDetails: {
+        email: profile?.email || '',
+        name: profile ? `${profile.firstName} ${profile.lastName}`.trim() : '',
+        number: profile?.mobile || ''
+      },
+      createdAt: new Date().toISOString(),
+      feedRoom: {
+        available: false,
+        comments: ''
+      },
+      floatParking: {
+        available: false,
+        comments: '',
+        monthlyPrice: 0
+      },
+      fullCare: {
+        available: false,
+        comments: '',
+        monthlyPrice: 0
+      },
+      geohash: profile?.geohash || '',
+      groupPaddocks: {
+        total: 0,
+        available: 0,
+        size: '',
+        horses: 0
+      },
+      GSI1PK: '',
+      hidden: false,
+      hotWash: {
+        available: false,
+        comments: ''
+      },
+      listingType: 'PRIVATE',
+      location: {
+        address: profile?.address || '',
+        hidden: false,
+        postCode: profile?.postcode || '',
+        region: profile?.region || '',
+        state: profile?.state || '',
+        suburb: profile?.suburb || ''
+      },
+      modifiedAt: new Date().toISOString(),
+      partCare: {
+        available: false,
+        comments: '',
+        monthlyPrice: 0
+      },
+      photos: [],
+      privatePaddocks: {
+        total: 0,
+        available: 0,
+        size: '',
+        weeklyPrice: 0,
+        whenAvailable: null
+      },
+      roundYard: false,
+      roundYards: [],
+      selfCare: {
+        available: false,
+        comments: '',
+        monthlyPrice: 0
+      },
+      services: [],
+      sharedPaddocks: {
+        total: 0,
+        available: 0,
+        size: '',
+        weeklyPrice: 0,
+        whenAvailable: null
+      },
+      socialMedia: [],
+      stables: {
+        available: false,
+        comments: ''
+      },
+      tackRoom: {
+        available: false,
+        comments: ''
+      },
+      tieUp: {
+        available: false,
+        comments: ''
+      },
+      urgentAvailability: false
+    };
 
     useAgistmentStore.getState().setTempAgistment(tempId, blankAgistment);
     navigate(`/agistments/${tempId}/edit`);
   };
-
-  if (!isLoaded) {
-    return null;
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
