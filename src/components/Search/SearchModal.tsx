@@ -107,7 +107,6 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }
   }, [searchHash, isOpen]);
 
-
   const togglePaddockType = (type: PaddockType) => {
     setSearchCriteria(prev => ({
       ...prev,
@@ -409,7 +408,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               Additional Facilities
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {[
+              {[/* eslint-disable @typescript-eslint/naming-convention */
                 { key: 'feedRoom' as FacilityType, icon: FeedRoomIcon, label: 'Feed Room' },
                 { key: 'tackRoom' as FacilityType, icon: TackRoomIcon, label: 'Tack Room' },
                 { key: 'floatParking' as FacilityType, icon: FloatParkingIcon, label: 'Float' },
@@ -459,7 +458,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
         </div>
       </div>
     </form>
-  )
+  );
 
   const footerContent = (
     <div className="flex justify-end">
@@ -467,7 +466,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
         type="submit"
         form="search-form"
         disabled={searchCriteria.suburbs.length === 0}
-        className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${searchCriteria.suburbs.length === 0
+        className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${searchCriteria.suburbs.length === 0
             ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
             : 'bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400'
           }`}

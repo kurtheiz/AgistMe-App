@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
@@ -12,6 +12,7 @@ import {
   HeartIcon,
   EmailIcon,
   PhoneIcon,
+  UserIcon,
   FeedRoomIcon,
   TackRoomIcon,
   FloatParkingIcon,
@@ -36,6 +37,9 @@ export function AgistmentDetail() {
   const [error, setError] = useState<string | null>(null);
   const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
   const isAuthenticated = true; // Replace with actual authentication logic
 
   // Scroll to top when component mounts
@@ -126,6 +130,14 @@ export function AgistmentDetail() {
       setGalleryImages(images);
     }
   }, [agistment?.photos]);
+
+  // Check if description needs read more button
+  useEffect(() => {
+    if (descriptionRef.current) {
+      const isOverflowing = descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight;
+      setShouldShowReadMore(isOverflowing);
+    }
+  }, [agistment?.description]);
 
   if (loading) {
     return (
@@ -230,7 +242,7 @@ export function AgistmentDetail() {
               {/* Location and Contact Details - 33% width on desktop */}
               <div className="w-full lg:w-1/3 p-4">
                 {/* Share and Favorite Buttons */}
-                <div className="flex gap-2 mb-4">
+                <div className="flex gap-2 mb-6">
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
@@ -267,14 +279,14 @@ export function AgistmentDetail() {
                 </div>
 
                 {/* Agistment Name */}
-                <div className="mb-4">
+                <div className="mb-6">
                   <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
                     {agistment.name}
                   </h2>
                 </div>
 
                 {/* Location Details */}
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
                       <a 
@@ -294,7 +306,15 @@ export function AgistmentDetail() {
                   </div>
 
                   {/* Contact Details */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
+                    {agistment.contactDetails.name && (
+                      <div className="flex items-center gap-2">
+                        <UserIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
+                        <span className="text-neutral-900 dark:text-white font-medium">
+                          {agistment.contactDetails.name}
+                        </span>
+                      </div>
+                    )}
                     {agistment.contactDetails.number && (
                       <div className="flex items-center gap-2">
                         <PhoneIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
@@ -318,6 +338,18 @@ export function AgistmentDetail() {
                       </div>
                     )}
                   </div>
+
+                  {/* Enquire Now Button */}
+                  <button
+                    onClick={() => {
+                      if (agistment.contactDetails.email) {
+                        window.location.href = `mailto:${agistment.contactDetails.email}?subject=Enquiry about ${agistment.name}&body=Hi ${agistment.contactDetails.name || ''},\n\nI am interested in your agistment property at ${agistment.location.suburb}.`;
+                      }
+                    }}
+                    className="mt-6 w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
+                  >
+                    Enquire Now
+                  </button>
                 </div>
               </div>
             </div>
@@ -328,9 +360,22 @@ export function AgistmentDetail() {
           {/* Description Section */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
             <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">About this Property</h2>
-            <p className="text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap">
-              {agistment.description}
-            </p>
+            <div className="relative">
+              <p 
+                ref={descriptionRef}
+                className={`text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap ${!isDescriptionExpanded ? 'line-clamp-4 max-h-24' : ''}`}
+              >
+                {agistment.description}
+              </p>
+              {shouldShowReadMore && (
+                <button
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="mt-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
+                >
+                  {isDescriptionExpanded ? 'Show Less' : 'Read More'}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Paddocks */}
@@ -582,19 +627,6 @@ export function AgistmentDetail() {
                 )}
               </div>
 
-              {/* Tack Room */}
-              <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.tackRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
-                  <TackRoomIcon className="w-full h-full" />
-                </div>
-                <span className="text-sm font-medium text-neutral-900 dark:text-white">Tack Room</span>
-                {agistment.tackRoom.comments && (
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                    {agistment.tackRoom.comments}
-                  </p>
-                )}
-              </div>
-
               {/* Float Parking */}
               <div className="flex flex-col items-center">
                 <div className={`w-12 h-12 mb-2 ${agistment.floatParking.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
@@ -643,6 +675,19 @@ export function AgistmentDetail() {
                 )}
               </div>
 
+              {/* Tack Room */}
+              <div className="flex flex-col items-center">
+                <div className={`w-12 h-12 mb-2 ${agistment.tackRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                  <TackRoomIcon className="w-full h-full" />
+                </div>
+                <span className="text-sm font-medium text-neutral-900 dark:text-white">Tack Room</span>
+                {agistment.tackRoom.comments && (
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                    {agistment.tackRoom.comments}
+                  </p>
+                )}
+              </div>
+
               {/* Tie Up */}
               <div className="flex flex-col items-center">
                 <div className={`w-12 h-12 mb-2 ${agistment.tieUp.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
@@ -663,58 +708,85 @@ export function AgistmentDetail() {
             <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Care Options</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Full Care */}
-              {agistment.fullCare.available && (
-                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
-                  <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
-                    Full Care
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                  Full Care
+                </span>
+                <div className="flex flex-col items-center pt-2">
+                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
+                    agistment.fullCare.available 
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                      : 'bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300'
+                  }`}>
+                    {agistment.fullCare.available ? 'Available' : 'Unavailable'}
                   </span>
-                  <div className="flex flex-col items-center pt-2">
-                    <p className="text-base font-bold text-neutral-900 dark:text-white">
-                      ${agistment.fullCare.monthlyPrice}
-                      <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
-                    </p>
-                    {agistment.fullCare.comments && (
-                      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.fullCare.comments}</p>
-                    )}
-                  </div>
+                  {agistment.fullCare.available && (
+                    <>
+                      <p className="text-base font-bold text-neutral-900 dark:text-white">
+                        ${agistment.fullCare.monthlyPrice}
+                        <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
+                      </p>
+                      {agistment.fullCare.comments && (
+                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.fullCare.comments}</p>
+                      )}
+                    </>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Part Care */}
-              {agistment.partCare.available && (
-                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
-                  <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
-                    Part Care
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                  Part Care
+                </span>
+                <div className="flex flex-col items-center pt-2">
+                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
+                    agistment.partCare.available 
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                      : 'bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300'
+                  }`}>
+                    {agistment.partCare.available ? 'Available' : 'Unavailable'}
                   </span>
-                  <div className="flex flex-col items-center pt-2">
-                    <p className="text-base font-bold text-neutral-900 dark:text-white">
-                      ${agistment.partCare.monthlyPrice}
-                      <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
-                    </p>
-                    {agistment.partCare.comments && (
-                      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.partCare.comments}</p>
-                    )}
-                  </div>
+                  {agistment.partCare.available && (
+                    <>
+                      <p className="text-base font-bold text-neutral-900 dark:text-white">
+                        ${agistment.partCare.monthlyPrice}
+                        <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
+                      </p>
+                      {agistment.partCare.comments && (
+                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.partCare.comments}</p>
+                      )}
+                    </>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Self Care */}
-              {agistment.selfCare.available && (
-                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
-                  <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
-                    Self Care
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
+                <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+                  Self Care
+                </span>
+                <div className="flex flex-col items-center pt-2">
+                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
+                    agistment.selfCare.available 
+                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                      : 'bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300'
+                  }`}>
+                    {agistment.selfCare.available ? 'Available' : 'Unavailable'}
                   </span>
-                  <div className="flex flex-col items-center pt-2">
-                    <p className="text-base font-bold text-neutral-900 dark:text-white">
-                      ${agistment.selfCare.monthlyPrice}
-                      <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
-                    </p>
-                    {agistment.selfCare.comments && (
-                      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.selfCare.comments}</p>
-                    )}
-                  </div>
+                  {agistment.selfCare.available && (
+                    <>
+                      <p className="text-base font-bold text-neutral-900 dark:text-white">
+                        ${agistment.selfCare.monthlyPrice}
+                        <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
+                      </p>
+                      {agistment.selfCare.comments && (
+                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.selfCare.comments}</p>
+                      )}
+                    </>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
 

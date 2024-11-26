@@ -2,6 +2,7 @@ import {
   ExclamationTriangleIcon,
   ShareIcon,
   MapPinIcon,
+  HeartIcon,
 } from '@heroicons/react/24/outline';
 import { 
   ArenaIcon,
@@ -218,16 +219,30 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
               { key: 'floatParking', label: 'Float', icon: FloatParkingIcon, available: property.floatParking.available },
               { key: 'hotWash', label: 'Hot Wash', icon: HotWashIcon, available: property.hotWash.available },
               { key: 'stables', label: 'Stables', icon: StableIcon, available: property.stables.available },
-              { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: property.tieUp.available }
+              { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: property.tieUp.available },
+              { 
+                key: 'care', 
+                label: (() => {
+                  const careTypes = [];
+                  if (property.fullCare.available) careTypes.push('Full');
+                  if (property.partCare.available) careTypes.push('Part');
+                  if (property.selfCare.available) careTypes.push('Self');
+                  return careTypes.length > 0 ? careTypes.join('/') : 'No Care';
+                })(),
+                icon: HeartIcon,
+                available: property.selfCare.available || property.partCare.available || property.fullCare.available
+              }
             ].map(({ key, label, icon: Icon, available }) => (
               <div key={key} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                 {Icon && <Icon className="w-5 h-5" />}
                 <span className="text-sm flex items-center gap-1">
                   {label}
-                  {available ? (
-                    <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <CrossIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  {key !== 'care' && (
+                    available ? (
+                      <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <CrossIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
+                    )
                   )}
                 </span>
               </div>
