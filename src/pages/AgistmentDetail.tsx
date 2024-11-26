@@ -117,12 +117,6 @@ export function AgistmentDetail() {
     );
   }
 
-  const getGoogleMapsUrl = (location: Agistment['location']) => {
-    if (!location) return '#';
-    const query = `${location.address ? location.address + ',' : ''} ${location.suburb}, ${location.state} ${location.postCode}`;
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-  };
-
   return (
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
       <PageToolbar 

@@ -1,17 +1,15 @@
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { useProfile } from '../context/ProfileContext';
-import { PricingPlans } from '../components/PricingPlans';
 import { useClerk } from '@clerk/clerk-react';
+import { PricingPlans } from '../components/PricingPlans';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 const ListAgistment = () => {
   const { isSignedIn } = useUser();
-  const { profile } = useProfile();
   const navigate = useNavigate();
   const { openSignIn } = useClerk();
 
-  const handlePlanSelect = (planName: string) => {
+  const handlePlanSelect = (_planName: string) => {
     if (!isSignedIn) {
       openSignIn({
         redirectUrl: '/agistments/create',
