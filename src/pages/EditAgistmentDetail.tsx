@@ -232,38 +232,21 @@ export function EditAgistmentDetail() {
               <div className="w-full lg:w-1/3 p-4">
                 {/* Share and Favorite Buttons */}
                 <div className="flex gap-2 mb-6">
-                  <button
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      const shareUrl = window.location.href;
-                      try {
-                        if (navigator.share) {
-                          await navigator.share({
-                            title: `${agistment.location.suburb} Agistment on AgistMe`,
-                            text: `Check out this agistment in ${agistment.location.suburb}, ${agistment.location.state}`,
-                            url: shareUrl
-                          });
-                        } else {
-                          await navigator.clipboard.writeText(shareUrl);
-                          toast.success('Link copied to clipboard!');
-                        }
-                      } catch (error) {
-                        console.error('Error sharing:', error);
-                        toast.error('Failed to share');
-                      }
-                    }}
-                    className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                  <div 
+                    className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400"
+                    title="Not available while editing"
                   >
                     <ShareIcon className="w-5 h-5" />
                     <span className="text-sm">Share</span>
-                  </button>
+                  </div>
                   {isSignedIn && (
-                    <button
-                      className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                    <div 
+                      className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400"
+                      title="Not available while editing"
                     >
                       <FavouriteIcon className="w-5 h-5" />
                       <span className="text-sm">Favorite</span>
-                    </button>
+                    </div>
                   )}
                 </div>
 
@@ -278,19 +261,14 @@ export function EditAgistmentDetail() {
                 <div className="space-y-6">
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
-                      <a 
-                        href={getGoogleMapsUrl(agistment.location)} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="group"
-                      >
-                        <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                      <div className="group">
+                        <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">
                           {agistment.location.address}
                         </h3>
-                        <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                        <p className="text-neutral-700 dark:text-neutral-400">
                           {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
                         </p>
-                      </a>
+                      </div>
                     </div>
                   </div>
 
@@ -307,38 +285,28 @@ export function EditAgistmentDetail() {
                     {agistment.contactDetails.number && (
                       <div className="flex items-center gap-2">
                         <PhoneIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
-                        <a
-                          href={`tel:${agistment.contactDetails.number}`}
-                          className="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-                        >
+                        <span className="text-neutral-700 dark:text-neutral-400">
                           {agistment.contactDetails.number}
-                        </a>
+                        </span>
                       </div>
                     )}
                     {agistment.contactDetails.email && (
                       <div className="flex items-center gap-2">
                         <EmailIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
-                        <a
-                          href={`mailto:${agistment.contactDetails.email}`}
-                          className="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-                        >
+                        <span className="text-neutral-700 dark:text-neutral-400">
                           {agistment.contactDetails.email}
-                        </a>
+                        </span>
                       </div>
                     )}
                   </div>
 
                   {/* Enquire Now Button */}
-                  <button
-                    onClick={() => {
-                      if (agistment.contactDetails.email) {
-                        window.location.href = `mailto:${agistment.contactDetails.email}?subject=Enquiry about ${agistment.name}&body=Hi ${agistment.contactDetails.name || ''},\n\nI am interested in your agistment property at ${agistment.location.suburb}.`;
-                      }
-                    }}
-                    className="mt-6 w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
+                  <div
+                    title="Not available while editing"
+                    className="mt-6 w-full px-4 py-3 bg-red-600 text-white font-medium rounded-lg text-center"
                   >
                     Enquire Now
-                  </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -624,9 +592,10 @@ export function EditAgistmentDetail() {
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Float Parking</span>
                 {agistment.floatParking.available && (
                   <>
-                    {agistment.floatParking.monthlyPrice && (
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                        ${agistment.floatParking.monthlyPrice}/month
+                    {agistment.floatParking.monthlyPrice >= 0 && (
+                      <p className="text-base font-bold text-neutral-900 dark:text-white">
+                        ${agistment.floatParking.monthlyPrice}
+                        <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
                       </p>
                     )}
                     {agistment.floatParking.comments && (
@@ -803,15 +772,12 @@ export function EditAgistmentDetail() {
               <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Social Media & Links</h2>
               <div className="flex flex-wrap gap-4">
                 {agistment.socialMedia.map((social, index) => (
-                  <a
+                  <div
                     key={index}
-                    href={social.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300"
                   >
                     {social.type === 'INSTA' ? 'Instagram' : social.type === 'FB' ? 'Facebook' : 'Website'}
-                  </a>
+                  </div>
                 ))}
               </div>
             </div>
