@@ -87,7 +87,7 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
                     border border-neutral-200 dark:border-neutral-700 rounded-none sm:rounded-lg
                     ${property.hidden ? 'opacity-40' : ''}`}>
         {/* Property Name Header */}
-        <div className="w-full bg-primary-600 dark:bg-primary-900/50 text-center relative p-4">
+        <div className="title-header">
           <div className="flex justify-between items-start">
             {property.urgentAvailability && (
               <div className="absolute -top-1 -right-1 z-10">
@@ -98,7 +98,7 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
               </div>
             )}
           </div>
-          <h2 className="text-lg sm:text-xl font-medium leading-6 text-white dark:text-primary-300 truncate px-2">{property.name}</h2>
+          <h2 className="title-text truncate px-2">{property.name}</h2>
         </div>
 
         {/* Photo */}

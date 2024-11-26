@@ -32,6 +32,7 @@ export function AgistmentDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
   const maxLength = 300; // Maximum characters to show before "Read More"
   const [contentHeight, setContentHeight] = useState<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -92,6 +93,8 @@ export function AgistmentDetail() {
         original: photo.link,
         thumbnail: photo.link,
         description: photo.comment || '',
+        thumbnailHeight: "100",
+        thumbnailWidth: "150",
       }));
       setGalleryImages(images);
     }
@@ -115,7 +118,7 @@ export function AgistmentDetail() {
   if (error || !agistment) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">
+        <h1 className="text-2xl font-medium text-neutral-900 dark:text-white mb-4">
           {error || 'Agistment not found'}
         </h1>
         <button
@@ -135,7 +138,7 @@ export function AgistmentDetail() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
       <PageToolbar 
         actions={
           <div className="w-full overflow-hidden">
@@ -160,66 +163,68 @@ export function AgistmentDetail() {
         }
       />
       
-      {/* Header Section - Full Width */}
-      <div className="w-full bg-primary-600 dark:bg-primary-900/50">
-        <div className="w-full max-w-5xl mx-auto px-6 py-3 sm:py-6">
-          <div className="flex justify-center items-center gap-4">
-            <h1 className="text-lg sm:text-xl font-medium text-white dark:text-primary-300 truncate">{agistment.name}</h1>
+      <div className="w-full">
+        {/* Header Section - Full Width */}
+        <div className="title-header">
+          <div className="w-full max-w-5xl mx-auto px-6 py-4 sm:py-6">
+            <div className="flex justify-center items-center gap-4">
+              <h1 className="title-text truncate">
+                {agistment.name}
+              </h1>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
-        
-          {/* Photo Gallery */}
-          {galleryImages.length > 0 ? (
-            <div className="relative w-full bg-neutral-100 dark:bg-neutral-700">
-              <ImageGallery
-                items={galleryImages}
-                infinite={true}
-                lazyLoad={true}
-                showNav={true}
-                showThumbnails={false}
-                showFullscreenButton={true}
-                showPlayButton={false}
-                showBullets={false}
-                showIndex={false}
-                autoPlay={false}
-                disableSwipe={false}
-                slideDuration={300}
-                slideInterval={3000}
-                swipeThreshold={30}
-                additionalClass="custom-image-gallery"
-                renderItem={(item) => (
-                  <div className='image-gallery-image'>
-                    <img
-                      src={item.original}
-                      alt={item.description || ''}
-                      className="gallery-image"
-                      style={{
-                        width: '100%',
-                        height: '500px',
-                        objectFit: 'cover'
-                      }}
-                    />
-                    {item.description && (
-                      <span className='image-gallery-description'>
-                        {item.description}
-                      </span>
-                    )}
-                  </div>
-                )}
-              />
+        {/* Photo Gallery */}
+        {galleryImages.length > 0 ? (
+          <div className={`relative w-full ${
+            isGalleryExpanded ? 'fixed inset-0 z-50 flex items-center justify-center bg-black' : ''
+          }`}>
+            <ImageGallery
+              items={galleryImages}
+              thumbnailPosition="bottom"
+              showThumbnails={false}
+              showPlayButton={false}
+              showBullets={true}
+              showFullscreenButton={true}
+              useBrowserFullscreen={false}
+              onScreenChange={setIsGalleryExpanded}
+              renderItem={(item) => (
+                <div className='image-gallery-image'>
+                  <img
+                    src={item.original}
+                    alt={item.description || ''}
+                    className="gallery-image"
+                  />
+                  {item.description && (
+                    <span className='image-gallery-description'>
+                      {item.description}
+                    </span>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+        ) : (
+          <div className="relative w-full aspect-[16/9] bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center">
+            <div className="text-neutral-400 dark:text-neutral-300 flex flex-col items-center">
+              <PhotoIcon className="w-12 h-12 mb-2" />
+              <span className="text-sm">No photos available</span>
             </div>
-          ) : (
-            <div className="relative w-full aspect-[16/9] bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center">
-              <div className="text-neutral-400 dark:text-neutral-300 flex flex-col items-center">
-                <PhotoIcon className="w-12 h-12 mb-2" />
-                <span className="text-sm">No photos available</span>
+          </div>
+        )}
+
+        <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
+          {/* Status Information */}
+          {agistment.urgentAvailability && (
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg mb-6 mx-6">
+              <div className="flex items-center gap-2">
+                <ExclamationTriangleIcon className="w-5 h-5 text-amber-600 dark:text-amber-500" />
+                <p className="text-amber-800 dark:text-amber-300">Urgent Availability</p>
               </div>
             </div>
           )}
-
+          
           {/* Location */}
           {agistment.location && (
             <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
@@ -240,7 +245,7 @@ export function AgistmentDetail() {
           {/* Description */}
           {agistment.description && (
             <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
-              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">About this Property</h2>
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">About this Property</h2>
               <div>
                 <div 
                   className={`relative overflow-hidden transition-[max-height] duration-500 ease-in-out`}
@@ -274,7 +279,7 @@ export function AgistmentDetail() {
 
           {/* Paddocks */}
           <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Paddocks Available</h2>
+            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Paddocks Available</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Private Paddocks */}
               <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
@@ -416,54 +421,271 @@ export function AgistmentDetail() {
             </div>
           </div>
 
+          {/* Arenas and Roundyards */}
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Riding Facilities</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Arenas */}
+              <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
+                <div className="flex flex-col items-center">
+                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
+                    Arenas
+                  </span>
+                  {agistment.arenas && agistment.arenas.length > 0 ? (
+                    <div className="w-full">
+                      {agistment.arenas.map((arena, index) => (
+                        <div key={index} className="flex flex-col w-full py-2 border-b last:border-0 border-neutral-200 dark:border-neutral-600">
+                          <div className="flex justify-between items-center">
+                            <span className="text-neutral-700 dark:text-neutral-300">
+                              {arena.length}m × {arena.width}m
+                            </span>
+                          </div>
+                          {arena.comments && (
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                              {arena.comments}
+                            </p>
+                          )}
+                          {arena.features && arena.features.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {arena.features.map((feature, featureIndex) => (
+                                <span
+                                  key={featureIndex}
+                                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300"
+                                >
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : !agistment.arena ? (
+                    <span className="text-sm font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 px-3 py-1.5 rounded-lg">
+                      None Available
+                    </span>
+                  ) : (
+                    <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
+                      Available
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Round Yards */}
+              <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
+                <div className="flex flex-col items-center">
+                  <span className="text-base text-neutral-900 dark:text-white font-medium mb-2">
+                    Round Yards
+                  </span>
+                  {agistment.roundYards && agistment.roundYards.length > 0 ? (
+                    <div className="w-full">
+                      {agistment.roundYards.map((yard, index) => (
+                        <div key={index} className="flex flex-col w-full py-2 border-b last:border-0 border-neutral-200 dark:border-neutral-600">
+                          <div className="flex justify-between items-center">
+                            <span className="text-neutral-700 dark:text-neutral-300">
+                              {yard.diameter}m diameter
+                            </span>
+                          </div>
+                          {yard.comments && (
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                              {yard.comments}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : !agistment.roundYard ? (
+                    <span className="text-sm font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 px-3 py-1.5 rounded-lg">
+                      None Available
+                    </span>
+                  ) : (
+                    <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
+                      Available
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Facilities */}
           <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Facilities</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Facilities</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { key: 'feedRoom', label: 'Feed Room', icon: FeedRoomIcon, available: agistment.feedRoom.available },
-                { key: 'tackRoom', label: 'Tack Room', icon: TackRoomIcon, available: agistment.tackRoom.available },
-                { key: 'floatParking', label: 'Float Parking', icon: FloatParkingIcon, available: agistment.floatParking.available },
-                { key: 'hotWash', label: 'Hot Wash', icon: HotWashIcon, available: agistment.hotWash.available },
-                { key: 'stables', label: 'Stables', icon: StableIcon, available: agistment.stables.available },
-                { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.tieUp.available }
-              ].map(({ key, label, icon: Icon, available }) => (
-                <div key={key} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
-                  {Icon && <Icon className="w-5 h-5" />}
-                  <span className="text-sm flex items-center gap-1">
-                    {label}
-                    <span className="text-neutral-600 dark:text-neutral-400">
-                    {available ? (
-                    <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <CrossIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
-                  )}
-                    </span>
-                  </span>
+                { 
+                  key: 'feedRoom', 
+                  label: 'Feed Room', 
+                  icon: FeedRoomIcon, 
+                  available: agistment.feedRoom.available,
+                  comments: agistment.feedRoom.comments
+                },
+                { 
+                  key: 'tackRoom', 
+                  label: 'Tack Room', 
+                  icon: TackRoomIcon, 
+                  available: agistment.tackRoom.available,
+                  comments: agistment.tackRoom.comments
+                },
+                { 
+                  key: 'floatParking', 
+                  label: 'Float Parking', 
+                  icon: FloatParkingIcon, 
+                  available: agistment.floatParking.available,
+                  comments: agistment.floatParking.comments,
+                  price: agistment.floatParking.monthlyPrice
+                },
+                { 
+                  key: 'hotWash', 
+                  label: 'Hot Wash', 
+                  icon: HotWashIcon, 
+                  available: agistment.hotWash.available,
+                  comments: agistment.hotWash.comments
+                },
+                { 
+                  key: 'stables', 
+                  label: 'Stables', 
+                  icon: StableIcon, 
+                  available: agistment.stables.available,
+                  comments: agistment.stables.comments
+                },
+                { 
+                  key: 'tieUp', 
+                  label: 'Tie Up', 
+                  icon: TieUpIcon, 
+                  available: agistment.tieUp.available,
+                  comments: agistment.tieUp.comments
+                }
+              ].map(({ key, label, icon: Icon, available, comments, price }) => (
+                <div key={key} className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center gap-2 flex-1">
+                      {Icon && <Icon className="w-5 h-5 text-neutral-600 dark:text-neutral-400 shrink-0" />}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-neutral-900 dark:text-white">
+                            {label}
+                          </span>
+                          <span>
+                            {available ? (
+                              <CheckIcon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                            ) : (
+                              <CrossIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
+                            )}
+                          </span>
+                        </div>
+                        {available && price !== undefined && (
+                          <p className="text-sm text-neutral-700 dark:text-neutral-300 mt-1">
+                            ${price}/month
+                          </p>
+                        )}
+                        {comments && (
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                            {comments}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Contact Section */}
-          {agistment.contactDetails && (
-            <div className="p-6 bg-neutral-50 dark:bg-neutral-700 rounded-b-lg">
-              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Contact</h2>
-              <div className="space-y-2">
-                <p className="text-neutral-700 dark:text-neutral-300">
-                  {agistment.contactDetails.name}
-                </p>
-                <p className="text-neutral-700 dark:text-neutral-300">
-                  Phone: {agistment.contactDetails.number}
-                </p>
-                <p className="text-neutral-700 dark:text-neutral-300">
-                  Email: {agistment.contactDetails.email}
-                </p>
+          {/* Care Options */}
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Care Options</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {/* Full Care */}
+              {agistment.fullCare.available && (
+                <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg">
+                  <div className="flex flex-col items-center">
+                    <span className="text-base font-medium text-neutral-900 dark:text-white mb-2">Full Care</span>
+                    <p className="text-base font-bold text-neutral-900 dark:text-white">
+                      ${agistment.fullCare.monthlyPrice}
+                      <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
+                    </p>
+                    {agistment.fullCare.comments && (
+                      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.fullCare.comments}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Part Care */}
+              {agistment.partCare.available && (
+                <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg">
+                  <div className="flex flex-col items-center">
+                    <span className="text-base font-medium text-neutral-900 dark:text-white mb-2">Part Care</span>
+                    <p className="text-base font-bold text-neutral-900 dark:text-white">
+                      ${agistment.partCare.monthlyPrice}
+                      <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
+                    </p>
+                    {agistment.partCare.comments && (
+                      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.partCare.comments}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Self Care */}
+              {agistment.selfCare.available && (
+                <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg">
+                  <div className="flex flex-col items-center">
+                    <span className="text-base font-medium text-neutral-900 dark:text-white mb-2">Self Care</span>
+                    <p className="text-base font-bold text-neutral-900 dark:text-white">
+                      ${agistment.selfCare.monthlyPrice}
+                      <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
+                    </p>
+                    {agistment.selfCare.comments && (
+                      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.selfCare.comments}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Services */}
+          {agistment.services && agistment.services.length > 0 && (
+            <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Additional Services</h2>
+              <div className="flex flex-wrap gap-3">
+                {agistment.services.map((service, index) => (
+                  <div 
+                    key={index} 
+                    className="flex items-center gap-2 bg-neutral-50 dark:bg-neutral-800 px-4 py-2 rounded-lg"
+                  >
+                    <CheckIcon className="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0" />
+                    <span className="text-neutral-700 dark:text-neutral-300">{service}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Social Media */}
+          {agistment.socialMedia && agistment.socialMedia.length > 0 && (
+            <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Social Media & Links</h2>
+              <div className="flex flex-wrap gap-4">
+                {agistment.socialMedia.map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors"
+                  >
+                    {social.type === 'INSTA' ? 'Instagram' : social.type === 'FB' ? 'Facebook' : 'Website'}
+                  </a>
+                ))}
               </div>
             </div>
           )}
         </div>
       </div>
-
+    </div>
   );
 }
