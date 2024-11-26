@@ -28,3 +28,5 @@ export * from './CrossIcon';
 
 export { SearchIcon } from './SearchIcon';
 export { FilterIcon } from './FilterIcon';
+export * from './EmailIcon';
+export * from './PhoneIcon';

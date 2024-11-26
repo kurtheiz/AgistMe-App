@@ -25,7 +25,8 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     availability: '',
     lastUpdate: new Date().toISOString(),
     horses: [],
-    favourites: []
+    favourites: [],
+    agistor: false
   });
 
   const [originalData, setOriginalData] = useState<Profile | null>(null);
@@ -73,7 +74,8 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
             availability: profileData.availability || '',
             lastUpdate: profileData.lastUpdate || new Date().toISOString(),
             horses: profileData.horses || [],
-            favourites: profileData.favourites || []
+            favourites: profileData.favourites || [],
+            agistor: profileData.agistor || false
           };
           setFormData(newFormData);
           setOriginalData(newFormData);
