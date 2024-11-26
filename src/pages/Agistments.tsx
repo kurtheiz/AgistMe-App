@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment, AgistmentResponse } from '../types/agistment';
-import { SearchModal } from './Search/SearchModal';
+import { SearchModal } from '../components/Search/SearchModal';
 import { SearchCriteria } from '../types/search';
-import { SearchIcon } from './Icons';
-import { PageToolbar } from './PageToolbar';
-import { PropertyCard } from './PropertyCard';
+import { SearchIcon } from '../components/Icons';
+import { PageToolbar } from '../components/PageToolbar';
+import { PropertyCard } from '../components/PropertyCard';
+import { useUser } from '@clerk/clerk-react';
+import { toast } from 'react-hot-toast';
 
 // Local storage key for last search
 const LAST_SEARCH_KEY = 'agistme_last_search';
@@ -57,6 +59,7 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
 };
 
 export function Agistments() {
+  const { isSignedIn } = useUser();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
@@ -180,6 +183,16 @@ export function Agistments() {
       response
     };
     localStorage.setItem(LAST_SEARCH_KEY, JSON.stringify(storedSearch));
+  };
+
+  const handleFavorite = async (agistmentId: string) => {
+    try {
+      // TODO: Implement favorite functionality with your backend
+      toast.success('Favorite functionality coming soon!');
+    } catch (error) {
+      console.error('Error handling favorite:', error);
+      toast.error('Failed to update favorite');
+    }
   };
 
   interface EmptyStateProps {
@@ -316,6 +329,8 @@ export function Agistments() {
                     key={agistment.id}
                     property={agistment}
                     onClick={() => navigate(`/agistment/${agistment.id}`)}
+                    isAuthenticated={isSignedIn}
+                    handleFavorite={() => handleFavorite(agistment.id)}
                   />
                 ))}
               </div>
@@ -335,6 +350,8 @@ export function Agistments() {
                     key={agistment.id}
                     property={agistment}
                     onClick={() => navigate(`/agistment/${agistment.id}`)}
+                    isAuthenticated={isSignedIn}
+                    handleFavorite={() => handleFavorite(agistment.id)}
                   />
                 ))}
               </div>

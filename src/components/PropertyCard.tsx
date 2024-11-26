@@ -15,21 +15,25 @@ import {
   TieUpIcon,
   PhotoIcon,
   CheckIcon,
-  CrossIcon
+  CrossIcon,
+  FavouriteIcon
 } from './Icons';
 import { Agistment } from '../types/agistment';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getGoogleMapsUrl } from '../utils/location';
+import { useUser } from '@clerk/clerk-react';
 
 interface PropertyCardProps {
   property: Agistment;
   onClick?: () => void;
   isAdmin?: boolean;
+  handleFavorite?: () => void;
 }
 
-export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCardProps) {
+export function PropertyCard({ property, onClick, isAdmin = false, handleFavorite }: PropertyCardProps) {
   const navigate = useNavigate();
+  const { isSignedIn } = useUser();
 
   const formatDate = (date?: string) => {
     if (!date) return 'Unknown';
@@ -256,13 +260,24 @@ export function PropertyCard({ property, onClick, isAdmin = false }: PropertyCar
             <div className="text-xs sm:text-sm">
               Last updated: {formatDate(property.modifiedAt)}
             </div>
-            <button 
-              onClick={handleShare}
-              className="inline-flex items-center gap-1 text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
-              title="Share this listing"
-            >
-              <ShareIcon className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {isSignedIn && (
+                <button 
+                  onClick={handleFavorite}
+                  className="inline-flex items-center gap-1 text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
+                  title="Add to favorites"
+                >
+                  <FavouriteIcon className="w-5 h-5" />
+                </button>
+              )}
+              <button 
+                onClick={handleShare}
+                className="inline-flex items-center gap-1 text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
+                title="Share this listing"
+              >
+                <ShareIcon className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

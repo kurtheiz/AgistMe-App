@@ -25,6 +25,7 @@ export * from './MapPinIcon';
 export * from './ArrowLeftIcon';
 export * from './RefreshIcon';
 export * from './CrossIcon';
+export * from './FavouriteIcon.tsx';
 
 export { SearchIcon } from './SearchIcon';
 export { FilterIcon } from './FilterIcon';

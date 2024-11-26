@@ -57,6 +57,20 @@ class AgistmentService {
     }
   }
 
+  async createFromText(text: string): Promise<Agistment> {
+    try {
+      const response = await this.api.post<Agistment>('/v1/agistments/from-text', text, {
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+      });
+      return response.data;
+    } catch (error: unknown) {
+      console.error('Failed to create agistment from text:', error);
+      throw error;
+    }
+  }
+
   async getMyAgistments(): Promise<AgistmentResponse> {
     try {
       const response = await this.api.get<AgistmentResponse>('/v1/protected/agistments/me');

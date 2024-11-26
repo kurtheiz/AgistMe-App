@@ -9,13 +9,14 @@ import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './pages/Profile';
 import { ProfileProvider } from './context/ProfileContext';
-import { Agistments } from './components/Agistments';
+import { Agistments } from './pages/Agistments';
 import { AgistmentDetail } from './pages/AgistmentDetail';
+import { EditAgistmentDetail } from './pages/EditAgistmentDetail';
 import { Toaster } from 'react-hot-toast';
 import { useAuthToken } from './hooks/useAuthToken';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import  ListAgistment  from './pages/ListAgistment';
-import { CreateAgsitment } from './pages/CreateAgsitment';
+import ListAgistment from './pages/ListAgistment';
+import { CreateAgistment } from './pages/CreateAgistment';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -30,7 +31,8 @@ const router = createBrowserRouter(
       <Route path="/about" element={<About />} />
       <Route path="/agistments" element={<Agistments />} />
       <Route path="/agistments/search" element={<Agistments />} />
-      <Route path="/agistments/create" element={<CreateAgsitment />} />
+      <Route path="/agistments/create" element={<CreateAgistment />} />
+      <Route path="/agistments/:id/edit" element={<EditAgistmentDetail />} />
       <Route path="/agistment/:id" element={<AgistmentDetail />} />
       <Route path="/listagistment" element={<ListAgistment />} />
       <Route 

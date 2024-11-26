@@ -27,10 +27,9 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import '../styles/gallery.css';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
+import { useAgistmentStore } from '../stores/agistment.store';
 
-const LAST_SEARCH_KEY = 'agistme_last_search';
-
-export function AgistmentDetail() {
+const EditAgistmentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
@@ -43,10 +42,33 @@ export function AgistmentDetail() {
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
 
-  // Scroll to top when component mounts
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    const loadAgistment = async () => {
+      if (!id) return;
+
+      setLoading(true);
+      try {
+        if (id.startsWith('temp_')) {
+          const tempAgistment = useAgistmentStore.getState().getTempAgistment(id);
+          if (tempAgistment) {
+            setAgistment(tempAgistment);
+            // Don't remove from store yet - we need it to persist until saved
+          } else {
+            setError('Agistment not found');
+          }
+        } else {
+          const loadedAgistment = await agistmentService.getAgistment(id);
+          setAgistment(loadedAgistment);
+        }
+      } catch (error) {
+        console.error('Error loading agistment:', error);
+        setError('Failed to load agistment');
+      }
+      setLoading(false);
+    };
+
+    loadAgistment();
+  }, [id]);
 
   useEffect(() => {
     const preventScroll = (e: Event) => {
@@ -76,48 +98,8 @@ export function AgistmentDetail() {
   }, [isGalleryExpanded]);
 
   useEffect(() => {
-    const loadAgistment = async () => {
-      if (!id) {
-        setError('No agistment ID provided');
-        setLoading(false);
-        return;
-      }
-
-      // First try to find the agistment in local storage
-      try {
-        const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
-        if (storedSearch) {
-          const lastSearch = JSON.parse(storedSearch);
-          // Check both original and adjacent arrays
-          const foundAgistment = 
-            (lastSearch.response.original && lastSearch.response.original.find((a: Agistment) => a.id === id)) ||
-            (lastSearch.response.adjacent && lastSearch.response.adjacent.find((a: Agistment) => a.id === id));
-          
-          if (foundAgistment) {
-            setAgistment(foundAgistment);
-            setLoading(false);
-            return;
-          }
-        }
-      } catch (err) {
-        console.error('Error parsing local storage:', err);
-      }
-
-      // If not found in local storage, fetch from API
-      try {
-        const data = await agistmentService.getAgistment(id);
-        setAgistment(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load agistment details');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadAgistment();
-  }, [id]);
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     if (agistment?.photos) {
@@ -132,7 +114,6 @@ export function AgistmentDetail() {
     }
   }, [agistment?.photos]);
 
-  // Check if description needs read more button
   useEffect(() => {
     if (descriptionRef.current) {
       const isOverflowing = descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight;
@@ -142,7 +123,7 @@ export function AgistmentDetail() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
       </div>
     );
@@ -150,16 +131,10 @@ export function AgistmentDetail() {
 
   if (error || !agistment) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
-        <h1 className="text-2xl font-medium text-neutral-900 dark:text-white mb-4">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-600">
           {error || 'Agistment not found'}
-        </h1>
-        <button
-          onClick={() => navigate('/agistments')}
-          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          Back to Agistments
-        </button>
+        </div>
       </div>
     );
   }
@@ -172,18 +147,18 @@ export function AgistmentDetail() {
             <div className="flex items-center">
               <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
+                className="flex items-center gap-1 sm:gap-2 text-neutral-900 dark:text-white hover:text-neutral-600 dark:hover:text-neutral-400"
               >
                 <ArrowLeftIcon className="w-3 h-3" />
                 <span className="font-medium text-sm sm:text-base">Back</span>
               </button>
               <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
               <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
-                <span>{agistment.location.state}</span>
+                <span>{agistment?.location?.state || 'Location not set'}</span>
                 <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                <span>{agistment.location.region}</span>
+                <span>{agistment?.location?.region || 'Location not set'}</span>
                 <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                <span>{agistment.location.suburb}</span>
+                <span>{agistment?.location?.suburb || 'Location not set'}</span>
               </div>
             </div>
           </div>
@@ -251,8 +226,8 @@ export function AgistmentDetail() {
                       try {
                         if (navigator.share) {
                           await navigator.share({
-                            title: `${agistment.location.suburb} Agistment on AgistMe`,
-                            text: `Check out this agistment in ${agistment.location.suburb}, ${agistment.location.state}`,
+                            title: `${agistment?.location?.suburb} Agistment on AgistMe`,
+                            text: `Check out this agistment in ${agistment?.location?.suburb}, ${agistment?.location?.state}`,
                             url: shareUrl
                           });
                         } else {
@@ -265,6 +240,7 @@ export function AgistmentDetail() {
                       }
                     }}
                     className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                    disabled={id?.startsWith('temp_')}
                   >
                     <ShareIcon className="w-5 h-5" />
                     <span className="text-sm">Share</span>
@@ -272,6 +248,7 @@ export function AgistmentDetail() {
                   {isSignedIn && (
                     <button
                       className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                      disabled={id?.startsWith('temp_')}
                     >
                       <FavouriteIcon className="w-5 h-5" />
                       <span className="text-sm">Favorite</span>
@@ -282,7 +259,7 @@ export function AgistmentDetail() {
                 {/* Agistment Name */}
                 <div className="mb-6">
                   <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                    {agistment.name}
+                    {agistment?.name}
                   </h2>
                 </div>
 
@@ -291,16 +268,16 @@ export function AgistmentDetail() {
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
                       <a 
-                        href={getGoogleMapsUrl(agistment.location)} 
+                        href={getGoogleMapsUrl(agistment?.location)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="group"
                       >
                         <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                          {agistment.location.address}
+                          {agistment?.location?.address}
                         </h3>
                         <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                          {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
+                          {agistment?.location?.suburb}, {agistment?.location?.state} {agistment?.location?.postCode}
                         </p>
                       </a>
                     </div>
@@ -308,33 +285,33 @@ export function AgistmentDetail() {
 
                   {/* Contact Details */}
                   <div className="space-y-3">
-                    {agistment.contactDetails.name && (
+                    {agistment?.contactDetails?.name && (
                       <div className="flex items-center gap-2">
                         <UserIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                         <span className="text-neutral-900 dark:text-white font-medium">
-                          {agistment.contactDetails.name}
+                          {agistment?.contactDetails?.name}
                         </span>
                       </div>
                     )}
-                    {agistment.contactDetails.number && (
+                    {agistment?.contactDetails?.number && (
                       <div className="flex items-center gap-2">
                         <PhoneIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                         <a
-                          href={`tel:${agistment.contactDetails.number}`}
+                          href={`tel:${agistment?.contactDetails?.number}`}
                           className="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                         >
-                          {agistment.contactDetails.number}
+                          {agistment?.contactDetails?.number}
                         </a>
                       </div>
                     )}
-                    {agistment.contactDetails.email && (
+                    {agistment?.contactDetails?.email && (
                       <div className="flex items-center gap-2">
                         <EmailIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                         <a
-                          href={`mailto:${agistment.contactDetails.email}`}
+                          href={`mailto:${agistment?.contactDetails?.email}`}
                           className="text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                         >
-                          {agistment.contactDetails.email}
+                          {agistment?.contactDetails?.email}
                         </a>
                       </div>
                     )}
@@ -343,11 +320,12 @@ export function AgistmentDetail() {
                   {/* Enquire Now Button */}
                   <button
                     onClick={() => {
-                      if (agistment.contactDetails.email) {
-                        window.location.href = `mailto:${agistment.contactDetails.email}?subject=Enquiry about ${agistment.name}&body=Hi ${agistment.contactDetails.name || ''},\n\nI am interested in your agistment property at ${agistment.location.suburb}.`;
+                      if (agistment?.contactDetails?.email) {
+                        window.location.href = `mailto:${agistment?.contactDetails?.email}?subject=Enquiry about ${agistment?.name}&body=Hi ${agistment?.contactDetails?.name || ''},\n\nI am interested in your agistment property at ${agistment?.location?.suburb}.`;
                       }
                     }}
                     className="mt-6 w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
+                    disabled={id?.startsWith('temp_')}
                   >
                     Enquire Now
                   </button>
@@ -366,7 +344,7 @@ export function AgistmentDetail() {
                 ref={descriptionRef}
                 className={`text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap ${!isDescriptionExpanded ? 'line-clamp-4 max-h-24' : ''}`}
               >
-                {agistment.description}
+                {agistment?.description}
               </p>
               {shouldShowReadMore && (
                 <button
@@ -389,33 +367,33 @@ export function AgistmentDetail() {
                   Private
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.privatePaddocks.total > 0 ? (
+                  {agistment?.privatePaddocks?.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
                           <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${
-                            agistment.privatePaddocks.available > 0
-                              ? agistment.privatePaddocks.whenAvailable && new Date(agistment.privatePaddocks.whenAvailable) > new Date()
+                            agistment?.privatePaddocks?.available > 0
+                              ? agistment?.privatePaddocks?.whenAvailable && new Date(agistment?.privatePaddocks?.whenAvailable) > new Date()
                                 ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
                                 : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                               : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
                             } rounded-lg px-3 py-1.5`}
                           >
-                            {`${agistment.privatePaddocks.available} of ${agistment.privatePaddocks.total}`}
+                            {`${agistment?.privatePaddocks?.available} of ${agistment?.privatePaddocks?.total}`}
                           </span>
-                          {agistment.privatePaddocks.available > 0 && (
+                          {agistment?.privatePaddocks?.available > 0 && (
                             <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mt-1">
-                              {formatAvailabilityDate(agistment.privatePaddocks.whenAvailable ? new Date(agistment.privatePaddocks.whenAvailable) : null)}
+                              {formatAvailabilityDate(agistment?.privatePaddocks?.whenAvailable ? new Date(agistment?.privatePaddocks?.whenAvailable) : null)}
                             </p>
                           )}
                         </div>
                         <div className="flex flex-col items-center space-y-1">
                           <p className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white">
-                            ${agistment.privatePaddocks.weeklyPrice}
+                            ${agistment?.privatePaddocks?.weeklyPrice}
                             <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/week</span>
                           </p>
                           <p className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white">
-                            ${calculateMonthlyPrice(agistment.privatePaddocks.weeklyPrice)}
+                            ${calculateMonthlyPrice(agistment?.privatePaddocks?.weeklyPrice)}
                             <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
                           </p>
                         </div>
@@ -435,33 +413,33 @@ export function AgistmentDetail() {
                   Shared
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.sharedPaddocks.total > 0 ? (
+                  {agistment?.sharedPaddocks?.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
                           <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${
-                            agistment.sharedPaddocks.available > 0
-                              ? agistment.sharedPaddocks.whenAvailable && new Date(agistment.sharedPaddocks.whenAvailable) > new Date()
+                            agistment?.sharedPaddocks?.available > 0
+                              ? agistment?.sharedPaddocks?.whenAvailable && new Date(agistment?.sharedPaddocks?.whenAvailable) > new Date()
                                 ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
                                 : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                               : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
                             } rounded-lg px-3 py-1.5`}
                           >
-                            {`${agistment.sharedPaddocks.available} of ${agistment.sharedPaddocks.total}`}
+                            {`${agistment?.sharedPaddocks?.available} of ${agistment?.sharedPaddocks?.total}`}
                           </span>
-                          {agistment.sharedPaddocks.available > 0 && (
+                          {agistment?.sharedPaddocks?.available > 0 && (
                             <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mt-1">
-                              {formatAvailabilityDate(agistment.sharedPaddocks.whenAvailable ? new Date(agistment.sharedPaddocks.whenAvailable) : null)}
+                              {formatAvailabilityDate(agistment?.sharedPaddocks?.whenAvailable ? new Date(agistment?.sharedPaddocks?.whenAvailable) : null)}
                             </p>
                           )}
                         </div>
                         <div className="flex flex-col items-center space-y-1">
                           <p className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white">
-                            ${agistment.sharedPaddocks.weeklyPrice}
+                            ${agistment?.sharedPaddocks?.weeklyPrice}
                             <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/week</span>
                           </p>
                           <p className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white">
-                            ${calculateMonthlyPrice(agistment.sharedPaddocks.weeklyPrice)}
+                            ${calculateMonthlyPrice(agistment?.sharedPaddocks?.weeklyPrice)}
                             <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
                           </p>
                         </div>
@@ -481,33 +459,33 @@ export function AgistmentDetail() {
                   Group
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.groupPaddocks.total > 0 ? (
+                  {agistment?.groupPaddocks?.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
                           <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${
-                            agistment.groupPaddocks.available > 0
-                              ? agistment.groupPaddocks.whenAvailable && new Date(agistment.groupPaddocks.whenAvailable) > new Date()
+                            agistment?.groupPaddocks?.available > 0
+                              ? agistment?.groupPaddocks?.whenAvailable && new Date(agistment?.groupPaddocks?.whenAvailable) > new Date()
                                 ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
                                 : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                               : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
                             } rounded-lg px-3 py-1.5`}
                           >
-                            {`${agistment.groupPaddocks.available} of ${agistment.groupPaddocks.total}`}
+                            {`${agistment?.groupPaddocks?.available} of ${agistment?.groupPaddocks?.total}`}
                           </span>
-                          {agistment.groupPaddocks.available > 0 && (
+                          {agistment?.groupPaddocks?.available > 0 && (
                             <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mt-1">
-                              {formatAvailabilityDate(agistment.groupPaddocks.whenAvailable ? new Date(agistment.groupPaddocks.whenAvailable) : null)}
+                              {formatAvailabilityDate(agistment?.groupPaddocks?.whenAvailable ? new Date(agistment?.groupPaddocks?.whenAvailable) : null)}
                             </p>
                           )}
                         </div>
                         <div className="flex flex-col items-center space-y-1">
                           <p className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white">
-                            ${agistment.groupPaddocks.weeklyPrice}
+                            ${agistment?.groupPaddocks?.weeklyPrice}
                             <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/week</span>
                           </p>
                           <p className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white">
-                            ${calculateMonthlyPrice(agistment.groupPaddocks.weeklyPrice)}
+                            ${calculateMonthlyPrice(agistment?.groupPaddocks?.weeklyPrice)}
                             <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
                           </p>
                         </div>
@@ -533,9 +511,9 @@ export function AgistmentDetail() {
                   Arenas
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.arenas && agistment.arenas.length > 0 ? (
+                  {agistment?.arenas && agistment?.arenas.length > 0 ? (
                     <div className="w-full">
-                      {agistment.arenas.map((arena, index) => (
+                      {agistment?.arenas.map((arena, index) => (
                         <div key={index} className="flex flex-col w-full py-2 border-b last:border-0 border-neutral-200 dark:border-neutral-600">
                           <div className="flex justify-between items-center">
                             <span className="text-neutral-700 dark:text-neutral-300">
@@ -562,7 +540,7 @@ export function AgistmentDetail() {
                         </div>
                       ))}
                     </div>
-                  ) : !agistment.arena ? (
+                  ) : !agistment?.arena ? (
                     <span className="text-sm font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg">
                       None Available
                     </span>
@@ -580,9 +558,9 @@ export function AgistmentDetail() {
                   Round Yards
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.roundYards && agistment.roundYards.length > 0 ? (
+                  {agistment?.roundYards && agistment?.roundYards.length > 0 ? (
                     <div className="w-full">
-                      {agistment.roundYards.map((yard, index) => (
+                      {agistment?.roundYards.map((yard, index) => (
                         <div key={index} className="flex flex-col w-full py-2 border-b last:border-0 border-neutral-200 dark:border-neutral-600">
                           <div className="flex justify-between items-center">
                             <span className="text-neutral-700 dark:text-neutral-300">
@@ -597,7 +575,7 @@ export function AgistmentDetail() {
                         </div>
                       ))}
                     </div>
-                  ) : !agistment.roundYard ? (
+                  ) : !agistment?.roundYard ? (
                     <span className="text-sm font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg">
                       None Available
                     </span>
@@ -617,33 +595,33 @@ export function AgistmentDetail() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               {/* Feed Room */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.feedRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.feedRoom?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <FeedRoomIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Feed Room</span>
-                {agistment.feedRoom.comments && (
+                {agistment?.feedRoom?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                    {agistment.feedRoom.comments}
+                    {agistment?.feedRoom?.comments}
                   </p>
                 )}
               </div>
 
               {/* Float Parking */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.floatParking.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.floatParking?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <FloatParkingIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Float Parking</span>
-                {agistment.floatParking.available && (
+                {agistment?.floatParking?.available && (
                   <>
-                    {agistment.floatParking.monthlyPrice && (
+                    {agistment?.floatParking?.monthlyPrice && (
                       <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                        ${agistment.floatParking.monthlyPrice}/month
+                        ${agistment?.floatParking?.monthlyPrice}/month
                       </p>
                     )}
-                    {agistment.floatParking.comments && (
+                    {agistment?.floatParking?.comments && (
                       <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                        {agistment.floatParking.comments}
+                        {agistment?.floatParking?.comments}
                       </p>
                     )}
                   </>
@@ -652,52 +630,52 @@ export function AgistmentDetail() {
 
               {/* Hot Wash */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.hotWash.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.hotWash?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <HotWashIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Hot Wash</span>
-                {agistment.hotWash.comments && (
+                {agistment?.hotWash?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                    {agistment.hotWash.comments}
+                    {agistment?.hotWash?.comments}
                   </p>
                 )}
               </div>
 
               {/* Stables */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.stables.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.stables?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <StableIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Stables</span>
-                {agistment.stables.comments && (
+                {agistment?.stables?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                    {agistment.stables.comments}
+                    {agistment?.stables?.comments}
                   </p>
                 )}
               </div>
 
               {/* Tack Room */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.tackRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.tackRoom?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <TackRoomIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Tack Room</span>
-                {agistment.tackRoom.comments && (
+                {agistment?.tackRoom?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                    {agistment.tackRoom.comments}
+                    {agistment?.tackRoom?.comments}
                   </p>
                 )}
               </div>
 
               {/* Tie Up */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.tieUp.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.tieUp?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <TieUpIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Tie Up</span>
-                {agistment.tieUp.comments && (
+                {agistment?.tieUp?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-                    {agistment.tieUp.comments}
+                    {agistment?.tieUp?.comments}
                   </p>
                 )}
               </div>
@@ -715,20 +693,20 @@ export function AgistmentDetail() {
                 </span>
                 <div className="flex flex-col items-center pt-2">
                   <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.fullCare.available 
+                    agistment?.fullCare?.available 
                       ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                       : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
                   }`}>
-                    {agistment.fullCare.available ? 'Available' : 'Unavailable'}
+                    {agistment?.fullCare?.available ? 'Available' : 'Unavailable'}
                   </span>
-                  {agistment.fullCare.available && (
+                  {agistment?.fullCare?.available && (
                     <>
                       <p className="text-base font-bold text-neutral-900 dark:text-white">
-                        ${agistment.fullCare.monthlyPrice}
+                        ${agistment?.fullCare?.monthlyPrice}
                         <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
                       </p>
-                      {agistment.fullCare.comments && (
-                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.fullCare.comments}</p>
+                      {agistment?.fullCare?.comments && (
+                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment?.fullCare?.comments}</p>
                       )}
                     </>
                   )}
@@ -742,20 +720,20 @@ export function AgistmentDetail() {
                 </span>
                 <div className="flex flex-col items-center pt-2">
                   <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.partCare.available 
+                    agistment?.partCare?.available 
                       ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                       : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
                   }`}>
-                    {agistment.partCare.available ? 'Available' : 'Unavailable'}
+                    {agistment?.partCare?.available ? 'Available' : 'Unavailable'}
                   </span>
-                  {agistment.partCare.available && (
+                  {agistment?.partCare?.available && (
                     <>
                       <p className="text-base font-bold text-neutral-900 dark:text-white">
-                        ${agistment.partCare.monthlyPrice}
+                        ${agistment?.partCare?.monthlyPrice}
                         <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
                       </p>
-                      {agistment.partCare.comments && (
-                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.partCare.comments}</p>
+                      {agistment?.partCare?.comments && (
+                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment?.partCare?.comments}</p>
                       )}
                     </>
                   )}
@@ -769,20 +747,20 @@ export function AgistmentDetail() {
                 </span>
                 <div className="flex flex-col items-center pt-2">
                   <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.selfCare.available 
+                    agistment?.selfCare?.available 
                       ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                       : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
                   }`}>
-                    {agistment.selfCare.available ? 'Available' : 'Unavailable'}
+                    {agistment?.selfCare?.available ? 'Available' : 'Unavailable'}
                   </span>
-                  {agistment.selfCare.available && (
+                  {agistment?.selfCare?.available && (
                     <>
                       <p className="text-base font-bold text-neutral-900 dark:text-white">
-                        ${agistment.selfCare.monthlyPrice}
+                        ${agistment?.selfCare?.monthlyPrice}
                         <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">/month</span>
                       </p>
-                      {agistment.selfCare.comments && (
-                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment.selfCare.comments}</p>
+                      {agistment?.selfCare?.comments && (
+                        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 text-center">{agistment?.selfCare?.comments}</p>
                       )}
                     </>
                   )}
@@ -792,11 +770,11 @@ export function AgistmentDetail() {
           </div>
 
           {/* Services */}
-          {agistment.services && agistment.services.length > 0 && (
+          {agistment?.services && agistment?.services.length > 0 && (
             <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
               <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Additional Services</h2>
               <div className="flex flex-wrap gap-3">
-                {agistment.services.map((service, index) => (
+                {agistment?.services.map((service, index) => (
                   <div 
                     key={index} 
                     className="flex items-center gap-2 bg-neutral-50 dark:bg-neutral-800 px-4 py-2 rounded-lg"
@@ -810,11 +788,11 @@ export function AgistmentDetail() {
           )}
 
           {/* Social Media */}
-          {agistment.socialMedia && agistment.socialMedia.length > 0 && (
+          {agistment?.socialMedia && agistment?.socialMedia.length > 0 && (
             <div className="bg-white dark:bg-transparent p-6">
               <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Social Media & Links</h2>
               <div className="flex flex-wrap gap-4">
-                {agistment.socialMedia.map((social, index) => (
+                {agistment?.socialMedia.map((social, index) => (
                   <a
                     key={index}
                     href={social.link}
@@ -832,4 +810,6 @@ export function AgistmentDetail() {
       </div>
     </div>
   );
-}
+};
+
+export { EditAgistmentDetail };
