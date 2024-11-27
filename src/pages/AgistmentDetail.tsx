@@ -18,7 +18,8 @@ import {
   HotWashIcon,
   StableIcon,
   TieUpIcon,
-  FavouriteIcon
+  FavouriteIcon,
+  EditIcon
 } from '../components/Icons';
 import { ShareIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
@@ -27,6 +28,7 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import '../styles/gallery.css';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
+import { useProfile } from '../context/ProfileContext';
 
 const LAST_SEARCH_KEY = 'agistme_last_search';
 
@@ -34,6 +36,7 @@ export function AgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
+  const { profile } = useProfile();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -185,6 +188,18 @@ export function AgistmentDetail() {
                 <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
                 <span>{agistment.location.suburb}</span>
               </div>
+              {profile?.myAgistments?.includes(agistment.id) && (
+                <>
+                  <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
+                  <button
+                    onClick={() => navigate(`/agistments/${agistment.id}/edit`)}
+                    className="flex items-center gap-1 sm:gap-2 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    <EditIcon className="w-4 h-4" />
+                    <span className="font-medium">Edit</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         }

@@ -155,7 +155,7 @@ export function EditAgistmentDetail() {
   return (
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
       {/* Edit/Create Mode Banner */}
-      <div className="w-full bg-primary-600 dark:bg-primary-800 py-3">
+      <div className="sticky top-0 z-50 w-full bg-primary-600 dark:bg-primary-800 py-3 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center">
             <EditIcon className="w-6 h-6 text-white mr-2" />
