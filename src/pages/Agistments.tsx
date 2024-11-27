@@ -6,7 +6,7 @@ import { SearchModal } from '../components/Search/SearchModal';
 import { SearchCriteria } from '../types/search';
 import { SearchIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
-import { PropertyCard } from '../components/PropertyCard';
+import PropertyCard from '../components/PropertyCard';
 
 // Local storage key for last search
 const LAST_SEARCH_KEY = 'agistme_last_search';
@@ -286,7 +286,7 @@ export function Agistments() {
           </div>
         }
       />
-      <div className="flex-grow max-w-5xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-4">
+      <div className="flex-grow max-w-7xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-4">
         <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50' : 'opacity-100'}`}>
           {originalAgistments.length > 0 && (
             <div>
@@ -314,7 +314,7 @@ export function Agistments() {
                 {originalAgistments.map((agistment: Agistment) => (
                   <PropertyCard
                     key={agistment.id}
-                    property={agistment}
+                    agistment={agistment}
                     onClick={() => navigate(`/agistments/${agistment.id}`)}
                   />
                 ))}
@@ -333,7 +333,7 @@ export function Agistments() {
                 {adjacentAgistments.map((agistment: Agistment) => (
                   <PropertyCard
                     key={agistment.id}
-                    property={agistment}
+                    agistment={agistment}
                     onClick={() => navigate(`/agistments/${agistment.id}`)}
                   />
                 ))}

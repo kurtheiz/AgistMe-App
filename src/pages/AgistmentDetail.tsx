@@ -18,30 +18,24 @@ import {
   StableIcon,
   TieUpIcon,
   FavouriteIcon,
-  EditIcon
+  ShareIcon
 } from '../components/Icons';
-import { ShareIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
 import ImageGallery from 'react-image-gallery';
 import "react-image-gallery/styles/css/image-gallery.css";
 import '../styles/gallery.css';
 import toast from 'react-hot-toast';
-import { useUser } from '@clerk/clerk-react';
 import { useProfile } from '../context/ProfileContext';
 import { LAST_SEARCH_KEY } from '../constants/storage';
 
 export function AgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isSignedIn } = useUser();
   const { profile } = useProfile();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const mountedRef = useRef(true);
 
@@ -58,7 +52,6 @@ export function AgistmentDetail() {
       console.error('Caught in error boundary:', error);
       if (mountedRef.current) {
         setError(error.message || 'An unexpected error occurred');
-        setLoading(false);
         toast.error(error.message || 'An unexpected error occurred');
       }
     };
@@ -72,7 +65,6 @@ export function AgistmentDetail() {
       if (!id) {
         console.log('No agistment ID provided');
         setError('No agistment ID provided');
-        setLoading(false);
         return;
       }
 
@@ -88,7 +80,6 @@ export function AgistmentDetail() {
           
           if (foundAgistment) {
             setAgistment(foundAgistment);
-            setLoading(false);
             return;
           }
         }
@@ -104,8 +95,6 @@ export function AgistmentDetail() {
       } catch (err) {
         setError('Failed to load agistment details');
         console.error(err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -129,36 +118,39 @@ export function AgistmentDetail() {
   useEffect(() => {
     if (descriptionRef.current) {
       const isOverflowing = descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight;
-      setShouldShowReadMore(isOverflowing);
+      setIsDescriptionExpanded(isOverflowing);
     }
   }, [agistment?.description]);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleBackClick = () => {
-    // Try to get the search hash from local storage
-    try {
-      const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
-      if (storedSearch) {
-        const lastSearch = JSON.parse(storedSearch);
-        if (lastSearch.response?.hash) {
-          navigate(`/agistments?q=${lastSearch.response.hash}`);
-          return;
-        }
-      }
-    } catch (err) {
-      console.error('Error parsing local storage:', err);
-    }
-    
-    // If no hash found, just go back to agistments
-    navigate('/agistments');
+    navigate(-1);
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+  const imageGalleryProps = {
+    items: galleryImages,
+    thumbnailPosition: "bottom" as const,
+    showThumbnails: true,
+    showPlayButton: false,
+    showBullets: true,
+    showFullscreenButton: true,
+    useBrowserFullscreen: true,
+    onScreenChange: () => {}, // Empty callback to satisfy TypeScript
+    additionalClass: "image-gallery-custom",
+    renderItem: (item: any) => (
+      <div className="image-gallery-image-container">
+        <img 
+          src={item.original} 
+          alt={item.description || 'Agistment Image'} 
+          className="image-gallery-image"
+        />
       </div>
-    );
-  }
+    )
+  };
 
   if (error || !agistment) {
     return (
@@ -189,8 +181,8 @@ export function AgistmentDetail() {
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
       <PageToolbar 
         actions={
-          <div className="w-full overflow-hidden">
-            <div className="flex items-center justify-between">
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
               <div className="flex items-center">
                 <button
                   onClick={handleBackClick}
@@ -212,15 +204,6 @@ export function AgistmentDetail() {
                   )}
                 </div>
               </div>
-              {agistment && profile?.myAgistments?.includes(agistment.id) && (
-                <button
-                  onClick={() => navigate(`/agistments/${agistment.id}/edit`)}
-                  className="p-1.5 text-neutral-900 dark:text-white hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
-                  title="Edit agistment"
-                >
-                  <EditIcon className="w-5 h-5" />
-                </button>
-              )}
             </div>
           </div>
         }
@@ -234,38 +217,7 @@ export function AgistmentDetail() {
               {/* Photo Gallery - 66% width on desktop */}
               <div className="w-full lg:w-2/3 px-4">
                 {galleryImages.length > 0 ? (
-                  <div 
-                    className={`relative w-full ${
-                      isGalleryExpanded ? 'fixed inset-0 z-[9999] h-screen w-screen bg-black/95 overflow-hidden' : ''
-                    }`}
-                    onClick={(e) => isGalleryExpanded && e.stopPropagation()}
-                  >
-                    <ImageGallery
-                      items={galleryImages}
-                      thumbnailPosition="bottom"
-                      showThumbnails={false}
-                      showPlayButton={false}
-                      showBullets={true}
-                      showFullscreenButton={true}
-                      useBrowserFullscreen={false}
-                      onScreenChange={setIsGalleryExpanded}
-                      additionalClass={isGalleryExpanded ? 'fullscreen-gallery' : ''}
-                      renderItem={(item) => (
-                        <div className='image-gallery-image'>
-                          <img
-                            src={item.original}
-                            alt={item.description || ''}
-                            className="gallery-image"
-                          />
-                          {item.description && (
-                            <span className='image-gallery-description text-neutral-900 dark:text-white'>
-                              {item.description}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    />
-                  </div>
+                  <ImageGallery {...imageGalleryProps} />
                 ) : (
                   <div className="relative w-full aspect-[16/9] bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
                     <div className="text-neutral-500 dark:text-neutral-400 flex flex-col items-center">
@@ -305,7 +257,7 @@ export function AgistmentDetail() {
                     <ShareIcon className="w-5 h-5" />
                     <span className="text-sm">Share</span>
                   </button>
-                  {isSignedIn && (
+                  {profile && (
                     <button
                       className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                     >
@@ -321,7 +273,7 @@ export function AgistmentDetail() {
                     {agistment?.name}
                   </h2>
                   <p className="text-neutral-900 dark:text-neutral-400 mt-1">
-                    {agistment?.propertySize && agistment.propertySize > 0 ? `${agistment.propertySize} hectares` : 'Property size not specified'}
+                    {agistment?.propertySize && agistment.propertySize > 0 ? `${agistment.propertySize} acres` : 'Property size not specified'}
                   </p>
                 </div>
 
@@ -340,7 +292,7 @@ export function AgistmentDetail() {
                             {agistment.location.address}
                           </h3>
                           <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                            {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
+                            {agistment.location.suburb}, {agistment.location.state} {agistment.location.postcode}
                           </p>
                         </a>
                       )}
@@ -398,7 +350,7 @@ export function AgistmentDetail() {
           </div>
         </div>
 
-        <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
+        <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
           {/* Description Section */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
             <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">About this Property</h2>
@@ -409,12 +361,12 @@ export function AgistmentDetail() {
               >
                 {agistment?.description}
               </p>
-              {shouldShowReadMore && (
+              {isDescriptionExpanded && (
                 <button
-                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  onClick={() => setIsDescriptionExpanded(false)}
                   className="mt-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
                 >
-                  {isDescriptionExpanded ? 'Show Less' : 'Read More'}
+                  Show Less
                 </button>
               )}
             </div>

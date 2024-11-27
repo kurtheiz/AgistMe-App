@@ -68,7 +68,7 @@ const CreateAgistment: React.FC = () => {
       listingType: 'STANDARD' as ListingType,
       location: {
         address: profile?.address || '',
-        postCode: profile?.postcode || '',
+        postcode: profile?.postcode || '',
         region: profile?.region || '',
         state: profile?.state || '',
         suburb: profile?.suburb || '',
@@ -142,7 +142,7 @@ const CreateAgistment: React.FC = () => {
         },
         location: {
           address: profile?.address || result.location.address,
-          postCode: profile?.postcode || result.location.postCode,
+          postcode: profile?.postcode || result.location.postcode,
           region: profile?.region || result.location.region,
           state: profile?.state || result.location.state,
           suburb: profile?.suburb || result.location.suburb,
@@ -221,7 +221,7 @@ const CreateAgistment: React.FC = () => {
       location: {
         address: profile?.address || '',
         hidden: false,
-        postCode: profile?.postcode || '',
+        postcode: profile?.postcode || '',
         region: profile?.region || '',
         state: profile?.state || '',
         suburb: profile?.suburb || ''

@@ -19,7 +19,7 @@ import {
   FavouriteIcon,
   EditIcon
 } from '../components/Icons';
-import { useUser } from '@clerk/clerk-react';
+import { useProfile } from '../context/ProfileContext';
 import { useAgistmentStore } from '../stores/agistment.store';
 import { Dialog } from '@headlessui/react';
 import toast from 'react-hot-toast';
@@ -35,7 +35,7 @@ import '../styles/gallery.css';
 export function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isSignedIn } = useUser();
+  const { profile, updateProfileData } = useProfile();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -241,8 +241,16 @@ export function EditAgistmentDetail() {
       // Update localStorage
       updateLocalStorageAgistment(updatedAgistment);
 
-      // If this was a temp agistment, remove it from the store
+      // If this was a temp agistment, add it to profile's myAgistments and remove from temp store
       if (agistment.id.startsWith('temp_')) {
+        // Add to profile's myAgistments
+        if (profile && !profile.myAgistments?.includes(updatedAgistment.id)) {
+          // Update the profile's myAgistments array
+          const updatedMyAgistments = [...(profile.myAgistments || []), updatedAgistment.id];
+          await updateProfileData({ ...profile, myAgistments: updatedMyAgistments });
+        }
+
+        // Remove from temp store
         const removeTempAgistment = useAgistmentStore.getState().removeTempAgistment;
         removeTempAgistment(agistment.id);
       }
@@ -261,12 +269,41 @@ export function EditAgistmentDetail() {
 
   return (
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
+      <PageToolbar 
+        actions={
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center">
+                <button
+                  disabled
+                  className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 py-2 rounded-lg text-neutral-400 dark:text-neutral-600 cursor-not-allowed"
+                >
+                  <ArrowLeftIcon className="w-3 h-3" />
+                  <span className="font-medium text-sm sm:text-base">Back</span>
+                </button>
+                <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
+                <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
+                  {agistment?.location && (
+                    <>
+                      <span>{agistment.location.state}</span>
+                      <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                      <span>{agistment.location.region}</span>
+                      <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                      <span>{agistment.location.suburb}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      />
+
       {/* Edit/Create Mode Banner */}
-      <div className="sticky top-0 z-50 w-full bg-primary-600 dark:bg-primary-800 py-3 shadow-md">
+      <div className="sticky top-14 z-30 w-full bg-primary-600 dark:bg-primary-800 py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-center">
-              <EditIcon className="w-6 h-6 text-white mr-2" />
               <h1 className="text-lg font-medium text-white">
                 {id?.startsWith('temp_') ? 'Creating' : 'Editing'}
               </h1>
@@ -290,32 +327,6 @@ export function EditAgistmentDetail() {
         </div>
       </div>
 
-      <PageToolbar 
-        actions={
-          <div className="w-full overflow-hidden">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
-                >
-                  <ArrowLeftIcon className="w-3 h-3" />
-                  <span className="font-medium text-sm sm:text-base">Back</span>
-                </button>
-                <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
-                <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
-                  <span>{agistment.location.state}</span>
-                  <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                  <span>{agistment.location.region}</span>
-                  <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                  <span>{agistment.location.suburb}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-      />
-      
       <div className="w-full">
         {/* Photo Gallery and Location Details Section */}
         <div className="w-full bg-neutral-100 dark:bg-neutral-800">
@@ -377,15 +388,13 @@ export function EditAgistmentDetail() {
                     <ShareIcon className="w-5 h-5" />
                     <span className="text-sm">Share</span>
                   </div>
-                  {isSignedIn && (
-                    <div 
-                      className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400"
-                      title="Not available while editing"
-                    >
-                      <FavouriteIcon className="w-5 h-5" />
-                      <span className="text-sm">Favorite</span>
-                    </div>
-                  )}
+                  <div 
+                    className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400"
+                    title="Not available while editing"
+                  >
+                    <FavouriteIcon className="w-5 h-5" />
+                    <span className="text-sm">Favorite</span>
+                  </div>
                 </div>
 
                 {/* Agistment Name */}
@@ -396,7 +405,7 @@ export function EditAgistmentDetail() {
                         {agistment.name}
                       </h2>
                       <p className="text-neutral-900 dark:text-neutral-400 mt-1">
-                        {agistment.propertySize && agistment.propertySize > 0 ? `${agistment.propertySize} hectares` : 'Property size not specified'}
+                        {agistment.propertySize && agistment.propertySize > 0 ? `${agistment.propertySize} acres` : 'Property size not specified'}
                       </p>
                     </div>
                     <button 
@@ -429,7 +438,7 @@ export function EditAgistmentDetail() {
                           {agistment.location.address}
                         </p>
                         <p className="text-neutral-700 dark:text-neutral-400">
-                          {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
+                          {agistment.location.suburb}, {agistment.location.state} {agistment.location.postcode}
                         </p>
                       </div>
                     </div>
@@ -482,7 +491,7 @@ export function EditAgistmentDetail() {
           </div>
         </div>
 
-        <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
+        <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
           {/* Description Section */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
             <div className="flex items-center gap-2 mb-4">
@@ -1056,7 +1065,7 @@ export function EditAgistmentDetail() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Property Size (hectares)
+                    Property Size (acres)
                   </label>
                   <input
                     type="number"

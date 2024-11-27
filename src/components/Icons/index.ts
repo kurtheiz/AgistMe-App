@@ -25,10 +25,13 @@ export * from './MapPinIcon';
 export * from './ArrowLeftIcon';
 export * from './RefreshIcon';
 export * from './CrossIcon';
-export * from './FavouriteIcon.tsx';
-export * from './EditIcon';
+export { default as FavouriteIcon } from './FavouriteIcon';
+export { default as ShareIcon } from './ShareIcon';
 
 export { SearchIcon } from './SearchIcon';
 export { FilterIcon } from './FilterIcon';
 export * from './EmailIcon';
 export * from './PhoneIcon';
+export * from './HideIcon';
+export { default as EditIcon } from './EditIcon';
+export * from './DeleteIcon';

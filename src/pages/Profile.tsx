@@ -67,8 +67,10 @@ export default function Profile() {
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Profile</h1>
-          <ThemeToggle />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">My Profile</h1>
+          <div className="flex items-center">
+            <ThemeToggle />
+          </div>
         </div>
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
@@ -141,9 +143,9 @@ export default function Profile() {
           {/* Sign Out Button */}
           <button
             onClick={handleSignOut}
-            className="w-full sm:w-auto sm:mx-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 rounded-lg shadow-sm hover:shadow-md transition-all"
+            className="w-full sm:w-auto sm:mx-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:py-3 text-base sm:text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 rounded-lg shadow-sm hover:shadow-md transition-all"
           >
-            <LogoutIcon className="h-4 w-4" />
+            <LogoutIcon className="h-5 w-5 sm:h-4 sm:w-4" />
             Sign Out
           </button>
         </div>

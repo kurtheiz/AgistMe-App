@@ -35,7 +35,7 @@ export const Header = () => {
 
   return (
     <header className={`bg-white dark:bg-neutral-900 w-full ${location.pathname !== '/' && 'border-b border-neutral-200 dark:border-neutral-800'}`}>
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-1 relative">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-1 relative">
         <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Left side */}
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -51,7 +51,7 @@ export const Header = () => {
                 to={agistmentsPath}
                 className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
               >
-                Search Agistments
+                Agistments
               </Link>
               <Link to="/listagistment" className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">List Agistment</Link>
             </nav>

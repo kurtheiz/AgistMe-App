@@ -6,13 +6,13 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="flex items-center justify-center"
+      className="flex items-center justify-center -mt-1"
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
       {theme === 'light' ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-8 w-8 text-gray-800 dark:text-white"
+          className="h-6 w-6 text-gray-800 dark:text-white"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -27,7 +27,7 @@ export function ThemeToggle() {
       ) : (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-8 w-8 text-gray-800 dark:text-white"
+          className="h-6 w-6 text-gray-800 dark:text-white"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

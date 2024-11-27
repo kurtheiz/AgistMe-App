@@ -26,7 +26,7 @@ export interface ContactDetails {
 export interface Location {
   address: string;
   hidden: boolean;
-  postCode: string;
+  postcode: string;
   region: string;
   state: string;
   suburb: string;
@@ -100,4 +100,5 @@ export interface Agistment {
   tieUp: Facility;
   urgentAvailability: boolean;
   propertySize: number;
+  paddockTypes?: string[];
 }
