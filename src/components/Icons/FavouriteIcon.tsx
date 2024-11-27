@@ -1,10 +1,8 @@
-import React from 'react';
-
 interface Props {
   className?: string;
 }
 
-export default function FavouriteIcon({ className = 'w-6 h-6' }: Props) {
+const FavouriteIcon = ({ className = 'w-6 h-6' }: Props) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -18,3 +16,5 @@ export default function FavouriteIcon({ className = 'w-6 h-6' }: Props) {
     </svg>
   );
 }
+
+export default FavouriteIcon;

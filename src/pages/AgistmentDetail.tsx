@@ -21,8 +21,8 @@ import {
   ShareIcon
 } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
-import ImageGallery from 'react-image-gallery';
-import "react-image-gallery/styles/css/image-gallery.css";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 import '../styles/gallery.css';
 import toast from 'react-hot-toast';
 import { useProfile } from '../context/ProfileContext';
@@ -36,6 +36,8 @@ export function AgistmentDetail() {
   const [error, setError] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const mountedRef = useRef(true);
 
@@ -104,11 +106,8 @@ export function AgistmentDetail() {
   useEffect(() => {
     if (agistment?.photos) {
       const images = agistment.photos.map(photo => ({
-        original: photo.link,
-        thumbnail: photo.link,
-        description: photo.comment || '',
-        thumbnailHeight: "100",
-        thumbnailWidth: "150",
+        src: photo.link,
+        alt: photo.comment || '',
       }));
       setGalleryImages(images);
     }
@@ -131,25 +130,9 @@ export function AgistmentDetail() {
     navigate(-1);
   };
 
-  const imageGalleryProps = {
-    items: galleryImages,
-    thumbnailPosition: "bottom" as const,
-    showThumbnails: true,
-    showPlayButton: false,
-    showBullets: true,
-    showFullscreenButton: true,
-    useBrowserFullscreen: true,
-    onScreenChange: () => {}, // Empty callback to satisfy TypeScript
-    additionalClass: "image-gallery-custom",
-    renderItem: (item: any) => (
-      <div className="image-gallery-image-container">
-        <img 
-          src={item.original} 
-          alt={item.description || 'Agistment Image'} 
-          className="image-gallery-image"
-        />
-      </div>
-    )
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsLightboxOpen(true);
   };
 
   if (error || !agistment) {
@@ -158,27 +141,21 @@ export function AgistmentDetail() {
         <h1 className="text-2xl font-medium text-neutral-900 dark:text-white mb-4">
           Oops! Something went wrong
         </h1>
-        <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-          {error || 'The agistment could not be found. It may have been deleted or is still being processed.'}
+        <p className="text-neutral-600 dark:text-neutral-400 mb-8">
+          {error || 'Failed to load agistment details'}
         </p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={handleBackClick}
           className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors mb-4"
         >
-          Try Again
-        </button>
-        <button
-          onClick={() => navigate('/')}
-          className="text-primary-600 hover:underline"
-        >
-          Go back home
+          Go Back
         </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
+    <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900" style={{ paddingRight: 'var(--removed-body-scroll-bar-size, 0px)' }}>
       <PageToolbar 
         actions={
           <div className="w-full">
@@ -217,7 +194,36 @@ export function AgistmentDetail() {
               {/* Photo Gallery - 66% width on desktop */}
               <div className="w-full lg:w-2/3 px-4">
                 {galleryImages.length > 0 ? (
-                  <ImageGallery {...imageGalleryProps} />
+                  <div className="relative">
+                    <div
+                      className="relative cursor-pointer overflow-hidden rounded-lg aspect-[16/9]"
+                      onClick={() => handleImageClick(0)}
+                    >
+                      <img
+                        src={galleryImages[0].src}
+                        alt={galleryImages[0].alt}
+                        className="w-full h-full object-cover hover:opacity-90 transition-opacity"
+                      />
+                      {galleryImages.length > 1 && (
+                        <button
+                          className="absolute bottom-4 right-4 px-3 py-2 bg-black/70 text-white rounded-md text-sm font-medium hover:bg-black/80 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsLightboxOpen(true);
+                          }}
+                        >
+                          View all {galleryImages.length} photos
+                        </button>
+                      )}
+                    </div>
+                    <Lightbox
+                      open={isLightboxOpen}
+                      close={() => setIsLightboxOpen(false)}
+                      index={currentImageIndex}
+                      slides={galleryImages}
+                      noScroll={{ disabled: true }}
+                    />
+                  </div>
                 ) : (
                   <div className="relative w-full aspect-[16/9] bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
                     <div className="text-neutral-500 dark:text-neutral-400 flex flex-col items-center">

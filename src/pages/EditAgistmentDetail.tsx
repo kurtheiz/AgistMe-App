@@ -26,8 +26,7 @@ import toast from 'react-hot-toast';
 import { LAST_SEARCH_KEY } from '../constants/storage';
 import { ShareIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
-import ImageGallery from 'react-image-gallery';
-import "react-image-gallery/styles/css/image-gallery.css";
+import ImageUploading, { ImageListType } from 'react-images-uploading';
 import '../styles/gallery.css';
 
 // Use the same key as in Agistments.tsx
@@ -39,8 +38,7 @@ export function EditAgistmentDetail() {
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
-  const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [images, setImages] = useState<ImageListType>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
@@ -52,6 +50,7 @@ export function EditAgistmentDetail() {
   });
   const [nameError, setNameError] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+  const maxNumber = 10;
 
   const updateLocalStorageAgistment = (updatedAgistment: Agistment) => {
     console.log('Starting localStorage update for agistment:', updatedAgistment.id);
@@ -122,33 +121,6 @@ export function EditAgistmentDetail() {
   }, []);
 
   useEffect(() => {
-    const preventScroll = (e: Event) => {
-      if (isGalleryExpanded) {
-        e.preventDefault();
-      }
-    };
-
-    if (isGalleryExpanded) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-      document.addEventListener('wheel', preventScroll, { passive: false });
-      document.addEventListener('touchmove', preventScroll, { passive: false });
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.removeEventListener('wheel', preventScroll);
-      document.removeEventListener('touchmove', preventScroll);
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.removeEventListener('wheel', preventScroll);
-      document.removeEventListener('touchmove', preventScroll);
-    };
-  }, [isGalleryExpanded]);
-
-  useEffect(() => {
     const loadAgistment = async () => {
       if (!id) return;
 
@@ -184,24 +156,25 @@ export function EditAgistmentDetail() {
 
   useEffect(() => {
     if (agistment?.photos) {
-      const images = agistment.photos.map(photo => ({
-        original: photo.link,
-        thumbnail: photo.link,
-        description: photo.comment || '',
-        thumbnailHeight: "100",
-        thumbnailWidth: "150",
+      const existingImages: ImageListType = agistment.photos.map((photo) => ({
+        dataURL: photo.link || photo.toString(),
+        file: undefined
       }));
-      setGalleryImages(images);
+      setImages(existingImages);
     }
   }, [agistment?.photos]);
 
-  // Check if description needs read more button
   useEffect(() => {
     if (descriptionRef.current) {
       const isOverflowing = descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight;
       setShouldShowReadMore(isOverflowing);
     }
   }, [agistment?.description]);
+
+  const onChange = (imageList: ImageListType) => {
+    setImages(imageList);
+    // TODO: Handle image upload to your server here
+  };
 
   if (loading) {
     return (
@@ -334,47 +307,67 @@ export function EditAgistmentDetail() {
             <div className="flex flex-col lg:flex-row">
               {/* Photo Gallery - 66% width on desktop */}
               <div className="w-full lg:w-2/3 px-4">
-                {galleryImages.length > 0 ? (
-                  <div 
-                    className={`relative w-full ${
-                      isGalleryExpanded ? 'fixed inset-0 z-[9999] h-screen w-screen bg-black/95 overflow-hidden' : ''
-                    }`}
-                    onClick={(e) => isGalleryExpanded && e.stopPropagation()}
-                  >
-                    <ImageGallery
-                      items={galleryImages}
-                      thumbnailPosition="bottom"
-                      showThumbnails={false}
-                      showPlayButton={false}
-                      showBullets={true}
-                      showFullscreenButton={true}
-                      useBrowserFullscreen={false}
-                      onScreenChange={setIsGalleryExpanded}
-                      additionalClass={isGalleryExpanded ? 'fullscreen-gallery' : ''}
-                      renderItem={(item: { original: string; description?: string }) => (
-                        <div className='image-gallery-image'>
-                          <img
-                            src={item.original}
-                            alt={item.description || ''}
-                            className="gallery-image"
-                          />
-                          {item.description && (
-                            <span className='image-gallery-description text-neutral-900 dark:text-white'>
-                              {item.description}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    />
-                  </div>
-                ) : (
-                  <div className="relative w-full aspect-[16/9] bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-                    <div className="text-neutral-500 dark:text-neutral-400 flex flex-col items-center">
-                      <PhotoIcon className="w-12 h-12 mb-2" />
-                      <span className="text-sm">No photos available</span>
+                <ImageUploading
+                  multiple
+                  value={images}
+                  onChange={onChange}
+                  maxNumber={maxNumber}
+                >
+                  {({
+                    imageList,
+                    onImageUpload,
+                    onImageRemoveAll,
+                    onImageUpdate,
+                    onImageRemove,
+                  }) => (
+                    <div className="upload__image-wrapper">
+                      <div className="flex justify-between items-center mb-4">
+                        <button
+                          onClick={onImageUpload}
+                          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
+                        >
+                          <PhotoIcon className="w-5 h-5" />
+                          Upload Images
+                        </button>
+                        
+                        {imageList.length > 0 && (
+                          <button
+                            onClick={onImageRemoveAll}
+                            className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          >
+                            Remove all images
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {imageList.map((image, index) => (
+                          <div key={index} className="relative aspect-[4/3]">
+                            <img
+                              src={image.dataURL}
+                              alt={`Upload ${index + 1}`}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                            <div className="absolute top-2 right-2 flex gap-2">
+                              <button
+                                onClick={() => onImageUpdate(index)}
+                                className="p-1.5 bg-white rounded-full shadow-lg hover:bg-neutral-50 transition-colors"
+                              >
+                                <EditIcon className="w-4 h-4 text-neutral-600" />
+                              </button>
+                              <button
+                                onClick={() => onImageRemove(index)}
+                                className="p-1.5 bg-white rounded-full shadow-lg hover:bg-neutral-50 transition-colors"
+                              >
+                                <span className="w-4 h-4 text-red-600">×</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </ImageUploading>
               </div>
 
               {/* Location and Contact Details - 33% width on desktop */}

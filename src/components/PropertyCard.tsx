@@ -19,7 +19,6 @@ import {
 } from './Icons';
 import { Agistment } from '../types/agistment';
 import { useUser } from '@clerk/clerk-react';
-import { useProfile } from '../context/ProfileContext';
 import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
 
@@ -31,16 +30,13 @@ interface PropertyCardProps {
 export default function PropertyCard({ agistment, onClick }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
-  const { profile } = useProfile();
-  const _unusedProfile = profile; // Suppress unused variable warning
 
   const formatDate = (date?: string) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    const _unusedE = e; // Suppress unused variable warning
+  const handleClick = (_: React.MouseEvent) => {
     if (onClick) {
       onClick();
     } else {
@@ -48,8 +44,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
     }
   };
 
-  const handleShare = async (e: React.MouseEvent) => {
-    const _unusedE = e; // Suppress unused variable warning
+  const handleShare = async (_: React.MouseEvent) => {
     const shareUrl = `${window.location.origin}/agistments/${agistment.id}`;
     try {
       if (navigator.share) {
@@ -62,8 +57,8 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         await navigator.clipboard.writeText(shareUrl);
         toast.success('Link copied to clipboard');
       }
-    } catch (error) {
-      console.error('Error sharing:', error);
+    } catch (_) {
+      console.error('Error sharing:');
       toast.error('Failed to share');
     }
   };
