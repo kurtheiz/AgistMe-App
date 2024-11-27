@@ -242,12 +242,14 @@ export function EditAgistmentDetail() {
       // Update localStorage
       updateLocalStorageAgistment(updatedAgistment);
 
-      // Get the search hash if it exists
-      const searchHash = searchParams.get('q');
-      const searchQuery = searchHash ? `?q=${searchHash}` : '';
+      // If this was a temp agistment, remove it from the store
+      if (agistment.id.startsWith('temp_')) {
+        const removeTempAgistment = useAgistmentStore.getState().removeTempAgistment;
+        removeTempAgistment(agistment.id);
+      }
 
-      // Navigate back to the detail page with the search hash if it exists
-      navigate(`/agistments/${agistment.id}${searchQuery}`);
+      // Navigate to my agistments page
+      navigate('/agistments/my');
       
       toast.success('Agistment published successfully!');
     } catch (error) {

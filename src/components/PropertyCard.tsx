@@ -104,13 +104,13 @@ export function PropertyCard({ property, onClick, isAdmin = false, handleFavorit
               </div>
             )}
             {isMyAgistment && (
-              <div className="absolute top-2 right-2 z-10">
+              <div className="absolute top-2 right-2 z-10 flex items-center">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/agistments/${property.id}/edit`);
                   }}
-                  className="p-1.5 rounded-full bg-white/90 dark:bg-neutral-800/90 text-primary-600 dark:text-primary-400 hover:bg-white dark:hover:bg-neutral-800 transition-colors shadow-sm"
+                  className="p-1.5 text-neutral-100 dark:text-neutral-200 hover:text-white/80 dark:hover:text-neutral-700 transition-colors"
                   title="Edit agistment"
                 >
                   <EditIcon className="w-5 h-5" />
@@ -118,7 +118,7 @@ export function PropertyCard({ property, onClick, isAdmin = false, handleFavorit
               </div>
             )}
           </div>
-          <h2 className="title-text truncate px-2">{property.name}</h2>
+          <h2 className="title-text dark:text-neutral-200 truncate px-2">{property.name}</h2>
         </div>
 
         {/* Photo */}

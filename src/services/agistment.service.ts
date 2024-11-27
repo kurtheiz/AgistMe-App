@@ -65,7 +65,7 @@ class AgistmentService {
 
   async getMyAgistments(): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.get<AgistmentResponse>('/v1/protected/agistments/me');
+      const response = await this.api.get<AgistmentResponse>('/v1/protected/agistments/my');
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get my agistments:', error);
