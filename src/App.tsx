@@ -33,7 +33,7 @@ const router = createBrowserRouter(
       <Route path="/agistments/search" element={<Agistments />} />
       <Route path="/agistments/create" element={<CreateAgistment />} />
       <Route path="/agistments/:id/edit" element={<EditAgistmentDetail />} />
-      <Route path="/agistment/:id" element={<AgistmentDetail />} />
+      <Route path="/agistments/:id" element={<AgistmentDetail />} />
       <Route path="/listagistment" element={<ListAgistment />} />
       <Route 
         path="/profile"

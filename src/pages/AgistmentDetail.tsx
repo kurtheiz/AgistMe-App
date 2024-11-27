@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { formatAvailabilityDate } from '../utils/dates';
@@ -8,7 +8,6 @@ import { getGoogleMapsUrl } from '../utils/location';
 import { 
   PhotoIcon,
   ArrowLeftIcon,
-  CheckIcon,
   EmailIcon,
   PhoneIcon,
   UserIcon,
@@ -29,12 +28,12 @@ import '../styles/gallery.css';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { useProfile } from '../context/ProfileContext';
-
-const LAST_SEARCH_KEY = 'agistme_last_search';
+import { LAST_SEARCH_KEY } from '../constants/storage';
 
 export function AgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isSignedIn } = useUser();
   const { profile } = useProfile();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
@@ -45,42 +44,34 @@ export function AgistmentDetail() {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
+  const mountedRef = useRef(true);
 
-  // Scroll to top when component mounts
+  // Cleanup on unmount
   useEffect(() => {
-    window.scrollTo(0, 0);
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
+  // Add error boundary
   useEffect(() => {
-    const preventScroll = (e: Event) => {
-      if (isGalleryExpanded) {
-        e.preventDefault();
+    const handleError = (error: ErrorEvent) => {
+      console.error('Caught in error boundary:', error);
+      if (mountedRef.current) {
+        setError(error.message || 'An unexpected error occurred');
+        setLoading(false);
+        toast.error(error.message || 'An unexpected error occurred');
       }
     };
 
-    if (isGalleryExpanded) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-      document.addEventListener('wheel', preventScroll, { passive: false });
-      document.addEventListener('touchmove', preventScroll, { passive: false });
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.removeEventListener('wheel', preventScroll);
-      document.removeEventListener('touchmove', preventScroll);
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.removeEventListener('wheel', preventScroll);
-      document.removeEventListener('touchmove', preventScroll);
-    };
-  }, [isGalleryExpanded]);
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
 
   useEffect(() => {
     const loadAgistment = async () => {
       if (!id) {
+        console.log('No agistment ID provided');
         setError('No agistment ID provided');
         setLoading(false);
         return;
@@ -155,13 +146,22 @@ export function AgistmentDetail() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
         <h1 className="text-2xl font-medium text-neutral-900 dark:text-white mb-4">
-          {error || 'Agistment not found'}
+          Oops! Something went wrong
         </h1>
+        <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+          {error || 'The agistment could not be found. It may have been deleted or is still being processed.'}
+        </p>
         <button
-          onClick={() => navigate('/agistments')}
-          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors mb-4"
         >
-          Back to Agistments
+          Try Again
+        </button>
+        <button
+          onClick={() => navigate('/')}
+          className="text-primary-600 hover:underline"
+        >
+          Go back home
         </button>
       </div>
     );
@@ -174,7 +174,14 @@ export function AgistmentDetail() {
           <div className="w-full overflow-hidden">
             <div className="flex items-center">
               <button
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  const searchHash = searchParams.get('q');
+                  if (searchHash) {
+                    navigate(`/agistments/search?q=${searchHash}`);
+                  } else {
+                    navigate(-1);
+                  }
+                }}
                 className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
               >
                 <ArrowLeftIcon className="w-3 h-3" />
@@ -182,21 +189,25 @@ export function AgistmentDetail() {
               </button>
               <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
               <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
-                <span>{agistment.location.state}</span>
-                <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                <span>{agistment.location.region}</span>
-                <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                <span>{agistment.location.suburb}</span>
+                {agistment?.location && (
+                  <>
+                    <span>{agistment.location.state}</span>
+                    <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                    <span>{agistment.location.region}</span>
+                    <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                    <span>{agistment.location.suburb}</span>
+                  </>
+                )}
               </div>
-              {profile?.myAgistments?.includes(agistment.id) && (
+              {agistment && profile?.myAgistments?.includes(agistment.id) && (
                 <>
                   <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
                   <button
                     onClick={() => navigate(`/agistments/${agistment.id}/edit`)}
-                    className="flex items-center gap-1 sm:gap-2 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                    className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                    aria-label="Edit agistment"
                   >
-                    <EditIcon className="w-4 h-4" />
-                    <span className="font-medium">Edit</span>
+                    <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                   </button>
                 </>
               )}
@@ -267,7 +278,7 @@ export function AgistmentDetail() {
                         if (navigator.share) {
                           await navigator.share({
                             title: `${agistment.location.suburb} Agistment on AgistMe`,
-                            text: `Check out this agistment in ${agistment.location.suburb}, ${agistment.location.state}`,
+                            text: `Check out this agistment ${agistment.name} in ${agistment.location.suburb}, ${agistment.location.region}, ${agistment.location.state}`,
                             url: shareUrl
                           });
                         } else {
@@ -297,33 +308,38 @@ export function AgistmentDetail() {
                 {/* Agistment Name */}
                 <div className="mb-6">
                   <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                    {agistment.name}
+                    {agistment?.name}
                   </h2>
+                  <p className="text-neutral-900 dark:text-neutral-400 mt-1">
+                    {agistment?.propertySize && agistment.propertySize > 0 ? `${agistment.propertySize} hectares` : 'Property size not specified'}
+                  </p>
                 </div>
 
                 {/* Location Details */}
                 <div className="space-y-6">
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
-                      <a 
-                        href={getGoogleMapsUrl(agistment.location)} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="group"
-                      >
-                        <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                          {agistment.location.address}
-                        </h3>
-                        <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                          {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
-                        </p>
-                      </a>
+                      {agistment?.location && (
+                        <a 
+                          href={getGoogleMapsUrl(agistment.location)} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="group"
+                        >
+                          <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                            {agistment.location.address}
+                          </h3>
+                          <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                            {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
+                          </p>
+                        </a>
+                      )}
                     </div>
                   </div>
 
                   {/* Contact Details */}
                   <div className="space-y-3">
-                    {agistment.contactDetails.name && (
+                    {agistment?.contactDetails?.name && (
                       <div className="flex items-center gap-2">
                         <UserIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                         <span className="text-neutral-900 dark:text-white font-medium">
@@ -331,7 +347,7 @@ export function AgistmentDetail() {
                         </span>
                       </div>
                     )}
-                    {agistment.contactDetails.number && (
+                    {agistment?.contactDetails?.number && (
                       <div className="flex items-center gap-2">
                         <PhoneIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                         <a
@@ -342,7 +358,7 @@ export function AgistmentDetail() {
                         </a>
                       </div>
                     )}
-                    {agistment.contactDetails.email && (
+                    {agistment?.contactDetails?.email && (
                       <div className="flex items-center gap-2">
                         <EmailIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
                         <a
@@ -358,7 +374,7 @@ export function AgistmentDetail() {
                   {/* Enquire Now Button */}
                   <button
                     onClick={() => {
-                      if (agistment.contactDetails.email) {
+                      if (agistment?.contactDetails?.email) {
                         window.location.href = `mailto:${agistment.contactDetails.email}?subject=Enquiry about ${agistment.name}&body=Hi ${agistment.contactDetails.name || ''},\n\nI am interested in your agistment property at ${agistment.location.suburb}.`;
                       }
                     }}
@@ -381,7 +397,7 @@ export function AgistmentDetail() {
                 ref={descriptionRef}
                 className={`text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap ${!isDescriptionExpanded ? 'line-clamp-4 max-h-24' : ''}`}
               >
-                {agistment.description}
+                {agistment?.description}
               </p>
               {shouldShowReadMore && (
                 <button
@@ -404,7 +420,7 @@ export function AgistmentDetail() {
                   Private
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.privatePaddocks.total > 0 ? (
+                  {agistment?.privatePaddocks?.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
@@ -450,7 +466,7 @@ export function AgistmentDetail() {
                   Shared
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.sharedPaddocks.total > 0 ? (
+                  {agistment?.sharedPaddocks?.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
@@ -496,7 +512,7 @@ export function AgistmentDetail() {
                   Group
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.groupPaddocks.total > 0 ? (
+                  {agistment?.groupPaddocks?.total > 0 ? (
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
@@ -548,7 +564,7 @@ export function AgistmentDetail() {
                   Arenas
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.arenas && agistment.arenas.length > 0 ? (
+                  {agistment?.arenas && agistment.arenas.length > 0 ? (
                     <div className="w-full">
                       {agistment.arenas.map((arena, index) => (
                         <div key={index} className="flex flex-col w-full py-2 border-b last:border-0 border-neutral-200 dark:border-neutral-600">
@@ -595,7 +611,7 @@ export function AgistmentDetail() {
                   Round Yards
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  {agistment.roundYards && agistment.roundYards.length > 0 ? (
+                  {agistment?.roundYards && agistment.roundYards.length > 0 ? (
                     <div className="w-full">
                       {agistment.roundYards.map((yard, index) => (
                         <div key={index} className="flex flex-col w-full py-2 border-b last:border-0 border-neutral-200 dark:border-neutral-600">
@@ -632,11 +648,11 @@ export function AgistmentDetail() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               {/* Feed Room */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.feedRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.feedRoom?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <FeedRoomIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Feed Room</span>
-                {agistment.feedRoom.comments && (
+                {agistment?.feedRoom?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
                     {agistment.feedRoom.comments}
                   </p>
@@ -645,11 +661,11 @@ export function AgistmentDetail() {
 
               {/* Float Parking */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.floatParking.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.floatParking?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <FloatParkingIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Float Parking</span>
-                {agistment.floatParking.available && (
+                {agistment?.floatParking?.available && (
                   <>
                     {agistment.floatParking.monthlyPrice && (
                       <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
@@ -667,11 +683,11 @@ export function AgistmentDetail() {
 
               {/* Hot Wash */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.hotWash.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.hotWash?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <HotWashIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Hot Wash</span>
-                {agistment.hotWash.comments && (
+                {agistment?.hotWash?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
                     {agistment.hotWash.comments}
                   </p>
@@ -680,11 +696,11 @@ export function AgistmentDetail() {
 
               {/* Stables */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.stables.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.stables?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <StableIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Stables</span>
-                {agistment.stables.comments && (
+                {agistment?.stables?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
                     {agistment.stables.comments}
                   </p>
@@ -693,11 +709,11 @@ export function AgistmentDetail() {
 
               {/* Tack Room */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.tackRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.tackRoom?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <TackRoomIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Tack Room</span>
-                {agistment.tackRoom.comments && (
+                {agistment?.tackRoom?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
                     {agistment.tackRoom.comments}
                   </p>
@@ -706,11 +722,11 @@ export function AgistmentDetail() {
 
               {/* Tie Up */}
               <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 mb-2 ${agistment.tieUp.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
+                <div className={`w-12 h-12 mb-2 ${agistment?.tieUp?.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
                   <TieUpIcon className="w-full h-full" />
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">Tie Up</span>
-                {agistment.tieUp.comments && (
+                {agistment?.tieUp?.comments && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
                     {agistment.tieUp.comments}
                   </p>
@@ -730,13 +746,13 @@ export function AgistmentDetail() {
                 </span>
                 <div className="flex flex-col items-center pt-2">
                   <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.fullCare.available 
+                    agistment?.fullCare?.available 
                       ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                       : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
                   }`}>
-                    {agistment.fullCare.available ? 'Available' : 'Unavailable'}
+                    {agistment?.fullCare?.available ? 'Available' : 'Unavailable'}
                   </span>
-                  {agistment.fullCare.available && (
+                  {agistment?.fullCare?.available && (
                     <>
                       <p className="text-base font-bold text-neutral-900 dark:text-white">
                         ${agistment.fullCare.monthlyPrice}
@@ -757,13 +773,13 @@ export function AgistmentDetail() {
                 </span>
                 <div className="flex flex-col items-center pt-2">
                   <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.partCare.available 
+                    agistment?.partCare?.available 
                       ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                       : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
                   }`}>
-                    {agistment.partCare.available ? 'Available' : 'Unavailable'}
+                    {agistment?.partCare?.available ? 'Available' : 'Unavailable'}
                   </span>
-                  {agistment.partCare.available && (
+                  {agistment?.partCare?.available && (
                     <>
                       <p className="text-base font-bold text-neutral-900 dark:text-white">
                         ${agistment.partCare.monthlyPrice}
@@ -784,13 +800,13 @@ export function AgistmentDetail() {
                 </span>
                 <div className="flex flex-col items-center pt-2">
                   <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.selfCare.available 
+                    agistment?.selfCare?.available 
                       ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                       : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
                   }`}>
-                    {agistment.selfCare.available ? 'Available' : 'Unavailable'}
+                    {agistment?.selfCare?.available ? 'Available' : 'Unavailable'}
                   </span>
-                  {agistment.selfCare.available && (
+                  {agistment?.selfCare?.available && (
                     <>
                       <p className="text-base font-bold text-neutral-900 dark:text-white">
                         ${agistment.selfCare.monthlyPrice}
@@ -807,42 +823,54 @@ export function AgistmentDetail() {
           </div>
 
           {/* Services */}
-          {agistment.services && agistment.services.length > 0 && (
-            <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-              <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Additional Services</h2>
+          <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Services</h2>
+            {agistment?.services && agistment.services.length > 0 ? (
               <div className="flex flex-wrap gap-3">
                 {agistment.services.map((service, index) => (
                   <div 
                     key={index} 
                     className="flex items-center gap-2 bg-neutral-50 dark:bg-neutral-800 px-4 py-2 rounded-lg"
                   >
-                    <CheckIcon className="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0" />
-                    <span className="text-neutral-700 dark:text-neutral-300">{service}</span>
+                    <span className="text-neutral-900 dark:text-white">{service}</span>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-neutral-600 dark:text-neutral-400">No extra services</p>
+            )}
+          </div>
 
           {/* Social Media */}
-          {agistment.socialMedia && agistment.socialMedia.length > 0 && (
-            <div className="bg-white dark:bg-transparent p-6">
-              <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Social Media & Links</h2>
-              <div className="flex flex-wrap gap-4">
+          <div className="bg-white dark:bg-transparent p-6">
+            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Social Media & Links</h2>
+            {agistment?.socialMedia && agistment.socialMedia.length > 0 ? (
+              <div className="flex flex-wrap gap-3">
                 {agistment.socialMedia.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors"
-                  >
-                    {social.type === 'INSTA' ? 'Instagram' : social.type === 'FB' ? 'Facebook' : 'Website'}
-                  </a>
+                  social.link ? (
+                    <a
+                      key={index}
+                      href={social.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-50 dark:bg-neutral-800 rounded-lg text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                    >
+                      {social.type === 'INSTA' ? 'Instagram' : social.type === 'FB' ? 'Facebook' : 'Website'}
+                    </a>
+                  ) : (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-50 dark:bg-neutral-800 rounded-lg text-neutral-500 dark:text-neutral-400"
+                    >
+                      {social.type === 'INSTA' ? 'Instagram' : social.type === 'FB' ? 'Facebook' : 'Website'}
+                    </span>
+                  )
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-neutral-600 dark:text-neutral-400">No social media links</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

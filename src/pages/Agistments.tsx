@@ -315,7 +315,7 @@ export function Agistments() {
                   <PropertyCard
                     key={agistment.id}
                     property={agistment}
-                    onClick={() => navigate(`/agistment/${agistment.id}`)}
+                    onClick={() => navigate(`/agistments/${agistment.id}`)}
                   />
                 ))}
               </div>
@@ -334,7 +334,7 @@ export function Agistments() {
                   <PropertyCard
                     key={agistment.id}
                     property={agistment}
-                    onClick={() => navigate(`/agistment/${agistment.id}`)}
+                    onClick={() => navigate(`/agistments/${agistment.id}`)}
                   />
                 ))}
               </div>

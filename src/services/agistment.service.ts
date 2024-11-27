@@ -30,16 +30,6 @@ class AgistmentService {
     }
   }
 
-  async createAgistment(agistment: Partial<Agistment>): Promise<Agistment> {
-    try {
-      const response = await this.api.post<Agistment>('/v1/protected/agistments/create', agistment);
-      return response.data;
-    } catch (error: unknown) {
-      console.error('Failed to create agistment:', error);
-      throw error;
-    }
-  }
-
   async updateAgistment(id: string, agistment: Partial<Agistment>): Promise<Agistment> {
     try {
       const response = await this.api.put<Agistment>(`/v1/protected/agistments/${id}`, agistment);

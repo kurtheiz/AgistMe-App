@@ -1,0 +1,1 @@
+export const LAST_SEARCH_KEY = 'agistme_last_search';

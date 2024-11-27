@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { formatAvailabilityDate } from '../utils/dates';
@@ -26,10 +26,16 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import '../styles/gallery.css';
 import { useUser } from '@clerk/clerk-react';
 import { useAgistmentStore } from '../stores/agistment.store';
+import { Dialog } from '@headlessui/react';
+import toast from 'react-hot-toast';
+import { LAST_SEARCH_KEY } from '../constants/storage';
+
+// Use the same key as in Agistments.tsx
 
 export function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isSignedIn } = useUser();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +46,76 @@ export function EditAgistmentDetail() {
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const getTempAgistment = useAgistmentStore(state => state.getTempAgistment);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    propertySize: 0
+  });
+  const [nameError, setNameError] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  const updateLocalStorageAgistment = (updatedAgistment: Agistment) => {
+    console.log('Starting localStorage update for agistment:', updatedAgistment.id);
+    try {
+      // Clean up the agistment data to ensure consistent structure
+      const cleanedAgistment = {
+        ...updatedAgistment,
+        createdAt: updatedAgistment.createdAt || updatedAgistment.modifiedAt,
+      };
+
+      let storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
+      let lastSearch;
+
+      if (storedSearch) {
+        lastSearch = JSON.parse(storedSearch);
+        let updated = false;
+
+        // Update in original array if exists
+        if (lastSearch.response?.original) {
+          const originalIndex = lastSearch.response.original.findIndex((a: Agistment) => a.id === cleanedAgistment.id);
+          if (originalIndex !== -1) {
+            lastSearch.response.original[originalIndex] = cleanedAgistment;
+            updated = true;
+          }
+        }
+
+        // Update in adjacent array if exists
+        if (lastSearch.response?.adjacent) {
+          const adjacentIndex = lastSearch.response.adjacent.findIndex((a: Agistment) => a.id === cleanedAgistment.id);
+          if (adjacentIndex !== -1) {
+            lastSearch.response.adjacent[adjacentIndex] = cleanedAgistment;
+            updated = true;
+          }
+        }
+
+        // If the agistment wasn't found in either array, create new search results
+        if (!updated) {
+          lastSearch = {
+            response: {
+              original: [cleanedAgistment],
+              adjacent: [],
+              hash: '' // Empty hash for new search
+            }
+          };
+        }
+      } else {
+        // Create new search results if none exist
+        lastSearch = {
+          response: {
+            original: [cleanedAgistment],
+            adjacent: [],
+            hash: '' // Empty hash for new search
+          }
+        };
+      }
+
+      localStorage.setItem(LAST_SEARCH_KEY, JSON.stringify(lastSearch));
+      console.log('Updated localStorage with new data:', lastSearch);
+    } catch (error) {
+      console.error('Error updating localStorage:', error);
+      toast.error('Failed to update search results');
+    }
+  };
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -152,16 +228,63 @@ export function EditAgistmentDetail() {
     );
   }
 
+  const handlePublish = async () => {
+    if (!agistment) return;
+    
+    setIsPublishing(true);
+    try {
+      // Send the complete agistment data with hidden set to false
+      const updatedAgistment = await agistmentService.updateAgistment(agistment.id, {
+        ...agistment,
+        hidden: false
+      });
+
+      // Update localStorage
+      updateLocalStorageAgistment(updatedAgistment);
+
+      // Get the search hash if it exists
+      const searchHash = searchParams.get('q');
+      const searchQuery = searchHash ? `?q=${searchHash}` : '';
+
+      // Navigate back to the detail page with the search hash if it exists
+      navigate(`/agistments/${agistment.id}${searchQuery}`);
+      
+      toast.success('Agistment published successfully!');
+    } catch (error) {
+      console.error('Error publishing agistment:', error);
+      toast.error('Failed to publish agistment');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
       {/* Edit/Create Mode Banner */}
       <div className="sticky top-0 z-50 w-full bg-primary-600 dark:bg-primary-800 py-3 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center">
-            <EditIcon className="w-6 h-6 text-white mr-2" />
-            <h1 className="text-xl font-semibold text-white">
-              {id?.startsWith('temp_') ? 'Creating' : 'Editing'} Agistment
-            </h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center">
+              <EditIcon className="w-6 h-6 text-white mr-2" />
+              <h1 className="text-lg font-medium text-white">
+                {id?.startsWith('temp_') ? 'Creating' : 'Editing'}
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate(-1)}
+                className="px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700 rounded-md border border-white/20 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePublish}
+                disabled={isPublishing}
+                className="px-3 py-1.5 text-sm font-medium bg-white text-primary-600 hover:bg-white/90 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isPublishing ? 'Publishing...' : 'Publish'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -266,19 +389,44 @@ export function EditAgistmentDetail() {
 
                 {/* Agistment Name */}
                 <div className="mb-6">
-                  <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                    {agistment.name}
-                  </h2>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
+                        {agistment.name}
+                      </h2>
+                      <p className="text-neutral-900 dark:text-neutral-400 mt-1">
+                        {agistment.propertySize && agistment.propertySize > 0 ? `${agistment.propertySize} hectares` : 'Property size not specified'}
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setEditForm({
+                          name: agistment.name,
+                          propertySize: agistment.propertySize || 0
+                        });
+                        setIsEditDialogOpen(true);
+                      }}
+                      className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                    >
+                      <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Location Details */}
                 <div className="space-y-6">
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
-                      <div className="group">
-                        <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">
+                      <div className="group relative">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">Location</h3>
+                          <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                            <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                          </button>
+                        </div>
+                        <p className="text-neutral-700 dark:text-neutral-400">
                           {agistment.location.address}
-                        </h3>
+                        </p>
                         <p className="text-neutral-700 dark:text-neutral-400">
                           {agistment.location.suburb}, {agistment.location.state} {agistment.location.postCode}
                         </p>
@@ -288,6 +436,12 @@ export function EditAgistmentDetail() {
 
                   {/* Contact Details */}
                   <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">Contact Details</h3>
+                      <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                        <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      </button>
+                    </div>
                     {agistment.contactDetails.name && (
                       <div className="flex items-center gap-2">
                         <UserIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
@@ -330,7 +484,12 @@ export function EditAgistmentDetail() {
         <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
           {/* Description Section */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">About this Property</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white">About this Property</h2>
+              <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+              </button>
+            </div>
             <div className="relative">
               <p 
                 ref={descriptionRef}
@@ -351,7 +510,12 @@ export function EditAgistmentDetail() {
 
           {/* Paddocks */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Paddocks Available</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white">Paddocks Available</h2>
+              <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Private Paddocks */}
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
@@ -495,7 +659,12 @@ export function EditAgistmentDetail() {
 
           {/* Arenas and Roundyards */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Riding Facilities</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-white">Riding Facilities</h3>
+              <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Arenas */}
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
@@ -583,7 +752,12 @@ export function EditAgistmentDetail() {
 
           {/* Facilities */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Facilities</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white">Facilities</h2>
+              <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+              </button>
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               {/* Feed Room */}
               <div className="flex flex-col items-center">
@@ -677,7 +851,12 @@ export function EditAgistmentDetail() {
 
           {/* Care Options */}
           <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Care Options</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white">Care Options</h2>
+              <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {/* Full Care */}
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
@@ -763,41 +942,154 @@ export function EditAgistmentDetail() {
           </div>
 
           {/* Services */}
-          {agistment.services && agistment.services.length > 0 && (
-            <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-              <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Additional Services</h2>
+          <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white">Services</h2>
+              <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+              </button>
+            </div>
+            {agistment.services && agistment.services.length > 0 ? (
               <div className="flex flex-wrap gap-3">
                 {agistment.services.map((service, index) => (
                   <div 
                     key={index} 
                     className="flex items-center gap-2 bg-neutral-50 dark:bg-neutral-800 px-4 py-2 rounded-lg"
                   >
-                    <CheckIcon className="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0" />
-                    <span className="text-neutral-700 dark:text-neutral-300">{service}</span>
+                    <span className="text-neutral-900 dark:text-white">{service}</span>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-neutral-600 dark:text-neutral-400">No extra services</p>
+            )}
+          </div>
 
           {/* Social Media */}
-          {agistment.socialMedia && agistment.socialMedia.length > 0 && (
-            <div className="bg-white dark:bg-transparent p-6">
-              <h2 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">Social Media & Links</h2>
-              <div className="flex flex-wrap gap-4">
+          <div className="bg-white dark:bg-transparent p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-white">Social Media & Links</h2>
+              <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+              </button>
+            </div>
+            {agistment.socialMedia && agistment.socialMedia.length > 0 ? (
+              <div className="flex flex-wrap gap-3">
                 {agistment.socialMedia.map((social, index) => (
-                  <div
-                    key={index}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300"
-                  >
-                    {social.type === 'INSTA' ? 'Instagram' : social.type === 'FB' ? 'Facebook' : 'Website'}
-                  </div>
+                  social.link ? (
+                    <a
+                      key={index}
+                      href={social.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-50 dark:bg-neutral-800 rounded-lg text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                    >
+                      {social.type === 'INSTA' ? 'Instagram' : social.type === 'FB' ? 'Facebook' : 'Website'}
+                    </a>
+                  ) : (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-50 dark:bg-neutral-800 rounded-lg text-neutral-500 dark:text-neutral-400"
+                    >
+                      {social.type === 'INSTA' ? 'Instagram' : social.type === 'FB' ? 'Facebook' : 'Website'}
+                    </span>
+                  )
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-neutral-600 dark:text-neutral-400">No social media links</p>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog
+        open={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white dark:bg-neutral-800 p-6 w-full">
+            <Dialog.Title className="text-lg font-medium text-neutral-900 dark:text-white mb-4">
+              Edit Property Details
+            </Dialog.Title>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (editForm.name.length < 2) {
+                setNameError('Name must be at least 2 characters long');
+                return;
+              }
+              if (agistment) {
+                setAgistment({
+                  ...agistment,
+                  name: editForm.name,
+                  propertySize: editForm.propertySize
+                });
+              }
+              setNameError('');
+              setIsEditDialogOpen(false);
+            }}>
+              <fieldset className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                    Property Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => {
+                      setEditForm(prev => ({ ...prev, name: e.target.value }));
+                      if (e.target.value.length >= 2) {
+                        setNameError('');
+                      }
+                    }}
+                    className={`w-full rounded-md border ${nameError ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-600'} px-3 py-2 text-neutral-900 dark:text-white bg-white dark:bg-neutral-700 focus:outline-none focus:ring-2 ${nameError ? 'focus:ring-red-500' : 'focus:ring-primary-500'}`}
+                  />
+                  {nameError && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {nameError}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                    Property Size (hectares)
+                  </label>
+                  <input
+                    type="number"
+                    value={editForm.propertySize || ''}
+                    onChange={(e) => {
+                      const value = e.target.value === '' ? 0 : parseInt(e.target.value);
+                      setEditForm(prev => ({ ...prev, propertySize: value }));
+                    }}
+                    min="0"
+                    step="1"
+                    onWheel={(e) => e.currentTarget.blur()}
+                    className="w-full rounded-md border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-white bg-white dark:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                </div>
+              </fieldset>
+              <div className="flex justify-end gap-2 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   );
 }

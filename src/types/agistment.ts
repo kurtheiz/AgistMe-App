@@ -99,4 +99,5 @@ export interface Agistment {
   tackRoom: Facility;
   tieUp: Facility;
   urgentAvailability: boolean;
+  propertySize: number;
 }
