@@ -20,7 +20,9 @@ class AgistmentService {
 
   async getAgistment(id: string): Promise<Agistment> {
     try {
+      console.log('Making API request to:', `/v1/agistments/${id}`);
       const response = await this.api.get<Agistment>(`/v1/agistments/${id}`);
+      console.log('API response:', response);
       return response.data;
     } catch (error: unknown) {
       console.error(`Failed to get agistment ${id}:`, error);

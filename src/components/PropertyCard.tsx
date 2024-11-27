@@ -16,13 +16,15 @@ import {
   PhotoIcon,
   CheckIcon,
   CrossIcon,
-  FavouriteIcon
+  FavouriteIcon,
+  EditIcon
 } from './Icons';
 import { Agistment } from '../types/agistment';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getGoogleMapsUrl } from '../utils/location';
 import { useUser } from '@clerk/clerk-react';
+import { useProfile } from '../context/ProfileContext';
 
 interface PropertyCardProps {
   property: Agistment;
@@ -34,6 +36,9 @@ interface PropertyCardProps {
 export function PropertyCard({ property, onClick, isAdmin = false, handleFavorite }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
+  const { profile } = useProfile();
+
+  const isMyAgistment = profile?.myAgistments?.includes(property.id);
 
   const formatDate = (date?: string) => {
     if (!date) return 'Unknown';
@@ -53,13 +58,13 @@ export function PropertyCard({ property, onClick, isAdmin = false, handleFavorit
     if (onClick) {
       onClick();
     } else {
-      navigate(`/agistment/${property.id}`);
+      navigate(`/agistments/${property.id}`);
     }
   };
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/agistment/${property.id}`;
+    const shareUrl = `${window.location.origin}/agistments/${property.id}`;
     
     try {
       if (navigator.share) {
@@ -96,6 +101,20 @@ export function PropertyCard({ property, onClick, isAdmin = false, handleFavorit
                   className="w-8 h-8 sm:w-10 sm:h-10 text-red-500 dark:text-red-400" 
                   aria-label="Urgent listing"
                 />
+              </div>
+            )}
+            {isMyAgistment && (
+              <div className="absolute top-2 right-2 z-10">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/agistments/${property.id}/edit`);
+                  }}
+                  className="p-1.5 rounded-full bg-white/90 dark:bg-neutral-800/90 text-primary-600 dark:text-primary-400 hover:bg-white dark:hover:bg-neutral-800 transition-colors shadow-sm"
+                  title="Edit agistment"
+                >
+                  <EditIcon className="w-5 h-5" />
+                </button>
               </div>
             )}
           </div>
@@ -257,9 +276,6 @@ export function PropertyCard({ property, onClick, isAdmin = false, handleFavorit
         {/* Footer */}
         <div className="px-5 py-3 bg-primary-50 dark:bg-primary-900/20 border-t border-primary-100 dark:border-primary-800 text-primary-800 dark:text-primary-200">
           <div className="flex justify-between items-center">
-            <div className="text-xs sm:text-sm">
-              Last updated: {formatDate(property.modifiedAt)}
-            </div>
             <div className="flex items-center gap-2">
               {isSignedIn && (
                 <button 
@@ -277,6 +293,9 @@ export function PropertyCard({ property, onClick, isAdmin = false, handleFavorit
               >
                 <ShareIcon className="w-5 h-5" />
               </button>
+            </div>
+            <div className="text-xs sm:text-sm">
+              Last updated: {formatDate(property.modifiedAt)}
             </div>
           </div>
         </div>

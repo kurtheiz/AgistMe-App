@@ -16,7 +16,8 @@ import {
   HotWashIcon,
   StableIcon,
   TieUpIcon,
-  FavouriteIcon
+  FavouriteIcon,
+  EditIcon
 } from '../components/Icons';
 import { ShareIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
@@ -78,8 +79,10 @@ export function EditAgistmentDetail() {
 
       try {
         setLoading(true);
+        console.log('Loading agistment with ID:', id);
         // Check if it's a temporary agistment
         if (id.startsWith('temp_')) {
+          console.log('Loading temp agistment');
           const tempAgistment = getTempAgistment(id);
           if (tempAgistment) {
             setAgistment(tempAgistment);
@@ -87,8 +90,10 @@ export function EditAgistmentDetail() {
             setError('Temporary agistment not found');
           }
         } else {
+          console.log('Loading existing agistment from API');
           // Only load from API if it's not a temp ID
           const data = await agistmentService.getAgistment(id);
+          console.log('Agistment data received:', data);
           setAgistment(data);
         }
       } catch (err) {
@@ -149,24 +154,38 @@ export function EditAgistmentDetail() {
 
   return (
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
+      {/* Edit/Create Mode Banner */}
+      <div className="w-full bg-primary-600 dark:bg-primary-800 py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center">
+            <EditIcon className="w-6 h-6 text-white mr-2" />
+            <h1 className="text-xl font-semibold text-white">
+              {id?.startsWith('temp_') ? 'Creating' : 'Editing'} Agistment
+            </h1>
+          </div>
+        </div>
+      </div>
+
       <PageToolbar 
         actions={
           <div className="w-full overflow-hidden">
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate(-1)}
-                className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
-              >
-                <ArrowLeftIcon className="w-3 h-3" />
-                <span className="font-medium text-sm sm:text-base">Back</span>
-              </button>
-              <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
-              <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
-                <span>{agistment.location.state}</span>
-                <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                <span>{agistment.location.region}</span>
-                <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                <span>{agistment.location.suburb}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 py-2 rounded-lg text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 transition-colors"
+                >
+                  <ArrowLeftIcon className="w-3 h-3" />
+                  <span className="font-medium text-sm sm:text-base">Back</span>
+                </button>
+                <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
+                <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
+                  <span>{agistment.location.state}</span>
+                  <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                  <span>{agistment.location.region}</span>
+                  <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                  <span>{agistment.location.suburb}</span>
+                </div>
               </div>
             </div>
           </div>
