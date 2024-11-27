@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { formatAvailabilityDate } from '../utils/dates';
@@ -33,7 +33,6 @@ import { LAST_SEARCH_KEY } from '../constants/storage';
 export function AgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { isSignedIn } = useUser();
   const { profile } = useProfile();
   const [agistment, setAgistment] = useState<Agistment | null>(null);

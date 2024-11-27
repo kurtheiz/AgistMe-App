@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { formatAvailabilityDate } from '../utils/dates';
@@ -19,23 +19,22 @@ import {
   FavouriteIcon,
   EditIcon
 } from '../components/Icons';
-import { ShareIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { PageToolbar } from '../components/PageToolbar';
-import ImageGallery from 'react-image-gallery';
-import "react-image-gallery/styles/css/image-gallery.css";
-import '../styles/gallery.css';
 import { useUser } from '@clerk/clerk-react';
 import { useAgistmentStore } from '../stores/agistment.store';
 import { Dialog } from '@headlessui/react';
 import toast from 'react-hot-toast';
 import { LAST_SEARCH_KEY } from '../constants/storage';
+import { ShareIcon } from '@heroicons/react/24/outline';
+import { PageToolbar } from '../components/PageToolbar';
+import ImageGallery from 'react-image-gallery';
+import "react-image-gallery/styles/css/image-gallery.css";
+import '../styles/gallery.css';
 
 // Use the same key as in Agistments.tsx
 
 export function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { isSignedIn } = useUser();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -248,8 +247,8 @@ export function EditAgistmentDetail() {
         removeTempAgistment(agistment.id);
       }
 
-      // Navigate to my agistments page
-      navigate('/agistments/my');
+      // Navigate to the published agistment's detail view
+      navigate(`/agistments/${updatedAgistment.id}`);
       
       toast.success('Agistment published successfully!');
     } catch (error) {
@@ -341,7 +340,7 @@ export function EditAgistmentDetail() {
                       useBrowserFullscreen={false}
                       onScreenChange={setIsGalleryExpanded}
                       additionalClass={isGalleryExpanded ? 'fullscreen-gallery' : ''}
-                      renderItem={(item) => (
+                      renderItem={(item: { original: string; description?: string }) => (
                         <div className='image-gallery-image'>
                           <img
                             src={item.original}

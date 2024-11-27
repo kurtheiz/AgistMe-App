@@ -27,6 +27,7 @@ const CreateAgistment: React.FC = () => {
     return {
       id: tempId,
       status: 'DRAFT' as Status,
+      propertySize: 0,
       arena: false,
       arenas: [],
       contactDetails: {
@@ -226,6 +227,7 @@ const CreateAgistment: React.FC = () => {
         suburb: profile?.suburb || ''
       },
       modifiedAt: new Date().toISOString(),
+      propertySize: 0,
       partCare: {
         available: false,
         comments: '',
