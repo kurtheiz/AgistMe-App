@@ -4,15 +4,15 @@ import { Agistment } from '../types/agistment';
 
 // Combined state interface
 interface AgistmentState {
-  tempAgistments: Record<string, Agistment>;
-  tempAgistmentTexts: Record<string, string>;
-  cachedAgistments: Record<string, Agistment>;
-  setTempAgistment: (id: string, agistment: Agistment) => void;
-  setTempAgistmentText: (id: string, text: string) => void;
+  tempAgistments: Record<string, Agistment | null>;
+  tempAgistmentTexts: Record<string, string | null>;
+  cachedAgistments: Record<string, Agistment | null>;
+  setTempAgistment: (id: string, agistment: Agistment | null) => void;
+  setTempAgistmentText: (id: string, text: string | null) => void;
   getTempAgistment: (id: string) => Agistment | null;
   getTempAgistmentText: (id: string) => string | null;
   removeTempAgistment: (id: string) => void;
-  setCachedAgistment: (id: string, agistment: Agistment) => void;
+  setCachedAgistment: (id: string, agistment: Agistment | null) => void;
   getCachedAgistment: (id: string) => Agistment | null;
   removeCachedAgistment: (id: string) => void;
 }
@@ -24,14 +24,14 @@ export const useAgistmentStore = create<AgistmentState>()(
     const nonPersistedSlice = {
       tempAgistments: {},
       tempAgistmentTexts: {},
-      setTempAgistment: (id: string, agistment: Agistment) => 
+      setTempAgistment: (id: string, agistment: Agistment | null) => 
         set((state) => ({
           tempAgistments: {
             ...state.tempAgistments,
             [id]: agistment
           }
         })),
-      setTempAgistmentText: (id: string, text: string) =>
+      setTempAgistmentText: (id: string, text: string | null) =>
         set((state) => ({
           tempAgistmentTexts: {
             ...state.tempAgistmentTexts,
@@ -62,7 +62,7 @@ export const useAgistmentStore = create<AgistmentState>()(
     const persistedSlice = persist(
       () => ({
         cachedAgistments: {},
-        setCachedAgistment: (id: string, agistment: Agistment) =>
+        setCachedAgistment: (id: string, agistment: Agistment | null) =>
           set((state) => ({
             ...state,
             cachedAgistments: {

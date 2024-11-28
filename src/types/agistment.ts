@@ -1,8 +1,7 @@
 export interface AgistmentResponse {
-  original: Agistment[];
-  adjacent: Agistment[];
-  originalCount: number;
-  adjacentCount: number;
+  agistments: Agistment[];
+  count: number;
+  totalNewEnquiries: number;
 }
 
 export interface Arena {
@@ -12,93 +11,137 @@ export interface Arena {
   width: number;
 }
 
-export interface RoundYard {
-  comments: string;
-  diameter: number;
-}
-
 export interface ContactDetails {
   email: string;
   name: string;
   number: string;
 }
 
+export interface FacilityBase {
+  available: boolean;
+  comments: string;
+}
+
+export interface PricedFacility extends FacilityBase {
+  monthlyPrice: number;
+}
+
+export interface FloatParking extends PricedFacility {}
+
+export interface PaddockBase {
+  available: number;
+  comments: string;
+  total: number;
+  weeklyPrice: number;
+  whenAvailable?: string;
+}
+
 export interface Location {
   address: string;
-  hidden: boolean;
   postcode: string;
   region: string;
   state: string;
   suburb: string;
 }
 
-export interface Facility {
-  available: boolean;
+export interface Photo {
+  comment: string;
+  link: string;
+}
+
+export interface RoundYard {
   comments: string;
+  diameter: number;
 }
 
-export interface PricedFacility extends Facility {
-  monthlyPrice: number;
+export interface SocialMediaLink {
+  link: string;
+  type: string;
 }
 
-export interface Paddock {
-  available: number;
-  comments: string;
-  total: number;
-  weeklyPrice: number;
-  whenAvailable: string | null;
-}
-
-export interface Stables extends Facility {
+export interface Stables extends FacilityBase {
   quantity: number;
 }
 
-export interface SocialMedia {
-  link: string;
-  type: 'SITE' | 'INSTA' | 'FB';
+export interface AgistmentBasicInfo {
+  name: string;
+  propertySize: number;
 }
 
-export interface Photo {
-  link: string;
-  comment?: string;
+export interface AgistmentPhotos {
+  photos: Photo[];
 }
 
-export type ListingType = 'STANDARD' | 'FEATURED';
-export type Status = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export interface AgistmentDescription {
+  description: string;
+}
+
+export interface AgistmentServices {
+  services: string[];
+}
+
+export interface AgistmentLocation {
+  location: Location;
+}
+
+export interface AgistmentContact {
+  contactDetails: ContactDetails;
+}
+
+export interface AgistmentListingType {
+  listingType: string;
+}
+
+export interface AgistmentPaddocks {
+  groupPaddocks: PaddockBase;
+  privatePaddocks: PaddockBase;
+  sharedPaddocks: PaddockBase;
+}
+
+export interface AgistmentRidingFacilities {
+  arenas: Arena[];
+  roundYards: RoundYard[];
+}
+
+export interface AgistmentFacilities {
+  feedRoom: FacilityBase;
+  floatParking: FloatParking;
+  hotWash: FacilityBase;
+  tackRoom: FacilityBase;
+  tieUp: FacilityBase;
+  stables: Stables;
+}
+
+export interface AgistmentCare {
+  fullCare: PricedFacility;
+  partCare: PricedFacility;
+  selfCare: PricedFacility;
+}
+
+export interface AgistmentVisibility {
+  hidden: boolean;
+}
 
 export interface Agistment {
-  id: string;
-  status: Status;
-  arena: boolean;
-  arenas: Arena[];
-  contactDetails: ContactDetails;
-  createdAt: string | null;
-  description: string;
-  feedRoom: Facility;
-  floatParking: PricedFacility;
-  fullCare: PricedFacility;
-  geohash: string;
-  groupPaddocks: Paddock;
+  PK: string;
+  SK: string;
+  ridingFacilities: AgistmentRidingFacilities;
+  contact: AgistmentContact;
+  createdAt?: string;
+  propertyDescription: AgistmentDescription;
+  facilities: AgistmentFacilities;
   GSI1PK: string;
-  hidden: boolean;
-  hotWash: Facility;
-  listingType: ListingType;
-  location: Location;
-  modifiedAt: string;
-  name: string;
-  partCare: PricedFacility;
-  photos: Photo[];
-  privatePaddocks: Paddock;
-  roundYard: boolean;
-  roundYards: RoundYard[];
-  selfCare: PricedFacility;
-  services: string[];
-  sharedPaddocks: Paddock;
-  socialMedia: SocialMedia[];
-  stables: Stables;
-  tackRoom: Facility;
-  tieUp: Facility;
+  visibility: AgistmentVisibility;
+  itemType: string;
+  listing: AgistmentListingType;
+  propertyLocation: AgistmentLocation;
+  modifiedAt?: string;
+  basicInfo: AgistmentBasicInfo;
+  paddocks: AgistmentPaddocks;
+  photoGallery: AgistmentPhotos;
+  propertyServices: AgistmentServices;
+  care: AgistmentCare;
+  socialMedia: SocialMediaLink[];
+  status: string;
   urgentAvailability: boolean;
-  propertySize: number;
-  paddockTypes?: string[];
 }

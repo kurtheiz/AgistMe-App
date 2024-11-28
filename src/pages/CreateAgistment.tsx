@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment, Status, ListingType } from '../types/agistment';
+import { Agistment, Status } from '../types/agistment';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { useAgistmentStore } from '../stores/agistment.store';
@@ -11,7 +11,6 @@ import { Switch } from '@headlessui/react';
 
 const CreateAgistment: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { selectedType: listingType } = useListingTypeStore();
   const { isLoaded } = useUser();
   const [text, setText] = useState('');
@@ -198,7 +197,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       };
       
       // Save the agistment
-      const savedAgistment = await agistmentService.updateAgistment(result.id, agistmentWithProfile);
+      const savedAgistment = await agistmentService.updateAgistment(tempId, agistmentWithProfile);
       
       // Navigate to edit page
       navigate(`/agistments/${savedAgistment.id}/edit`);
