@@ -91,7 +91,6 @@ export const AgistmentPhotos = ({
 }: AgistmentPhotosProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(null);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [currentComment, setCurrentComment] = useState('');

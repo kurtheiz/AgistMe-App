@@ -3,8 +3,8 @@ import { Agistment, AgistmentResponse } from '../types/agistment';
 
 interface PresignedUrlRequest {
   filenames: string[];
-  agistmentId: string;
-  imageType: string;
+  agistment_id: string;
+  image_type: string;
 }
 
 interface PresignedUrlResponse {
@@ -101,7 +101,7 @@ class AgistmentService {
       const filename = `${Date.now()}-agistment-${agistmentId}-${file.name}`;
       const presignedRequest: PresignedUrlRequest = {
         filenames: [filename],
-        agistmentId: agistmentId,
+        agistment_id: agistmentId,
         image_type: 'agistment'
       };
       
@@ -128,12 +128,8 @@ class AgistmentService {
         throw new Error(`Failed to upload to S3: ${uploadResponse.statusText}`);
       }
 
-      console.log('Upload successful');
-      // Return the publicUrl from the presigned URL response
-      console.log('Public URL:', presignedData.publicUrl);
       return presignedData.publicUrl;
     } catch (error) {
-      console.error('Failed to upload agistment photo:', error);
       throw error;
     }
   }

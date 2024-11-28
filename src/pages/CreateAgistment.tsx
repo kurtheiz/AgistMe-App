@@ -17,6 +17,7 @@ const CreateAgistment: React.FC = () => {
   const [text, setText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasClickedCreateFromText, setHasClickedCreateFromText] = useState(false);
+  const [isTextMode, setIsTextMode] = useState(false);
   const { profile, loading: profileLoading } = useProfile();
   const [useProfileData, setUseProfileData] = useState(true);
 

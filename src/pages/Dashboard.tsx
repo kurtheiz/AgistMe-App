@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
+import { Agistment, AgistmentResponse, ListingType } from '../types/agistment';
 import { ChartBarIcon, ListBulletIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { Badge } from '../components/shared/Badge';
 
@@ -15,8 +15,8 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchAgistments = async () => {
       try {
-        const response = await agistmentService.getMyAgistments();
-        setAgistments(response.agistments || []);
+        const response: AgistmentResponse = await agistmentService.getMyAgistments();
+        setAgistments(response.original || []);
       } catch (error) {
         console.error('Error fetching agistments:', error);
       } finally {
@@ -122,7 +122,7 @@ export const Dashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Badge
-                        color={agistment.listingType === 'PROFESSIONAL' ? 'emerald' : 'blue'}
+                        color={agistment.listingType === ListingType.PROFESSIONAL ? 'emerald' : 'blue'}
                         text={agistment.listingType.toLowerCase()}
                       />
                     </td>

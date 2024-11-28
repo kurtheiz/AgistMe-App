@@ -30,14 +30,14 @@ import "yet-another-react-lightbox/plugins/captions.css";
 import '../styles/gallery.css';
 import toast from 'react-hot-toast';
 import { useProfile } from '../context/ProfileContext';
-import { LAST_SEARCH_KEY } from '../constants/storage';
 
-export function AgistmentDetail() {
+const AgistmentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useProfile();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -45,66 +45,43 @@ export function AgistmentDetail() {
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const mountedRef = useRef(true);
 
-  // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+    mountedRef.current = true;
 
-  // Add error boundary
-  useEffect(() => {
-    const handleError = (error: ErrorEvent) => {
-      console.error('Caught in error boundary:', error);
-      if (mountedRef.current) {
-        setError(error.message || 'An unexpected error occurred');
-        toast.error(error.message || 'An unexpected error occurred');
-      }
-    };
-
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
-  }, []);
-
-  useEffect(() => {
     const loadAgistment = async () => {
       if (!id) {
-        console.log('No agistment ID provided');
         setError('No agistment ID provided');
+        setIsLoading(false);
         return;
       }
 
-      // First try to find the agistment in local storage
-      try {
-        const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
-        if (storedSearch) {
-          const lastSearch = JSON.parse(storedSearch);
-          // Check both original and adjacent arrays
-          const foundAgistment = 
-            (lastSearch.response.original && lastSearch.response.original.find((a: Agistment) => a.id === id)) ||
-            (lastSearch.response.adjacent && lastSearch.response.adjacent.find((a: Agistment) => a.id === id));
-          
-          if (foundAgistment) {
-            setAgistment(foundAgistment);
-            return;
-          }
-        }
-      } catch (err) {
-        console.error('Error parsing local storage:', err);
-      }
-
-      // If not found in local storage, fetch from API
       try {
         const data = await agistmentService.getAgistment(id);
-        setAgistment(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load agistment details');
-        console.error(err);
+        
+        if (mountedRef.current) {
+          if (!data) {
+            setError('No agistment found');
+          } else {
+            setAgistment(data);
+            setError(null);
+          }
+        }
+      } catch (err: any) {
+        if (mountedRef.current) {
+          setError(err?.response?.data?.message || err?.message || 'Failed to load agistment details');
+        }
+      } finally {
+        if (mountedRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadAgistment();
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, [id]);
 
   useEffect(() => {
@@ -124,7 +101,6 @@ export function AgistmentDetail() {
     }
   }, [agistment?.photos]);
 
-  // Check if description needs read more button
   useEffect(() => {
     if (descriptionRef.current) {
       const isOverflowing = descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight;
@@ -132,7 +108,6 @@ export function AgistmentDetail() {
     }
   }, [agistment?.description]);
 
-  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -146,15 +121,39 @@ export function AgistmentDetail() {
     setIsLightboxOpen(true);
   };
 
-  if (error || !agistment) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white"></div>
+      </div>
+    );
+  }
+
+  if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
         <h1 className="text-2xl font-medium text-neutral-900 dark:text-white mb-4">
           Oops! Something went wrong
         </h1>
         <p className="text-neutral-600 dark:text-neutral-400 mb-8">
-          {error || 'Failed to load agistment details'}
+          {error}
         </p>
+        <button
+          onClick={handleBackClick}
+          className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors mb-4"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  if (!agistment) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <h1 className="text-2xl font-medium text-neutral-900 dark:text-white mb-4">
+          No agistment found
+        </h1>
         <button
           onClick={handleBackClick}
           className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors mb-4"
@@ -900,4 +899,6 @@ export function AgistmentDetail() {
       </div>
     </div>
   );
-}
+};
+
+export { AgistmentDetail };

@@ -60,7 +60,7 @@ export const useAgistmentStore = create<AgistmentState>()(
 
     // Create the persisted part
     const persistedSlice = persist(
-      (setPersist, getPersist) => ({
+      () => ({
         cachedAgistments: {},
         setCachedAgistment: (id: string, agistment: Agistment) =>
           set((state) => ({

@@ -11,7 +11,7 @@ export const Header = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   useAuthToken();
-  const { profile, loading: profileLoading, refreshProfile } = useProfile();
+  const { profile, refreshProfile } = useProfile();
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {

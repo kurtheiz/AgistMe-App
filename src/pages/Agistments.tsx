@@ -1,22 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment, AgistmentResponse } from '../types/agistment';
+import { Agistment } from '../types/agistment';
 import { SearchModal } from '../components/Search/SearchModal';
 import { SearchCriteria } from '../types/search';
 import { SearchIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
 import PropertyCard from '../components/PropertyCard';
-
-// Local storage key for last search
-const LAST_SEARCH_KEY = 'agistme_last_search';
-const initialFacilities: any[] = [];
-
-interface StoredSearch {
-  hash: string;
-  timestamp: number;
-  response: AgistmentResponse;
-}
 
 const decodeSearchHash = (hash: string): SearchCriteria => {
   try {
@@ -37,7 +27,7 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
       maxPrice: decodedSearch.mp || 0,
       hasArena: decodedSearch.a || false,
       hasRoundYard: decodedSearch.ry || false,
-      facilities: decodedSearch.f || initialFacilities,
+      facilities: decodedSearch.f || [],
       careTypes: decodedSearch.ct || []
     };
   } catch (error) {
@@ -50,7 +40,7 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
       maxPrice: 0,
       hasArena: false,
       hasRoundYard: false,
-      facilities: initialFacilities,
+      facilities: [],
       careTypes: []
     };
   }
@@ -66,46 +56,17 @@ export function Agistments() {
   const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
   const searchHash = searchParams.get('q') || '';
 
-  // Load last search from localStorage on mount or when navigating to /agistments
+  // Load search results whenever the hash changes
   useEffect(() => {
-    const storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
-    
-    // If we have a search hash in URL, use that
     if (searchHash) {
-      if (storedSearch) {
-        try {
-          const lastSearch: StoredSearch = JSON.parse(storedSearch);
-          if (lastSearch.hash === searchHash) {
-            // Only use stored results if they're less than 5 minutes old
-            const isRecent = Date.now() - lastSearch.timestamp < 5 * 60 * 1000;
-            if (isRecent && lastSearch.response) {
-              setOriginalAgistments(lastSearch.response.original || []);
-              setAdjacentAgistments(lastSearch.response.adjacent || []);
-              const decodedCriteria = decodeSearchHash(searchHash);
-              setCurrentCriteria(decodedCriteria);
-              return;
-            } else if (!isRecent) {
-              // Data is stale, fetch from API
-              const criteria = decodeSearchHash(searchHash);
-              setCurrentCriteria(criteria);
-              handleSearch(criteria);
-              return;
-            }
-          }
-        } catch (error) {
-          console.error('Error loading stored search:', error);
-        }
-      }
-      // If we get here, either there was no stored search or it was invalid/expired
-      // Execute a new search with the hash
       const decodedCriteria = decodeSearchHash(searchHash);
       setCurrentCriteria(decodedCriteria);
       setIsFetching(true);
+      
       agistmentService.searchAgistments(searchHash)
         .then(response => {
           setOriginalAgistments(response.original || []);
           setAdjacentAgistments(response.adjacent || []);
-          storeSearchInLocalStorage(searchHash, response);
         })
         .catch(error => {
           console.error('Error fetching agistments:', error);
@@ -115,35 +76,13 @@ export function Agistments() {
         .finally(() => {
           setIsFetching(false);
         });
-      return;
+    } else {
+      // No search hash, clear results
+      setOriginalAgistments([]);
+      setAdjacentAgistments([]);
+      setCurrentCriteria(null);
     }
-
-    // If no search hash in URL but we have a stored search, load and use it
-    if (storedSearch && !searchHash) {
-      try {
-        const lastSearch: StoredSearch = JSON.parse(storedSearch);
-        const isRecent = Date.now() - lastSearch.timestamp < 24 * 60 * 60 * 1000;
-        if (isRecent && lastSearch.response) {
-          setOriginalAgistments(lastSearch.response.original || []);
-          setAdjacentAgistments(lastSearch.response.adjacent || []);
-          const decodedCriteria = decodeSearchHash(lastSearch.hash);
-          setCurrentCriteria(decodedCriteria);
-          // Update URL with the stored search hash
-          const newParams = new URLSearchParams(searchParams);
-          newParams.set('q', lastSearch.hash);
-          navigate({ search: newParams.toString() }, { replace: true });
-          return;
-        }
-      } catch (error) {
-        console.error('Error loading stored search:', error);
-      }
-    }
-
-    // If we get here, we have no valid search to load
-    setOriginalAgistments([]);
-    setAdjacentAgistments([]);
-    setCurrentCriteria(null);
-  }, [searchHash, navigate, searchParams]);
+  }, [searchHash]);
 
   useEffect(() => {
     if (searchParams.get('openSearch') === 'true') {
@@ -155,37 +94,13 @@ export function Agistments() {
     }
   }, [searchParams, navigate]);
 
-  const handleSearch = async (criteria: SearchCriteria & { searchHash: string }) => {
+  const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
     setIsSearchModalOpen(false);
-    setIsFetching(true);
     
-    setCurrentCriteria(criteria);
-    try {
-      const response = await agistmentService.searchAgistments(criteria.searchHash);
-      setOriginalAgistments(response.original || []);
-      setAdjacentAgistments(response.adjacent || []);
-      storeSearchInLocalStorage(criteria.searchHash, response);
-      // Update URL after successful search
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set('q', criteria.searchHash);
-      navigate({ search: newParams.toString() });
-    } catch (error) {
-      console.error('Error fetching agistments:', error);
-      setOriginalAgistments([]);
-      setAdjacentAgistments([]);
-    } finally {
-      setIsFetching(false);
-    }
-  };
-
-  // Store search in local storage if it has results
-  const storeSearchInLocalStorage = (hash: string, response: AgistmentResponse) => {
-    const storedSearch: StoredSearch = {
-      hash,
-      timestamp: Date.now(),
-      response
-    };
-    localStorage.setItem(LAST_SEARCH_KEY, JSON.stringify(storedSearch));
+    // Update URL after search, which will trigger the useEffect to load results
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('q', criteria.searchHash);
+    navigate({ search: newParams.toString() });
   };
 
   interface EmptyStateProps {
