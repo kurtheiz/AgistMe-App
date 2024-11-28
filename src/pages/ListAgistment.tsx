@@ -3,13 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { useClerk } from '@clerk/clerk-react';
 import { PricingPlans } from '../components/PricingPlans';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import { useListingTypeStore } from '../stores/listingType.store';
 
 const ListAgistment = () => {
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
   const { openSignIn } = useClerk();
+  const setSelectedType = useListingTypeStore(state => state.setSelectedType);
 
-  const handlePlanSelect = (_planName: string) => {
+  const handlePlanSelect = (planName: string) => {
+    const listingType = planName.toUpperCase() === 'PROFESSIONAL' ? 'PROFESSIONAL' : 'STANDARD';
+    setSelectedType(listingType);
+    
     if (!isSignedIn) {
       openSignIn({
         redirectUrl: '/agistments/create',
@@ -23,7 +28,7 @@ const ListAgistment = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <div className="max-w-5xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             List Your Property on Agist Me
@@ -33,7 +38,11 @@ const ListAgistment = () => {
           </p>
         </div>
 
-        <div className="max-w-5xl mx-auto mb-16">
+        <div className="mb-16">
+          <PricingPlans showButtons onPlanSelect={handlePlanSelect} />
+        </div>
+        
+        <div className="max-w-7xl mx-auto mb-16">
           <h2 className="text-2xl font-semibold mb-8 text-center text-gray-900 dark:text-white">
             Why List Your Property with Agist Me?
           </h2>
@@ -85,9 +94,7 @@ const ListAgistment = () => {
           </div>
         </div>
 
-        <div className="mb-16">
-          <PricingPlans showButtons onPlanSelect={handlePlanSelect} />
-        </div>
+        
       </div>
     </div>
   );

@@ -1,11 +1,10 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { formatAvailabilityDate } from '../utils/dates';
 import { calculateMonthlyPrice } from '../utils/prices';
-import { 
-  PhotoIcon,
+import {
   ArrowLeftIcon,
   EmailIcon,
   PhoneIcon,
@@ -19,30 +18,22 @@ import {
   FavouriteIcon,
   EditIcon
 } from '../components/Icons';
-import { useProfile } from '../context/ProfileContext';
-import { useAgistmentStore } from '../stores/agistment.store';
 import { Dialog } from '@headlessui/react';
 import toast from 'react-hot-toast';
-import { LAST_SEARCH_KEY } from '../constants/storage';
 import { ShareIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
-import ImageUploading, { ImageListType } from 'react-images-uploading';
 import '../styles/gallery.css';
+import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
+import { usePlanPhotoLimit } from '../stores/reference.store';
 
 // Use the same key as in Agistments.tsx
 
 export function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { profile, updateProfileData } = useProfile();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [images, setImages] = useState<ImageListType>([]);
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
-  const descriptionRef = useRef<HTMLParagraphElement>(null);
-  const getTempAgistment = useAgistmentStore(state => state.getTempAgistment);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -50,71 +41,9 @@ export function EditAgistmentDetail() {
   });
   const [nameError, setNameError] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
-  const maxNumber = 10;
-
-  const updateLocalStorageAgistment = (updatedAgistment: Agistment) => {
-    console.log('Starting localStorage update for agistment:', updatedAgistment.id);
-    try {
-      // Clean up the agistment data to ensure consistent structure
-      const cleanedAgistment = {
-        ...updatedAgistment,
-        createdAt: updatedAgistment.createdAt || updatedAgistment.modifiedAt,
-      };
-
-      let storedSearch = localStorage.getItem(LAST_SEARCH_KEY);
-      let lastSearch;
-
-      if (storedSearch) {
-        lastSearch = JSON.parse(storedSearch);
-        let updated = false;
-
-        // Update in original array if exists
-        if (lastSearch.response?.original) {
-          const originalIndex = lastSearch.response.original.findIndex((a: Agistment) => a.id === cleanedAgistment.id);
-          if (originalIndex !== -1) {
-            lastSearch.response.original[originalIndex] = cleanedAgistment;
-            updated = true;
-          }
-        }
-
-        // Update in adjacent array if exists
-        if (lastSearch.response?.adjacent) {
-          const adjacentIndex = lastSearch.response.adjacent.findIndex((a: Agistment) => a.id === cleanedAgistment.id);
-          if (adjacentIndex !== -1) {
-            lastSearch.response.adjacent[adjacentIndex] = cleanedAgistment;
-            updated = true;
-          }
-        }
-
-        // If the agistment wasn't found in either array, create new search results
-        if (!updated) {
-          lastSearch = {
-            response: {
-              original: [cleanedAgistment],
-              adjacent: [],
-              hash: '' // Empty hash for new search
-            }
-          };
-        }
-      } else {
-        // Create new search results if none exist
-        lastSearch = {
-          response: {
-            original: [cleanedAgistment],
-            adjacent: [],
-            hash: '' // Empty hash for new search
-          }
-        };
-      }
-
-      localStorage.setItem(LAST_SEARCH_KEY, JSON.stringify(lastSearch));
-      console.log('Updated localStorage with new data:', lastSearch);
-    } catch (error) {
-      console.error('Error updating localStorage:', error);
-      toast.error('Failed to update search results');
-    }
-  };
-
+  const maxPhotos = usePlanPhotoLimit(agistment?.listingType || 'STANDARD');
+  console.log('Listing type:', agistment?.listingType);
+  console.log('Max photos:', maxPhotos);
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -127,22 +56,10 @@ export function EditAgistmentDetail() {
       try {
         setLoading(true);
         console.log('Loading agistment with ID:', id);
-        // Check if it's a temporary agistment
-        if (id.startsWith('temp_')) {
-          console.log('Loading temp agistment');
-          const tempAgistment = getTempAgistment(id);
-          if (tempAgistment) {
-            setAgistment(tempAgistment);
-          } else {
-            setError('Temporary agistment not found');
-          }
-        } else {
-          console.log('Loading existing agistment from API');
-          // Only load from API if it's not a temp ID
-          const data = await agistmentService.getAgistment(id);
-          console.log('Agistment data received:', data);
-          setAgistment(data);
-        }
+        console.log('Loading existing agistment from API');
+        const data = await agistmentService.getAgistment(id);
+        setAgistment(data);
+
       } catch (err) {
         console.error('Error loading agistment:', err);
         setError(err instanceof Error ? err.message : 'Failed to load agistment');
@@ -152,29 +69,7 @@ export function EditAgistmentDetail() {
     };
 
     loadAgistment();
-  }, [id, getTempAgistment]);
-
-  useEffect(() => {
-    if (agistment?.photos) {
-      const existingImages: ImageListType = agistment.photos.map((photo) => ({
-        dataURL: photo.link || photo.toString(),
-        file: undefined
-      }));
-      setImages(existingImages);
-    }
-  }, [agistment?.photos]);
-
-  useEffect(() => {
-    if (descriptionRef.current) {
-      const isOverflowing = descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight;
-      setShouldShowReadMore(isOverflowing);
-    }
-  }, [agistment?.description]);
-
-  const onChange = (imageList: ImageListType) => {
-    setImages(imageList);
-    // TODO: Handle image upload to your server here
-  };
+  }, [id]);
 
   if (loading) {
     return (
@@ -200,9 +95,14 @@ export function EditAgistmentDetail() {
     );
   }
 
+
+  const handleBackClick = () => {
+    navigate(-1);
+  };
+
   const handlePublish = async () => {
     if (!agistment) return;
-    
+
     setIsPublishing(true);
     try {
       // Send the complete agistment data with hidden set to false
@@ -211,26 +111,9 @@ export function EditAgistmentDetail() {
         hidden: false
       });
 
-      // Update localStorage
-      updateLocalStorageAgistment(updatedAgistment);
-
-      // If this was a temp agistment, add it to profile's myAgistments and remove from temp store
-      if (agistment.id.startsWith('temp_')) {
-        // Add to profile's myAgistments
-        if (profile && !profile.myAgistments?.includes(updatedAgistment.id)) {
-          // Update the profile's myAgistments array
-          const updatedMyAgistments = [...(profile.myAgistments || []), updatedAgistment.id];
-          await updateProfileData({ ...profile, myAgistments: updatedMyAgistments });
-        }
-
-        // Remove from temp store
-        const removeTempAgistment = useAgistmentStore.getState().removeTempAgistment;
-        removeTempAgistment(agistment.id);
-      }
-
       // Navigate to the published agistment's detail view
-      navigate(`/agistments/${updatedAgistment.id}`);
-      
+      navigate(-1);
+
       toast.success('Agistment published successfully!');
     } catch (error) {
       console.error('Error publishing agistment:', error);
@@ -248,8 +131,8 @@ export function EditAgistmentDetail() {
             <div className="max-w-7xl mx-auto px-4">
               <div className="flex items-center">
                 <button
-                  disabled
-                  className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 py-2 rounded-lg text-neutral-400 dark:text-neutral-600 cursor-not-allowed"
+                  onClick={handleBackClick}
+                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white "
                 >
                   <ArrowLeftIcon className="w-3 h-3" />
                   <span className="font-medium text-sm sm:text-base">Back</span>
@@ -274,11 +157,11 @@ export function EditAgistmentDetail() {
 
       {/* Edit/Create Mode Banner */}
       <div className="sticky top-14 z-30 w-full bg-primary-600 dark:bg-primary-800 py-3">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-center">
               <h1 className="text-lg font-medium text-white">
-                {id?.startsWith('temp_') ? 'Creating' : 'Editing'}
+                Edit Mode
               </h1>
             </div>
             <div className="flex items-center gap-2">
@@ -293,7 +176,7 @@ export function EditAgistmentDetail() {
                 disabled={isPublishing}
                 className="px-3 py-1.5 text-sm font-medium bg-white text-primary-600 hover:bg-white/90 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPublishing ? 'Publishing...' : 'Publish'}
+                {isPublishing ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>
@@ -307,81 +190,36 @@ export function EditAgistmentDetail() {
             <div className="flex flex-col lg:flex-row">
               {/* Photo Gallery - 66% width on desktop */}
               <div className="w-full lg:w-2/3 px-4">
-                <ImageUploading
-                  multiple
-                  value={images}
-                  onChange={onChange}
-                  maxNumber={maxNumber}
-                >
-                  {({
-                    imageList,
-                    onImageUpload,
-                    onImageRemoveAll,
-                    onImageUpdate,
-                    onImageRemove,
-                  }) => (
-                    <div className="upload__image-wrapper">
-                      <div className="flex justify-between items-center mb-4">
-                        <button
-                          onClick={onImageUpload}
-                          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
-                        >
-                          <PhotoIcon className="w-5 h-5" />
-                          Upload Images
-                        </button>
-                        
-                        {imageList.length > 0 && (
-                          <button
-                            onClick={onImageRemoveAll}
-                            className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                          >
-                            Remove all images
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {imageList.map((image, index) => (
-                          <div key={index} className="relative aspect-[4/3]">
-                            <img
-                              src={image.dataURL}
-                              alt={`Upload ${index + 1}`}
-                              className="w-full h-full object-cover rounded-lg"
-                            />
-                            <div className="absolute top-2 right-2 flex gap-2">
-                              <button
-                                onClick={() => onImageUpdate(index)}
-                                className="p-1.5 bg-white rounded-full shadow-lg hover:bg-neutral-50 transition-colors"
-                              >
-                                <EditIcon className="w-4 h-4 text-neutral-600" />
-                              </button>
-                              <button
-                                onClick={() => onImageRemove(index)}
-                                className="p-1.5 bg-white rounded-full shadow-lg hover:bg-neutral-50 transition-colors"
-                              >
-                                <span className="w-4 h-4 text-red-600">×</span>
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </ImageUploading>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">Photos</h3>
+                  <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                    {agistment.photos?.length || 0} of {maxPhotos} photos
+                  </span>
+                </div>
+                <AgistmentPhotos
+                  agistment={agistment}
+                  maxPhotos={maxPhotos}
+                  onPhotosChange={(photos) => {
+                    setAgistment(prev => prev ? {
+                      ...prev,
+                      photos
+                    } : null);
+                  }}
+                />
               </div>
 
               {/* Location and Contact Details - 33% width on desktop */}
               <div className="w-full lg:w-1/3 p-4">
                 {/* Share and Favorite Buttons */}
                 <div className="flex gap-2 mb-6">
-                  <div 
+                  <div
                     className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400"
                     title="Not available while editing"
                   >
                     <ShareIcon className="w-5 h-5" />
                     <span className="text-sm">Share</span>
                   </div>
-                  <div 
+                  <div
                     className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400"
                     title="Not available while editing"
                   >
@@ -401,7 +239,7 @@ export function EditAgistmentDetail() {
                         {agistment.propertySize && agistment.propertySize > 0 ? `${agistment.propertySize} acres` : 'Property size not specified'}
                       </p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         setEditForm({
                           name: agistment.name,
@@ -494,20 +332,9 @@ export function EditAgistmentDetail() {
               </button>
             </div>
             <div className="relative">
-              <p 
-                ref={descriptionRef}
-                className={`text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap ${!isDescriptionExpanded ? 'line-clamp-4 max-h-24' : ''}`}
-              >
+              <p className="text-neutral-700 dark:text-neutral-400">
                 {agistment.description}
               </p>
-              {shouldShowReadMore && (
-                <button
-                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                  className="mt-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
-                >
-                  {isDescriptionExpanded ? 'Show Less' : 'Read More'}
-                </button>
-              )}
             </div>
           </div>
 
@@ -530,12 +357,11 @@ export function EditAgistmentDetail() {
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
-                          <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${
-                            agistment.privatePaddocks.available > 0
-                              ? agistment.privatePaddocks.whenAvailable && new Date(agistment.privatePaddocks.whenAvailable) > new Date()
-                                ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
-                                : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                              : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
+                          <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${agistment.privatePaddocks.available > 0
+                            ? agistment.privatePaddocks.whenAvailable && new Date(agistment.privatePaddocks.whenAvailable) > new Date()
+                              ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
+                              : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                            : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
                             } rounded-lg px-3 py-1.5`}
                           >
                             {`${agistment.privatePaddocks.available} of ${agistment.privatePaddocks.total}`}
@@ -576,12 +402,11 @@ export function EditAgistmentDetail() {
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
-                          <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${
-                            agistment.sharedPaddocks.available > 0
-                              ? agistment.sharedPaddocks.whenAvailable && new Date(agistment.sharedPaddocks.whenAvailable) > new Date()
-                                ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
-                                : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                              : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
+                          <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${agistment.sharedPaddocks.available > 0
+                            ? agistment.sharedPaddocks.whenAvailable && new Date(agistment.sharedPaddocks.whenAvailable) > new Date()
+                              ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
+                              : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                            : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
                             } rounded-lg px-3 py-1.5`}
                           >
                             {`${agistment.sharedPaddocks.available} of ${agistment.sharedPaddocks.total}`}
@@ -622,12 +447,11 @@ export function EditAgistmentDetail() {
                     <>
                       <div className="w-full grid grid-cols-2 gap-4 items-start">
                         <div className="flex flex-col items-center">
-                          <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${
-                            agistment.groupPaddocks.available > 0
-                              ? agistment.groupPaddocks.whenAvailable && new Date(agistment.groupPaddocks.whenAvailable) > new Date()
-                                ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
-                                : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                              : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
+                          <span className={`text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] ${agistment.groupPaddocks.available > 0
+                            ? agistment.groupPaddocks.whenAvailable && new Date(agistment.groupPaddocks.whenAvailable) > new Date()
+                              ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
+                              : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                            : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
                             } rounded-lg px-3 py-1.5`}
                           >
                             {`${agistment.groupPaddocks.available} of ${agistment.groupPaddocks.total}`}
@@ -867,11 +691,10 @@ export function EditAgistmentDetail() {
                   Full Care
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.fullCare.available 
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
-                  }`}>
+                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${agistment.fullCare.available
+                    ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                    : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
+                    }`}>
                     {agistment.fullCare.available ? 'Available' : 'Unavailable'}
                   </span>
                   {agistment.fullCare.available && (
@@ -894,11 +717,10 @@ export function EditAgistmentDetail() {
                   Part Care
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.partCare.available 
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
-                  }`}>
+                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${agistment.partCare.available
+                    ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                    : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
+                    }`}>
                     {agistment.partCare.available ? 'Available' : 'Unavailable'}
                   </span>
                   {agistment.partCare.available && (
@@ -921,11 +743,10 @@ export function EditAgistmentDetail() {
                   Self Care
                 </span>
                 <div className="flex flex-col items-center pt-2">
-                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${
-                    agistment.selfCare.available 
-                      ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                      : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
-                  }`}>
+                  <span className={`mb-2 text-sm font-medium px-3 py-1.5 rounded-lg ${agistment.selfCare.available
+                    ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                    : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
+                    }`}>
                     {agistment.selfCare.available ? 'Available' : 'Unavailable'}
                   </span>
                   {agistment.selfCare.available && (
@@ -955,8 +776,8 @@ export function EditAgistmentDetail() {
             {agistment.services && agistment.services.length > 0 ? (
               <div className="flex flex-wrap gap-3">
                 {agistment.services.map((service, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="flex items-center gap-2 bg-neutral-50 dark:bg-neutral-800 px-4 py-2 rounded-lg"
                   >
                     <span className="text-neutral-900 dark:text-white">{service}</span>

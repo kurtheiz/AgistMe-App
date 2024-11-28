@@ -64,7 +64,7 @@ export function Agistments() {
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
   const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
-  const searchHash = searchParams.get('q') || undefined;
+  const searchHash = searchParams.get('q') || '';
 
   // Load last search from localStorage on mount or when navigating to /agistments
   useEffect(() => {
@@ -76,13 +76,19 @@ export function Agistments() {
         try {
           const lastSearch: StoredSearch = JSON.parse(storedSearch);
           if (lastSearch.hash === searchHash) {
-            // Only use stored results if they're less than 24 hours old
-            const isRecent = Date.now() - lastSearch.timestamp < 24 * 60 * 60 * 1000;
+            // Only use stored results if they're less than 5 minutes old
+            const isRecent = Date.now() - lastSearch.timestamp < 5 * 60 * 1000;
             if (isRecent && lastSearch.response) {
               setOriginalAgistments(lastSearch.response.original || []);
               setAdjacentAgistments(lastSearch.response.adjacent || []);
               const decodedCriteria = decodeSearchHash(searchHash);
               setCurrentCriteria(decodedCriteria);
+              return;
+            } else if (!isRecent) {
+              // Data is stale, fetch from API
+              const criteria = decodeSearchHash(searchHash);
+              setCurrentCriteria(criteria);
+              handleSearch(criteria);
               return;
             }
           }
@@ -294,7 +300,7 @@ export function Agistments() {
                 <h1 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
                   {originalAgistments.length} {originalAgistments.length === 1 ? 'Agistment' : 'Agistments'} found
                   {currentCriteria?.suburbs && currentCriteria.suburbs.length > 0 && (
-                    <> in {(() => {
+                    <>{` in ${(() => {
                       const firstLocation = currentCriteria.suburbs[0];
                       switch (firstLocation.locationType) {
                         case 'STATE':
@@ -304,9 +310,7 @@ export function Agistments() {
                         default:
                           return firstLocation.suburb;
                       }
-                    })()}
-                      {currentCriteria.suburbs.length > 1 && ' and other locations'}
-                    </>
+                    })()}${currentCriteria.suburbs.length > 1 ? ' and other locations' : ''}`}</>
                   )}
                 </h1>
               </div>

@@ -1,6 +1,18 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { Agistment, AgistmentResponse } from '../types/agistment';
 
+interface PresignedUrlRequest {
+  filenames: string[];
+  agistmentId: string;
+  imageType: string;
+}
+
+interface PresignedUrlResponse {
+  url: string;
+  fields: { [key: string]: string };
+  publicUrl: string;
+}
+
 class AgistmentService {
   private api;
 
@@ -79,6 +91,49 @@ class AgistmentService {
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get featured agistments:', error);
+      throw error;
+    }
+  }
+
+  async uploadAgistmentPhoto(file: File, agistmentId: string): Promise<string> {
+    try {
+      // Get presigned URL
+      const filename = `${Date.now()}-agistment-${agistmentId}-${file.name}`;
+      const presignedRequest: PresignedUrlRequest = {
+        filenames: [filename],
+        agistmentId: agistmentId,
+        image_type: 'agistment'
+      };
+      
+      console.log('Requesting presigned URL for agistment photo...');
+      const response = await this.api.post<PresignedUrlResponse[]>('/v1/presigned-urls', presignedRequest);
+      const presignedData = response.data[0];
+      console.log('Received presigned URL data:', presignedData);
+
+      // Create form data for S3 upload
+      const formData = new FormData();
+      Object.entries(presignedData.fields).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      formData.append('file', file);
+
+      console.log('Uploading to S3...');
+      // Upload to S3
+      const uploadResponse = await fetch(presignedData.url, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Failed to upload to S3: ${uploadResponse.statusText}`);
+      }
+
+      console.log('Upload successful');
+      // Return the publicUrl from the presigned URL response
+      console.log('Public URL:', presignedData.publicUrl);
+      return presignedData.publicUrl;
+    } catch (error) {
+      console.error('Failed to upload agistment photo:', error);
       throw error;
     }
   }

@@ -33,7 +33,6 @@ export interface Profile {
     horses: Horse[];
     favourites: string[];
     agistor: boolean;
-    myAgistments: string[];
 }
 
 export interface UpdateProfileRequest extends Omit<Profile, 'id' | 'email' | 'lastUpdate'> {}

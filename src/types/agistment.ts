@@ -60,7 +60,7 @@ export interface SocialMedia {
 
 export interface Photo {
   link: string;
-  comment: string;
+  comment?: string;
 }
 
 export type ListingType = 'STANDARD' | 'FEATURED';

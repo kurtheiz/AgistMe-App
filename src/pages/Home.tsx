@@ -24,7 +24,7 @@ export const Home = () => {
     <div className="flex-1 relative flex flex-col items-center text-lg pt-4 sm:pt-16 bg-white dark:bg-neutral-900 border-0">
  
       {/* Hero Section */}
-      <div className="relative w-full max-w-5xl aspect-[3/2] sm:aspect-[5/2]">
+      <div className="relative w-full max-w-7xl aspect-[3/2] sm:aspect-[5/2]">
         <div 
           className="absolute inset-0 bg-cover bg-center rounded-lg opacity-50"
           style={{

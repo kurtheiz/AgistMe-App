@@ -1,5 +1,5 @@
 export type BillingPeriod = 'Free' | 'Weekly' | 'Monthly';
-export type SearchPlacement = 'Standard' | 'Enhanced' | 'Premium';
+export type SearchPlacement = 'Standard' | 'Enhanced';
 
 export interface NotificationPreferences {
   email: boolean;

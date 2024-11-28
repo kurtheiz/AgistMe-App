@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Agistment } from '../types/agistment';
 
+// Combined state interface
 interface AgistmentState {
   tempAgistments: Record<string, Agistment>;
   tempAgistmentTexts: Record<string, string>;
@@ -16,13 +17,13 @@ interface AgistmentState {
   removeCachedAgistment: (id: string) => void;
 }
 
+// Create a single store with two slices
 export const useAgistmentStore = create<AgistmentState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => {
+    // Create the non-persisted part
+    const nonPersistedSlice = {
       tempAgistments: {},
       tempAgistmentTexts: {},
-      cachedAgistments: {},
-      
       setTempAgistment: (id: string, agistment: Agistment) => 
         set((state) => ({
           tempAgistments: {
@@ -30,7 +31,6 @@ export const useAgistmentStore = create<AgistmentState>()(
             [id]: agistment
           }
         })),
-
       setTempAgistmentText: (id: string, text: string) =>
         set((state) => ({
           tempAgistmentTexts: {
@@ -38,53 +38,62 @@ export const useAgistmentStore = create<AgistmentState>()(
             [id]: text
           }
         })),
-
       getTempAgistment: (id: string) => {
         const state = get();
         return state.tempAgistments[id] || null;
       },
-
       getTempAgistmentText: (id: string) => {
         const state = get();
         return state.tempAgistmentTexts[id] || null;
       },
-
       removeTempAgistment: (id: string) =>
         set((state) => {
-          const { [id]: _, ...restAgistments } = state.tempAgistments;
-          const { [id]: __, ...restTexts } = state.tempAgistmentTexts;
+          const { [id]: _, ...remainingAgistments } = state.tempAgistments;
+          const { [id]: __, ...remainingTexts } = state.tempAgistmentTexts;
           return {
             ...state,
-            tempAgistments: restAgistments,
-            tempAgistmentTexts: restTexts
+            tempAgistments: remainingAgistments,
+            tempAgistmentTexts: remainingTexts
           };
         }),
+    };
 
-      setCachedAgistment: (id: string, agistment: Agistment) =>
-        set((state) => ({
-          cachedAgistments: {
-            ...state.cachedAgistments,
-            [id]: agistment
-          }
-        })),
-
-      getCachedAgistment: (id: string) => {
-        const state = get();
-        return state.cachedAgistments[id] || null;
-      },
-
-      removeCachedAgistment: (id: string) =>
-        set((state) => {
-          const { [id]: _, ...restCached } = state.cachedAgistments;
-          return {
+    // Create the persisted part
+    const persistedSlice = persist(
+      (setPersist, getPersist) => ({
+        cachedAgistments: {},
+        setCachedAgistment: (id: string, agistment: Agistment) =>
+          set((state) => ({
             ...state,
-            cachedAgistments: restCached
-          };
-        })
-    }),
-    {
-      name: 'agistment-storage',
-      storage: createJSONStorage(() => localStorage)
-    }
-  )
+            cachedAgistments: {
+              ...state.cachedAgistments,
+              [id]: agistment
+            }
+          })),
+        getCachedAgistment: (id: string) => {
+          const state = get();
+          return state.cachedAgistments[id] || null;
+        },
+        removeCachedAgistment: (id: string) =>
+          set((state) => {
+            const { [id]: _, ...remainingAgistments } = state.cachedAgistments;
+            return {
+              ...state,
+              cachedAgistments: remainingAgistments
+            };
+          }),
+      }),
+      {
+        name: 'cached-agistment-storage',
+        storage: createJSONStorage(() => localStorage),
+        partialize: (state) => ({ cachedAgistments: state.cachedAgistments })
+      }
+    );
+
+    // Combine both slices
+    return {
+      ...nonPersistedSlice,
+      ...persistedSlice(set, get, {})
+    };
+  }
 );

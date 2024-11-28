@@ -11,13 +11,15 @@ export const Header = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   useAuthToken();
-  const { refreshProfile } = useProfile();
+  const { profile, loading: profileLoading, refreshProfile } = useProfile();
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       refreshProfile();
     }
   }, [isLoaded, isSignedIn, refreshProfile]);
+
+  console.log('Header Profile:', profile); // Debug log
 
   const handleAvatarClick = () => {
     if (isSignedIn) {
@@ -53,7 +55,20 @@ export const Header = () => {
               >
                 Agistments
               </Link>
-              <Link to="/listagistment" className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">List Agistment</Link>
+              <Link 
+                to="/listagistment" 
+                className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
+              >
+                List Agistment
+              </Link>
+              {isSignedIn && profile?.agistor && (
+                <Link 
+                  to="/dashboard"
+                  className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
+                >
+                  Dashboard
+                </Link>
+              )}
             </nav>
           </div>
 

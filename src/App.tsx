@@ -17,6 +17,7 @@ import { useAuthToken } from './hooks/useAuthToken';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import ListAgistment from './pages/ListAgistment';
 import { CreateAgistment } from './pages/CreateAgistment';
+import { Dashboard } from './pages/Dashboard';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -35,6 +36,14 @@ const router = createBrowserRouter(
       <Route path="/agistments/:id/edit" element={<EditAgistmentDetail />} />
       <Route path="/agistments/:id" element={<AgistmentDetail />} />
       <Route path="/listagistment" element={<ListAgistment />} />
+      <Route 
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
       <Route 
         path="/profile"
         element={

@@ -116,7 +116,7 @@ export const PricingPlans = ({ showButtons = true, onPlanSelect }: PricingPlansP
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto">
       {referenceData.pricingPlans.map((plan) => (
         <div key={plan.name} className="h-full">
           <div className="h-8 relative">
