@@ -12,6 +12,7 @@ import { ProfileProvider } from './context/ProfileContext';
 import { Agistments } from './pages/Agistments';
 import { AgistmentDetail } from './pages/AgistmentDetail';
 import { EditAgistmentDetail } from './pages/EditAgistmentDetail';
+import { ViewAgistmentDetail } from './pages/ViewAgistmentDetail';
 import { Toaster } from 'react-hot-toast';
 import { useAuthToken } from './hooks/useAuthToken';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -34,7 +35,7 @@ const router = createBrowserRouter(
       <Route path="/agistments/search" element={<Agistments />} />
       <Route path="/agistments/create" element={<CreateAgistment />} />
       <Route path="/agistments/:id/edit" element={<EditAgistmentDetail />} />
-      <Route path="/agistments/:id" element={<AgistmentDetail />} />
+      <Route path="/agistments/:id" element={<ViewAgistmentDetail />} />
       <Route path="/listagistment" element={<ListAgistment />} />
       <Route 
         path="/dashboard"

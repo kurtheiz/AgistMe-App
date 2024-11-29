@@ -1,7 +1,7 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { 
   Agistment, 
-  AgistmentResponse, 
+  AgistmentResponse,
   AgistmentBasicInfo,
   AgistmentDescription,
   AgistmentLocation,

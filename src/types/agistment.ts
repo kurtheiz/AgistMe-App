@@ -1,7 +1,10 @@
 export interface AgistmentResponse {
-  agistments: Agistment[];
-  count: number;
-  totalNewEnquiries: number;
+  original: Agistment[];
+  adjacent?: Agistment[];
+  totalCount?: number;
+  originalCount: number;
+  adjacentCount?: number;
+  nextToken?: string;
 }
 
 export interface Arena {
@@ -33,7 +36,7 @@ export interface PaddockBase {
   comments: string;
   total: number;
   weeklyPrice: number;
-  whenAvailable?: string;
+  whenAvailable?: Date;
 }
 
 export interface Location {
@@ -45,7 +48,7 @@ export interface Location {
 }
 
 export interface Photo {
-  comment: string;
+  comment?: string;
   link: string;
 }
 
@@ -123,16 +126,13 @@ export interface AgistmentVisibility {
 }
 
 export interface Agistment {
-  PK: string;
-  SK: string;
+  id: string;
   ridingFacilities: AgistmentRidingFacilities;
   contact: AgistmentContact;
   createdAt?: string;
   propertyDescription: AgistmentDescription;
   facilities: AgistmentFacilities;
-  GSI1PK: string;
   visibility: AgistmentVisibility;
-  itemType: string;
   listing: AgistmentListingType;
   propertyLocation: AgistmentLocation;
   modifiedAt?: string;
@@ -144,4 +144,5 @@ export interface Agistment {
   socialMedia: SocialMediaLink[];
   status: string;
   urgentAvailability: boolean;
+  paddockTypes?: string[];
 }

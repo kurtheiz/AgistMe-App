@@ -11,6 +11,7 @@ export const Dashboard = () => {
   const { profile, loading: profileLoading } = useProfile();
   const [agistments, setAgistments] = useState<Agistment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const fetchAgistments = async () => {
@@ -48,8 +49,33 @@ export const Dashboard = () => {
 
   const stats = {
     totalAgistments: agistments.length,
-    activeAgistments: agistments.filter(a => !a.hidden).length,
+    activeAgistments: agistments.filter(a => !a.visibility.hidden).length,
     totalViews: agistments.reduce((sum, a) => sum + (a.views || 0), 0),
+  };
+
+  const handleVisibilityToggle = async (agistmentId: string, currentHidden: boolean) => {
+    setIsUpdating(prev => ({ ...prev, [agistmentId]: true }));
+    try {
+      await agistmentService.updateAgistment(agistmentId, {
+        visibility: { hidden: !currentHidden }
+      });
+      
+      // Update the local state
+      setAgistments(prevAgistments => 
+        prevAgistments.map(a => 
+          a.id === agistmentId 
+            ? { ...a, visibility: { hidden: !currentHidden } }
+            : a
+        )
+      );
+      
+      // toast.success(`Agistment is now ${!currentHidden ? 'hidden from' : 'visible in'} search results`);
+    } catch (error) {
+      console.error('Error updating visibility:', error);
+      // toast.error('Failed to update visibility');
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [agistmentId]: false }));
+    }
   };
 
   return (
@@ -115,24 +141,46 @@ export const Dashboard = () => {
                     className="hover:bg-gray-50 dark:hover:bg-neutral-700 cursor-pointer transition-colors duration-150"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">{agistment.name}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{agistment.basicInfo.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {agistment.location.suburb}, {agistment.location.state}
+                        {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.state}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Badge
-                        color={agistment.listingType === 'PROFESSIONAL' ? 'emerald' : 'blue'}
-                        text={agistment.listingType.toLowerCase()}
+                        color={agistment.listing.listingType === 'PROFESSIONAL' ? 'emerald' : 'blue'}
+                        text={agistment.listing.listingType.toLowerCase()}
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge
-                        color={agistment.hidden ? 'amber' : 'emerald'}
-                        text={agistment.hidden ? 'Draft' : 'Published'}
-                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleVisibilityToggle(agistment.id, agistment.visibility.hidden);
+                        }}
+                        disabled={isUpdating[agistment.id]}
+                        title={agistment.visibility.hidden 
+                          ? "Hidden - This agistment will not appear in search results" 
+                          : "Visible - This agistment will appear in search results"
+                        }
+                        className={`
+                          px-3 py-1.5 text-sm font-medium rounded-md transition-colors
+                          ${agistment.visibility.hidden 
+                            ? 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800' 
+                            : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:hover:bg-emerald-800'
+                          }
+                          disabled:opacity-50 disabled:cursor-not-allowed
+                        `}
+                      >
+                        <span className="flex items-center gap-2">
+                          {agistment.visibility.hidden ? 'Hidden' : 'Visible'}
+                          {isUpdating[agistment.id] && (
+                            <div className="animate-spin rounded-full h-3 w-3 border border-current border-t-transparent"></div>
+                          )}
+                        </span>
+                      </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {agistment.views || 0}
@@ -141,11 +189,11 @@ export const Dashboard = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/agistments/${agistment.id}/edit`);
+                          navigate(`/agistments/${agistment.id}`);
                         }}
                         className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300"
                       >
-                        Edit
+                        View
                       </button>
                     </td>
                   </tr>

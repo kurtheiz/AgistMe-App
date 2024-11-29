@@ -19,8 +19,6 @@ export const Header = () => {
     }
   }, [isLoaded, isSignedIn, refreshProfile]);
 
-  console.log('Header Profile:', profile); // Debug log
-
   const handleAvatarClick = () => {
     if (isSignedIn) {
       navigate('/profile', { replace: true });

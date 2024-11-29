@@ -113,17 +113,17 @@ export const AgistmentPhotos = ({
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      const oldIndex = agistment.photos.findIndex(photo => photo.link === active.id);
-      const newIndex = agistment.photos.findIndex(photo => photo.link === over.id);
+      const oldIndex = agistment.photoGallery.photos.findIndex(photo => photo.link === active.id);
+      const newIndex = agistment.photoGallery.photos.findIndex(photo => photo.link === over.id);
       
-      const newPhotos = arrayMove(agistment.photos, oldIndex, newIndex);
-      onPhotosChange(newPhotos);
+      const newPhotos = arrayMove(agistment.photoGallery.photos, oldIndex, newIndex);
+      updatePhotos(newPhotos);
     }
   };
 
   const handlePhotoUpload = async (file: File) => {
     if (!file) return;
-    if (agistment.photos?.length >= maxPhotos) {
+    if (agistment.photoGallery?.photos?.length >= maxPhotos) {
       toast.error(`Maximum ${maxPhotos} photos allowed`);
       return;
     }
@@ -131,8 +131,8 @@ export const AgistmentPhotos = ({
     setIsUploading(true);
     try {
       const s3Url = await agistmentService.uploadAgistmentPhoto(file, agistment.id);
-      const newPhotos = [...(agistment.photos || []), { link: s3Url }];
-      onPhotosChange(newPhotos);
+      const newPhotos = [...(agistment.photoGallery?.photos || []), { link: s3Url }];
+      updatePhotos(newPhotos);
       toast.success('Photo uploaded successfully');
     } catch (error) {
       console.error('Error uploading photo:', error);
@@ -143,40 +143,50 @@ export const AgistmentPhotos = ({
   };
 
   const handlePhotoRemove = (index: number) => {
-    const newPhotos = agistment.photos.filter((_, i) => i !== index);
-    onPhotosChange(newPhotos);
+    const newPhotos = agistment.photoGallery.photos.filter((_, i) => i !== index);
+    updatePhotos(newPhotos);
   };
 
   const openCommentModal = (index: number) => {
     setSelectedPhotoIndex(index);
-    setCurrentComment(agistment.photos[index].comment || '');
+    setCurrentComment(agistment.photoGallery.photos[index].comment || '');
     setIsCommentModalOpen(true);
   };
 
   const handleCommentSave = () => {
     if (selectedPhotoIndex === null) return;
     
-    const newPhotos = [...agistment.photos];
+    const newPhotos = [...agistment.photoGallery.photos];
     newPhotos[selectedPhotoIndex] = {
       ...newPhotos[selectedPhotoIndex],
       comment: currentComment
     };
-    onPhotosChange(newPhotos);
+    updatePhotos(newPhotos);
     setIsCommentModalOpen(false);
     toast.success('Photo comment updated');
   };
 
+  const updatePhotos = async (photos: { link: string; comment?: string }[]) => {
+    try {
+      await agistmentService.updatePhotoGallery(agistment.id, { photos });
+      onPhotosChange(photos);
+    } catch (error) {
+      console.error('Error updating photos:', error);
+      toast.error('Failed to update photos');
+    }
+  };
+
   // Calculate number of placeholders needed
-  const currentPhotos = agistment.photos?.length || 0;
+  const currentPhotos = agistment.photoGallery?.photos?.length || 0;
   const placeholdersNeeded = Math.max(0, maxPhotos - currentPhotos);
 
   return (
     <div className="space-y-4">
       <div className="max-h-[400px] overflow-y-auto pr-2">
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-          <SortableContext items={agistment.photos?.map(p => p.link) || []} strategy={rectSortingStrategy}>
+          <SortableContext items={agistment.photoGallery?.photos?.map(p => p.link) || []} strategy={rectSortingStrategy}>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {agistment.photos?.map((photo, index) => (
+              {agistment.photoGallery?.photos?.map((photo, index) => (
                 <SortablePhoto
                   key={photo.link}
                   photo={photo}
@@ -199,11 +209,13 @@ export const AgistmentPhotos = ({
                     {isUploading ? (
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current"></div>
                     ) : (
-                      <>
-                        <PhotoIcon className="h-8 w-8" />
-                        <span className="text-sm font-semibold">Add Photo</span>
-                        <span className="text-xs text-primary-500 dark:text-primary-400">Click to upload</span>
-                      </>
+                      <div
+                        className="flex flex-col items-center justify-center h-full text-center text-neutral-600 dark:text-neutral-400"
+                      >
+                        <PhotoIcon className="w-12 h-12 mb-2" />
+                        <span className="text-lg font-medium">Add Photo</span>
+                        <span className="text-sm">Click to Upload</span>
+                      </div>
                     )}
                   </button>
                 </div>

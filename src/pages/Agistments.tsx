@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
 import { SearchModal } from '../components/Search/SearchModal';
 import { SearchCriteria } from '../types/search';
+import { Agistment } from '../types/agistment';
 import { SearchIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
 import PropertyCard from '../components/PropertyCard';
@@ -65,7 +65,7 @@ export function Agistments() {
       
       agistmentService.searchAgistments(searchHash)
         .then(response => {
-          setOriginalAgistments(response.original || []);
+          setOriginalAgistments(response.original);
           setAdjacentAgistments(response.adjacent || []);
         })
         .catch(error => {

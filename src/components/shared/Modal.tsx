@@ -108,9 +108,9 @@ export function Modal({
               }
             >
               <Dialog.Panel 
-                className={`modal-panel w-full h-full ${sizeClasses[size]} md:h-[85vh] md:rounded-lg overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
+                className={`modal-panel w-full ${sizeClasses[size]} md:max-h-[85vh] md:rounded-lg overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
               >
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col max-h-full">
                   {/* Header */}
                   {(title || headerContent || showCloseButton) && (
                     <div className="sticky top-0 z-50 bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700">

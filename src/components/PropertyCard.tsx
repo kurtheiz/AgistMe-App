@@ -49,8 +49,8 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
     try {
       if (navigator.share) {
         await navigator.share({
-          title: `${agistment.name} on AgistMe`,
-          text: `Check out this agistment ${agistment.name} in ${agistment.location.suburb}, ${agistment.location.region}, ${agistment.location.state}`,
+          title: `${agistment.basicInfo.name} on AgistMe`,
+          text: `Check out this agistment ${agistment.basicInfo.name} in ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.region}, ${agistment.propertyLocation.location.state}`,
           url: shareUrl
         });
       } else {
@@ -73,19 +73,19 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         <div className="title-header">
           <div className="flex justify-between items-start">
             
-            <h2 className="title-text dark:text-neutral-200 truncate px-2">{agistment.name}</h2>
+            <h2 className="title-text dark:text-neutral-200 truncate px-2">{agistment.basicInfo.name}</h2>
             <div className="text-white text-sm px-2 py-1 bg-primary-600 rounded-md dark:bg-primary-400 dark:text-neutral-200">
-              {agistment.propertySize} acres
+              {agistment.basicInfo.propertySize} acres
             </div>
           </div>
         </div>
 
         {/* Photo */}
         <div className="relative aspect-[16/9] bg-neutral-100 dark:bg-neutral-700">
-          {agistment.photos && agistment.photos.length > 0 ? (
+          {agistment.photoGallery.photos && agistment.photoGallery.photos.length > 0 ? (
             <img 
-              src={agistment.photos[0].link} 
-              alt={`${agistment.name} - ${agistment.photos[0].comment || 'Primary photo'}`}
+              src={agistment.photoGallery.photos[0].link} 
+              alt={`${agistment.basicInfo.name} - ${agistment.photoGallery.photos[0].comment || 'Primary photo'}`}
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
           ) : (
@@ -99,10 +99,10 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         </div>
 
         {/* Location */}
-        {agistment.location && (
+        {agistment.propertyLocation.location && (
           <div className="flex items-center gap-2 px-5 py-2 border-b border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700">
             <a
-              href={getGoogleMapsUrl(agistment.location)}
+              href={getGoogleMapsUrl(agistment.propertyLocation.location)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -113,7 +113,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
             </a>
             <div className="flex justify-between items-center">
               <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                {agistment.location.address}, {agistment.location.suburb}, {agistment.location.region}, {agistment.location.state}
+                {agistment.propertyLocation.location.address}, {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.region}, {agistment.propertyLocation.location.state}
               </div>
             </div>
           </div>
@@ -126,15 +126,15 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
               {/* Private Paddocks */}
               <div className="flex flex-col items-center">
                 <span className={`text-xl sm:text-2xl font-bold ${
-                  agistment.privatePaddocks.total > 0 
-                    ? agistment.privatePaddocks.available > 0
-                      ? agistment.privatePaddocks.whenAvailable && new Date(agistment.privatePaddocks.whenAvailable) > new Date()
+                  agistment.paddocks?.privatePaddocks?.total > 0 
+                    ? agistment.paddocks?.privatePaddocks?.available > 0
+                      ? agistment.paddocks?.privatePaddocks?.whenAvailable && new Date(agistment.paddocks?.privatePaddocks?.whenAvailable) > new Date()
                         ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
                         : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
                       : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
                     : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
                 } rounded-lg`}>
-                  {agistment.privatePaddocks.total > 0 ? agistment.privatePaddocks.available : '-'}
+                  {agistment.paddocks?.privatePaddocks?.total > 0 ? agistment.paddocks?.privatePaddocks?.available : '-'}
                 </span>
                 <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
                   Private
@@ -144,15 +144,15 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
               {/* Shared Paddocks */}
               <div className="flex flex-col items-center">
                 <span className={`text-xl sm:text-2xl font-bold ${
-                  agistment.sharedPaddocks.total > 0 
-                    ? agistment.sharedPaddocks.available > 0
-                      ? agistment.sharedPaddocks.whenAvailable && new Date(agistment.sharedPaddocks.whenAvailable) > new Date()
+                  agistment.paddocks?.sharedPaddocks?.total > 0 
+                    ? agistment.paddocks?.sharedPaddocks?.available > 0
+                      ? agistment.paddocks?.sharedPaddocks?.whenAvailable && new Date(agistment.paddocks?.sharedPaddocks?.whenAvailable) > new Date()
                         ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
                         : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
                       : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
                     : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
                 } rounded-lg`}>
-                  {agistment.sharedPaddocks.total > 0 ? agistment.sharedPaddocks.available : '-'}
+                  {agistment.paddocks?.sharedPaddocks?.total > 0 ? agistment.paddocks?.sharedPaddocks?.available : '-'}
                 </span>
                 <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
                   Shared
@@ -162,15 +162,15 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
               {/* Group Paddocks */}
               <div className="flex flex-col items-center">
                 <span className={`text-xl sm:text-2xl font-bold ${
-                  agistment.groupPaddocks.total > 0 
-                    ? agistment.groupPaddocks.available > 0
-                      ? agistment.groupPaddocks.whenAvailable && new Date(agistment.groupPaddocks.whenAvailable) > new Date()
+                  agistment.paddocks?.groupPaddocks?.total > 0 
+                    ? agistment.paddocks?.groupPaddocks?.available > 0
+                      ? agistment.paddocks?.groupPaddocks?.whenAvailable && new Date(agistment.paddocks?.groupPaddocks?.whenAvailable) > new Date()
                         ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
                         : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
                       : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
                     : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
                 } rounded-lg`}>
-                  {agistment.groupPaddocks.total > 0 ? agistment.groupPaddocks.available : '-'}
+                  {agistment.paddocks?.groupPaddocks?.total > 0 ? agistment.paddocks?.groupPaddocks?.available : '-'}
                 </span>
                 <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
                   Group
@@ -195,9 +195,9 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
               <div className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">From</div>
               <div className="font-bold text-lg text-neutral-900 dark:text-neutral-100">
                 ${formatCurrency(Math.min(
-                  agistment.privatePaddocks?.weeklyPrice || Infinity,
-                  agistment.sharedPaddocks?.weeklyPrice || Infinity,
-                  agistment.groupPaddocks?.weeklyPrice || Infinity
+                  agistment.paddocks?.privatePaddocks?.weeklyPrice || Infinity,
+                  agistment.paddocks?.sharedPaddocks?.weeklyPrice || Infinity,
+                  agistment.paddocks?.groupPaddocks?.weeklyPrice || Infinity
                 ))}/week
               </div>
             </div>
@@ -208,25 +208,25 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         <div className="p-3 sm:p-5 flex-grow bg-white dark:bg-neutral-700">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[/* eslint-disable @typescript-eslint/no-unused-vars */
-              { key: 'arena', label: 'Arena', icon: ArenaIcon, available: agistment.arenas.length > 0 },
-              { key: 'roundYard', label: 'Round Yard', icon: RoundYardIcon, available: agistment.roundYards.length > 0 },
-              { key: 'feedRoom', label: 'Feed Room', icon: FeedRoomIcon, available: agistment.feedRoom.available },
-              { key: 'tackRoom', label: 'Tack Room', icon: TackRoomIcon, available: agistment.tackRoom.available },
-              { key: 'floatParking', label: 'Float', icon: FloatParkingIcon, available: agistment.floatParking.available },
-              { key: 'hotWash', label: 'Hot Wash', icon: HotWashIcon, available: agistment.hotWash.available },
-              { key: 'stables', label: 'Stables', icon: StableIcon, available: agistment.stables.available },
-              { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.tieUp.available },
+              { key: 'arena', label: 'Arena', icon: ArenaIcon, available: agistment.ridingFacilities.arenas.length > 0 },
+              { key: 'roundYard', label: 'Round Yard', icon: RoundYardIcon, available: agistment.ridingFacilities.roundYards.length > 0 },
+              { key: 'feedRoom', label: 'Feed Room', icon: FeedRoomIcon, available: agistment.facilities.feedRoom.available },
+              { key: 'tackRoom', label: 'Tack Room', icon: TackRoomIcon, available: agistment.facilities.tackRoom.available },
+              { key: 'floatParking', label: 'Float', icon: FloatParkingIcon, available: agistment.facilities.floatParking.available },
+              { key: 'hotWash', label: 'Hot Wash', icon: HotWashIcon, available: agistment.facilities.hotWash.available },
+              { key: 'stables', label: 'Stables', icon: StableIcon, available: agistment.facilities.stables.available },
+              { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.facilities.tieUp.available },
               { 
                 key: 'care', 
                 label: (() => {
                   const careTypes = [];
-                  if (agistment.fullCare.available) careTypes.push('Full');
-                  if (agistment.partCare.available) careTypes.push('Part');
-                  if (agistment.selfCare.available) careTypes.push('Self');
+                  if (agistment.care.fullCare.available) careTypes.push('Full');
+                  if (agistment.care.partCare.available) careTypes.push('Part');
+                  if (agistment.care.selfCare.available) careTypes.push('Self');
                   return careTypes.length > 0 ? careTypes.join('/') : 'No Care';
                 })(),
                 icon: HeartIcon,
-                available: agistment.selfCare.available || agistment.partCare.available || agistment.fullCare.available
+                available: agistment.care.selfCare.available || agistment.care.partCare.available || agistment.care.fullCare.available
               }
             ].map(({ key, label, icon: Icon, available }) => (
               <div key={key} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">

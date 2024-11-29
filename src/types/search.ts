@@ -16,3 +16,5 @@ export interface SearchCriteria {
   careTypes: CareType[];
   searchHash?: string;
 }
+
+
