@@ -20,6 +20,7 @@ import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentSocialMedia } from '../components/Agistment/AgistmentSocialMedia';
 import { usePlanPhotoLimit } from '../stores/reference.store';
 import toast from 'react-hot-toast';
+import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
 
 // Use the same key as in Agistments.tsx
 
@@ -165,22 +166,29 @@ function EditAgistmentDetail() {
               <button
                 onClick={handleVisibilityToggle}
                 disabled={isUpdating}
-                title={agistment.visibility.hidden 
-                  ? "Hidden - This agistment will not appear in search results" 
+                title={
+                  agistment.visibility.hidden
+                  ? "Hidden - This agistment will not appear in search results"
                   : "Visible - This agistment will appear in search results"
                 }
                 className={`
-                  min-w-[44px] min-h-[44px] p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors
-                  flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed
+                  px-4 py-2 text-sm font-medium rounded-md transition-colors
+                  flex items-center justify-center gap-2
+                  ${agistment.visibility.hidden 
+                    ? 'text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600' 
+                    : 'text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600'
+                  }
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  focus:outline-none focus:ring-2 focus:ring-offset-2
+                  ${agistment.visibility.hidden 
+                    ? 'focus:ring-red-500' 
+                    : 'focus:ring-green-500'
+                  }
                 `}
               >
-                {agistment.visibility.hidden ? (
-                  <HiddenIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
-                ) : (
-                  <VisibleIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
-                )}
+                {agistment.visibility.hidden ? 'Make Visible' : 'Hide'}
                 {isUpdating && (
-                  <div className="absolute animate-spin rounded-full h-5 w-5 border-2 border-neutral-500 border-t-transparent dark:border-neutral-400 dark:border-t-transparent" />
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                 )}
               </button>
             </div>
@@ -216,21 +224,11 @@ function EditAgistmentDetail() {
               {/* Location and Contact Details - 33% width on desktop */}
               <div className="w-full lg:w-1/3 p-4">
                 {/* Share and Favorite Buttons */}
-                <div className="flex gap-2 mb-6">
-                  <div
-                    className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400"
-                    title="Not available while editing"
-                  >
-                    <ShareIcon className="w-5 h-5" />
-                    <span className="text-sm">Share</span>
-                  </div>
-                  <div
-                    className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400"
-                    title="Not available while editing"
-                  >
-                    <FavouriteIcon className="w-5 h-5" />
-                    <span className="text-sm">Favorite</span>
-                  </div>
+                <div className="mb-6">
+                  <ShareFavoriteButtons
+                    agistmentId={agistment.id}
+                    shareDescription={`Check out this property on AgistMe: ${agistment.basicInfo.name} in ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.region}, ${agistment.propertyLocation.location.state}`}
+                  />
                 </div>
 
                 <AgistmentBasicInfo

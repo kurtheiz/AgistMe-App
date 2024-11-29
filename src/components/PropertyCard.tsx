@@ -214,8 +214,18 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         <div className="p-3 sm:p-5 flex-grow bg-white dark:bg-neutral-700">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[/* eslint-disable @typescript-eslint/no-unused-vars */
-              { key: 'arena', label: 'Arena', icon: ArenaIcon, available: agistment.ridingFacilities.arenas.length > 0 },
-              { key: 'roundYard', label: 'Round Yard', icon: RoundYardIcon, available: agistment.ridingFacilities.roundYards.length > 0 },
+              { 
+                key: 'arena', 
+                label: 'Arena', 
+                icon: ArenaIcon, 
+                available: agistment.ridingFacilities.arenas.length > 0 
+              },
+              { 
+                key: 'roundYard', 
+                label: 'Round Yard', 
+                icon: RoundYardIcon, 
+                available: agistment.ridingFacilities.roundYards.length > 0 
+              },
               { key: 'feedRoom', label: 'Feed Room', icon: FeedRoomIcon, available: agistment.facilities.feedRoom.available },
               { key: 'tackRoom', label: 'Tack Room', icon: TackRoomIcon, available: agistment.facilities.tackRoom.available },
               { key: 'floatParking', label: 'Float', icon: FloatParkingIcon, available: agistment.facilities.floatParking.available },

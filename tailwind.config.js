@@ -122,17 +122,34 @@ export default {
         '18': '4.5rem',
         '112': '28rem',
         '128': '32rem',
+        'modal-spacing': '1.5rem',
+        'section-gap': '1.5rem',
+        'icon-size': {
+          'sm': '1.25rem',
+          'md': '1.5rem',
+          'lg': '2rem'
+        }
       },
       // Softer border radius for a more natural feel
       borderRadius: {
         'soft': '0.625rem',
         'natural': '1.25rem',
+        'modal': '0.5rem',
+        'button': '0.375rem'
       },
       // Soft shadows for depth
       boxShadow: {
         'soft': '0 2px 15px -3px rgba(61, 55, 51, 0.05), 0 10px 20px -2px rgba(61, 55, 51, 0.03)',
         'natural': '0 3px 20px -5px rgba(61, 55, 51, 0.1)',
       },
+      fontSize: {
+        'title': ['1.5rem', { lineHeight: '2rem', fontWeight: '600' }],
+        'subtitle': ['1.125rem', { lineHeight: '1.75rem', fontWeight: '500' }],
+        'body': ['1rem', { lineHeight: '1.5rem' }]
+      },
+      transitionDuration: {
+        'hover': '150ms'
+      }
     },
   },
   plugins: [

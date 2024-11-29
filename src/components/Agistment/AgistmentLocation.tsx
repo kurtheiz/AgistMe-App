@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Dialog } from '@headlessui/react';
-import { EditIcon } from '../Icons';
+import { EditIcon, MapPinIcon } from '../Icons';
 import { Location } from '../../types/agistment';
 import toast from 'react-hot-toast';
+import { getGoogleMapsUrl } from '../../utils/location';
 import { agistmentService } from '../../services/agistment.service';
 
 interface Props {
@@ -62,12 +63,23 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
               </button>
             )}
           </div>
-          <p className="text-neutral-700 dark:text-neutral-400">
-            {location.address}
-          </p>
-          <p className="text-neutral-700 dark:text-neutral-400">
-            {location.suburb}, {location.state} {location.postcode}
-          </p>
+          <div className="flex items-left gap-2 dark:border-neutral-600 text-neutral-900 dark:text-neutral-400 mt-1">
+          <a
+              href={getGoogleMapsUrl(location)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-neutral-800 hover:text-neutral-700 dark:text-neutral-300 dark:hover:text-neutral-100 transition-colors"
+              title="Open in Google Maps"
+            >
+              <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+            </a>
+            <div className="flex justify-between items-center">
+              <div className="text-neutral-900 dark:text-neutral-400">
+                {location.address}, {location.suburb}, {location.region}, {location.state}
+              </div>
+            </div>
+            </div>
         </div>
       </div>
 
