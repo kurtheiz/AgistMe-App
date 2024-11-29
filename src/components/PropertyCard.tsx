@@ -71,7 +71,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
 
   return (
     <div 
-      className="relative w-full cursor-pointer" 
+      className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
       onClick={handleClick}
     >
       <div className="relative bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
@@ -80,7 +80,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
           <div className="flex justify-between items-start">
             
             <h2 className="title-text dark:text-neutral-200 truncate px-2">{agistment.basicInfo.name}</h2>
-            <div className="text-white text-sm px-2 py-1 bg-primary-600 rounded-md dark:bg-primary-400 dark:text-neutral-200">
+            <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md dark:bg-primary-400 dark:text-neutral-200">
               {agistment.basicInfo.propertySize} acres
             </div>
           </div>
@@ -106,19 +106,19 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
 
         {/* Location */}
         {agistment.propertyLocation.location && (
-          <div className="flex items-center gap-2 px-5 py-2 border-b border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700">
             <a
               href={getGoogleMapsUrl(agistment.propertyLocation.location)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-neutral-500 hover:text-neutral-700 dark:text-neutral-300 dark:hover:text-neutral-100 transition-colors"
+              className="text-neutral-800 hover:text-neutral-700 dark:text-neutral-300 dark:hover:text-neutral-100 transition-colors"
               title="Open in Google Maps"
             >
               <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
             <div className="flex justify-between items-center">
-              <div className="text-sm text-neutral-600 dark:text-neutral-400">
+              <div className="text-sm text-neutral-800 dark:text-neutral-400">
                 {agistment.propertyLocation.location.address}, {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.region}, {agistment.propertyLocation.location.state}
               </div>
             </div>

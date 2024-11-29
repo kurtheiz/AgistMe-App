@@ -7,7 +7,6 @@ import { Agistment } from '../types/agistment';
 import { SearchIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
 import PropertyCard from '../components/PropertyCard';
-import { Spinner } from '../components/Spinner';
 
 const decodeSearchHash = (hash: string): SearchCriteria => {
   try {
@@ -222,7 +221,7 @@ export function Agistments() {
             </div>
           ) : isFetching ? (
             <div className="flex justify-center pt-2">
-              <Spinner className="w-6 h-6 text-primary-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white"></div>
             </div>
           ) : originalAgistments && originalAgistments.length > 0 ? (
             <div>

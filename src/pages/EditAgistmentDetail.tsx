@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
-import { ArrowLeftIcon } from '../components/Icons';
+import { ArrowLeftIcon, VisibleIcon, HiddenIcon } from '../components/Icons';
 import FavouriteIcon from '../components/Icons/FavouriteIcon';
 import { ShareIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
@@ -165,22 +165,22 @@ function EditAgistmentDetail() {
               <button
                 onClick={handleVisibilityToggle}
                 disabled={isUpdating}
+                title={agistment.visibility.hidden 
+                  ? "Hidden - This agistment will not appear in search results" 
+                  : "Visible - This agistment will appear in search results"
+                }
                 className={`
-                  px-3 py-1.5 text-sm font-medium rounded-md transition-colors
-                  ${agistment.visibility.hidden 
-                    ? 'bg-neutral-600 text-white hover:bg-neutral-700' 
-                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                  }
-                  disabled:opacity-50 disabled:cursor-not-allowed
+                  min-w-[44px] min-h-[44px] p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors
+                  flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed
                 `}
               >
-                {isUpdating ? (
-                  <span className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white"></div>
-                    Updating...
-                  </span>
+                {agistment.visibility.hidden ? (
+                  <HiddenIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                 ) : (
-                  agistment.visibility.hidden ? 'Hidden' : 'Visible'
+                  <VisibleIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                )}
+                {isUpdating && (
+                  <div className="absolute animate-spin rounded-full h-5 w-5 border-2 border-neutral-500 border-t-transparent dark:border-neutral-400 dark:border-t-transparent" />
                 )}
               </button>
             </div>

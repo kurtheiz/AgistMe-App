@@ -4,7 +4,10 @@ import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { Badge } from '../components/shared/Badge';
-import { ListBulletIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { ListBulletIcon, ChartBarIcon, UserGroupIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { EditIcon, VisibleIcon, HiddenIcon } from '../components/Icons';
+import { Disclosure } from '@headlessui/react';
+import PropertyCard from '../components/PropertyCard';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -116,90 +119,82 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* Listings Table */}
+        {/* Listings List */}
         <div className="bg-white dark:bg-neutral-800 rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white">My Listings</h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
-              <thead className="bg-gray-50 dark:bg-neutral-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Listing Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Views</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-neutral-700">
-                {agistments.map((agistment) => (
-                  <tr 
-                    key={agistment.id}
-                    onClick={() => navigate(`/agistments/${agistment.id}/edit`)}
-                    className="hover:bg-gray-50 dark:hover:bg-neutral-700 cursor-pointer transition-colors duration-150"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">{agistment.basicInfo.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.state}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge
-                        color={agistment.listing.listingType === 'PROFESSIONAL' ? 'emerald' : 'blue'}
-                        text={agistment.listing.listingType.toLowerCase()}
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleVisibilityToggle(agistment.id, agistment.visibility.hidden);
-                        }}
-                        disabled={isUpdating[agistment.id]}
-                        title={agistment.visibility.hidden 
-                          ? "Hidden - This agistment will not appear in search results" 
-                          : "Visible - This agistment will appear in search results"
-                        }
-                        className={`
-                          px-3 py-1.5 text-sm font-medium rounded-md transition-colors
-                          ${agistment.visibility.hidden 
-                            ? 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800' 
-                            : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:hover:bg-emerald-800'
-                          }
-                          disabled:opacity-50 disabled:cursor-not-allowed
-                        `}
-                      >
-                        <span className="flex items-center gap-2">
-                          {agistment.visibility.hidden ? 'Hidden' : 'Visible'}
-                          {isUpdating[agistment.id] && (
-                            <div className="animate-spin rounded-full h-3 w-3 border border-current border-t-transparent"></div>
+          <div className="divide-y divide-gray-200 dark:divide-neutral-700">
+            {agistments.map((agistment) => (
+              <Disclosure key={agistment.id}>
+                {({ open }) => (
+                  <>
+                    <Disclosure.Button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-neutral-700">
+                      <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-8 w-full">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/agistments/${agistment.id}/edit`);
+                            }}
+                            className="min-w-[44px] min-h-[44px] p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors flex items-center justify-center"
+                          >
+                            <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleVisibilityToggle(agistment.id, agistment.visibility.hidden);
+                            }}
+                            disabled={isUpdating[agistment.id]}
+                            title={agistment.visibility.hidden 
+                              ? "Hidden - This agistment will not appear in search results" 
+                              : "Visible - This agistment will appear in search results"
+                            }
+                            className={`
+                              min-w-[44px] min-h-[44px] p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors
+                              flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed
+                            `}
+                          >
+                            {agistment.visibility.hidden ? (
+                              <HiddenIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                            ) : (
+                              <VisibleIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                            )}
+                            {isUpdating[agistment.id] && (
+                              <div className="absolute animate-spin rounded-full h-5 w-5 border-2 border-neutral-500 border-t-transparent dark:border-neutral-400 dark:border-t-transparent" />
+                            )}
+                          </button>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">{agistment.basicInfo.name}</div>
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.state}
+                        </div>
+                        <Badge
+                          color={agistment.listing.listingType === 'PROFESSIONAL' ? 'emerald' : 'blue'}
+                          text={agistment.listing.listingType.toLowerCase()}
+                        />
+                        <div className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                          {agistment.views || 0} views
+                        </div>
+                        <div className="flex items-center">
+                          {open ? (
+                            <ChevronUpIcon className="h-5 w-5 text-gray-500" />
+                          ) : (
+                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
                           )}
-                        </span>
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {agistment.views || 0}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/agistments/${agistment.id}`);
-                        }}
-                        className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        </div>
+                      </div>
+                    </Disclosure.Button>
+                    <Disclosure.Panel className="px-6 py-4 bg-gray-50 dark:bg-neutral-900">
+                      <div className="max-w-2xl mx-auto">
+                        <PropertyCard agistment={agistment} />
+                      </div>
+                    </Disclosure.Panel>
+                  </>
+                )}
+              </Disclosure>
+            ))}
           </div>
         </div>
       </div>

@@ -50,6 +50,25 @@ export default {
           800: '#313e31',
           900: '#283228',
         },
+        // Visibility status colors
+        visibility: {
+          visible: {
+            light: '#22c55e', // Green-500
+            dark: '#4ade80',  // Green-400
+            hover: {
+              light: '#16a34a', // Green-600
+              dark: '#22c55e',  // Green-500
+            }
+          },
+          hidden: {
+            light: '#ef4444', // Red-500
+            dark: '#f87171',  // Red-400
+            hover: {
+              light: '#dc2626', // Red-600
+              dark: '#ef4444',  // Red-500
+            }
+          }
+        },
         // Earth tones for accents
         earth: {
           clay: '#c67c4e',    // Terracotta

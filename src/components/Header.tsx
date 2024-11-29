@@ -3,6 +3,7 @@ import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfile } from '../context/ProfileContext';
 import { useEffect } from 'react';
+import { ThemeToggle } from './ThemeToggle';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -72,6 +73,7 @@ export const Header = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-5 z-50">
+            <ThemeToggle />
             {isLoaded ? (
               <button
                 onClick={handleAvatarClick}

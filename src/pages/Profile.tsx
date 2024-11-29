@@ -4,7 +4,6 @@ import Bio from '../components/Bio';
 import { useProfile } from '../context/ProfileContext';
 import { useState, useEffect } from 'react';
 import LogoutIcon from "../components/Icons/LogoutIcon";
-import { ThemeToggle } from '../components/ThemeToggle';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -68,9 +67,6 @@ export default function Profile() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">My Profile</h1>
-          <div className="flex items-center">
-            <ThemeToggle />
-          </div>
         </div>
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">

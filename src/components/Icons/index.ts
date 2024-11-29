@@ -35,3 +35,5 @@ export * from './PhoneIcon';
 export * from './HideIcon';
 export { default as EditIcon } from './EditIcon';
 export * from './DeleteIcon';
+export { VisibleIcon } from './VisibleIcon';
+export { HiddenIcon } from './HiddenIcon';
