@@ -4,19 +4,17 @@ import { agistmentService } from '../services/agistment.service';
 import { Agistment, Status } from '../types/agistment';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
-import { useAgistmentStore } from '../stores/agistment.store';
 import { useProfile } from '../context/ProfileContext';
 import { useListingTypeStore } from '../stores/listingType.store';
 import { Switch } from '@headlessui/react';
 
 const CreateAgistment: React.FC = () => {
   const navigate = useNavigate();
-  const { selectedType: listingType } = useListingTypeStore();
+  const { selectedType: { listingType } } = useListingTypeStore();
   const { isLoaded } = useUser();
   const [text, setText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasClickedCreateFromText, setHasClickedCreateFromText] = useState(false);
-  const [isTextMode, setIsTextMode] = useState(false);
   const { profile, loading: profileLoading } = useProfile();
   const [useProfileData, setUseProfileData] = useState(true);
 
@@ -49,108 +47,132 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
     return {
       id: tempId,
       status: 'DRAFT' as Status,
-      listingType: listingType,
-      propertySize: 0,
-      arena: false,
-      arenas: [],
-      contactDetails: useProfileData && hasProfileData ? {
-        email: profile?.email || '',
-        name: profile ? `${profile.firstName} ${profile.lastName}`.trim() : '',
-        number: profile?.mobile || ''
-      } : {
-        email: '',
-        name: '',
-        number: ''
+      listing: listingType,
+      basicInfo: {
+        name: 'New Agistment',
+        propertySize: 0
       },
-      createdAt: null,
-      description: 'Description of your new agistment goes here.',
-      feedRoom: {
-        available: false,
-        comments: ''
+      propertyLocation: {
+        location: useProfileData && hasProfileData ? {
+          address: profile?.address || '',
+          postcode: profile?.postcode || '',
+          region: profile?.region || '',
+          state: profile?.state || '',
+          suburb: profile?.suburb || ''
+        } : {
+          address: '',
+          postcode: '',
+          region: '',
+          state: '',
+          suburb: ''
+        }
       },
-      floatParking: {
-        available: false,
-        comments: '',
-        monthlyPrice: 0
+      propertyDescription: {
+        description: 'Description of your new agistment goes here.'
       },
-      fullCare: {
-        available: false,
-        comments: '',
-        monthlyPrice: 0
+      contact: {
+        contactDetails: useProfileData && hasProfileData ? {
+          email: profile?.email || '',
+          name: profile ? `${profile.firstName} ${profile.lastName}`.trim() : '',
+          number: profile?.mobile || ''
+        } : {
+          email: '',
+          name: '',
+          number: ''
+        }
+      },
+      ridingFacilities: {
+        arenas: [],
+        roundYards: []
+      },
+      createdAt: undefined,
+      facilities: {
+        feedRoom: {
+          available: false,
+          comments: ''
+        },
+        floatParking: {
+          available: false,
+          comments: '',
+          monthlyPrice: 0
+        },
+        hotWash: {
+          available: false,
+          comments: ''
+        },
+        tackRoom: {
+          available: false,
+          comments: ''
+        },
+        tieUp: {
+          available: false,
+          comments: ''
+        },
+        stables: {
+          available: false,
+          comments: '',
+          quantity: 0
+        }
       },
       geohash: useProfileData && hasProfileData ? profile?.geohash || '' : '',
-      groupPaddocks: {
-        available: 0,
-        comments: '',
-        total: 0,
-        weeklyPrice: 0,
-        whenAvailable: null
+      paddocks: {
+        groupPaddocks: {
+          available: 0,
+          comments: '',
+          total: 0,
+          weeklyPrice: 0,
+          whenAvailable: undefined
+        },
+        privatePaddocks: {
+          available: 0,
+          comments: '',
+          total: 0,
+          weeklyPrice: 0,
+          whenAvailable: undefined
+        },
+        sharedPaddocks: {
+          available: 0,
+          comments: '',
+          total: 0,
+          weeklyPrice: 0,
+          whenAvailable: undefined
+        }
       },
-      GSI1PK: '',
-      hidden: true,
-      hotWash: {
-        available: false,
-        comments: ''
+      visibility: {
+        hidden: false
       },
       location: useProfileData && hasProfileData ? {
         address: profile?.address || '',
         postcode: profile?.postcode || '',
         region: profile?.region || '',
         state: profile?.state || '',
-        suburb: profile?.suburb || '',
-        hidden: false
-      } : {
-        address: '',
-        postcode: '',
-        region: '',
-        state: '',
-        suburb: '',
-        hidden: false
-      },
+        suburb: profile?.suburb || ''
+      } : undefined,
       modifiedAt: new Date().toISOString(),
-      name: 'New Agistment',
-      partCare: {
-        available: false,
-        comments: '',
-        monthlyPrice: 0
+      care: {
+        partCare: {
+          available: false,
+          comments: '',
+          monthlyPrice: 0
+        },
+        selfCare: {
+          available: false,
+          comments: '',
+          monthlyPrice: 0
+        },
+        fullCare: {
+          available: false,
+          comments: '',
+          monthlyPrice: 0
+        }
       },
-      photos: [],
-      privatePaddocks: {
-        available: 0,
-        comments: '',
-        total: 0,
-        weeklyPrice: 0,
-        whenAvailable: null
+      photoGallery: {
+        photos: []
       },
-      roundYard: false,
-      roundYards: [],
-      selfCare: {
-        available: false,
-        comments: '',
-        monthlyPrice: 0
-      },
-      services: [],
-      sharedPaddocks: {
-        available: 0,
-        comments: '',
-        total: 0,
-        weeklyPrice: 0,
-        whenAvailable: null
+      propertyServices: {
+        services: []
       },
       socialMedia: [],
-      stables: {
-        available: false,
-        comments: '',
-        quantity: 0
-      },
-      tackRoom: {
-        available: false,
-        comments: ''
-      },
-      tieUp: {
-        available: false,
-        comments: ''
-      },
       urgentAvailability: false
     };
   };
@@ -168,31 +190,25 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       // Add profile information to the result
       const agistmentWithProfile = {
         ...result,
-        listingType: listingType,
-        contactDetails: useProfileData ? {
-          email: profile?.email || '',
-          name: profile ? `${profile.firstName} ${profile.lastName}`.trim() : '',
-          number: profile?.mobile || ''
-        } : {
-          email: '',
-          name: '',
-          number: ''
+        listing: listingType,
+        contact: {
+          contactDetails: useProfileData ? {
+            email: profile?.email || '',
+            name: profile ? `${profile.firstName} ${profile.lastName}`.trim() : '',
+            number: profile?.mobile || ''
+          } : {
+            email: '',
+            name: '',
+            number: ''
+          }
         },
         location: useProfileData ? {
-          address: profile?.address || result.location.address,
-          postcode: profile?.postcode || result.location.postcode,
-          region: profile?.region || result.location.region,
-          state: profile?.state || result.location.state,
-          suburb: profile?.suburb || result.location.suburb,
-          hidden: false
-        } : {
-          address: '',
-          postcode: '',
-          region: '',
-          state: '',
-          suburb: '',
-          hidden: false
-        },
+          address: profile?.address || result.location?.address || '',
+          postcode: profile?.postcode || result.location?.postcode || '',
+          region: profile?.region || result.location?.region || '',
+          state: profile?.state || result.location?.state || '',
+          suburb: profile?.suburb || result.location?.suburb || ''
+        } : undefined,
         geohash: useProfileData ? profile?.geohash || result.geohash : ''
       };
       
@@ -226,18 +242,11 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
     }
   };
 
-  const handleCreateFromScratch = () => {
-    const tempId = `temp_${Date.now()}`;
-    const blankAgistment = createEmptyAgistment(tempId);
-    useAgistmentStore.getState().setTempAgistment(tempId, blankAgistment);
-    navigate(`/agistments/${tempId}/edit`);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-4">Create a New {listingType} Agistment Listing</h1>
+          <h1 className="text-2xl font-bold mb-4">Create a New Agistment Listing - {listingType}</h1>
           <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4">
             <h2 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">Information you'll need:</h2>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
@@ -271,7 +280,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center space-x-3 mb-6 bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg">
             <Switch
-              checked={useProfileData && hasProfileData}
+              checked={!!(useProfileData && hasProfileData)}
               onChange={setUseProfileData}
               disabled={!hasProfileData}
               className={`${
@@ -313,9 +322,8 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
                 value={text}
                 onChange={(e) => {
                   setText(e.target.value);
-                  setIsTextMode(e.target.value.trim().length > 0);
                 }}
-                onFocus={() => setIsTextMode(true)}
+                onFocus={() => {}}
                 placeholder={placeholderText}
                 className="w-full h-40 p-3 border rounded-lg resize-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 disabled={isGenerating}

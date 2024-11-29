@@ -3,10 +3,8 @@ import { formatAvailabilityDate } from '../../utils/dates';
 import { Agistment } from '../../types/agistment';
 
 interface AgistmentPaddocksProps {
-  agistmentId: string;
   paddocks: Agistment['paddocks'];
   isEditable?: boolean;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
 }
 
 const calculateMonthlyPrice = (weeklyPrice: number) => {
@@ -14,10 +12,8 @@ const calculateMonthlyPrice = (weeklyPrice: number) => {
 };
 
 export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
-  agistmentId,
   paddocks,
-  isEditable = false,
-  onUpdate
+  isEditable = false
 }) => {
   return (
     <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">

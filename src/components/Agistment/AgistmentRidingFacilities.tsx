@@ -2,17 +2,13 @@ import { EditIcon } from '../../components/Icons';
 import { Agistment } from '../../types/agistment';
 
 interface AgistmentRidingFacilitiesProps {
-  agistmentId: string;
   ridingFacilities: Agistment['ridingFacilities'];
   isEditable?: boolean;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
 }
 
 export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps> = ({
-  agistmentId,
   ridingFacilities,
-  isEditable = false,
-  onUpdate
+  isEditable = false
 }) => {
   return (
     <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
@@ -28,7 +24,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
         {/* Arenas */}
         <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
           <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
-            Arenas
+            {ridingFacilities.arenas && ridingFacilities.arenas.length > 1 ? `${ridingFacilities.arenas.length} Arenas` : 'Arena'}
           </span>
           <div className="flex flex-col items-center pt-2">
             {ridingFacilities.arenas && ridingFacilities.arenas.length > 0 ? (
@@ -75,7 +71,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
         {/* Round Yards */}
         <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
           <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
-            Round Yards
+            {ridingFacilities.roundYards && ridingFacilities.roundYards.length > 1 ? `${ridingFacilities.roundYards.length} Round Yards` : 'Round Yard'}
           </span>
           <div className="flex flex-col items-center pt-2">
             {ridingFacilities.roundYards && ridingFacilities.roundYards.length > 0 ? (

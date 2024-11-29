@@ -10,8 +10,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './pages/Profile';
 import { ProfileProvider } from './context/ProfileContext';
 import { Agistments } from './pages/Agistments';
-import { AgistmentDetail } from './pages/AgistmentDetail';
-import { EditAgistmentDetail } from './pages/EditAgistmentDetail';
 import { ViewAgistmentDetail } from './pages/ViewAgistmentDetail';
 import { Toaster } from 'react-hot-toast';
 import { useAuthToken } from './hooks/useAuthToken';
@@ -19,6 +17,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import ListAgistment from './pages/ListAgistment';
 import { CreateAgistment } from './pages/CreateAgistment';
 import { Dashboard } from './pages/Dashboard';
+import EditAgistmentDetail from './pages/EditAgistmentDetail';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

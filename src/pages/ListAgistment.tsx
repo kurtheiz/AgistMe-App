@@ -1,6 +1,5 @@
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { useClerk } from '@clerk/clerk-react';
 import { PricingPlans } from '../components/PricingPlans';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { useListingTypeStore } from '../stores/listingType.store';
@@ -12,7 +11,7 @@ const ListAgistment = () => {
   const setSelectedType = useListingTypeStore(state => state.setSelectedType);
 
   const handlePlanSelect = (planName: string) => {
-    const listingType = planName.toUpperCase() === 'PROFESSIONAL' ? 'PROFESSIONAL' : 'STANDARD';
+    const listingType = { listingType: planName.toUpperCase() as 'PROFESSIONAL' | 'STANDARD' };
     setSelectedType(listingType);
     
     if (!isSignedIn) {

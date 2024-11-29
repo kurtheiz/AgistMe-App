@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment, AgistmentResponse } from '../types/agistment';
-import { ChartBarIcon, ListBulletIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { Agistment } from '../types/agistment';
 import { Badge } from '../components/shared/Badge';
+import { ListBulletIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 
 export const Dashboard = () => {
   const navigate = useNavigate();

@@ -1,18 +1,14 @@
 import { EditIcon } from '../../components/Icons';
-import { Agistment, AgistmentCare } from '../../types/agistment';
+import { AgistmentCare } from '../../types/agistment';
 
 interface AgistmentCareOptionsProps {
-  agistmentId: string;
   care: AgistmentCare;
   isEditable?: boolean;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
 }
 
 export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
-  agistmentId,
   care,
-  isEditable = false,
-  onUpdate
+  isEditable = false
 }) => {
   return (
     <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">

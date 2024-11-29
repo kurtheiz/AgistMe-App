@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EditIcon, XMarkIcon } from '../../components/Icons';
+import { EditIcon } from '../../components/Icons';
 import { Agistment, FloatParking } from '../../types/agistment';
 import {
   FeedRoomIcon,
@@ -171,7 +171,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
       </div>
       
       {/* Edit Modal */}
-      <Modal
+      <Modal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         size="md"
@@ -201,7 +201,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
         <div className="space-y-6 p-6">
           {Object.entries(editableFacilities)
             .sort(([keyA], [keyB]) => {
-              const displayNames = {
+              const displayNames: Record<keyof Agistment['facilities'], string> = {
                 feedRoom: 'Feed Room',
                 floatParking: 'Float Parking',
                 hotWash: 'Hot Wash Bay',
@@ -209,27 +209,28 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
                 tackRoom: 'Tack Room',
                 tieUp: 'Tie Ups'
               };
-              return displayNames[keyA].localeCompare(displayNames[keyB]);
+              return displayNames[keyA as keyof Agistment['facilities']].localeCompare(displayNames[keyB as keyof Agistment['facilities']]);
             })
             .map(([key, facility]) => {
-            const Icon = {
+            const icons: Record<keyof Agistment['facilities'], React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
               feedRoom: FeedRoomIcon,
               floatParking: FloatParkingIcon,
               hotWash: HotWashIcon,
               stables: StableIcon,
               tackRoom: TackRoomIcon,
               tieUp: TieUpIcon
-            }[key];
+            };
+            const Icon = icons[key as keyof Agistment['facilities']];
 
-            const displayName = {
+            const displayNames: Record<keyof Agistment['facilities'], string> = {
               feedRoom: 'Feed Room',
               floatParking: 'Float Parking',
               hotWash: 'Hot Wash Bay',
               stables: 'Stables',
               tackRoom: 'Tack Room',
               tieUp: 'Tie Ups'
-            }[key];
-
+            };
+            const displayName = displayNames[key as keyof Agistment['facilities']];
             return (
               <div key={key} className="flex items-start space-x-4">
                 <button
@@ -240,7 +241,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
                       : 'text-neutral-300 dark:text-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-800'
                   }`}
                 >
-                  <Icon className="w-full h-full" />
+                  <Icon aria-hidden="true" className="w-full h-full" />
                 </button>
 
                 <div className="flex-1">

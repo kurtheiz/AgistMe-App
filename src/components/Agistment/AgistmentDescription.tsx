@@ -20,7 +20,7 @@ export const AgistmentDescription = ({ agistmentId, description, isEditable = fa
     if (!agistmentId) return;
     
     try {
-      const updatedAgistment = await agistmentService.updatePropertyDescription(agistmentId, {
+      await agistmentService.updatePropertyDescription(agistmentId, {
         description: editedDescription
       });
       

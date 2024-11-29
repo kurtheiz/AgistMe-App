@@ -19,17 +19,18 @@ import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptio
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentSocialMedia } from '../components/Agistment/AgistmentSocialMedia';
 import { usePlanPhotoLimit } from '../stores/reference.store';
+import toast from 'react-hot-toast';
 
 // Use the same key as in Agistments.tsx
 
-export function EditAgistmentDetail() {
+function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [agistment, setAgistment] = useState<Agistment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const maxPhotos = usePlanPhotoLimit(agistment?.listing?.listingType || 'STANDARD');
+  const maxPhotos = usePlanPhotoLimit(agistment?.listing ? String(agistment.listing) : 'STANDARD');
   console.log('Max photos:', maxPhotos);
   // Scroll to top when component mounts
   useEffect(() => {
@@ -107,11 +108,16 @@ export function EditAgistmentDetail() {
     }
   };
 
-  const handleUpdate = (updatedAgistment) => {
-    setAgistment(prev => prev ? {
-      ...prev,
-      ridingFacilities: updatedAgistment.ridingFacilities
-    } : null);
+  const handlePropertyDescriptionUpdate = (description: string) => {
+    setAgistment(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        propertyDescription: {
+          description
+        }
+      };
+    });
   };
 
   return (
@@ -232,10 +238,13 @@ export function EditAgistmentDetail() {
                   basicInfo={agistment.basicInfo}
                   isEditable={true}
                   onUpdate={(updatedAgistment) => {
-                    setAgistment(prev => prev ? {
-                      ...prev,
-                      basicInfo: updatedAgistment.basicInfo
-                    } : null);
+                    setAgistment(prev => {
+                      if (!prev) return null;
+                      return {
+                        ...prev,
+                        basicInfo: updatedAgistment.basicInfo || prev.basicInfo
+                      };
+                    });
                   }}
                 />
                 {/* Location Details */}
@@ -245,10 +254,13 @@ export function EditAgistmentDetail() {
                     location={agistment.propertyLocation.location}
                     isEditable={true}
                     onUpdate={(updatedAgistment) => {
-                      setAgistment(prev => prev ? {
-                        ...prev,
-                        propertyLocation: { location: updatedAgistment.propertyLocation.location }
-                      } : null);
+                      setAgistment(prev => {
+                        if (!prev) return null;
+                        return {
+                          ...prev,
+                          propertyLocation: updatedAgistment.propertyLocation || prev.propertyLocation
+                        };
+                      });
                     }}
                   />
 
@@ -282,40 +294,21 @@ export function EditAgistmentDetail() {
           {/* Description Section */}
           <AgistmentDescription
             agistmentId={agistment.id}
-            description={agistment.propertyDescription.description}
+            description={agistment.propertyDescription?.description || ''}
             isEditable={true}
-            onUpdate={(updatedAgistment) => {
-              setAgistment(prev => prev ? {
-                ...prev,
-                propertyDescription: updatedAgistment.propertyDescription
-              } : null);
-            }}
+            onUpdate={updatedAgistment => handlePropertyDescriptionUpdate(updatedAgistment.propertyDescription?.description || '')}
           />
 
           {/* Paddocks */}
           <AgistmentPaddocks
-            agistmentId={agistment.id}
             paddocks={agistment.paddocks}
             isEditable={true}
-            onUpdate={(updatedAgistment) => {
-              setAgistment(prev => prev ? {
-                ...prev,
-                paddocks: updatedAgistment.paddocks
-              } : null);
-            }}
           />
 
-          {/* Arenas and Roundyards */}
+          {/* Riding Facilities */}
           <AgistmentRidingFacilities
-            agistmentId={agistment.id}
             ridingFacilities={agistment.ridingFacilities}
             isEditable={true}
-            onUpdate={(updatedAgistment) => {
-              setAgistment(prev => prev ? {
-                ...prev,
-                ridingFacilities: updatedAgistment.ridingFacilities
-              } : null);
-            }}
           />
 
           {/* Facilities */}
@@ -324,53 +317,37 @@ export function EditAgistmentDetail() {
             facilities={agistment.facilities}
             isEditable={true}
             onUpdate={(updatedAgistment) => {
-              setAgistment(prev => prev ? {
-                ...prev,
-                facilities: updatedAgistment.facilities
-              } : null);
+              setAgistment(prev => {
+                if (!prev) return null;
+                return {
+                  ...prev,
+                  facilities: updatedAgistment.facilities || prev.facilities
+                };
+              });
             }}
           />
 
           {/* Care Options */}
           <AgistmentCareOptions
-            agistmentId={agistment.id}
             care={agistment.care}
             isEditable={true}
-            onUpdate={(updatedAgistment) => {
-              setAgistment(prev => prev ? {
-                ...prev,
-                care: updatedAgistment.care
-              } : null);
-            }}
           />
 
           {/* Services */}
           <AgistmentServices
-            agistmentId={agistment.id}
-            propertyServices={agistment.propertyServices}
+            services={agistment.propertyServices.services}
             isEditable={true}
-            onUpdate={(updatedAgistment) => {
-              setAgistment(prev => prev ? {
-                ...prev,
-                propertyServices: updatedAgistment.propertyServices
-              } : null);
-            }}
           />
 
           {/* Social Media */}
           <AgistmentSocialMedia
-            agistmentId={agistment.id}
-            socialMedia={agistment.socialMedia}
+            socialMedia={agistment.socialMedia || []}
             isEditable={true}
-            onUpdate={(updatedAgistment) => {
-              setAgistment(prev => prev ? {
-                ...prev,
-                socialMedia: updatedAgistment.socialMedia
-              } : null);
-            }}
           />
         </div>
       </div>
     </div>
   );
 }
+
+export default EditAgistmentDetail;

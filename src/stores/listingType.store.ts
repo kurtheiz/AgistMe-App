@@ -7,6 +7,6 @@ interface ListingTypeState {
 }
 
 export const useListingTypeStore = create<ListingTypeState>((set) => ({
-  selectedType: 'STANDARD',
+  selectedType: { listingType: 'STANDARD' },
   setSelectedType: (type) => set({ selectedType: type }),
 }));

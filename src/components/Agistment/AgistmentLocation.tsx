@@ -78,7 +78,7 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
           className="fixed inset-0 z-50 overflow-y-auto"
         >
           <div className="flex items-center justify-center min-h-screen">
-            <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+            <div className="fixed inset-0 bg-black opacity-30" />
             <div className="relative bg-white dark:bg-neutral-800 rounded-lg p-6 max-w-md w-full mx-4">
               <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">
                 Edit Location

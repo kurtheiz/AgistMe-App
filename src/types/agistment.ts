@@ -1,9 +1,9 @@
 export interface AgistmentResponse {
   original: Agistment[];
-  adjacent?: Agistment[];
-  totalCount?: number;
+  adjacent: Agistment[];
+  totalCount: number;
   originalCount: number;
-  adjacentCount?: number;
+  adjacentCount: number;
   nextToken?: string;
 }
 
@@ -125,6 +125,16 @@ export interface AgistmentVisibility {
   hidden: boolean;
 }
 
+export enum Status {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED'
+}
+
+export interface ListingType {
+  listingType: 'PROFESSIONAL' | 'STANDARD';
+}
+
 export interface Agistment {
   id: string;
   ridingFacilities: AgistmentRidingFacilities;
@@ -133,8 +143,9 @@ export interface Agistment {
   propertyDescription: AgistmentDescription;
   facilities: AgistmentFacilities;
   visibility: AgistmentVisibility;
-  listing: AgistmentListingType;
+  listing: ListingType;
   propertyLocation: AgistmentLocation;
+  location?: Location;
   modifiedAt?: string;
   basicInfo: AgistmentBasicInfo;
   paddocks: AgistmentPaddocks;
@@ -142,7 +153,9 @@ export interface Agistment {
   propertyServices: AgistmentServices;
   care: AgistmentCare;
   socialMedia: SocialMediaLink[];
-  status: string;
+  status: Status;
   urgentAvailability: boolean;
   paddockTypes?: string[];
+  views?: number;
+  geohash?: string;
 }

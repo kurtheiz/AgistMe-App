@@ -167,14 +167,12 @@ export function ViewAgistmentDetail() {
 
           {/* Paddocks */}
           <AgistmentPaddocks
-            agistmentId={agistment.id}
             paddocks={agistment.paddocks}
             isEditable={false}
           />
 
-          {/* Arenas and Roundyards */}
+          {/* Riding Facilities */}
           <AgistmentRidingFacilities
-            agistmentId={agistment.id}
             ridingFacilities={agistment.ridingFacilities}
             isEditable={false}
           />
@@ -188,22 +186,19 @@ export function ViewAgistmentDetail() {
 
           {/* Care Options */}
           <AgistmentCareOptions
-            agistmentId={agistment.id}
             care={agistment.care}
             isEditable={false}
           />
 
           {/* Services */}
           <AgistmentServices
-            agistmentId={agistment.id}
-            propertyServices={agistment.propertyServices}
+            services={agistment.propertyServices.services}
             isEditable={false}
           />
 
           {/* Social Media */}
           <AgistmentSocialMedia
-            agistmentId={agistment.id}
-            socialMedia={agistment.socialMedia}
+            socialMedia={agistment.socialMedia || []}
             isEditable={false}
           />
         </div>

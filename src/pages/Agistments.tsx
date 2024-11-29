@@ -65,8 +65,15 @@ export function Agistments() {
       
       agistmentService.searchAgistments(searchHash)
         .then(response => {
-          setOriginalAgistments(response.original);
-          setAdjacentAgistments(response.adjacent || []);
+          if (response) {
+            // Handle the actual API response structure
+            setOriginalAgistments(response.original || []);
+            setAdjacentAgistments(response.adjacent || []); 
+          } else {
+            console.error('Invalid response format:', response);
+            setOriginalAgistments([]);
+            setAdjacentAgistments([]);
+          }
         })
         .catch(error => {
           console.error('Error fetching agistments:', error);
@@ -209,7 +216,13 @@ export function Agistments() {
       />
       <div className="flex-grow max-w-7xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-4">
         <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50' : 'opacity-100'}`}>
-          {originalAgistments.length > 0 && (
+          {!searchHash ? (
+            <div className="text-center py-8">
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Use the search button above to find agistments
+              </p>
+            </div>
+          ) : originalAgistments && originalAgistments.length > 0 ? (
             <div>
               <div className="mb-3 px-2 sm:px-0">
                 <h1 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
@@ -239,8 +252,13 @@ export function Agistments() {
                 ))}
               </div>
             </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-neutral-600 dark:text-neutral-400">
+                No agistments found. Try adjusting your search criteria to find more options.
+              </p>
+            </div>
           )}
-
           {adjacentAgistments.length > 0 && (
             <div>
               <div className="mb-3 px-2 sm:px-0">
@@ -260,7 +278,7 @@ export function Agistments() {
             </div>
           )}
         </div>
-        {!isFetching && originalAgistments.length === 0 && adjacentAgistments.length === 0 ? (
+        {!isFetching && originalAgistments && originalAgistments.length === 0 && adjacentAgistments.length === 0 ? (
           <EmptyState onSearch={() => setIsSearchModalOpen(true)} />
         ) : null}
       </div>

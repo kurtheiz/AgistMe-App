@@ -1,18 +1,18 @@
 import { EditIcon } from '../../components/Icons';
-import { Agistment } from '../../types/agistment';
+
+interface SocialMediaLink {
+  type: string;
+  link: string;
+}
 
 interface AgistmentSocialMediaProps {
-  agistmentId: string;
-  socialMedia: Agistment['socialMedia'];
+  socialMedia: SocialMediaLink[];
   isEditable?: boolean;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
 }
 
 export const AgistmentSocialMedia: React.FC<AgistmentSocialMediaProps> = ({
-  agistmentId,
   socialMedia,
-  isEditable = false,
-  onUpdate
+  isEditable = false
 }) => {
   return (
     <div className="bg-white dark:bg-transparent p-6">

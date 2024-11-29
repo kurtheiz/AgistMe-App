@@ -90,9 +90,9 @@ class AgistmentService {
     }
   }
 
-  async getMyAgistments(): Promise<AgistmentResponse> {
+  async getMyAgistments(): Promise<{ agistments: Agistment[], count: number, totalNewEnquiries: number }> {
     try {
-      const response = await this.api.get<AgistmentResponse>('/v1/protected/agistments/my');
+      const response = await this.api.get<{ agistments: Agistment[], count: number, totalNewEnquiries: number }>('/v1/protected/agistments/my');
       console.log('My Agistments Response:', response.data);
       return response.data;
     } catch (error: unknown) {
