@@ -7,6 +7,7 @@ import { Agistment } from '../types/agistment';
 import { SearchIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
 import PropertyCard from '../components/PropertyCard';
+import { Spinner } from '../components/Spinner';
 
 const decodeSearchHash = (hash: string): SearchCriteria => {
   try {
@@ -217,10 +218,11 @@ export function Agistments() {
       <div className="flex-grow max-w-7xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-4">
         <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50' : 'opacity-100'}`}>
           {!searchHash ? (
-            <div className="text-center py-8">
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Use the search button above to find agistments
-              </p>
+            <div className="text-center pt-2">
+            </div>
+          ) : isFetching ? (
+            <div className="flex justify-center pt-2">
+              <Spinner className="w-6 h-6 text-primary-500" />
             </div>
           ) : originalAgistments && originalAgistments.length > 0 ? (
             <div>

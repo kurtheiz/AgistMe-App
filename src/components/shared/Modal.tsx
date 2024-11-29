@@ -108,12 +108,12 @@ export function Modal({
               }
             >
               <Dialog.Panel 
-                className={`modal-panel w-full ${sizeClasses[size]} md:max-h-[85vh] md:rounded-lg overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
+                className={`modal-panel w-full ${sizeClasses[size]} h-[100dvh] md:h-auto md:max-h-[85vh] md:rounded-lg overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
               >
-                <div className="flex flex-col max-h-full">
+                <div className="flex flex-col h-full">
                   {/* Header */}
                   {(title || headerContent || showCloseButton) && (
-                    <div className="sticky top-0 z-50 bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700">
+                    <div className="flex-none sticky top-0 z-50 bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700">
                       <div className="flex items-center justify-between px-4 py-4">
                         {title && (
                           <Dialog.Title as="h3" className="text-lg font-medium text-white">
@@ -134,13 +134,13 @@ export function Modal({
                   )}
   
                   {/* Content */}
-                  <div className="flex-1 overflow-y-auto min-h-0">
+                  <div className="flex-1 overflow-y-auto">
                     {children}
                   </div>
   
                   {/* Footer */}
                   {footerContent && (
-                    <div className="sticky bottom-0 z-50 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-700 px-4 py-3">
+                    <div className="flex-none sticky bottom-0 z-50 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-700 px-4 py-3">
                       {footerContent}
                     </div>
                   )}

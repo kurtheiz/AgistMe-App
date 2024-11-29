@@ -19,3 +19,17 @@ export const formatAvailabilityDate = (date: Date | null): string => {
         year: 'numeric'
     });
 };
+
+export const formatDate = (date: string | Date | null | undefined): string => {
+    if (!date) {
+        return '';
+    }
+
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    return dateObj.toLocaleDateString('en-AU', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
+};
