@@ -47,7 +47,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
     return {
       id: tempId,
       status: 'DRAFT' as Status,
-      listing: listingType,
+      listing: { listingType },
       basicInfo: {
         name: 'New Agistment',
         propertySize: 0
@@ -188,9 +188,9 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       const result = await agistmentService.createFromText(text);
       
       // Add profile information to the result
-      const agistmentWithProfile = {
+      const agistmentWithProfile: Partial<Agistment> = {
         ...result,
-        listing: listingType,
+        listing: { listingType },
         contact: {
           contactDetails: useProfileData ? {
             email: profile?.email || '',
