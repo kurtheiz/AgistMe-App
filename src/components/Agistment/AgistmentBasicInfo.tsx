@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EditIcon } from '../Icons';
+import { Pencil } from 'lucide-react';
 import { Agistment } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
@@ -49,11 +49,11 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
   };
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between">
+    <div className="section-container">
+      <div className="section-header">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
+          <div className="section-title-wrapper">
+            <h2 className="text-title">
               {basicInfo.name}
             </h2>
             {isEditable && (
@@ -65,13 +65,13 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
                   });
                   setIsEditDialogOpen(true);
                 }}
-                className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                className="btn-edit"
               >
-                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
               </button>
             )}
           </div>
-          <p className="text-neutral-900 dark:text-neutral-400 mt-1">
+          <p className="text-body mt-1">
             {basicInfo.propertySize > 0 ? `${basicInfo.propertySize} acres` : 'Property size not specified'}
           </p>
         </div>
@@ -87,18 +87,13 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsEditDialogOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 
-                  bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 
-                  rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none 
-                  focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpdateBasicInfo}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary-600 
-                  border border-transparent rounded-md hover:bg-primary-700 
-                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="btn-primary"
               >
                 Save Changes
               </button>

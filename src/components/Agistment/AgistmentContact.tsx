@@ -7,6 +7,8 @@ import { ContactDetails } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
 import { Modal } from '../shared/Modal';
+import { EnvelopeIcon } from '../Icons/EnvelopeIcon';
+import { StarIcon } from '../Icons/StarIcon';
 
 interface Props {
   agistmentId?: string;
@@ -67,9 +69,9 @@ export const AgistmentContact = ({ agistmentId, contactDetails, isEditable = fal
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">Contact Details</h3>
+    <div className="section-container">
+      <div className="section-title-wrapper mb-4">
+        <h3 className="text-subtitle">Contact Details</h3>
         {isEditable && (
           <button
             onClick={() => {
@@ -80,42 +82,39 @@ export const AgistmentContact = ({ agistmentId, contactDetails, isEditable = fal
               });
               setIsEditDialogOpen(true);
             }}
-            className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+            className="btn-edit"
           >
             <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
           </button>
         )}
       </div>
-      {!contactDetails.name && !contactDetails.email && !contactDetails.number ? (
-        <div className="text-neutral-500 dark:text-neutral-400">None provided</div>
-      ) : (
-        <>
-          {contactDetails.name && (
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="text-body">
+          <div className="flex items-center gap-2">
+            <UserIcon className="w-5 h-5 text-neutral-500" />
+            <span>{contactDetails.name}</span>
+          </div>
+        </div>
+        <div className="text-body">
+          <div className="flex items-center gap-2">
+            <EmailIcon className="w-5 h-5 text-neutral-500" />
+            <a href={`mailto:${contactDetails.email}`} className="hover:text-primary-600 dark:hover:text-primary-400">
+              {contactDetails.email}
+            </a>
+          </div>
+        </div>
+        {contactDetails.number && (
+          <div className="text-body">
             <div className="flex items-center gap-2">
-              <UserIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
-              <span className="text-neutral-900 dark:text-white font-medium">
-                {contactDetails.name}
-              </span>
-            </div>
-          )}
-          {contactDetails.number && (
-            <div className="flex items-center gap-2">
-              <PhoneIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
-              <span className="text-neutral-700 dark:text-neutral-400">
+              <PhoneIcon className="w-5 h-5 text-neutral-500" />
+              <a href={`tel:${contactDetails.number}`} className="hover:text-primary-600 dark:hover:text-primary-400">
                 {contactDetails.number}
-              </span>
+              </a>
             </div>
-          )}
-          {contactDetails.email && (
-            <div className="flex items-center gap-2">
-              <EmailIcon className="w-5 h-5 text-neutral-700 dark:text-neutral-400" />
-              <span className="text-neutral-700 dark:text-neutral-400">
-                {contactDetails.email}
-              </span>
-            </div>
-          )}
-        </>
-      )}
+          </div>
+        )}
+      </div>
 
       {isEditable && (
         <Modal
@@ -127,115 +126,70 @@ export const AgistmentContact = ({ agistmentId, contactDetails, isEditable = fal
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsEditDialogOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 
-                  bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 
-                  rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none 
-                  focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpdateContact}
                 disabled={isSubmitting}
-                className={`px-4 py-2 text-sm font-medium text-white bg-primary-600 
-                  border border-transparent rounded-md hover:bg-primary-700 
-                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500
-                  ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`btn-primary ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {isSubmitting ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           }
         >
-          <div className="p-6 space-y-4">
+          <div className="form-group">
             <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Name
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={editForm.name}
-                  onChange={(e) => {
-                    setEditForm(prev => ({ ...prev, name: e.target.value }));
-                    if (errors.name) {
-                      setErrors(prev => ({ ...prev, name: '' }));
-                    }
-                  }}
-                  className={`w-full px-3 py-2 border ${errors.name ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-600'} rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white ${editForm.name ? 'pr-8' : ''}`}
-                />
-                {editForm.name && (
-                  <button
-                    type="button"
-                    onClick={() => setEditForm(prev => ({ ...prev, name: '' }))}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
+              <label className="form-label">Name</label>
+              <input
+                type="text"
+                value={editForm.name}
+                onChange={(e) => {
+                  setEditForm(prev => ({ ...prev, name: e.target.value }));
+                  if (errors.name) {
+                    setErrors(prev => ({ ...prev, name: '' }));
+                  }
+                }}
+                className={`form-input ${errors.name ? 'border-red-500' : ''}`}
+              />
               {errors.name && (
                 <p className="mt-1 text-sm text-red-500">{errors.name}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Phone Number
-              </label>
-              <div className="relative">
-                <input
-                  type="tel"
-                  value={editForm.number}
-                  onChange={(e) => {
-                    setEditForm(prev => ({ ...prev, number: e.target.value }));
-                    if (errors.number) {
-                      setErrors(prev => ({ ...prev, number: '' }));
-                    }
-                  }}
-                  className={`w-full px-3 py-2 border ${errors.number ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-600'} rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white ${editForm.number ? 'pr-8' : ''}`}
-                />
-                {editForm.number && (
-                  <button
-                    type="button"
-                    onClick={() => setEditForm(prev => ({ ...prev, number: '' }))}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-              {errors.number && (
-                <p className="mt-1 text-sm text-red-500">{errors.number}</p>
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => {
+                  setEditForm(prev => ({ ...prev, email: e.target.value }));
+                  if (errors.email) {
+                    setErrors(prev => ({ ...prev, email: '' }));
+                  }
+                }}
+                className={`form-input ${errors.email ? 'border-red-500' : ''}`}
+              />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Email
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  value={editForm.email}
-                  onChange={(e) => {
-                    setEditForm(prev => ({ ...prev, email: e.target.value }));
-                    if (errors.email) {
-                      setErrors(prev => ({ ...prev, email: '' }));
-                    }
-                  }}
-                  className={`w-full px-3 py-2 border ${errors.email ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-600'} rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white ${editForm.email ? 'pr-8' : ''}`}
-                />
-                {editForm.email && (
-                  <button
-                    type="button"
-                    onClick={() => setEditForm(prev => ({ ...prev, email: '' }))}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+              <label className="form-label">Phone</label>
+              <input
+                type="tel"
+                value={editForm.number}
+                onChange={(e) => {
+                  setEditForm(prev => ({ ...prev, number: e.target.value }));
+                  if (errors.number) {
+                    setErrors(prev => ({ ...prev, number: '' }));
+                  }
+                }}
+                className={`form-input ${errors.number ? 'border-red-500' : ''}`}
+              />
+              {errors.number && (
+                <p className="mt-1 text-sm text-red-500">{errors.number}</p>
               )}
             </div>
           </div>

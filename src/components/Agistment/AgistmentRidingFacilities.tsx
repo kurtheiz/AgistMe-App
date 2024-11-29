@@ -1,4 +1,4 @@
-import { EditIcon } from '../../components/Icons';
+import { Pencil } from 'lucide-react';
 import { Agistment } from '../../types/agistment';
 
 interface AgistmentRidingFacilitiesProps {
@@ -11,22 +11,22 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
   isEditable = false
 }) => {
   return (
-    <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-      <div className="flex items-center gap-2 mb-4">
-        <h3 className="text-lg font-medium text-neutral-900 dark:text-white">Riding Facilities</h3>
+    <div className="agistment-section">
+      <div className="agistment-section-header">
+        <h3 className="agistment-section-title">Riding Facilities</h3>
         {isEditable && (
-          <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
-            <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+          <button className="btn-edit">
+            <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
           </button>
         )}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* Arenas */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
-          <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+        <div className="border-title-card">
+          <span className="border-title-card-title">
             {ridingFacilities.arenas && ridingFacilities.arenas.length > 1 ? `${ridingFacilities.arenas.length} Arenas` : 'Arena'}
           </span>
-          <div className="flex flex-col items-center pt-2">
+          <div className="border-title-card-content">
             {ridingFacilities.arenas && ridingFacilities.arenas.length > 0 ? (
               <div className="w-full">
                 {ridingFacilities.arenas.map((arena, index) => (
@@ -69,11 +69,11 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
         </div>
 
         {/* Round Yards */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
-          <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
+        <div className="border-title-card">
+          <span className="border-title-card-title">
             {ridingFacilities.roundYards && ridingFacilities.roundYards.length > 1 ? `${ridingFacilities.roundYards.length} Round Yards` : 'Round Yard'}
           </span>
-          <div className="flex flex-col items-center pt-2">
+          <div className="border-title-card-content">
             {ridingFacilities.roundYards && ridingFacilities.roundYards.length > 0 ? (
               <div className="w-full">
                 {ridingFacilities.roundYards.map((yard, index) => (

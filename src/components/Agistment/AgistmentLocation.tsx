@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dialog } from '@headlessui/react';
-import { EditIcon, MapPinIcon } from '../Icons';
+import { Pencil } from 'lucide-react';
+import { MapPinIcon } from '../Icons';
 import { Location } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { getGoogleMapsUrl } from '../../utils/location';
@@ -43,8 +44,8 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
     <div className="flex items-start gap-2">
       <div className="flex-1">
         <div className="group relative">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">Location</h3>
+          <div className="section-title-wrapper mb-2">
+            <h3 className="text-subtitle">Location</h3>
             {isEditable && (
               <button
                 onClick={() => {
@@ -57,14 +58,14 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
                   });
                   setIsEditDialogOpen(true);
                 }}
-                className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                className="btn-edit"
               >
-                <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
               </button>
             )}
           </div>
-          <div className="flex items-left gap-2 dark:border-neutral-600 text-neutral-900 dark:text-neutral-400 mt-1">
-          <a
+          <div className="flex items-left gap-2 text-body mt-1">
+            <a
               href={getGoogleMapsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
@@ -75,11 +76,11 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
               <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
             <div className="flex justify-between items-center">
-              <div className="text-neutral-900 dark:text-neutral-400">
+              <div className="text-body">
                 {location.address}, {location.suburb}, {location.region}, {location.state}
               </div>
             </div>
-            </div>
+          </div>
         </div>
       </div>
 
@@ -87,81 +88,81 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
         <Dialog
           open={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
-          className="fixed inset-0 z-50 overflow-y-auto"
+          className="modal-container"
         >
           <div className="flex items-center justify-center min-h-screen">
-            <div className="fixed inset-0 bg-black opacity-30" />
-            <div className="relative bg-white dark:bg-neutral-800 rounded-lg p-6 max-w-md w-full mx-4">
-              <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">
+            <div className="modal-overlay" />
+            <div className="modal-content">
+              <h3 className="modal-title">
                 Edit Location
               </h3>
-              <div className="space-y-4">
+              <div className="form-group">
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="form-label">
                     Address
                   </label>
                   <input
                     type="text"
                     value={editForm.address}
                     onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                    className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white"
+                    className="form-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="form-label">
                     Suburb
                   </label>
                   <input
                     type="text"
                     value={editForm.suburb}
                     onChange={(e) => setEditForm(prev => ({ ...prev, suburb: e.target.value }))}
-                    className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white"
+                    className="form-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="form-label">
                     State
                   </label>
                   <input
                     type="text"
                     value={editForm.state}
                     onChange={(e) => setEditForm(prev => ({ ...prev, state: e.target.value }))}
-                    className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white"
+                    className="form-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="form-label">
                     Postcode
                   </label>
                   <input
                     type="text"
                     value={editForm.postcode}
                     onChange={(e) => setEditForm(prev => ({ ...prev, postcode: e.target.value }))}
-                    className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white"
+                    className="form-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="form-label">
                     Region
                   </label>
                   <input
                     type="text"
                     value={editForm.region}
                     onChange={(e) => setEditForm(prev => ({ ...prev, region: e.target.value }))}
-                    className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white"
+                    className="form-input"
                   />
                 </div>
               </div>
               <div className="mt-6 flex justify-end gap-3">
                 <button
                   onClick={() => setIsEditDialogOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-md transition-colors"
+                  className="btn-cancel"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleUpdateLocation}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
+                  className="btn-primary"
                 >
                   Save Changes
                 </button>

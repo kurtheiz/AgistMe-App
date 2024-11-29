@@ -11,29 +11,24 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
   isEditable = false
 }) => {
   return (
-    <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-      <div className="flex items-center gap-2 mb-4">
-        <h3 className="text-lg font-medium text-neutral-900 dark:text-white">Care Options</h3>
+    <div className="agistment-section">
+      <div className="agistment-section-header">
+        <h3 className="agistment-section-title">Care Options</h3>
         {isEditable && (
-          <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+          <button className="btn-edit">
             <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
           </button>
         )}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-
-         {/* Self Care */}
-         <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
-          <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
-            Self Care
-          </span>
-          <div className="flex flex-col items-center pt-2">
+      <div className="agistment-section-content grid grid-cols-1 sm:grid-cols-3 gap-6">
+        {/* Self Care */}
+        <div className="border-title-card">
+          <span className="border-title-card-title">Self Care</span>
+          <div className="border-title-card-content">
             {care.selfCare.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100 px-3 py-1.5 rounded-lg">
-                    Available
-                  </span>
+                  <span className="status-badge-success">Available</span>
                   {care.selfCare.monthlyPrice !== 0 && (
                     <span className="text-neutral-700 dark:text-neutral-300">
                       ${care.selfCare.monthlyPrice}/month
@@ -47,26 +42,19 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                 </div>
               </div>
             ) : (
-              <span className="text-sm font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg">
-                Not Available
-              </span>
+              <span className="status-badge-neutral">Not Available</span>
             )}
           </div>
         </div>
 
-        
         {/* Part Care */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
-          <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
-            Part Care
-          </span>
-          <div className="flex flex-col items-center pt-2">
+        <div className="border-title-card">
+          <span className="border-title-card-title">Part Care</span>
+          <div className="border-title-card-content">
             {care.partCare?.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100 px-3 py-1.5 rounded-lg">
-                    Available
-                  </span>
+                  <span className="status-badge-success">Available</span>
                   {care.partCare?.monthlyPrice !== 0 && (
                     <span className="text-neutral-700 dark:text-neutral-300">
                       ${care.partCare?.monthlyPrice}/month
@@ -80,25 +68,19 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                 </div>
               </div>
             ) : (
-              <span className="text-sm font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg">
-                Not Available
-              </span>
+              <span className="status-badge-neutral">Not Available</span>
             )}
           </div>
         </div>
 
-       {/* Full Care */}
-       <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative">
-          <span className="absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 text-base text-neutral-900 dark:text-white font-medium">
-            Full Care
-          </span>
-          <div className="flex flex-col items-center pt-2">
+        {/* Full Care */}
+        <div className="border-title-card">
+          <span className="border-title-card-title">Full Care</span>
+          <div className="border-title-card-content">
             {care.fullCare.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100 px-3 py-1.5 rounded-lg">
-                    Available
-                  </span>
+                  <span className="status-badge-success">Available</span>
                   {care.fullCare.monthlyPrice !== 0 && (
                     <span className="text-neutral-700 dark:text-neutral-300">
                       ${care.fullCare.monthlyPrice}/month
@@ -112,13 +94,10 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                 </div>
               </div>
             ) : (
-              <span className="text-sm font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg">
-                Not Available
-              </span>
+              <span className="status-badge-neutral">Not Available</span>
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

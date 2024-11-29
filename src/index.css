@@ -196,4 +196,100 @@ body {
   .form-group {
     @apply space-y-4;
   }
+
+  /* Card styles with border title */
+  .border-title-card {
+    @apply p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative;
+  }
+
+  .border-title-card-title {
+    @apply absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 
+           text-base text-neutral-900 dark:text-white font-medium;
+  }
+
+  .border-title-card-content {
+    @apply flex flex-col items-center pt-2;
+  }
+
+  /* Icon styles for facility cards */
+  .facility-icon {
+    @apply w-12 h-12 mb-2;
+  }
+
+  .facility-icon-available {
+    @apply text-primary-600 dark:text-primary-400;
+  }
+
+  .facility-icon-unavailable {
+    @apply text-neutral-300 dark:text-neutral-600;
+  }
+
+  /* Status badges */
+  .status-badge-success {
+    @apply text-sm font-medium bg-green-100 dark:bg-green-900/30 
+           text-green-800 dark:text-green-100 px-3 py-1.5 rounded-lg;
+  }
+
+  .status-badge-neutral {
+    @apply text-sm font-medium bg-neutral-100 dark:bg-neutral-700 
+           text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg;
+  }
+
+  /* Paddock styles */
+  .paddock-grid {
+    @apply grid grid-cols-1 sm:grid-cols-3 gap-6;
+  }
+
+  .paddock-availability {
+    @apply text-xl sm:text-2xl font-bold inline-flex items-center justify-center min-w-[5.5rem] rounded-lg px-3 py-1.5;
+  }
+
+  .paddock-availability-none {
+    @apply text-sm font-medium bg-neutral-100 dark:bg-neutral-800/50 text-neutral-500 dark:text-neutral-400 px-3 py-1.5 rounded-lg;
+  }
+
+  .paddock-availability-unavailable {
+    @apply bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400;
+  }
+
+  .paddock-availability-pending {
+    @apply bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300;
+  }
+
+  .paddock-availability-available {
+    @apply bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300;
+  }
+
+  .paddock-availability-date {
+    @apply text-sm font-semibold text-neutral-900 dark:text-neutral-100 mt-1;
+  }
+
+  .paddock-costs {
+    @apply flex flex-col items-center space-y-1;
+  }
+
+  .paddock-cost-item {
+    @apply text-base sm:text-lg font-bold text-neutral-900 dark:text-white;
+  }
+
+  .paddock-cost-period {
+    @apply text-sm font-medium text-neutral-600 dark:text-neutral-400;
+  }
+
+  /* Common container styles for Agistment components */
+  .agistment-section {
+    @apply bg-white dark:bg-transparent p-6;
+  }
+
+  .agistment-section-header {
+    @apply flex items-center gap-2 mb-4;
+  }
+
+  .agistment-section-title {
+    @apply text-lg font-medium text-neutral-900 dark:text-white;
+  }
+
+  .agistment-section-content {
+    @apply w-full;
+  }
 }

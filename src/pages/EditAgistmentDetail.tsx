@@ -298,50 +298,62 @@ function EditAgistmentDetail() {
           />
 
           {/* Paddocks */}
-          <AgistmentPaddocks
-            paddocks={agistment.paddocks}
-            isEditable={true}
-          />
+          <div className="mt-8">
+            <AgistmentPaddocks
+              paddocks={agistment.paddocks}
+              isEditable={true}
+            />
+          </div>
 
           {/* Riding Facilities */}
-          <AgistmentRidingFacilities
-            ridingFacilities={agistment.ridingFacilities}
-            isEditable={true}
-          />
+          <div className="mt-8">
+            <AgistmentRidingFacilities
+              ridingFacilities={agistment.ridingFacilities}
+              isEditable={true}
+            />
+          </div>
 
           {/* Facilities */}
-          <AgistmentFacilities
-            agistmentId={agistment.id}
-            facilities={agistment.facilities}
-            isEditable={true}
-            onUpdate={(updatedAgistment) => {
-              setAgistment(prev => {
-                if (!prev) return null;
-                return {
-                  ...prev,
-                  facilities: updatedAgistment.facilities || prev.facilities
-                };
-              });
-            }}
-          />
+          <div className="mt-8">
+            <AgistmentFacilities
+              agistmentId={agistment.id}
+              facilities={agistment.facilities}
+              isEditable={true}
+              onUpdate={(updatedAgistment) => {
+                setAgistment(prev => {
+                  if (!prev) return null;
+                  return {
+                    ...prev,
+                    facilities: updatedAgistment.facilities || prev.facilities
+                  };
+                });
+              }}
+            />
+          </div>
 
           {/* Care Options */}
-          <AgistmentCareOptions
-            care={agistment.care}
-            isEditable={true}
-          />
+          <div className="mt-8">
+            <AgistmentCareOptions
+              care={agistment.care}
+              isEditable={true}
+            />
+          </div>
 
           {/* Services */}
-          <AgistmentServices
-            services={agistment.propertyServices.services}
-            isEditable={true}
-          />
+          <div className="mt-8">
+            <AgistmentServices
+              services={agistment.propertyServices.services}
+              isEditable={true}
+            />
+          </div>
 
           {/* Social Media */}
-          <AgistmentSocialMedia
-            socialMedia={agistment.socialMedia || []}
-            isEditable={true}
-          />
+          <div className="mt-8">
+            <AgistmentSocialMedia
+              socialMedia={agistment.socialMedia || []}
+              isEditable={true}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { agistmentService } from '../../services/agistment.service';
 import { Agistment } from '../../types/agistment';
 import { Dialog } from '@headlessui/react';
 import { EditIcon } from '../../components/Icons';
+import { Pencil } from 'lucide-react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -75,6 +76,11 @@ const SortablePhoto = ({ photo, index, disabled, onRemove, onCommentEdit }: Sort
               title="Add/Edit comment"
             >
               <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+            </button>
+          )}
+          {true && (
+            <button className="btn-edit">
+              <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
             </button>
           )}
         </div>

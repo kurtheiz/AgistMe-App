@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EditIcon } from '../../components/Icons';
+import { Pencil } from 'lucide-react';
 import { Agistment, FloatParking } from '../../types/agistment';
 import {
   FeedRoomIcon,
@@ -73,132 +73,140 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-transparent p-6 border-b border-neutral-200 dark:border-neutral-700">
-      <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-lg font-medium text-neutral-900 dark:text-white">Facilities</h2>
+    <div className="agistment-section">
+      <div className="agistment-section-header">
+        <h3 className="agistment-section-title">Facilities</h3>
         {isEditable && (
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
-            className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+            className="btn-edit"
           >
-            <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+            <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
           </button>
         )}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+
+      <div className="agistment-section-content grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
         {/* Feed Room */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col items-center">
-          <div className={`w-12 h-12 mb-2 ${facilities.feedRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
-            <FeedRoomIcon className="w-full h-full" />
+        <div className="border-title-card">
+          <span className="border-title-card-title">Feed Room</span>
+          <div className="border-title-card-content">
+            <div className={`facility-icon ${facilities.feedRoom.available ? 'facility-icon-available' : 'facility-icon-unavailable'}`}>
+              <FeedRoomIcon className="w-full h-full" />
+            </div>
+            {facilities.feedRoom.comments && (
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                {facilities.feedRoom.comments}
+              </p>
+            )}
           </div>
-          <span className="text-sm font-medium text-neutral-900 dark:text-white">Feed Room</span>
-          {facilities.feedRoom.comments && (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-              {facilities.feedRoom.comments}
-            </p>
-          )}
         </div>
 
         {/* Float Parking */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col items-center">
-          <div className={`w-12 h-12 mb-2 ${facilities.floatParking.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
-            <FloatParkingIcon className="w-full h-full" />
+        <div className="border-title-card">
+          <span className="border-title-card-title">Float Parking</span>
+          <div className="border-title-card-content">
+            <div className={`facility-icon ${facilities.floatParking.available ? 'facility-icon-available' : 'facility-icon-unavailable'}`}>
+              <FloatParkingIcon className="w-full h-full" />
+            </div>
+            {facilities.floatParking.available && facilities.floatParking.monthlyPrice > 0 && (
+              <span className="text-sm text-primary-600 dark:text-primary-400 font-medium mt-1">
+                ${facilities.floatParking.monthlyPrice}/month
+              </span>
+            )}
+            {facilities.floatParking.comments && (
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                {facilities.floatParking.comments}
+              </p>
+            )}
           </div>
-          <span className="text-sm font-medium text-neutral-900 dark:text-white">Float Parking</span>
-          {facilities.floatParking.available && facilities.floatParking.monthlyPrice > 0 && (
-            <span className="text-sm text-primary-600 dark:text-primary-400 font-medium mt-1">
-              ${facilities.floatParking.monthlyPrice}/month
-            </span>
-          )}
-          {facilities.floatParking.comments && (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-              {facilities.floatParking.comments}
-            </p>
-          )}
         </div>
 
         {/* Hot Wash */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col items-center">
-          <div className={`w-12 h-12 mb-2 ${facilities.hotWash.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
-            <HotWashIcon className="w-full h-full" />
+        <div className="border-title-card">
+          <span className="border-title-card-title">Hot Wash Bay</span>
+          <div className="border-title-card-content">
+            <div className={`facility-icon ${facilities.hotWash.available ? 'facility-icon-available' : 'facility-icon-unavailable'}`}>
+              <HotWashIcon className="w-full h-full" />
+            </div>
+            {facilities.hotWash.comments && (
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                {facilities.hotWash.comments}
+              </p>
+            )}
           </div>
-          <span className="text-sm font-medium text-neutral-900 dark:text-white">Hot Wash Bay</span>
-          {facilities.hotWash.comments && (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-              {facilities.hotWash.comments}
-            </p>
-          )}
         </div>
 
         {/* Stables */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col items-center">
-          <div className={`w-12 h-12 mb-2 ${facilities.stables.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
-            <StableIcon className="w-full h-full" />
+        <div className="border-title-card">
+          <span className="border-title-card-title">Stables</span>
+          <div className="border-title-card-content">
+            <div className={`facility-icon ${facilities.stables.available ? 'facility-icon-available' : 'facility-icon-unavailable'}`}>
+              <StableIcon className="w-full h-full" />
+            </div>
+            {facilities.stables.comments && (
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                {facilities.stables.comments}
+              </p>
+            )}
           </div>
-          <span className="text-sm font-medium text-neutral-900 dark:text-white">Stables</span>
-          {facilities.stables.comments && (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-              {facilities.stables.comments}
-            </p>
-          )}
         </div>
 
         {/* Tack Room */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col items-center">
-          <div className={`w-12 h-12 mb-2 ${facilities.tackRoom.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
-            <TackRoomIcon className="w-full h-full" />
+        <div className="border-title-card">
+          <span className="border-title-card-title">Tack Room</span>
+          <div className="border-title-card-content">
+            <div className={`facility-icon ${facilities.tackRoom.available ? 'facility-icon-available' : 'facility-icon-unavailable'}`}>
+              <TackRoomIcon className="w-full h-full" />
+            </div>
+            {facilities.tackRoom.comments && (
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                {facilities.tackRoom.comments}
+              </p>
+            )}
           </div>
-          <span className="text-sm font-medium text-neutral-900 dark:text-white">Tack Room</span>
-          {facilities.tackRoom.comments && (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-              {facilities.tackRoom.comments}
-            </p>
-          )}
         </div>
 
         {/* Tie Up */}
-        <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 flex flex-col items-center">
-          <div className={`w-12 h-12 mb-2 ${facilities.tieUp.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-300 dark:text-neutral-600'}`}>
-            <TieUpIcon className="w-full h-full" />
+        <div className="border-title-card">
+          <span className="border-title-card-title">Tie Ups</span>
+          <div className="border-title-card-content">
+            <div className={`facility-icon ${facilities.tieUp.available ? 'facility-icon-available' : 'facility-icon-unavailable'}`}>
+              <TieUpIcon className="w-full h-full" />
+            </div>
+            {facilities.tieUp.comments && (
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+                {facilities.tieUp.comments}
+              </p>
+            )}
           </div>
-          <span className="text-sm font-medium text-neutral-900 dark:text-white">Tie Ups</span>
-          {facilities.tieUp.comments && (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
-              {facilities.tieUp.comments}
-            </p>
-          )}
         </div>
       </div>
-      
+
       {/* Edit Modal */}
       <Modal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        size="md"
+        size="lg"
         title="Edit Facilities"
         footerContent={
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end gap-3">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 
-                bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 
-                rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none 
-                focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="btn-secondary"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 
-                border border-transparent rounded-md hover:bg-primary-700 
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="btn-primary"
             >
               Save Changes
             </button>
           </div>
         }
       >
-        <div className="space-y-6 p-6">
+        <div className="form-group">
           {Object.entries(editableFacilities)
             .sort(([keyA], [keyB]) => {
               const displayNames: Record<keyof Agistment['facilities'], string> = {
