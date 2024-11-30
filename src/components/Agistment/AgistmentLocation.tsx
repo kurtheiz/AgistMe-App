@@ -96,18 +96,7 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
     <div className="section-container">
       <div className="section-header">
         <div>
-          <div className="section-title-wrapper">
-            <h2 className="text-title">Location</h2>
-            {isEditable && (
-              <button
-                onClick={() => setIsEditDialogOpen(true)}
-                className="btn-edit"
-              >
-                <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-body mt-1">
+          <div className="flex items-center gap-2 text-body">
             <a
               href={getGoogleMapsUrl(location)}
               target="_blank"
@@ -118,9 +107,16 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
             >
               <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
-            <div>
-              <p>{location.address}</p>
-              <p>{location.suburb}, {location.state} {location.postcode}</p>
+            <div className="flex items-center gap-1">
+              <span>{location.address}, {location.suburb}, {location.state} {location.postcode}</span>
+              {isEditable && (
+                <button
+                  onClick={() => setIsEditDialogOpen(true)}
+                  className="btn-edit ml-2"
+                >
+                  <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -146,10 +142,7 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
               disabled={!isDirty || isUpdating}
             >
               {isUpdating ? (
-                <>
-                  <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
+                <><Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />Saving...</>
               ) : (
                 'Save Changes'
               )}

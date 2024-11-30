@@ -6,8 +6,7 @@ import { ArrowLeftIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
-import { AgistmentBasicInfo } from '../components/Agistment/AgistmentBasicInfo';
-import { AgistmentContact } from '../components/Agistment/AgistmentContact';
+import { AgistmentHeader } from '../components/Agistment/AgistmentHeader';
 import { AgistmentLocation } from '../components/Agistment/AgistmentLocation';
 import { AgistmentDescription } from '../components/Agistment/AgistmentDescription';
 import { AgistmentPaddocks } from '../components/Agistment/AgistmentPaddocks';
@@ -216,53 +215,28 @@ function EditAgistmentDetail() {
                   />
                 </div>
 
-                <AgistmentBasicInfo
+                <AgistmentHeader
                   agistmentId={agistment.id}
                   basicInfo={agistment.basicInfo}
+                  location={agistment.propertyLocation.location}
+                  contactDetails={agistment.contact}
+                  socialMedia={agistment.socialMedia || []}
                   isEditable={true}
+                  showEnquireButton={false}
                   onUpdate={(updatedAgistment) => {
                     setAgistment(prev => {
                       if (!prev) return null;
                       return {
                         ...prev,
-                        basicInfo: updatedAgistment.basicInfo || prev.basicInfo
+                        basicInfo: updatedAgistment.basicInfo || prev.basicInfo,
+                        propertyLocation: {
+                          location: updatedAgistment.location || prev.propertyLocation.location
+                        },
+                        contact: updatedAgistment.contact || prev.contact
                       };
                     });
                   }}
                 />
-                {/* Location Details */}
-                <div className="space-y-6">
-                  <AgistmentLocation
-                    agistmentId={agistment.id}
-                    location={agistment.propertyLocation.location}
-                    isEditable={true}
-                    onUpdate={(updatedAgistment) => {
-                      setAgistment(prev => {
-                        if (!prev) return null;
-                        return {
-                          ...prev,
-                          propertyLocation: updatedAgistment.propertyLocation || prev.propertyLocation
-                        };
-                      });
-                    }}
-                  />
-
-                  {/* Contact Details */}
-                  <AgistmentContact
-                    agistmentId={agistment.id}
-                    contactDetails={agistment.contact.contactDetails}
-                    socialMedia={agistment.socialMedia}
-                    isEditable={true}
-                    showEnquireButton={true}
-                    onUpdate={(updatedAgistment) => {
-                      setAgistment(prev => prev ? {
-                        ...prev,
-                        contact: { contactDetails: updatedAgistment.contact.contactDetails },
-                        socialMedia: updatedAgistment.socialMedia
-                      } : null);
-                    }}
-                  />
-                </div>
               </div>
             </div>
           </div>

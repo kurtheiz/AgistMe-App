@@ -75,9 +75,14 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
       <div className="section-header">
         <div>
           <div className="section-title-wrapper">
-            <h2 className="text-title">
-              {basicInfo.name}
-            </h2>
+            <div className="flex flex-col">
+              <h2 className="text-title">
+                {basicInfo.name}
+              </h2>
+              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                {basicInfo.propertySize > 0 ? `Situated on ${basicInfo.propertySize} acres` : ''}
+              </span>
+            </div>
             {isEditable && (
               <button
                 onClick={() => {
@@ -93,9 +98,6 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
               </button>
             )}
           </div>
-          <p className="text-body mt-1">
-            {basicInfo.propertySize > 0 ? `${basicInfo.propertySize} acres` : 'Property size not specified'}
-          </p>
         </div>
       </div>
 
