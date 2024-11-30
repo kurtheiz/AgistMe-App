@@ -33,3 +33,33 @@ export const formatDate = (date: string | Date | null | undefined): string => {
         year: 'numeric'
     });
 };
+
+export const formatRelativeDate = (date: string | Date | null | undefined): string => {
+    if (!date) {
+        return '';
+    }
+
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const today = new Date();
+    
+    // Reset hours to compare just the dates
+    today.setHours(0, 0, 0, 0);
+    const compareDate = new Date(dateObj);
+    compareDate.setHours(0, 0, 0, 0);
+
+    // Calculate the difference in days
+    const diffTime = today.getTime() - compareDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+        return 'Today';
+    } else if (diffDays === 1) {
+        return 'Yesterday';
+    } else {
+        return dateObj.toLocaleDateString('en-AU', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+};

@@ -159,11 +159,9 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
             <div className={`facility-icon ${facilities.floatParking.available ? 'facility-icon-available' : 'facility-icon-unavailable'}`}>
               <FloatParkingIcon className="w-full h-full" />
             </div>
-            {facilities.floatParking.available && facilities.floatParking.monthlyPrice > 0 && (
-              <span className="text-sm text-primary-600 dark:text-primary-400 font-medium mt-1">
-                ${facilities.floatParking.monthlyPrice}/month
-              </span>
-            )}
+            <span className={`text-sm font-medium mt-1 ${facilities.floatParking.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-500 dark:text-neutral-500'}`}>
+              {facilities.floatParking.monthlyPrice > 0 ? `$${facilities.floatParking.monthlyPrice}/month` : 'Free'}
+            </span>
             {facilities.floatParking.comments && (
               <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
                 {facilities.floatParking.comments}
@@ -194,6 +192,9 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
             <div className={`facility-icon ${facilities.stables.available ? 'facility-icon-available' : 'facility-icon-unavailable'}`}>
               <StableIcon className="w-full h-full" />
             </div>
+            <span className={`text-sm font-medium mt-1 ${facilities.stables.available ? 'text-primary-600 dark:text-primary-400' : 'text-neutral-500 dark:text-neutral-500'}`}>
+              {facilities.stables.quantity || 0} {facilities.stables.quantity === 1 ? 'stable' : 'stables'}
+            </span>
             {facilities.stables.comments && (
               <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
                 {facilities.stables.comments}
@@ -307,7 +308,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
                     </div>
                   </div>
 
-                  {key === 'floatParking' && facility.available && (
+                  {key === 'floatParking' && (
                     <div className="mt-4">
                       <NumberStepper
                         label="Monthly Price"
@@ -320,7 +321,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
                     </div>
                   )}
 
-                  {key === 'stables' && facility.available && (
+                  {key === 'stables' && (
                     <div className="mt-4">
                       <NumberStepper
                         label="Number of Stables"

@@ -93,7 +93,32 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
 
     setIsUpdating(true);
     try {
-      const response = await agistmentService.updatePaddocks(agistmentId, editForm);
+      // Transform the editForm to match AgistmentPaddocks type
+      const paddocksData = {
+        privatePaddocks: {
+          total: editForm.privatePaddocks.total,
+          available: editForm.privatePaddocks.available,
+          weeklyPrice: editForm.privatePaddocks.weeklyPrice,
+          comments: editForm.privatePaddocks.comments,
+          whenAvailable: editForm.privatePaddocks.whenAvailable
+        },
+        sharedPaddocks: {
+          total: editForm.sharedPaddocks.total,
+          available: editForm.sharedPaddocks.available,
+          weeklyPrice: editForm.sharedPaddocks.weeklyPrice,
+          comments: editForm.sharedPaddocks.comments,
+          whenAvailable: editForm.sharedPaddocks.whenAvailable
+        },
+        groupPaddocks: {
+          total: editForm.groupPaddocks.total,
+          available: editForm.groupPaddocks.available,
+          weeklyPrice: editForm.groupPaddocks.weeklyPrice,
+          comments: editForm.groupPaddocks.comments,
+          whenAvailable: editForm.groupPaddocks.whenAvailable
+        }
+      };
+
+      const response = await agistmentService.updatePaddocks(agistmentId, paddocksData);
       
       if (onUpdate) {
         onUpdate(response);
@@ -170,7 +195,7 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
           <span className="border-title-card-title">Private Paddocks</span>
           <div className="border-title-card-content">
             {!paddocks?.privatePaddocks?.total ? (
-              <span className="paddock-availability-none">Unavailable</span>
+              <span className="chip-unavailable">Unavailable</span>
             ) : (
               <>
                 <div className="w-full grid grid-cols-2 gap-4 items-start">
@@ -212,7 +237,7 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
           <span className="border-title-card-title">Shared Paddocks</span>
           <div className="border-title-card-content">
             {!paddocks?.sharedPaddocks?.total ? (
-              <span className="paddock-availability-none">Unavailable</span>
+              <span className="chip-unavailable">Unavailable</span>
             ) : (
               <>
                 <div className="w-full grid grid-cols-2 gap-4 items-start">
@@ -254,7 +279,7 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
           <span className="border-title-card-title">Group Paddocks</span>
           <div className="border-title-card-content">
             {!paddocks?.groupPaddocks?.total ? (
-              <span className="paddock-availability-none">Unavailable</span>
+              <span className="chip-unavailable">Unavailable</span>
             ) : (
               <>
                 <div className="w-full grid grid-cols-2 gap-4 items-start">
@@ -324,7 +349,7 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
       >
         <div className="p-4 space-y-6">
           <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
-            <Tab.List className="flex space-x-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1">
+            <Tab.List className="sticky top-0 z-10 flex space-x-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1">
               <Tab
                 className={({ selected }) =>
                   classNames(

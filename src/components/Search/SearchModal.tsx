@@ -16,6 +16,7 @@ import {
   StableIcon,
   TieUpIcon
 } from '../Icons';
+import NumberStepper from '../shared/NumberStepper';
 
 const initialFacilities: FacilityType[] = [];
 
@@ -293,29 +294,14 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
               Number of spaces
             </label>
-            <div className="flex items-center justify-center space-x-4">
-              <button
-                type="button"
-                disabled={searchCriteria.suburbs.length === 0}
-                onClick={() => setSearchCriteria(prev => ({ ...prev, spaces: Math.max(0, prev.spaces - 1) }))}
-                className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                  }`}
-              >
-                <MinusIcon className="h-5 w-5" />
-              </button>
-              <div className="text-3xl font-semibold text-neutral-900 dark:text-white min-w-[3ch] text-center">
-                {searchCriteria.spaces === 0 ? 'Any' : searchCriteria.spaces < 10 ? searchCriteria.spaces : '10+'}
-              </div>
-              <button
-                type="button"
-                disabled={searchCriteria.suburbs.length === 0}
-                onClick={() => setSearchCriteria(prev => ({ ...prev, spaces: Math.min(10, prev.spaces + 1) }))}
-                className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                  }`}
-              >
-                <PlusIcon className="h-5 w-5" />
-              </button>
-            </div>
+            <NumberStepper
+              value={searchCriteria.spaces}
+              onChange={(value) => setSearchCriteria(prev => ({ ...prev, spaces: value }))}
+              min={0}
+              max={10}
+              disabled={searchCriteria.suburbs.length === 0}
+              formatValue={(value) => value === 0 ? 'Any' : value === 10 ? '10+' : value.toString()}
+            />
           </div>
 
           {/* Maximum Weekly Price */}

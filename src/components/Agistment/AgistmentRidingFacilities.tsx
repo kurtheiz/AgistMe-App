@@ -56,14 +56,8 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                   </div>
                 ))}
               </div>
-            ) : !ridingFacilities.arenas ? (
-              <span className="text-sm font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg">
-                None Available
-              </span>
             ) : (
-              <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
-                Available
-              </span>
+              <span className="chip-unavailable">Unavailable</span>
             )}
           </div>
         </div>
@@ -91,14 +85,8 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                   </div>
                 ))}
               </div>
-            ) : !ridingFacilities.roundYards ? (
-              <span className="text-sm font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg">
-                None Available
-              </span>
             ) : (
-              <span className="text-sm font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg">
-                Available
-              </span>
+              <span className="chip-unavailable">Unavailable</span>
             )}
           </div>
         </div>

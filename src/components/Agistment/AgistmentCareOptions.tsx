@@ -28,11 +28,16 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
             {care.selfCare.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="status-badge-success">Available</span>
+                  <span className="chip-available">
+                    Available
+                  </span>
                   {care.selfCare.monthlyPrice !== 0 && (
-                    <span className="text-neutral-700 dark:text-neutral-300">
-                      ${care.selfCare.monthlyPrice}/month
-                    </span>
+                    <div className="paddock-costs">
+                      <p className="paddock-cost-item">
+                        ${care.selfCare.monthlyPrice}
+                        <span className="paddock-cost-period">/month</span>
+                      </p>
+                    </div>
                   )}
                   {care.selfCare.comments && (
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 text-center">
@@ -42,7 +47,9 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                 </div>
               </div>
             ) : (
-              <span className="status-badge-neutral">Not Available</span>
+              <span className="chip-unavailable">
+                Unavailable
+              </span>
             )}
           </div>
         </div>
@@ -54,11 +61,16 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
             {care.partCare?.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="status-badge-success">Available</span>
+                  <span className="chip-available">
+                    Available
+                  </span>
                   {care.partCare?.monthlyPrice !== 0 && (
-                    <span className="text-neutral-700 dark:text-neutral-300">
-                      ${care.partCare?.monthlyPrice}/month
-                    </span>
+                    <div className="paddock-costs">
+                      <p className="paddock-cost-item">
+                        ${care.partCare?.monthlyPrice}
+                        <span className="paddock-cost-period">/month</span>
+                      </p>
+                    </div>
                   )}
                   {care.partCare?.comments && (
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 text-center">
@@ -68,7 +80,9 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                 </div>
               </div>
             ) : (
-              <span className="status-badge-neutral">Not Available</span>
+              <span className="chip-unavailable">
+                Unavailable
+              </span>
             )}
           </div>
         </div>
@@ -80,11 +94,16 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
             {care.fullCare.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="status-badge-success">Available</span>
+                  <span className="chip-available">
+                    Available
+                  </span>
                   {care.fullCare.monthlyPrice !== 0 && (
-                    <span className="text-neutral-700 dark:text-neutral-300">
-                      ${care.fullCare.monthlyPrice}/month
-                    </span>
+                    <div className="paddock-costs">
+                      <p className="paddock-cost-item">
+                        ${care.fullCare.monthlyPrice}
+                        <span className="paddock-cost-period">/month</span>
+                      </p>
+                    </div>
                   )}
                   {care.fullCare.comments && (
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 text-center">
@@ -94,7 +113,9 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                 </div>
               </div>
             ) : (
-              <span className="status-badge-neutral">Not Available</span>
+              <span className="chip-unavailable">
+                Unavailable
+              </span>
             )}
           </div>
         </div>

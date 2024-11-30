@@ -1,5 +1,4 @@
 import { MinusIcon, PlusIcon } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
 
 interface NumberStepperProps {
   value: number;
@@ -22,173 +21,47 @@ export default function NumberStepper({
   disabled = false,
   formatValue = (value) => value.toString()
 }: NumberStepperProps) {
-  const [isIncrementing, setIsIncrementing] = useState(false);
-  const [isDecrementing, setIsDecrementing] = useState(false);
-  const incrementInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  const decrementInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  const holdTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const speedUpTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [intervalDelay, setIntervalDelay] = useState(50); // Start with slower speed
 
   const increment = () => {
-    if (value + step <= max) {
-      onChange(value + step);
+    if (value + 1 <= max) {
+      onChange(value + 1);
     }
   };
 
   const decrement = () => {
-    if (value - step >= min) {
-      onChange(value - step);
-    }
-  };
-
-  useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | null = null;
-
-    if ((isIncrementing && value < max) || (isDecrementing && value > min)) {
-      timer = setInterval(
-        isIncrementing ? increment : decrement,
-        intervalDelay
-      );
-      
-      if (isIncrementing) {
-        incrementInterval.current = timer;
-      } else {
-        decrementInterval.current = timer;
-      }
-
-      // Gradually speed up after 2 seconds of holding
-      if (intervalDelay > 50) {
-        speedUpTimeout.current = setTimeout(() => {
-          setIntervalDelay(prev => Math.max(50, prev - 50));
-        }, 500);
-      }
-    }
-
-    return () => {
-      if (timer) {
-        clearInterval(timer);
-      }
-      if (speedUpTimeout.current) {
-        clearTimeout(speedUpTimeout.current);
-      }
-    };
-  }, [isIncrementing, isDecrementing, value, max, min, step, intervalDelay]);
-
-  const startIncrement = () => {
-    if (!disabled && value < max && !isIncrementing) {
-      holdTimeout.current = setTimeout(() => {
-        setIsIncrementing(true);
-      }, 1000);
-    }
-  };
-
-  const startDecrement = () => {
-    if (!disabled && value > min && !isDecrementing) {
-      holdTimeout.current = setTimeout(() => {
-        setIsDecrementing(true);
-      }, 1000);
-    }
-  };
-
-  const stopIncrement = () => {
-    setIsIncrementing(false);
-    setIntervalDelay(200); // Reset speed
-    if (incrementInterval.current) {
-      clearInterval(incrementInterval.current);
-      incrementInterval.current = null;
-    }
-    if (holdTimeout.current) {
-      clearTimeout(holdTimeout.current);
-      holdTimeout.current = null;
-    }
-    if (speedUpTimeout.current) {
-      clearTimeout(speedUpTimeout.current);
-      speedUpTimeout.current = null;
-    }
-  };
-
-  const stopDecrement = () => {
-    setIsDecrementing(false);
-    setIntervalDelay(200); // Reset speed
-    if (decrementInterval.current) {
-      clearInterval(decrementInterval.current);
-      decrementInterval.current = null;
-    }
-    if (holdTimeout.current) {
-      clearTimeout(holdTimeout.current);
-      holdTimeout.current = null;
-    }
-    if (speedUpTimeout.current) {
-      clearTimeout(speedUpTimeout.current);
-      speedUpTimeout.current = null;
+    if (value - 1 >= min) {
+      onChange(value - 1);
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-2">
       {label && (
-        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
           {label}
         </label>
       )}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-center space-x-4">
         <button
           type="button"
-          className={`h-8 w-8 flex items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200
-            ${disabled || value <= min
-              ? 'opacity-50 cursor-not-allowed'
-              : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
-            }`}
-          onClick={() => {
-            if (!isDecrementing) {
-              decrement();
-            }
-          }}
-          onMouseDown={startDecrement}
-          onMouseUp={stopDecrement}
-          onMouseLeave={stopDecrement}
-          onTouchStart={(e) => {
-            e.preventDefault();
-            startDecrement();
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            stopDecrement();
-          }}
+          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 touch-none
+            ${disabled || value <= min ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          onClick={decrement}
           disabled={disabled || value <= min}
         >
-          <MinusIcon className="w-4 h-4" />
+          <MinusIcon className="h-5 w-5" />
         </button>
-        <div className="w-12 text-center font-medium text-neutral-700 dark:text-neutral-200">
+        <div className="text-3xl font-semibold text-neutral-900 dark:text-white min-w-[3ch] text-center">
           {formatValue(value)}
         </div>
         <button
           type="button"
-          className={`h-8 w-8 flex items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200
-            ${disabled || value >= max
-              ? 'opacity-50 cursor-not-allowed'
-              : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
-            }`}
-          onClick={() => {
-            if (!isIncrementing) {
-              increment();
-            }
-          }}
-          onMouseDown={startIncrement}
-          onMouseUp={stopIncrement}
-          onMouseLeave={stopIncrement}
-          onTouchStart={(e) => {
-            e.preventDefault();
-            startIncrement();
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            stopIncrement();
-          }}
+          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 touch-none
+            ${disabled || value >= max ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          onClick={increment}
           disabled={disabled || value >= max}
         >
-          <PlusIcon className="w-4 h-4" />
+          <PlusIcon className="h-5 w-5" />
         </button>
       </div>
     </div>

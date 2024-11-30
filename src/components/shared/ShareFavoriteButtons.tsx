@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShareIcon, FavouriteIcon } from '../Icons';
+import { Share2Icon, StarIcon } from 'lucide-react';
 import { useProfile } from '../../context/ProfileContext';
 
 interface ShareFavoriteButtonsProps {
@@ -49,26 +49,20 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
       <button
+        type="button"
         onClick={handleShare}
-        className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors"
-        title="Share this property"
+        className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 touch-none"
       >
-        <ShareIcon className="w-5 h-5" />
-        <span className="text-sm">Share</span>
+        <Share2Icon className="h-6 w-6" />
       </button>
       <button
+        type="button"
         onClick={handleFavorite}
-        className={`inline-flex items-center gap-1 transition-colors ${
-          isFavorited
-            ? 'text-red-500 dark:text-red-400'
-            : 'text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
-        }`}
-        title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+        className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 touch-none"
       >
-        <FavouriteIcon className="w-5 h-5" />
-        <span className="text-sm">Favorite</span>
+        <StarIcon className={`h-6 w-6 ${isFavorited ? 'fill-current text-yellow-400' : ''}`} />
       </button>
     </div>
   );

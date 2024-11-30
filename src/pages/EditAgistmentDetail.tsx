@@ -285,6 +285,7 @@ function EditAgistmentDetail() {
 
             {/* Paddocks */}
             <AgistmentPaddocks
+              agistmentId={agistment.id}
               paddocks={agistment.paddocks}
               isEditable={true}
               onUpdate={(updatedAgistment) => {

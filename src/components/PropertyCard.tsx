@@ -3,9 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { 
   MapPinIcon, 
-  ShareIcon, 
-  CheckIcon,
-  CrossIcon,
   ArenaIcon,
   RoundYardIcon,
   FeedRoomIcon,
@@ -14,15 +11,17 @@ import {
   HotWashIcon,
   StableIcon,
   TieUpIcon,
-  HeartIcon,
   PhotoIcon,
-  FavouriteIcon
+  HeartIcon,
+  CheckIcon,
+  CrossIcon,
 } from './Icons';
 import { Agistment } from '../types/agistment';
 import { useUser } from '@clerk/clerk-react';
 import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
-import { formatDate } from '../utils/dates';
+import { formatRelativeDate } from '../utils/dates';
+import { ShareFavoriteButtons } from './shared/ShareFavoriteButtons';
 
 interface PropertyCardProps {
   agistment: Agistment;
@@ -32,7 +31,6 @@ interface PropertyCardProps {
 export default function PropertyCard({ agistment, onClick }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
-  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleClick = (_: React.MouseEvent) => {
     if (onClick) {
@@ -40,33 +38,6 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
     } else {
       navigate(`/agistments/${agistment.id}`);
     }
-  };
-
-  const handleShare = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const shareUrl = `${window.location.origin}/agistments/${agistment.id}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: agistment.basicInfo.name,
-          text: `Check out this agistment ${agistment.basicInfo.name} in ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.region}, ${agistment.propertyLocation.location.state}`,
-          url: shareUrl
-        });
-      } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success('Link copied to clipboard');
-      }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      toast.error('Failed to share');
-    }
-  };
-
-  const handleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    // TODO: Implement favorite functionality with backend
-    toast.success(isFavorite ? 'Removed from favorites' : 'Added to favorites');
   };
 
   return (
@@ -271,26 +242,12 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         {/* Footer */}
         <div className="px-5 py-3 bg-primary-50 dark:bg-primary-900/20 border-t border-primary-100 dark:border-primary-800 text-primary-800 dark:text-primary-200">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={handleShare}
-                className="inline-flex items-center gap-1 text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
-                title="Share this listing"
-              >
-                <ShareIcon className="w-5 h-5" />
-              </button>
-              {isSignedIn && (
-                <button 
-                  onClick={handleFavorite}
-                  className="inline-flex items-center gap-1 text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
-                  title={isFavorite ? "Remove from favorites" : "Add to favorites"}
-                >
-                  <FavouriteIcon className={`w-5 h-5 ${isFavorite ? 'text-red-500 dark:text-red-400' : ''}`} />
-                </button>
-              )}
-            </div>
+            <ShareFavoriteButtons 
+              agistmentId={agistment.id}
+              shareDescription={`Check out this agistment ${agistment.basicInfo.name} in ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.region}, ${agistment.propertyLocation.location.state}`}
+            />
             <div className="text-xs sm:text-sm">
-              Last updated: {formatDate(agistment.modifiedAt)}
+              Last updated: {formatRelativeDate(agistment.modifiedAt)}
             </div>
           </div>
         </div>
