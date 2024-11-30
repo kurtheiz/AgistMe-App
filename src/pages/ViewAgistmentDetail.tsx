@@ -130,7 +130,6 @@ export function ViewAgistmentDetail() {
                   basicInfo={agistment.basicInfo}
                   location={agistment.propertyLocation.location}
                   contactDetails={agistment.contact}
-                  socialMedia={agistment.socialMedia}
                   isEditable={false}
                   showEnquireButton={true}
                 />

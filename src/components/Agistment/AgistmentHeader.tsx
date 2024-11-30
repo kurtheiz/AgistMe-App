@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Pencil, Mail, Phone, User, Facebook, Instagram, Globe, MapPinIcon, Loader2 } from 'lucide-react';
+import { Pencil, Mail, Phone, User, Loader2 } from 'lucide-react';
 import { Modal } from '../shared/Modal';
 import { Agistment, AgistmentContact, Location } from '../../types/agistment';
 import { agistmentService } from '../../services/agistment.service';
 import toast from 'react-hot-toast';
 import { getGoogleMapsUrl } from '../../utils/location';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
-import { Suburb, LocationType } from '../../types/suburb';
+import { Suburb } from '../../types/suburb';
 import NumberStepper from '../shared/NumberStepper';
 
 interface Props {
@@ -14,9 +14,7 @@ interface Props {
   basicInfo: Agistment['basicInfo'];
   location: Location;
   contactDetails: AgistmentContact;
-  socialMedia: { type: string; link: string; }[];
   isEditable?: boolean;
-  showEnquireButton?: boolean;
   onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
 }
 
@@ -28,7 +26,6 @@ interface EditForm {
   state: string;
   postcode: string;
   region?: string;
-  suburbId?: string;
   contactName: string;
   contactEmail: string;
   contactNumber: string;
@@ -39,9 +36,7 @@ export const AgistmentHeader = ({
   basicInfo,
   location,
   contactDetails,
-  socialMedia,
   isEditable = false,
-  showEnquireButton = false,
   onUpdate
 }: Props) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -53,7 +48,6 @@ export const AgistmentHeader = ({
     state: location.state,
     postcode: location.postcode,
     region: location.region,
-    suburbId: location.suburbId,
     contactName: contactDetails.contactDetails.name,
     contactEmail: contactDetails.contactDetails.email,
     contactNumber: contactDetails.contactDetails.number
@@ -69,27 +63,28 @@ export const AgistmentHeader = ({
     try {
       // Update basic info
       await agistmentService.updateBasicInfo(agistmentId, {
-        name: editForm.name,
-        propertySize: editForm.propertySize
+        name: editForm.name ?? '',
+        propertySize: editForm.propertySize,
+        description: basicInfo.description ?? ''
       });
 
       // Update location
       await agistmentService.updatePropertyLocation(agistmentId, {
         location: {
-          address: editForm.address,
-          suburb: editForm.suburb,
-          state: editForm.state,
-          postcode: editForm.postcode,
-          region: editForm.region
+          address: editForm.address ?? '',
+          suburb: editForm.suburb ?? '',
+          state: editForm.state ?? '',
+          postcode: editForm.postcode ?? '',
+          region: editForm.region ?? ''
         }
       });
 
       // Update contact details
       await agistmentService.updateContact(agistmentId, {
         contactDetails: {
-          name: editForm.contactName,
-          email: editForm.contactEmail,
-          number: editForm.contactNumber
+          name: editForm.contactName ?? '',
+          email: editForm.contactEmail ?? '',
+          number: editForm.contactNumber ?? ''
         }
       });
 
@@ -107,8 +102,7 @@ export const AgistmentHeader = ({
             suburb: editForm.suburb,
             state: editForm.state,
             postcode: editForm.postcode,
-            region: editForm.region,
-            suburbId: editForm.suburbId
+            region: editForm.region
           },
           contact: {
             contactDetails: {
@@ -135,8 +129,7 @@ export const AgistmentHeader = ({
         suburb: suburb.suburb,
         state: suburb.state,
         postcode: suburb.postcode,
-        region: suburb.region || '',
-        suburbId: suburb.id
+        region: suburb.region || ''
       }));
       setSelectedSuburbs(suburbs);
       setIsDirty(true);
@@ -208,24 +201,6 @@ export const AgistmentHeader = ({
               {contactDetails.contactDetails.number}
             </a>
           </div>
-          {/* Social Media Links - Hidden for now */}
-          {/* <div className="flex items-center gap-3 mt-2">
-            {socialMedia.map((social) => {
-              const Icon = social.type === 'facebook' ? Facebook :
-                         social.type === 'instagram' ? Instagram : Globe;
-              return (
-                <a
-                  key={social.type}
-                  href={social.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
-                >
-                  <Icon className="w-5 h-5" />
-                </a>
-              );
-            })}
-          </div> */}
         </div>
       </div>
 

@@ -219,7 +219,6 @@ function EditAgistmentDetail() {
                   basicInfo={agistment.basicInfo}
                   location={agistment.propertyLocation.location}
                   contactDetails={agistment.contact}
-                  socialMedia={agistment.socialMedia || []}
                   isEditable={true}
                   showEnquireButton={false}
                   onUpdate={(updatedAgistment) => {

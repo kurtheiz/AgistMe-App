@@ -3,7 +3,6 @@ import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfile } from '../context/ProfileContext';
 import { useEffect, useState } from 'react';
-import { ThemeToggle } from './ThemeToggle';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
