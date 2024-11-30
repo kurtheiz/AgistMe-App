@@ -56,6 +56,36 @@ export function Agistments() {
   const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
   const searchHash = searchParams.get('q') || '';
 
+  // Helper function to format location
+  const formatLocation = (suburb: string, region: string, state: string) => {
+    if (suburb && region && state) {
+      return `${suburb}, ${region}, ${state}`;
+    } else if (region && state) {
+      return `${region}, ${state}`;
+    } else if (state) {
+      return state;
+    }
+    return '';
+  };
+
+  // Helper function to get locations text
+  const getLocationsText = () => {
+    if (!currentCriteria?.suburbs?.length) return '';
+    
+    const mainLocation = currentCriteria.suburbs[0];
+    const formattedMainLocation = formatLocation(
+      mainLocation.suburb,
+      mainLocation.region,
+      mainLocation.state
+    );
+
+    if (currentCriteria.suburbs.length === 1) {
+      return formattedMainLocation;
+    }
+
+    return `${formattedMainLocation} and other locations`;
+  };
+
   // Load search results whenever the hash changes
   useEffect(() => {
     if (searchHash) {
@@ -174,13 +204,10 @@ export function Agistments() {
         </div>
       </div>
       <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-3 px-4 sm:px-0 text-center">
-        {searchHash ? 'No agistments found' : 'Find your perfect agistment'}
-      </h2>
-      <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md px-4 sm:px-0 text-center">
         {searchHash 
-          ? 'Try adjusting your search criteria to find more options'
-          : 'Start by searching for agistments in your area. You can filter by facilities, care types, and more.'}
-      </p>
+          ? `No agistments found in ${getLocationsText()}`
+          : 'Find your perfect agistment'}
+      </h2>
       <button
         onClick={onSearch}
         className="mt-8 flex items-center gap-2 px-6 py-3 text-base font-medium text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 rounded-lg transition-colors"
@@ -216,72 +243,42 @@ export function Agistments() {
       />
       <div className="flex-grow max-w-7xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-4">
         <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50' : 'opacity-100'}`}>
-          {!searchHash ? (
-            <div className="text-center pt-2">
-            </div>
-          ) : isFetching ? (
-            <div className="flex justify-center pt-2">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white"></div>
+          {isFetching ? (
+            <div className="flex justify-center items-center min-h-[400px]">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
             </div>
           ) : originalAgistments && originalAgistments.length > 0 ? (
             <div>
-              <div className="mb-3 px-2 sm:px-0">
-                <h1 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                  {originalAgistments.length} {originalAgistments.length === 1 ? 'Agistment' : 'Agistments'} found
-                  {currentCriteria?.suburbs && currentCriteria.suburbs.length > 0 && (
-                    <>{` in ${(() => {
-                      const firstLocation = currentCriteria.suburbs[0];
-                      switch (firstLocation.locationType) {
-                        case 'STATE':
-                          return firstLocation.state;
-                        case 'REGION':
-                          return `${firstLocation.region}, ${firstLocation.state}`;
-                        default:
-                          return firstLocation.suburb;
-                      }
-                    })()}${currentCriteria.suburbs.length > 1 ? ' and other locations' : ''}`}</>
-                  )}
-                </h1>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
-                {originalAgistments.map((agistment: Agistment) => (
-                  <PropertyCard
-                    key={agistment.id}
-                    agistment={agistment}
-                    onClick={() => navigate(`/agistments/${agistment.id}`)}
-                  />
+              <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">
+                {originalAgistments.length === 1
+                  ? `1 agistment found in ${getLocationsText()}`
+                  : `${originalAgistments.length} agistments found in ${getLocationsText()}`}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {originalAgistments.map((agistment) => (
+                  <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-neutral-600 dark:text-neutral-400">
-                No agistments found. Try adjusting your search criteria to find more options.
-              </p>
-            </div>
+            <EmptyState onSearch={() => setIsSearchModalOpen(true)} />
           )}
+
           {adjacentAgistments.length > 0 && (
-            <div>
-              <div className="mb-3 px-2 sm:px-0">
-                <h2 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                  {adjacentAgistments.length} {adjacentAgistments.length === 1 ? 'Agistment' : 'Agistments'} found in adjacent locations
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                {adjacentAgistments.map((agistment: Agistment) => (
-                  <PropertyCard
-                    key={agistment.id}
-                    agistment={agistment}
-                    onClick={() => navigate(`/agistments/${agistment.id}`)}
-                  />
+            <div className="mt-8">
+              <h2 className="text-base text-neutral-600 dark:text-neutral-400 mb-4">
+                {adjacentAgistments.length === 1
+                  ? "1 agistment found in other locations"
+                  : `${adjacentAgistments.length} agistments found in other locations`}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {adjacentAgistments.map((agistment) => (
+                  <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
                 ))}
               </div>
             </div>
           )}
         </div>
-        {!isFetching && originalAgistments && originalAgistments.length === 0 && adjacentAgistments.length === 0 ? (
-          <EmptyState onSearch={() => setIsSearchModalOpen(true)} />
-        ) : null}
       </div>
     </div>
   );

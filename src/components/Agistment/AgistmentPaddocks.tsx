@@ -182,7 +182,6 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
   return (
     <div className="agistment-section">
       <div className="agistment-section-header">
-        <h2 className="agistment-section-title">Spaces Available</h2>
         {isEditable && (
           <button className="btn-edit" onClick={() => setIsEditDialogOpen(true)}>
             <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />

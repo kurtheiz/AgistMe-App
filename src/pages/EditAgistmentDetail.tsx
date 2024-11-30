@@ -7,7 +7,6 @@ import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
 import { AgistmentHeader } from '../components/Agistment/AgistmentHeader';
-import { AgistmentLocation } from '../components/Agistment/AgistmentLocation';
 import { AgistmentDescription } from '../components/Agistment/AgistmentDescription';
 import { AgistmentPaddocks } from '../components/Agistment/AgistmentPaddocks';
 import { AgistmentRidingFacilities } from '../components/Agistment/AgistmentRidingFacilities';

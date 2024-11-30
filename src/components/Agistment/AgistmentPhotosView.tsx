@@ -45,7 +45,7 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
         <div className="relative">
           <div className="grid grid-cols-4 gap-1 aspect-[16/9]">
             {/* Main large photo */}
-            <div className="col-span-3">
+            <div className={`${galleryImages.length === 1 ? 'col-span-4' : 'col-span-3'}`}>
               <div
                 className="relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity h-full"
                 onClick={() => handleImageClick(0)}
@@ -63,38 +63,40 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
               </div>
             </div>
             
-            {/* Right side photos */}
-            <div className="flex flex-col gap-1">
-              {galleryImages.slice(1, 3).map((image, index) => (
-                <div
-                  key={image.src}
-                  className="relative h-1/2 overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => handleImageClick(index + 1)}
-                >
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {image.title && (
-                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 text-white text-sm">
-                      {image.title}
-                    </div>
-                  )}
-                  {index === 1 && galleryImages.length > 3 && (
-                    <div 
-                      className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-medium"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsLightboxOpen(true);
-                      }}
-                    >
-                      +{galleryImages.length - 3} more
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            {/* Right side photos - only show if there's more than one photo */}
+            {galleryImages.length > 1 && (
+              <div className="flex flex-col gap-1">
+                {galleryImages.slice(1, 3).map((image, index) => (
+                  <div
+                    key={image.src}
+                    className="relative h-1/2 overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => handleImageClick(index + 1)}
+                  >
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    {image.title && (
+                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 text-white text-sm">
+                        {image.title}
+                      </div>
+                    )}
+                    {index === 1 && galleryImages.length > 3 && (
+                      <div 
+                        className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-medium"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsLightboxOpen(true);
+                        }}
+                      >
+                        +{galleryImages.length - 3} more
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <Lightbox
             open={isLightboxOpen}

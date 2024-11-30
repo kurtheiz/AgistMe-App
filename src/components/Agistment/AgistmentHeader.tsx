@@ -67,25 +67,29 @@ export const AgistmentHeader = ({
 
     setIsUpdating(true);
     try {
-      await agistmentService.updatePropertyDetails(agistmentId, {
-        basicInfo: {
-          name: editForm.name,
-          propertySize: editForm.propertySize
-        },
+      // Update basic info
+      await agistmentService.updateBasicInfo(agistmentId, {
+        name: editForm.name,
+        propertySize: editForm.propertySize
+      });
+
+      // Update location
+      await agistmentService.updatePropertyLocation(agistmentId, {
         location: {
           address: editForm.address,
           suburb: editForm.suburb,
           state: editForm.state,
           postcode: editForm.postcode,
-          region: editForm.region,
-          suburbId: editForm.suburbId
-        },
-        contact: {
-          contactDetails: {
-            name: editForm.contactName,
-            email: editForm.contactEmail,
-            number: editForm.contactNumber
-          }
+          region: editForm.region
+        }
+      });
+
+      // Update contact details
+      await agistmentService.updateContact(agistmentId, {
+        contactDetails: {
+          name: editForm.contactName,
+          email: editForm.contactEmail,
+          number: editForm.contactNumber
         }
       });
 

@@ -80,7 +80,7 @@ export const Header = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-5 z-50">
-            <ThemeToggle />
+            
             {isLoaded ? (
               <button
                 onClick={handleAvatarClick}

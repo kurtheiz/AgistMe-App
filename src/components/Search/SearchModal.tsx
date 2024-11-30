@@ -225,16 +225,22 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                 Radius
               </label>
               <span className="text-lg font-semibold text-neutral-900 dark:text-white">
-                {searchCriteria.radius === 0 ? 'Any' : `${searchCriteria.radius}km`}
+                {!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 'Any' : searchCriteria.radius === 0 ? 'Any' : `${searchCriteria.radius}km`}
               </span>
             </div>
             <input
               type="range"
               min="0"
               max="50"
-              value={searchCriteria.radius}
+              value={!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 0 : searchCriteria.radius}
               disabled={!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)}
-              onChange={(e) => setSearchCriteria(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
+              onChange={(e) => {
+                const hasSuburb = searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB);
+                setSearchCriteria(prev => ({ 
+                  ...prev, 
+                  radius: hasSuburb ? parseInt(e.target.value) : 0 
+                }));
+              }}
               className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer ${!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
             />
