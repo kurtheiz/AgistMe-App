@@ -268,25 +268,18 @@ function EditAgistmentDetail() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 sm:py-4">
           {/* Description Section */}
-          <div className="space-y-4">
+          <div className="space-y-4 p-4">
             <AgistmentDescription
               agistmentId={agistment.id}
               description={agistment.propertyDescription.description}
               isEditable={true}
               onUpdate={(updatedAgistment) => {
-                setAgistment(prev => {
-                  if (!prev) return null;
-                  return {
-                    ...prev,
-                    propertyDescription: {
-                      description: typeof updatedAgistment === 'string' 
-                        ? updatedAgistment 
-                        : updatedAgistment.propertyDescription?.description || prev.propertyDescription.description
-                    }
-                  };
-                });
+                setAgistment(prev => prev ? {
+                  ...prev,
+                  ...updatedAgistment
+                } : null);
               }}
             />
 
@@ -294,15 +287,11 @@ function EditAgistmentDetail() {
             <AgistmentPaddocks
               paddocks={agistment.paddocks}
               isEditable={true}
-              agistmentId={agistment.id}
               onUpdate={(updatedAgistment) => {
-                setAgistment(prev => {
-                  if (!prev) return null;
-                  return {
-                    ...prev,
-                    paddocks: updatedAgistment.paddocks || prev.paddocks
-                  };
-                });
+                setAgistment(prev => prev ? {
+                  ...prev,
+                  ...updatedAgistment
+                } : null);
               }}
             />
 
