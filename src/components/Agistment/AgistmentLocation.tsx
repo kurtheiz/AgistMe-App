@@ -1,11 +1,14 @@
-import { useState } from 'react';
-import { Dialog } from '@headlessui/react';
+import { useState, useEffect } from 'react';
+import { Modal } from '../shared/Modal'; 
 import { Pencil } from 'lucide-react';
 import { MapPinIcon } from '../Icons';
 import { Location } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { getGoogleMapsUrl } from '../../utils/location';
 import { agistmentService } from '../../services/agistment.service';
+import { Loader2 } from 'lucide-react';
+import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
+import { Suburb } from '../../types/suburb';
 
 interface Props {
   agistmentId?: string;
@@ -14,57 +17,100 @@ interface Props {
   onUpdate?: (updatedAgistment: any) => void;
 }
 
+interface LocationForm {
+  address: string;
+  suburb: string;
+  state: string;
+  postcode: string;
+  region: string;
+  suburbId?: string;
+  geohash?: string;
+}
+
 export const AgistmentLocation = ({ agistmentId, location, isEditable = false, onUpdate }: Props) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editForm, setEditForm] = useState({
-    address: location.address,
-    suburb: location.suburb,
-    state: location.state,
-    postcode: location.postcode,
-    region: location.region
-  });
+  const [editForm, setEditForm] = useState<LocationForm>({ ...location });
+  const [originalForm, setOriginalForm] = useState<LocationForm>({ ...location });
+  const [isDirty, setIsDirty] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [selectedSuburbs, setSelectedSuburbs] = useState<Suburb[]>([]);
+
+  useEffect(() => {
+    if (isEditDialogOpen) {
+      setEditForm({ ...location });
+      setOriginalForm({ ...location });
+      setIsDirty(false);
+      // Reset selected suburbs
+      if (location.suburb && location.state && location.postcode) {
+        setSelectedSuburbs([{
+          id: location.suburbId || '',
+          suburb: location.suburb,
+          state: location.state,
+          postcode: location.postcode,
+          region: location.region,
+          geohash: location.geohash || ''
+        }]);
+      } else {
+        setSelectedSuburbs([]);
+      }
+    }
+  }, [isEditDialogOpen, location]);
 
   const handleUpdateLocation = async () => {
-    if (!agistmentId) return;
-    
+    if (!agistmentId || !isDirty) return;
+
+    setIsUpdating(true);
     try {
-      const updatedAgistment = await agistmentService.updatePropertyLocation(agistmentId, {
-        location: editForm
-      });
-      onUpdate?.(updatedAgistment);
+      const updatedAgistment = await agistmentService.updatePropertyLocation(agistmentId, editForm);
       setIsEditDialogOpen(false);
       toast.success('Location updated successfully');
+      
+      if (onUpdate) {
+        onUpdate({
+          propertyLocation: editForm
+        });
+      }
     } catch (error) {
       console.error('Error updating location:', error);
       toast.error('Failed to update location');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleSuburbChange = (suburbs: Suburb[]) => {
+    const suburb = suburbs[0];
+    if (suburb) {
+      setEditForm(prev => ({
+        ...prev,
+        suburb: suburb.suburb,
+        state: suburb.state,
+        postcode: suburb.postcode,
+        region: suburb.region || '',
+        suburbId: suburb.id,
+        geohash: suburb.geohash
+      }));
+      setSelectedSuburbs(suburbs);
+      setIsDirty(true);
     }
   };
 
   return (
-    <div className="flex items-start gap-2">
-      <div className="flex-1">
-        <div className="group relative">
-          <div className="section-title-wrapper mb-2">
-            <h3 className="text-subtitle">Location</h3>
+    <div className="section-container">
+      <div className="section-header">
+        <div>
+          <div className="section-title-wrapper">
+            <h2 className="text-title">Location</h2>
             {isEditable && (
               <button
-                onClick={() => {
-                  setEditForm({
-                    address: location.address,
-                    suburb: location.suburb,
-                    state: location.state,
-                    postcode: location.postcode,
-                    region: location.region
-                  });
-                  setIsEditDialogOpen(true);
-                }}
+                onClick={() => setIsEditDialogOpen(true)}
                 className="btn-edit"
               >
                 <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
               </button>
             )}
           </div>
-          <div className="flex items-left gap-2 text-body mt-1">
+          <div className="flex items-center gap-2 text-body mt-1">
             <a
               href={getGoogleMapsUrl(location)}
               target="_blank"
@@ -75,102 +121,135 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
             >
               <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
-            <div className="flex justify-between items-center">
-              <div className="text-body">
-                {location.address}, {location.suburb}, {location.region}, {location.state}
-              </div>
+            <div>
+              <p>{location.address}</p>
+              <p>{location.suburb}, {location.state} {location.postcode}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {isEditable && (
-        <Dialog
-          open={isEditDialogOpen}
-          onClose={() => setIsEditDialogOpen(false)}
-          className="modal-container"
-        >
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="modal-overlay" />
-            <div className="modal-content">
-              <h3 className="modal-title">
-                Edit Location
-              </h3>
-              <div className="form-group">
-                <div>
-                  <label className="form-label">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.address}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                    className="form-input"
-                  />
-                </div>
-                <div>
-                  <label className="form-label">
-                    Suburb
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.suburb}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, suburb: e.target.value }))}
-                    className="form-input"
-                  />
-                </div>
-                <div>
-                  <label className="form-label">
-                    State
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.state}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, state: e.target.value }))}
-                    className="form-input"
-                  />
-                </div>
-                <div>
-                  <label className="form-label">
-                    Postcode
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.postcode}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, postcode: e.target.value }))}
-                    className="form-input"
-                  />
-                </div>
-                <div>
-                  <label className="form-label">
-                    Region
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.region}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, region: e.target.value }))}
-                    className="form-input"
-                  />
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  onClick={() => setIsEditDialogOpen(false)}
-                  className="btn-cancel"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdateLocation}
-                  className="btn-primary"
-                >
-                  Save Changes
-                </button>
-              </div>
+      <Modal
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        title="Edit Location"
+        size="sm"
+        contentHash={JSON.stringify(editForm)}
+        onDirtyChange={setIsDirty}
+        isUpdating={isUpdating}
+        footerContent={({ isUpdating }) => (
+          <div className="flex justify-center space-x-2">
+            <button
+              onClick={handleUpdateLocation}
+              className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
+                !isDirty || isUpdating
+                  ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
+                  : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
+              }`}
+              disabled={!isDirty || isUpdating}
+            >
+              {isUpdating ? (
+                <>
+                  <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </button>
+          </div>
+        )}
+      >
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+              Street Address
+            </label>
+            <div className="input-wrapper">
+              <input
+                type="text"
+                value={editForm.address}
+                onChange={(e) => {
+                  setEditForm(prev => ({ ...prev, address: e.target.value }));
+                  setIsDirty(true);
+                }}
+                className="form-input"
+                placeholder="Enter street address"
+              />
+              <button
+                type="button"
+                className="input-delete-button"
+                onClick={() => {
+                  setEditForm(prev => ({ ...prev, address: '' }));
+                  setIsDirty(true);
+                }}
+                aria-label="Clear address"
+              >
+                ✕
+              </button>
             </div>
           </div>
-        </Dialog>
-      )}
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+              Location
+            </label>
+            <SuburbSearch
+              selectedSuburbs={selectedSuburbs}
+              onSuburbsChange={handleSuburbChange}
+              multiple={false}
+              includeRegions={false}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                Suburb
+              </label>
+              <input
+                type="text"
+                value={editForm.suburb}
+                readOnly
+                className="form-input bg-neutral-100 dark:bg-neutral-800"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                Region
+              </label>
+              <input
+                type="text"
+                value={editForm.region}
+                readOnly
+                className="form-input bg-neutral-100 dark:bg-neutral-800"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                State
+              </label>
+              <input
+                type="text"
+                value={editForm.state}
+                readOnly
+                className="form-input bg-neutral-100 dark:bg-neutral-800"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                Postcode
+              </label>
+              <input
+                type="text"
+                value={editForm.postcode}
+                readOnly
+                className="form-input bg-neutral-100 dark:bg-neutral-800"
+              />
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

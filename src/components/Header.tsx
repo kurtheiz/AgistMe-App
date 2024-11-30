@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-do
 import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfile } from '../context/ProfileContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ThemeToggle } from './ThemeToggle';
 
 export const Header = () => {
@@ -12,7 +12,14 @@ export const Header = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   useAuthToken();
-  const { profile, refreshProfile } = useProfile();
+  const { profile, refreshProfile, loading: profileLoading } = useProfile();
+  const [wasAgistor, setWasAgistor] = useState(false);
+
+  useEffect(() => {
+    if (profile?.agistor) {
+      setWasAgistor(true);
+    }
+  }, [profile?.agistor]);
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -60,7 +67,7 @@ export const Header = () => {
               >
                 List Agistment
               </Link>
-              {isSignedIn && profile?.agistor && (
+              {isSignedIn && (wasAgistor || (profile?.agistor && !profileLoading)) && (
                 <Link 
                   to="/dashboard"
                   className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"

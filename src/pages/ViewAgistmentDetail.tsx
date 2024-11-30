@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { ArrowLeftIcon } from '../components/Icons';
-import { ShareIcon } from '@heroicons/react/24/outline';
 import { PageToolbar } from '../components/PageToolbar';
+import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
 import '../styles/gallery.css';
 import { AgistmentBasicInfo } from '../components/Agistment/AgistmentBasicInfo';
 import { AgistmentContact } from '../components/Agistment/AgistmentContact';
@@ -15,7 +15,6 @@ import { AgistmentRidingFacilities } from '../components/Agistment/AgistmentRidi
 import { AgistmentFacilities } from '../components/Agistment/AgistmentFacilities';
 import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptions';
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
-import { AgistmentSocialMedia } from '../components/Agistment/AgistmentSocialMedia';
 import { AgistmentPhotosView } from '../components/Agistment/AgistmentPhotosView';
 
 export function ViewAgistmentDetail() {
@@ -115,17 +114,17 @@ export function ViewAgistmentDetail() {
             <div className="flex flex-col lg:flex-row">
               {/* Photo Gallery - 66% width on desktop */}
               <div className="w-full lg:w-2/3 px-4">
-                <AgistmentPhotosView photos={agistment.photoGallery?.photos} />
+                <AgistmentPhotosView photos={agistment.photoGallery?.photos || []} />
               </div>
 
               {/* Location Details - 33% width on desktop */}
-              <div className="w-full lg:w-1/3 px-4">
-                {/* Share Button */}
-                <div className="flex gap-2 mb-6">
-                  <button className="inline-flex items-center gap-1 text-neutral-700 dark:text-neutral-400">
-                    <ShareIcon className="w-5 h-5" />
-                    <span className="text-sm">Share</span>
-                  </button>
+              <div className="w-full lg:w-1/3 px-4 pt-4">
+                {/* Share and Favorite Buttons */}
+                <div className="mb-6">
+                  <ShareFavoriteButtons
+                    agistmentId={agistment.id}
+                    shareDescription={`Check out this property on AgistMe: ${agistment.basicInfo.name} in ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.region}, ${agistment.propertyLocation.location.state}`}
+                  />
                 </div>
 
                 <AgistmentBasicInfo
@@ -144,63 +143,56 @@ export function ViewAgistmentDetail() {
                   <AgistmentContact
                     agistmentId={agistment.id}
                     contactDetails={agistment.contact.contactDetails}
+                    socialMedia={agistment.socialMedia}
                     isEditable={false}
+                    showEnquireButton={true}
                   />
-
-                  {/* Enquire Now Button */}
-                  <button className="mt-6 w-full px-4 py-3 bg-red-600 text-white font-medium rounded-lg text-center hover:bg-red-700 transition-colors">
-                    Enquire Now
-                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
+        <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-4">
           {/* Description Section */}
-          <AgistmentDescription
-            agistmentId={agistment.id}
-            description={agistment.propertyDescription.description}
-            isEditable={false}
-          />
+          <div className="space-y-4">
+            <AgistmentDescription
+              agistmentId={agistment.id}
+              description={agistment.propertyDescription.description}
+              isEditable={false}
+            />
 
-          {/* Paddocks */}
-          <AgistmentPaddocks
-            paddocks={agistment.paddocks}
-            isEditable={false}
-          />
+            {/* Paddocks */}
+            <AgistmentPaddocks
+              paddocks={agistment.paddocks}
+              isEditable={false}
+            />
 
-          {/* Riding Facilities */}
-          <AgistmentRidingFacilities
-            ridingFacilities={agistment.ridingFacilities}
-            isEditable={false}
-          />
+            {/* Riding Facilities */}
+            <AgistmentRidingFacilities
+              ridingFacilities={agistment.ridingFacilities}
+              isEditable={false}
+            />
 
-          {/* Facilities */}
-          <AgistmentFacilities
-            agistmentId={agistment.id}
-            facilities={agistment.facilities}
-            isEditable={false}
-          />
+            {/* Facilities */}
+            <AgistmentFacilities
+              agistmentId={agistment.id}
+              facilities={agistment.facilities}
+              isEditable={false}
+            />
 
-          {/* Care Options */}
-          <AgistmentCareOptions
-            care={agistment.care}
-            isEditable={false}
-          />
+            {/* Care Options */}
+            <AgistmentCareOptions
+              care={agistment.care}
+              isEditable={false}
+            />
 
-          {/* Services */}
-          <AgistmentServices
-            services={agistment.propertyServices.services}
-            isEditable={false}
-          />
-
-          {/* Social Media */}
-          <AgistmentSocialMedia
-            socialMedia={agistment.socialMedia || []}
-            isEditable={false}
-          />
+            {/* Services */}
+            <AgistmentServices
+              services={agistment.propertyServices.services}
+              isEditable={false}
+            />
+          </div>
         </div>
       </div>
     </div>

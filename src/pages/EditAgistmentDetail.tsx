@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
-import { ArrowLeftIcon, VisibleIcon, HiddenIcon } from '../components/Icons';
-import FavouriteIcon from '../components/Icons/FavouriteIcon';
-import { ShareIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
@@ -17,7 +15,6 @@ import { AgistmentRidingFacilities } from '../components/Agistment/AgistmentRidi
 import { AgistmentFacilities } from '../components/Agistment/AgistmentFacilities';
 import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptions';
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
-import { AgistmentSocialMedia } from '../components/Agistment/AgistmentSocialMedia';
 import { usePlanPhotoLimit } from '../stores/reference.store';
 import toast from 'react-hot-toast';
 import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
@@ -130,7 +127,7 @@ function EditAgistmentDetail() {
               <div className="flex items-center">
                 <button
                   onClick={handleBackClick}
-                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white "
+                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
                 >
                   <ArrowLeftIcon className="w-3 h-3" />
                   <span className="font-medium text-sm sm:text-base">Back</span>
@@ -154,7 +151,7 @@ function EditAgistmentDetail() {
       />
 
       {/* Edit/Create Mode Banner */}
-      <div className="sticky top-14 z-30 w-full bg-primary-600 dark:bg-primary-800 py-3">
+      <div className="w-full bg-red-600 dark:bg-red-700 py-3">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-center">
@@ -186,7 +183,7 @@ function EditAgistmentDetail() {
                   }
                 `}
               >
-                {agistment.visibility.hidden ? 'Make Visible' : 'Hide'}
+                {agistment.visibility.hidden ? 'Make Visible' : 'Make Hidden'}
                 {isUpdating && (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                 )}
@@ -266,55 +263,56 @@ function EditAgistmentDetail() {
                   <AgistmentContact
                     agistmentId={agistment.id}
                     contactDetails={agistment.contact.contactDetails}
+                    socialMedia={agistment.socialMedia}
                     isEditable={true}
+                    showEnquireButton={true}
                     onUpdate={(updatedAgistment) => {
                       setAgistment(prev => prev ? {
                         ...prev,
-                        contact: { contactDetails: updatedAgistment.contact.contactDetails }
+                        contact: { contactDetails: updatedAgistment.contact.contactDetails },
+                        socialMedia: updatedAgistment.socialMedia
                       } : null);
                     }}
                   />
-
-                  {/* Enquire Now Button */}
-                  <div
-                    title="Not available while editing"
-                    className="mt-6 w-full px-4 py-3 bg-red-600 text-white font-medium rounded-lg text-center"
-                  >
-                    Enquire Now
-                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-8">
+        <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-4">
           {/* Description Section */}
-          <AgistmentDescription
-            agistmentId={agistment.id}
-            description={agistment.propertyDescription?.description || ''}
-            isEditable={true}
-            onUpdate={updatedAgistment => handlePropertyDescriptionUpdate(updatedAgistment.propertyDescription?.description || '')}
-          />
+          <div className="space-y-4">
+            <AgistmentDescription
+              agistmentId={agistment.id}
+              description={agistment.propertyDescription.description}
+              isEditable={true}
+              onUpdate={handlePropertyDescriptionUpdate}
+            />
 
-          {/* Paddocks */}
-          <div className="mt-8">
+            {/* Paddocks */}
             <AgistmentPaddocks
               paddocks={agistment.paddocks}
               isEditable={true}
+              agistmentId={agistment.id}
+              onUpdate={(updatedAgistment) => {
+                setAgistment(prev => {
+                  if (!prev) return null;
+                  return {
+                    ...prev,
+                    paddocks: updatedAgistment.paddocks || prev.paddocks
+                  };
+                });
+              }}
             />
-          </div>
 
-          {/* Riding Facilities */}
-          <div className="mt-8">
+            {/* Riding Facilities */}
             <AgistmentRidingFacilities
               ridingFacilities={agistment.ridingFacilities}
               isEditable={true}
             />
-          </div>
 
-          {/* Facilities */}
-          <div className="mt-8">
+            {/* Facilities */}
             <AgistmentFacilities
               agistmentId={agistment.id}
               facilities={agistment.facilities}
@@ -329,28 +327,16 @@ function EditAgistmentDetail() {
                 });
               }}
             />
-          </div>
 
-          {/* Care Options */}
-          <div className="mt-8">
+            {/* Care Options */}
             <AgistmentCareOptions
               care={agistment.care}
               isEditable={true}
             />
-          </div>
 
-          {/* Services */}
-          <div className="mt-8">
+            {/* Services */}
             <AgistmentServices
               services={agistment.propertyServices.services}
-              isEditable={true}
-            />
-          </div>
-
-          {/* Social Media */}
-          <div className="mt-8">
-            <AgistmentSocialMedia
-              socialMedia={agistment.socialMedia || []}
               isEditable={true}
             />
           </div>

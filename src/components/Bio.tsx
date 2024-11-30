@@ -236,31 +236,51 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
           <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
             First Name
           </label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            placeholder="First Name"
-            disabled={clearFields}
-            className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
-          />
+          <div className="input-wrapper">
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleInputChange}
+              placeholder="First Name"
+              disabled={clearFields}
+              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+            />
+            <button
+              type="button"
+              className="input-delete-button"
+              onClick={() => setFormData(prev => ({ ...prev, firstName: '' }))}
+              aria-label="Clear first name"
+            >
+              ✕
+            </button>
+          </div>
         </div>
         <div className="space-y-1">
           <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
             Last Name
           </label>
-          <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            placeholder="Last Name"
-            disabled={clearFields}
-            className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
-          />
+          <div className="input-wrapper">
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              placeholder="Last Name"
+              disabled={clearFields}
+              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+            />
+            <button
+              type="button"
+              className="input-delete-button"
+              onClick={() => setFormData(prev => ({ ...prev, lastName: '' }))}
+              aria-label="Clear last name"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       </div>
 
@@ -269,17 +289,27 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
           <label htmlFor="dateOfBirth" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
             Date of Birth
           </label>
-          <input
-            type="date"
-            id="dateOfBirth"
-            name="dateOfBirth"
-            value={formData.dateOfBirth}
-            onChange={handleInputChange}
-            max={getMaxDateOfBirth()}
-            min={getMinDateOfBirth()}
-            disabled={clearFields}
-            className={`form-input h-10 text-sm w-full dark:[color-scheme:dark] ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
-          />
+          <div className="input-wrapper">
+            <input
+              type="date"
+              id="dateOfBirth"
+              name="dateOfBirth"
+              value={formData.dateOfBirth}
+              onChange={handleInputChange}
+              max={getMaxDateOfBirth()}
+              min={getMinDateOfBirth()}
+              disabled={clearFields}
+              className={`form-input h-10 text-sm w-full dark:[color-scheme:dark] ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+            />
+            <button
+              type="button"
+              className="input-delete-button"
+              onClick={() => setFormData(prev => ({ ...prev, dateOfBirth: '' }))}
+              aria-label="Clear date of birth"
+            >
+              ✕
+            </button>
+          </div>
           {formData.dateOfBirth && !isValidDateOfBirth(formData.dateOfBirth).isValid && (
             <p className="text-xs text-red-500 dark:text-red-400">
               {isValidDateOfBirth(formData.dateOfBirth).error}
@@ -290,16 +320,26 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
           <label htmlFor="mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
             Mobile Number
           </label>
-          <input
-            type="tel"
-            id="mobile"
-            name="mobile"
-            value={formData.mobile}
-            onChange={handleInputChange}
-            placeholder="Mobile Number"
-            disabled={clearFields}
-            className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
-          />
+          <div className="input-wrapper">
+            <input
+              type="tel"
+              id="mobile"
+              name="mobile"
+              value={formData.mobile}
+              onChange={handleInputChange}
+              placeholder="Mobile Number"
+              disabled={clearFields}
+              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+            />
+            <button
+              type="button"
+              className="input-delete-button"
+              onClick={() => setFormData(prev => ({ ...prev, mobile: '' }))}
+              aria-label="Clear mobile number"
+            >
+              ✕
+            </button>
+          </div>
           {formData.mobile && !isValidAusMobileNumber(formData.mobile) && (
             <p className="text-xs text-red-500 dark:text-red-400">
               Please enter a valid mobile number (xxxx-xxx-xxx)
@@ -330,14 +370,24 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 block">
               Address
             </label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-              disabled={clearFields}
-              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
-            />
+            <div className="input-wrapper">
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                disabled={clearFields}
+                className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+              />
+              <button
+                type="button"
+                className="input-delete-button"
+                onClick={() => setFormData(prev => ({ ...prev, address: '' }))}
+                aria-label="Clear address"
+              >
+                ✕
+              </button>
+            </div>
           </div>
           <div className="w-full">
             <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 block">

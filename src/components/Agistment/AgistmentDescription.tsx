@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Pencil } from 'lucide-react';
 import { Agistment } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
 import { Modal } from '../shared/Modal';
+import { Loader2 } from 'lucide-react';
 
 interface Props {
   agistmentId: string;
@@ -15,10 +16,30 @@ interface Props {
 export const AgistmentDescription = ({ agistmentId, description, isEditable = false, onUpdate }: Props) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState({ description });
+  const [isDirty, setIsDirty] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [originalDescription, setOriginalDescription] = useState(description);
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isEditDialogOpen) {
+      setEditForm({ description });
+      setOriginalDescription(description);
+    }
+  }, [isEditDialogOpen, description]);
+
+  // Create a hash of the current form state compared to original
+  const contentHash = useMemo(() => {
+    return JSON.stringify({
+      current: editForm.description,
+      original: originalDescription
+    });
+  }, [editForm.description, originalDescription]);
 
   const handleUpdateDescription = async () => {
-    if (!agistmentId) return;
+    if (!agistmentId || !isDirty) return;
     
+    setIsUpdating(true);
     try {
       await agistmentService.updatePropertyDescription(agistmentId, {
         description: editForm.description
@@ -37,6 +58,8 @@ export const AgistmentDescription = ({ agistmentId, description, isEditable = fa
     } catch (error) {
       console.error('Error updating property description:', error);
       toast.error('Failed to update property description');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -47,7 +70,6 @@ export const AgistmentDescription = ({ agistmentId, description, isEditable = fa
         {isEditable && (
           <button
             onClick={() => {
-              setEditForm({ description: description });
               setIsEditDialogOpen(true);
             }}
             className="btn-edit"
@@ -65,35 +87,54 @@ export const AgistmentDescription = ({ agistmentId, description, isEditable = fa
         onClose={() => setIsEditDialogOpen(false)}
         size="md"
         title="Edit Property Description"
-        footerContent={
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={() => setIsEditDialogOpen(false)}
-              className="btn-secondary"
-            >
-              Cancel
-            </button>
+        contentHash={contentHash}
+        onDirtyChange={setIsDirty}
+        isUpdating={isUpdating}
+        footerContent={({ isUpdating }) => (
+          <div className="flex justify-center space-x-2">
             <button
               onClick={handleUpdateDescription}
-              className="btn-primary"
+              className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
+                !isDirty || isUpdating
+                  ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
+                  : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
+              }`}
+              disabled={!isDirty || isUpdating}
             >
-              Save Changes
+              {isUpdating ? (
+                <>
+                  <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
             </button>
           </div>
-        }
+        )}
       >
-        <div className="form-group">
+        <div className="p-6 space-y-4">
           <div>
-            <label className="form-label">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
               Description
             </label>
-            <textarea
-              value={editForm.description}
-              onChange={(e) => setEditForm({ description: e.target.value })}
-              rows={6}
-              className="form-textarea"
-              placeholder="Describe your property..."
-            />
+            <div className="input-wrapper">
+              <textarea
+                value={editForm.description}
+                onChange={(e) => setEditForm({ description: e.target.value })}
+                rows={6}
+                className="form-textarea"
+                placeholder="Describe your property..."
+              />
+              <button
+                type="button"
+                className="input-delete-button"
+                onClick={() => setEditForm({ description: '' })}
+                aria-label="Clear description"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         </div>
       </Modal>

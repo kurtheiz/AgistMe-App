@@ -103,7 +103,7 @@ function App() {
           <ThemeProvider>
             <ProfileProvider>
               <RouterProvider router={router} />
-              <Toaster position="top-right" />
+              <Toaster position="top-center" />
             </ProfileProvider>
           </ThemeProvider>
         </ClerkProvider>

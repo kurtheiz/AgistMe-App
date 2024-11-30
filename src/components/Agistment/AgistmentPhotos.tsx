@@ -9,6 +9,7 @@ import { Pencil } from 'lucide-react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Modal } from '../shared/Modal';
 
 interface AgistmentPhotosProps {
   agistment: Agistment;
@@ -159,13 +160,13 @@ export const AgistmentPhotos = ({
     setIsCommentModalOpen(true);
   };
 
-  const handleCommentSave = () => {
-    if (selectedPhotoIndex === null) return;
+  const handleUpdateComment = (index: number, comment: string) => {
+    if (index === null) return;
     
     const newPhotos = [...agistment.photoGallery.photos];
-    newPhotos[selectedPhotoIndex] = {
-      ...newPhotos[selectedPhotoIndex],
-      comment: currentComment
+    newPhotos[index] = {
+      ...newPhotos[index],
+      comment: comment
     };
     updatePhotos(newPhotos);
     setIsCommentModalOpen(false);
@@ -245,44 +246,51 @@ export const AgistmentPhotos = ({
         disabled={disabled || isUploading}
       />
 
-      <Dialog
-        open={isCommentModalOpen}
+      <Modal
+        isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
-        className="relative z-50"
+        size="sm"
+        title="Edit Photo Comment"
+        footerContent={
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setIsCommentModalOpen(false)}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => handleUpdateComment(selectedPhotoIndex!, currentComment)}
+              className="btn-primary"
+            >
+              Save Comment
+            </button>
+          </div>
+        }
       >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white dark:bg-neutral-800 p-6 shadow-xl">
-            <Dialog.Title className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
-              Photo Comment
-            </Dialog.Title>
-            <div className="space-y-4">
-              <textarea
-                value={currentComment}
-                onChange={(e) => setCurrentComment(e.target.value)}
-                className="w-full h-32 px-3 py-2 text-base text-neutral-700 dark:text-neutral-200 placeholder-neutral-400 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-neutral-900"
-                placeholder="Add a comment to describe this photo..."
-              />
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsCommentModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-md transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCommentSave}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </Dialog.Panel>
+        <div>
+          <label className="form-label">
+            Comment
+          </label>
+          <div className="input-wrapper">
+            <input
+              type="text"
+              value={currentComment}
+              onChange={(e) => setCurrentComment(e.target.value)}
+              className="form-input"
+              placeholder="Add a comment to this photo..."
+            />
+            <button
+              type="button"
+              className="input-delete-button"
+              onClick={() => setCurrentComment('')}
+              aria-label="Clear comment"
+            >
+              ✕
+            </button>
+          </div>
         </div>
-      </Dialog>
+      </Modal>
     </div>
   );
 };

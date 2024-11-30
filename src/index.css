@@ -90,6 +90,29 @@ body {
     @apply form-input resize-none;
   }
 
+  /* Text input wrapper for delete button positioning */
+  .input-wrapper {
+    @apply relative flex items-center;
+  }
+
+  /* Delete button styling */
+  .input-delete-button {
+    @apply absolute right-2 hidden
+           text-neutral-400 hover:text-neutral-600
+           dark:text-neutral-500 dark:hover:text-neutral-300
+           cursor-pointer transition-colors;
+  }
+
+  /* Show delete button when input has value */
+  .input-wrapper:has(input:not(:placeholder-shown)) .input-delete-button {
+    @apply block;
+  }
+
+  /* Adjust input padding when delete button is present */
+  .input-wrapper input {
+    @apply pr-8;
+  }
+
   /* Title styling */
   .title-header {
     @apply w-full bg-primary-600 dark:bg-primary-900/50 border-b border-primary-700/50 dark:border-primary-800/50 py-3;

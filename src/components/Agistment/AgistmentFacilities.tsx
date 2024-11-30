@@ -1,6 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Pencil } from 'lucide-react';
 import { Agistment, FloatParking } from '../../types/agistment';
+import { Modal } from '../shared/Modal';
+import { agistmentService } from '../../services/agistment.service';
+import toast from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
+import { Switch } from '@headlessui/react';
+import { NumberStepper } from '../shared/NumberStepper';
 import {
   FeedRoomIcon,
   FloatParkingIcon,
@@ -8,10 +14,7 @@ import {
   StableIcon,
   TackRoomIcon,
   TieUpIcon,
-} from '../../components/Icons';
-import { Modal } from '../shared/Modal';
-import { agistmentService } from '../../services/agistment.service';
-import toast from 'react-hot-toast';
+} from '../Icons';
 
 interface AgistmentFacilitiesProps {
   agistmentId: string;
@@ -28,16 +31,39 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editableFacilities, setEditableFacilities] = useState(facilities);
+  const [originalFacilities, setOriginalFacilities] = useState(facilities);
+  const [isDirty, setIsDirty] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setEditableFacilities({ ...facilities });
+      setOriginalFacilities({ ...facilities });
+      setIsDirty(false);
+    }
+  }, [isModalOpen, facilities]);
+
+  const contentHash = JSON.stringify(editableFacilities);
 
   const handleSave = async () => {
+    if (!agistmentId || !isDirty) return;
+
+    setIsUpdating(true);
     try {
       await agistmentService.updateAgistment(agistmentId, { facilities: editableFacilities });
-      onUpdate?.({ facilities: editableFacilities });
       setIsModalOpen(false);
       toast.success('Facilities updated successfully');
+      
+      if (onUpdate) {
+        onUpdate({
+          facilities: editableFacilities
+        });
+      }
     } catch (error) {
       console.error('Failed to update facilities:', error);
       toast.error('Failed to update facilities');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -49,6 +75,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
         available: !prev[facilityKey].available
       }
     }));
+    setIsDirty(true);
   };
 
   const handleUpdateComment = (facilityKey: keyof Agistment['facilities'], comment: string) => {
@@ -59,6 +86,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
         comments: comment
       }
     }));
+    setIsDirty(true);
   };
 
   const handleUpdatePrice = (price: string) => {
@@ -70,7 +98,32 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
         monthlyPrice: numericPrice
       }
     }));
+    setIsDirty(true);
   };
+
+  const footerContent = (
+    <div className="flex justify-center space-x-2">
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={!isDirty || isUpdating}
+        className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
+          !isDirty || isUpdating
+            ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
+            : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
+        }`}
+      >
+        {isUpdating ? (
+          <>
+            <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
+            Saving...
+          </>
+        ) : (
+          'Save Changes'
+        )}
+      </button>
+    </div>
+  );
 
   return (
     <div className="agistment-section">
@@ -78,15 +131,16 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
         <h3 className="agistment-section-title">Facilities</h3>
         {isEditable && (
           <button
+            type="button"
             onClick={() => setIsModalOpen(true)}
-            className="btn-edit"
+            className="text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300"
           >
-            <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+            <Pencil className="w-5 h-5" />
           </button>
         )}
       </div>
 
-      <div className="agistment-section-content grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
         {/* Feed Room */}
         <div className="border-title-card">
           <span className="border-title-card-title">Feed Room</span>
@@ -167,7 +221,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
           </div>
         </div>
 
-        {/* Tie Up */}
+        {/* Tie Ups */}
         <div className="border-title-card">
           <span className="border-title-card-title">Tie Ups</span>
           <div className="border-title-card-content">
@@ -187,26 +241,14 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
       <Modal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        size="lg"
         title="Edit Facilities"
-        footerContent={
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="btn-secondary"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="btn-primary"
-            >
-              Save Changes
-            </button>
-          </div>
-        }
+        size="md"
+        contentHash={contentHash}
+        onDirtyChange={setIsDirty}
+        isUpdating={isUpdating}
+        footerContent={footerContent}
       >
-        <div className="form-group">
+        <div className="p-6 space-y-4">
           {Object.entries(editableFacilities)
             .sort(([keyA], [keyB]) => {
               const displayNames: Record<keyof Agistment['facilities'], string> = {
@@ -220,83 +262,114 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
               return displayNames[keyA as keyof Agistment['facilities']].localeCompare(displayNames[keyB as keyof Agistment['facilities']]);
             })
             .map(([key, facility]) => {
-            const icons: Record<keyof Agistment['facilities'], React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
-              feedRoom: FeedRoomIcon,
-              floatParking: FloatParkingIcon,
-              hotWash: HotWashIcon,
-              stables: StableIcon,
-              tackRoom: TackRoomIcon,
-              tieUp: TieUpIcon
-            };
-            const Icon = icons[key as keyof Agistment['facilities']];
+              const displayNames: Record<keyof Agistment['facilities'], string> = {
+                feedRoom: 'Feed Room',
+                floatParking: 'Float Parking',
+                hotWash: 'Hot Wash Bay',
+                stables: 'Stables',
+                tackRoom: 'Tack Room',
+                tieUp: 'Tie Ups'
+              };
+              const displayName = displayNames[key as keyof Agistment['facilities']];
+              return (
+                <div key={key} className="space-y-4">
+                  <div className="flex items-start space-x-4">
+                    <Switch
+                      checked={facility.available}
+                      onChange={() => handleToggleFacility(key as keyof Agistment['facilities'])}
+                      className={`${
+                        facility.available ? 'bg-green-600' : 'bg-neutral-200'
+                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2`}
+                    >
+                      <span className="sr-only">{displayName} Available</span>
+                      <span
+                        className={`${
+                          facility.available ? 'translate-x-6' : 'translate-x-1'
+                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                      />
+                    </Switch>
 
-            const displayNames: Record<keyof Agistment['facilities'], string> = {
-              feedRoom: 'Feed Room',
-              floatParking: 'Float Parking',
-              hotWash: 'Hot Wash Bay',
-              stables: 'Stables',
-              tackRoom: 'Tack Room',
-              tieUp: 'Tie Ups'
-            };
-            const displayName = displayNames[key as keyof Agistment['facilities']];
-            return (
-              <div key={key} className="flex items-start space-x-4">
-                <button
-                  onClick={() => handleToggleFacility(key as keyof Agistment['facilities'])}
-                  className={`w-12 h-12 p-2 rounded-lg transition-colors ${
-                    facility.available 
-                      ? 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20' 
-                      : 'text-neutral-300 dark:text-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-800'
-                  }`}
-                >
-                  <Icon aria-hidden="true" className="w-full h-full" />
-                </button>
-
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-neutral-900 dark:text-white">
-                    {displayName}
-                  </label>
-                  <div className="mt-1 space-y-2">
-                    <input
-                      type="text"
-                      value={facility.comments || ''}
-                      onChange={(e) => handleUpdateComment(key as keyof Agistment['facilities'], e.target.value)}
-                      placeholder="Add comments..."
-                      className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-700 dark:text-white"
-                    />
-                    {key === 'floatParking' && (
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1">
-                          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                            Monthly Price
-                          </label>
-                          <div className="relative rounded-md">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                              <span className="text-neutral-500 dark:text-neutral-400 sm:text-sm">$</span>
-                            </div>
-                            <input
-                              type="number"
-                              value={(facility as FloatParking).monthlyPrice || ''}
-                              onChange={(e) => handleUpdatePrice(e.target.value)}
-                              placeholder="0"
-                              min="0"
-                              step="1"
-                              disabled={!facility.available}
-                              className={`w-full px-3 py-2 pl-7 pr-12 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 
-                                ${!facility.available ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400' : 'dark:bg-neutral-700 dark:text-white'}`}
-                            />
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                              <span className="text-neutral-500 dark:text-neutral-400 sm:text-sm">/month</span>
-                            </div>
-                          </div>
-                        </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                        {displayName}
+                      </label>
+                      <div className="input-wrapper">
+                        <input
+                          type="text"
+                          value={facility.comments || ''}
+                          onChange={(e) => handleUpdateComment(key as keyof Agistment['facilities'], e.target.value)}
+                          placeholder="Add comments..."
+                          className="form-input"
+                        />
+                        <button
+                          type="button"
+                          className="input-delete-button"
+                          onClick={() => handleUpdateComment(key as keyof Agistment['facilities'], '')}
+                          aria-label={`Clear ${displayName} comments`}
+                        >
+                          ✕
+                        </button>
                       </div>
-                    )}
+                    </div>
                   </div>
+
+                  {key === 'floatParking' && facility.available && (
+                    <div className="mt-4">
+                      <NumberStepper
+                        label="Monthly Price"
+                        value={editableFacilities.floatParking.monthlyPrice}
+                        onChange={(value) => handleUpdatePrice(value.toString())}
+                        min={0}
+                        step={1}
+                        formatValue={(value) => `$${value}`}
+                      />
+                    </div>
+                  )}
+
+                  {key === 'stables' && facility.available && (
+                    <div className="mt-4">
+                      <NumberStepper
+                        label="Number of Stables"
+                        value={editableFacilities.stables.count || 0}
+                        onChange={(value) => {
+                          setEditableFacilities(prev => ({
+                            ...prev,
+                            stables: {
+                              ...prev.stables,
+                              count: value
+                            }
+                          }));
+                          setIsDirty(true);
+                        }}
+                        min={0}
+                        step={1}
+                      />
+                    </div>
+                  )}
+
+                  {key === 'yards' && facility.available && (
+                    <div className="mt-4">
+                      <NumberStepper
+                        label="Number of Yards"
+                        value={editableFacilities.yards.count || 0}
+                        onChange={(value) => {
+                          setEditableFacilities(prev => ({
+                            ...prev,
+                            yards: {
+                              ...prev.yards,
+                              count: value
+                            }
+                          }));
+                          setIsDirty(true);
+                        }}
+                        min={0}
+                        step={1}
+                      />
+                    </div>
+                  )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </Modal>
     </div>

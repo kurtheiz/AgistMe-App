@@ -1,4 +1,4 @@
-import { Fragment, ReactNode, useEffect } from 'react';
+import { Fragment, ReactNode, useEffect, useState } from 'react';
 import { Dialog, Transition, TransitionChild } from '@headlessui/react';
 import { XMarkIcon } from '../Icons';
 
@@ -8,10 +8,13 @@ export interface ModalProps {
   title?: string;
   children: ReactNode;
   headerContent?: ReactNode;
-  footerContent?: ReactNode;
+  footerContent?: ReactNode | (({ isUpdating }: { isUpdating: boolean }) => ReactNode);
   showCloseButton?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   slideFrom?: 'left' | 'right' | 'top' | 'bottom';
+  contentHash?: string;
+  onDirtyChange?: (isDirty: boolean) => void;
+  isUpdating?: boolean;
 }
 
 const sizeClasses = {
@@ -31,8 +34,38 @@ export function Modal({
   footerContent,
   showCloseButton = true,
   size = 'md',
-  slideFrom = 'right'
+  slideFrom = 'right',
+  contentHash,
+  onDirtyChange,
+  isUpdating
 }: ModalProps) {
+  const [initialHash, setInitialHash] = useState<string | undefined>();
+  const [isDirty, setIsDirty] = useState(false);
+
+  // Set initial hash when modal opens
+  useEffect(() => {
+    if (isOpen && contentHash && !initialHash) {
+      setInitialHash(contentHash);
+    }
+  }, [isOpen, contentHash]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setInitialHash(undefined);
+      setIsDirty(false);
+    }
+  }, [isOpen]);
+
+  // Check for changes when content hash updates
+  useEffect(() => {
+    if (initialHash && contentHash) {
+      const newIsDirty = initialHash !== contentHash;
+      setIsDirty(newIsDirty);
+      onDirtyChange?.(newIsDirty);
+    }
+  }, [contentHash, initialHash, onDirtyChange]);
+
   useEffect(() => {
     if (isOpen) {
       // Check if content will cause overflow
@@ -79,9 +112,10 @@ export function Modal({
           <div className="fixed inset-0 bg-black/25 dark:bg-black/50" />
         </TransitionChild>
   
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center">
-            {/* Modal panel */}
+        <div
+          className="fixed inset-0 z-10 w-screen overflow-y-auto bg-black/25 dark:bg-black/50"
+        >
+          <div className="flex min-h-full items-center justify-center p-4">
             <TransitionChild
               as={Fragment}
               enter="transform transition ease-out duration-300"
@@ -108,13 +142,13 @@ export function Modal({
               }
             >
               <Dialog.Panel 
-                className={`modal-panel w-full ${sizeClasses[size]} h-[100dvh] md:h-auto md:max-h-[85vh] md:rounded-lg overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
+                className={`modal-panel w-full ${sizeClasses[size]} transform h-[100dvh] md:h-auto md:max-h-[85vh] md:rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
               >
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full md:max-h-[85vh]">
                   {/* Header */}
                   {(title || headerContent || showCloseButton) && (
-                    <div className="flex-none sticky top-0 z-50 bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700">
-                      <div className="flex items-center justify-between px-4 py-4">
+                    <div className="flex-none bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700 md:rounded-t-2xl">
+                      <div className="flex items-center justify-between p-4">
                         {title && (
                           <Dialog.Title as="h3" className="text-lg font-medium text-white">
                             {title}
@@ -124,7 +158,7 @@ export function Modal({
                         {showCloseButton && (
                           <button
                             onClick={onClose}
-                            className="rounded-md p-2 text-primary-100 hover:text-white dark:text-primary-200 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-primary-500"
+                            className="rounded-md p-2 -mr-2 text-primary-100 hover:text-white dark:text-primary-200 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-primary-500"
                           >
                             <XMarkIcon className="h-5 w-5" />
                           </button>
@@ -140,8 +174,11 @@ export function Modal({
   
                   {/* Footer */}
                   {footerContent && (
-                    <div className="flex-none sticky bottom-0 z-50 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-700 px-4 py-3">
-                      {footerContent}
+                    <div className="flex-none bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-700 p-4">
+                      {typeof footerContent === 'function' ? 
+                        footerContent({ isUpdating }) : 
+                        footerContent
+                      }
                     </div>
                   )}
                 </div>
