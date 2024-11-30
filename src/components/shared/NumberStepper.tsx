@@ -24,9 +24,9 @@ export function NumberStepper({
 }: NumberStepperProps) {
   const [isIncrementing, setIsIncrementing] = useState(false);
   const [isDecrementing, setIsDecrementing] = useState(false);
-  const incrementInterval = useRef<NodeJS.Timer | null>(null);
-  const decrementInterval = useRef<NodeJS.Timer | null>(null);
-  const holdTimeout = useRef<NodeJS.Timer | null>(null);
+  const incrementInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const decrementInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const holdTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const increment = () => {
     if (value + step <= max) {
@@ -41,7 +41,7 @@ export function NumberStepper({
   };
 
   useEffect(() => {
-    let timer: NodeJS.Timer | null = null;
+    let timer: ReturnType<typeof setInterval> | null = null;
 
     if (isIncrementing && value < max) {
       timer = setInterval(increment, 50); // Super fast continuous increment (20 changes per second)

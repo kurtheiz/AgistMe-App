@@ -10,12 +10,22 @@ import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
 import { Switch } from '@headlessui/react';
 
+interface PaddockForm extends Omit<PaddockBase, 'whenAvailable'> {
+  whenAvailable: Date | undefined;
+  enabled: boolean;
+}
+
+interface EditForm {
+  privatePaddocks: PaddockForm;
+  sharedPaddocks: PaddockForm;
+  groupPaddocks: PaddockForm;
+}
+
 interface AgistmentPaddocksProps {
   paddocks: Agistment['paddocks'];
   isEditable?: boolean;
   agistmentId?: string;
   onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
-  onPaddockUpdate?: (updatedPaddocks: Partial<Agistment['paddocks']>) => void;
 }
 
 const calculateMonthlyPrice = (weeklyPrice: number) => {
@@ -24,42 +34,32 @@ const calculateMonthlyPrice = (weeklyPrice: number) => {
 
 export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
   paddocks = {
-    privatePaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: null, enabled: false },
-    sharedPaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: null, enabled: false },
-    groupPaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: null, enabled: false }
+    privatePaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: undefined },
+    sharedPaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: undefined },
+    groupPaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: undefined }
   },
   isEditable = false,
   agistmentId,
-  onUpdate,
-  onPaddockUpdate
+  onUpdate
 }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<EditForm>({
     privatePaddocks: {
-      total: paddocks?.privatePaddocks?.total ?? 0,
-      available: paddocks?.privatePaddocks?.available ?? 0,
-      whenAvailable: paddocks?.privatePaddocks?.whenAvailable ?? null,
-      weeklyPrice: paddocks?.privatePaddocks?.weeklyPrice ?? 0,
-      comments: paddocks?.privatePaddocks?.comments ?? '',
-      enabled: (paddocks?.privatePaddocks?.total ?? 0) > 0
+      ...paddocks.privatePaddocks,
+      whenAvailable: paddocks.privatePaddocks.whenAvailable ? new Date(paddocks.privatePaddocks.whenAvailable) : undefined,
+      enabled: paddocks.privatePaddocks.available > 0
     },
     sharedPaddocks: {
-      total: paddocks?.sharedPaddocks?.total ?? 0,
-      available: paddocks?.sharedPaddocks?.available ?? 0,
-      whenAvailable: paddocks?.sharedPaddocks?.whenAvailable ?? null,
-      weeklyPrice: paddocks?.sharedPaddocks?.weeklyPrice ?? 0,
-      comments: paddocks?.sharedPaddocks?.comments ?? '',
-      enabled: (paddocks?.sharedPaddocks?.total ?? 0) > 0
+      ...paddocks.sharedPaddocks,
+      whenAvailable: paddocks.sharedPaddocks.whenAvailable ? new Date(paddocks.sharedPaddocks.whenAvailable) : undefined,
+      enabled: paddocks.sharedPaddocks.available > 0
     },
     groupPaddocks: {
-      total: paddocks?.groupPaddocks?.total ?? 0,
-      available: paddocks?.groupPaddocks?.available ?? 0,
-      whenAvailable: paddocks?.groupPaddocks?.whenAvailable ?? null,
-      weeklyPrice: paddocks?.groupPaddocks?.weeklyPrice ?? 0,
-      comments: paddocks?.groupPaddocks?.comments ?? '',
-      enabled: (paddocks?.groupPaddocks?.total ?? 0) > 0
+      ...paddocks.groupPaddocks,
+      whenAvailable: paddocks.groupPaddocks.whenAvailable ? new Date(paddocks.groupPaddocks.whenAvailable) : undefined,
+      enabled: paddocks.groupPaddocks.available > 0
     }
   });
   const [isDirty, setIsDirty] = useState(false);
@@ -68,28 +68,19 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
     if (isEditDialogOpen) {
       setEditForm({
         privatePaddocks: {
-          total: paddocks?.privatePaddocks?.total ?? 0,
-          available: paddocks?.privatePaddocks?.available ?? 0,
-          whenAvailable: paddocks?.privatePaddocks?.whenAvailable ?? null,
-          weeklyPrice: paddocks?.privatePaddocks?.weeklyPrice ?? 0,
-          comments: paddocks?.privatePaddocks?.comments ?? '',
-          enabled: (paddocks?.privatePaddocks?.total ?? 0) > 0
+          ...paddocks.privatePaddocks,
+          whenAvailable: paddocks.privatePaddocks.whenAvailable ? new Date(paddocks.privatePaddocks.whenAvailable) : undefined,
+          enabled: paddocks.privatePaddocks.available > 0
         },
         sharedPaddocks: {
-          total: paddocks?.sharedPaddocks?.total ?? 0,
-          available: paddocks?.sharedPaddocks?.available ?? 0,
-          whenAvailable: paddocks?.sharedPaddocks?.whenAvailable ?? null,
-          weeklyPrice: paddocks?.sharedPaddocks?.weeklyPrice ?? 0,
-          comments: paddocks?.sharedPaddocks?.comments ?? '',
-          enabled: (paddocks?.sharedPaddocks?.total ?? 0) > 0
+          ...paddocks.sharedPaddocks,
+          whenAvailable: paddocks.sharedPaddocks.whenAvailable ? new Date(paddocks.sharedPaddocks.whenAvailable) : undefined,
+          enabled: paddocks.sharedPaddocks.available > 0
         },
         groupPaddocks: {
-          total: paddocks?.groupPaddocks?.total ?? 0,
-          available: paddocks?.groupPaddocks?.available ?? 0,
-          whenAvailable: paddocks?.groupPaddocks?.whenAvailable ?? null,
-          weeklyPrice: paddocks?.groupPaddocks?.weeklyPrice ?? 0,
-          comments: paddocks?.groupPaddocks?.comments ?? '',
-          enabled: (paddocks?.groupPaddocks?.total ?? 0) > 0
+          ...paddocks.groupPaddocks,
+          whenAvailable: paddocks.groupPaddocks.whenAvailable ? new Date(paddocks.groupPaddocks.whenAvailable) : undefined,
+          enabled: paddocks.groupPaddocks.available > 0
         }
       });
       setIsDirty(false);
@@ -118,7 +109,7 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
     }
   };
 
-  const handleEditFormChange = (type: keyof typeof editForm, field: keyof PaddockBase, value: any) => {
+  const handleEditFormChange = (type: keyof EditForm, field: keyof PaddockForm, value: any) => {
     setIsDirty(true);
     setEditForm(prev => {
       const updatedForm = { ...prev };
@@ -146,7 +137,7 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
     });
   };
 
-  const handleTogglePaddockType = (type: keyof typeof editForm) => {
+  const handleTogglePaddockType = (type: keyof EditForm) => {
     setEditForm(prev => {
       const newForm = { ...prev };
       newForm[type] = {
@@ -156,90 +147,11 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
         available: 0,
         weeklyPrice: 0,
         comments: '',
-        whenAvailable: null
+        whenAvailable: undefined
       };
       return newForm;
     });
     setIsDirty(true);
-  };
-
-  const renderPaddockSection = (type: keyof typeof editForm, title: string) => {
-    const paddock = editForm[type];
-    const calculateMonthlyPrice = (weekly: number) => Math.round((weekly * 52) / 12);
-
-    return (
-      <div className="border-title-card">
-        <span className="border-title-card-title">{title}</span>
-        <div className="border-title-card-content space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Total Spaces</label>
-              <NumberStepper
-                value={paddock.total}
-                onChange={(value) => handleEditFormChange(type, 'total', value)}
-                min={paddock.enabled ? 1 : 0}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Available Spaces</label>
-              <NumberStepper
-                value={paddock.available}
-                onChange={(value) => handleEditFormChange(type, 'available', value)}
-                min={0}
-                max={paddock.total}
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">Weekly Price ($)</label>
-            <div className="grid grid-cols-2 gap-4">
-              <NumberStepper
-                value={paddock.weeklyPrice}
-                onChange={(value) => handleEditFormChange(type, 'weeklyPrice', value)}
-                min={0}
-                step={1}
-              />
-              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                ≈ ${calculateMonthlyPrice(paddock.weeklyPrice)}/month
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Available From</label>
-            <input
-              type="date"
-              className="form-input block w-full"
-              value={paddock.whenAvailable ? new Date(paddock.whenAvailable).toISOString().split('T')[0] : ''}
-              onChange={(e) => handleEditFormChange(type, 'whenAvailable', e.target.value ? new Date(e.target.value) : null)}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Comments</label>
-            <div className="relative">
-              <textarea
-                className="form-textarea block w-full min-h-[120px] resize-none pr-8"
-                value={paddock.comments}
-                onChange={(e) => handleEditFormChange(type, 'comments', e.target.value)}
-                placeholder="Add any additional information about these spaces..."
-              />
-              {paddock.comments && (
-                <button
-                  type="button"
-                  className="absolute right-2 top-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
-                  onClick={() => handleEditFormChange(type, 'comments', '')}
-                  aria-label="Clear comments"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -462,18 +374,18 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                 <Tab.Panel key={type} className="focus:outline-none">
                   <div className="flex items-center justify-between mb-4 bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-lg">
                     <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                      {editForm[type as keyof typeof editForm].enabled ? `I have ${title.toLowerCase()}` : `No ${title.toLowerCase()}`}
+                      {editForm[type as keyof EditForm].enabled ? `I have ${title.toLowerCase()}` : `No ${title.toLowerCase()}`}
                     </span>
                     <Switch
-                      checked={editForm[type as keyof typeof editForm].enabled}
-                      onChange={() => handleTogglePaddockType(type as keyof typeof editForm)}
+                      checked={editForm[type as keyof EditForm].enabled}
+                      onChange={() => handleTogglePaddockType(type as keyof EditForm)}
                       className={`${
-                        editForm[type as keyof typeof editForm].enabled ? 'bg-primary-600' : 'bg-neutral-300 dark:bg-neutral-600'
+                        editForm[type as keyof EditForm].enabled ? 'bg-primary-600' : 'bg-neutral-300 dark:bg-neutral-600'
                       } relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2`}
                     >
                       <span
                         className={`${
-                          editForm[type as keyof typeof editForm].enabled ? 'translate-x-5' : 'translate-x-1'
+                          editForm[type as keyof EditForm].enabled ? 'translate-x-5' : 'translate-x-1'
                         } inline-block h-3 w-3 transform rounded-full bg-white transition-transform`}
                       />
                     </Switch>
@@ -490,9 +402,9 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                           Total Spaces
                         </label>
                         <NumberStepper
-                          value={editForm[type as keyof typeof editForm].total}
-                          onChange={(value) => handleEditFormChange(type as keyof typeof editForm, 'total', value)}
-                          min={editForm[type as keyof typeof editForm].enabled ? 1 : 0}
+                          value={editForm[type as keyof EditForm].total}
+                          onChange={(value) => handleEditFormChange(type as keyof EditForm, 'total', value)}
+                          min={editForm[type as keyof EditForm].enabled ? 1 : 0}
                         />
                       </div>
                       <div className="flex flex-col items-center">
@@ -500,10 +412,10 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                           Available Spaces
                         </label>
                         <NumberStepper
-                          value={editForm[type as keyof typeof editForm].available}
-                          onChange={(value) => handleEditFormChange(type as keyof typeof editForm, 'available', value)}
+                          value={editForm[type as keyof EditForm].available}
+                          onChange={(value) => handleEditFormChange(type as keyof EditForm, 'available', value)}
                           min={0}
-                          max={editForm[type as keyof typeof editForm].total}
+                          max={editForm[type as keyof EditForm].total}
                         />
                       </div>
                     </div>
@@ -514,13 +426,13 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                       </label>
                       <div className="flex flex-col items-center gap-2">
                         <NumberStepper
-                          value={editForm[type as keyof typeof editForm].weeklyPrice}
-                          onChange={(value) => handleEditFormChange(type as keyof typeof editForm, 'weeklyPrice', value)}
+                          value={editForm[type as keyof EditForm].weeklyPrice}
+                          onChange={(value) => handleEditFormChange(type as keyof EditForm, 'weeklyPrice', value)}
                           min={0}
                           step={1}
                         />
                         <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                          ≈ ${calculateMonthlyPrice(editForm[type as keyof typeof editForm].weeklyPrice)}/month
+                          ≈ ${calculateMonthlyPrice(editForm[type as keyof EditForm].weeklyPrice)}/month
                         </div>
                       </div>
                     </div>
@@ -533,13 +445,13 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                         <input
                           type="date"
                           className="form-input block w-full text-center"
-                          value={editForm[type as keyof typeof editForm].whenAvailable 
-                            ? new Date(editForm[type as keyof typeof editForm].whenAvailable as Date).toISOString().split('T')[0] 
+                          value={editForm[type as keyof EditForm].whenAvailable 
+                            ? new Date(editForm[type as keyof EditForm].whenAvailable as Date).toISOString().split('T')[0] 
                             : ''}
                           onChange={(e) => handleEditFormChange(
-                            type as keyof typeof editForm,
+                            type as keyof EditForm,
                             'whenAvailable',
-                            e.target.value ? new Date(e.target.value) : null
+                            e.target.value ? new Date(e.target.value) : undefined
                           )}
                         />
                       </div>
@@ -552,15 +464,15 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                       <div className="relative">
                         <textarea
                           className="form-textarea block w-full min-h-[120px] resize-none pr-8"
-                          value={editForm[type as keyof typeof editForm].comments}
-                          onChange={(e) => handleEditFormChange(type as keyof typeof editForm, 'comments', e.target.value)}
+                          value={editForm[type as keyof EditForm].comments}
+                          onChange={(e) => handleEditFormChange(type as keyof EditForm, 'comments', e.target.value)}
                           placeholder="Add any additional information about these spaces..."
                         />
-                        {editForm[type as keyof typeof editForm].comments && (
+                        {editForm[type as keyof EditForm].comments && (
                           <button
                             type="button"
                             className="absolute right-2 top-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
-                            onClick={() => handleEditFormChange(type as keyof typeof editForm, 'comments', '')}
+                            onClick={() => handleEditFormChange(type as keyof EditForm, 'comments', '')}
                             aria-label="Clear comments"
                           >
                             ✕

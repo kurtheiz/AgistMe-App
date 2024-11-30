@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Pencil } from 'lucide-react';
-import { Agistment, FloatParking } from '../../types/agistment';
+import { Agistment, Stables } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import { agistmentService } from '../../services/agistment.service';
 import toast from 'react-hot-toast';
@@ -31,19 +31,15 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editableFacilities, setEditableFacilities] = useState(facilities);
-  const [originalFacilities, setOriginalFacilities] = useState(facilities);
   const [isDirty, setIsDirty] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (isModalOpen) {
       setEditableFacilities({ ...facilities });
-      setOriginalFacilities({ ...facilities });
       setIsDirty(false);
     }
   }, [isModalOpen, facilities]);
-
-  const contentHash = JSON.stringify(editableFacilities);
 
   const handleSave = async () => {
     if (!agistmentId || !isDirty) return;
@@ -243,10 +239,8 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
         onClose={() => setIsModalOpen(false)}
         title="Edit Facilities"
         size="md"
-        contentHash={contentHash}
-        onDirtyChange={setIsDirty}
-        isUpdating={isUpdating}
         footerContent={footerContent}
+        isUpdating={isUpdating}
       >
         <div className="p-6 space-y-4">
           {Object.entries(editableFacilities)
@@ -330,34 +324,13 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
                     <div className="mt-4">
                       <NumberStepper
                         label="Number of Stables"
-                        value={editableFacilities.stables.count || 0}
+                        value={(editableFacilities.stables as Stables).quantity || 0}
                         onChange={(value) => {
                           setEditableFacilities(prev => ({
                             ...prev,
                             stables: {
                               ...prev.stables,
-                              count: value
-                            }
-                          }));
-                          setIsDirty(true);
-                        }}
-                        min={0}
-                        step={1}
-                      />
-                    </div>
-                  )}
-
-                  {key === 'yards' && facility.available && (
-                    <div className="mt-4">
-                      <NumberStepper
-                        label="Number of Yards"
-                        value={editableFacilities.yards.count || 0}
-                        onChange={(value) => {
-                          setEditableFacilities(prev => ({
-                            ...prev,
-                            yards: {
-                              ...prev.yards,
-                              count: value
+                              quantity: value
                             }
                           }));
                           setIsDirty(true);

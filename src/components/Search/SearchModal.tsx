@@ -162,7 +162,6 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
   };
 
   const handleSearch = () => {
-
     // Create the search hash
     const searchData = {
       s: searchCriteria.suburbs.map(s => ({
@@ -483,7 +482,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
       size="md"
       slideFrom="left"
       footerContent={footerContent}
-
+      isUpdating={false}
     >
       <div className="px-4 py-3">
         {modalContent}

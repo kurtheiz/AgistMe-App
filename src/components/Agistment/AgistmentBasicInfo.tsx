@@ -20,10 +20,6 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
     name: basicInfo.name,
     propertySize: basicInfo.propertySize
   });
-  const [originalForm, setOriginalForm] = useState({
-    name: basicInfo.name,
-    propertySize: basicInfo.propertySize
-  });
   const [isDirty, setIsDirty] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [nameError, setNameError] = useState('');
@@ -35,15 +31,9 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
         name: basicInfo.name,
         propertySize: basicInfo.propertySize
       });
-      setOriginalForm({
-        name: basicInfo.name,
-        propertySize: basicInfo.propertySize
-      });
       setIsDirty(false);
     }
   }, [isEditDialogOpen, basicInfo]);
-
-  const contentHash = JSON.stringify(editForm);
 
   const handleUpdateBasicInfo = async () => {
     if (!agistmentId || !isDirty) return;
@@ -60,7 +50,7 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
 
     setIsUpdating(true);
     try {
-      const updatedAgistment = await agistmentService.updateBasicInfo(agistmentId, {
+      await agistmentService.updateBasicInfo(agistmentId, {
         name: editForm.name,
         propertySize: editForm.propertySize
       });
@@ -115,7 +105,6 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
           onClose={() => setIsEditDialogOpen(false)}
           title="Edit Basic Info"
           size="sm"
-          contentHash={contentHash}
           onDirtyChange={setIsDirty}
           isUpdating={isUpdating}
           footerContent={({ isUpdating }) => (

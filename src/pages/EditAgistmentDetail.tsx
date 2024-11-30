@@ -106,18 +106,6 @@ function EditAgistmentDetail() {
     }
   };
 
-  const handlePropertyDescriptionUpdate = (description: string) => {
-    setAgistment(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        propertyDescription: {
-          description
-        }
-      };
-    });
-  };
-
   return (
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
       <PageToolbar
@@ -287,7 +275,19 @@ function EditAgistmentDetail() {
               agistmentId={agistment.id}
               description={agistment.propertyDescription.description}
               isEditable={true}
-              onUpdate={handlePropertyDescriptionUpdate}
+              onUpdate={(updatedAgistment) => {
+                setAgistment(prev => {
+                  if (!prev) return null;
+                  return {
+                    ...prev,
+                    propertyDescription: {
+                      description: typeof updatedAgistment === 'string' 
+                        ? updatedAgistment 
+                        : updatedAgistment.propertyDescription?.description || prev.propertyDescription.description
+                    }
+                  };
+                });
+              }}
             />
 
             {/* Paddocks */}

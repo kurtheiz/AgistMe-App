@@ -3,7 +3,6 @@ import { PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
 import { Agistment } from '../../types/agistment';
-import { Dialog } from '@headlessui/react';
 import { EditIcon } from '../../components/Icons';
 import { Pencil } from 'lucide-react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -251,6 +250,7 @@ export const AgistmentPhotos = ({
         onClose={() => setIsCommentModalOpen(false)}
         size="sm"
         title="Edit Photo Comment"
+        isUpdating={false}
         footerContent={
           <div className="flex justify-end gap-3">
             <button

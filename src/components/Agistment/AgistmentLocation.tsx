@@ -8,7 +8,7 @@ import { getGoogleMapsUrl } from '../../utils/location';
 import { agistmentService } from '../../services/agistment.service';
 import { Loader2 } from 'lucide-react';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
-import { Suburb } from '../../types/suburb';
+import { Suburb, LocationType } from '../../types/suburb';
 
 interface Props {
   agistmentId?: string;
@@ -17,20 +17,13 @@ interface Props {
   onUpdate?: (updatedAgistment: any) => void;
 }
 
-interface LocationForm {
-  address: string;
-  suburb: string;
-  state: string;
-  postcode: string;
-  region: string;
+interface LocationForm extends Location {
   suburbId?: string;
-  geohash?: string;
 }
 
 export const AgistmentLocation = ({ agistmentId, location, isEditable = false, onUpdate }: Props) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState<LocationForm>({ ...location });
-  const [originalForm, setOriginalForm] = useState<LocationForm>({ ...location });
   const [isDirty, setIsDirty] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedSuburbs, setSelectedSuburbs] = useState<Suburb[]>([]);
@@ -38,17 +31,17 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
   useEffect(() => {
     if (isEditDialogOpen) {
       setEditForm({ ...location });
-      setOriginalForm({ ...location });
       setIsDirty(false);
       // Reset selected suburbs
       if (location.suburb && location.state && location.postcode) {
         setSelectedSuburbs([{
-          id: location.suburbId || '',
+          id: editForm.suburbId || '',
           suburb: location.suburb,
           state: location.state,
           postcode: location.postcode,
           region: location.region,
-          geohash: location.geohash || ''
+          geohash: '',
+          locationType: LocationType.SUBURB
         }]);
       } else {
         setSelectedSuburbs([]);
@@ -61,13 +54,17 @@ export const AgistmentLocation = ({ agistmentId, location, isEditable = false, o
 
     setIsUpdating(true);
     try {
-      const updatedAgistment = await agistmentService.updatePropertyLocation(agistmentId, editForm);
+      await agistmentService.updatePropertyLocation(agistmentId, {
+        location: editForm
+      });
       setIsEditDialogOpen(false);
       toast.success('Location updated successfully');
       
       if (onUpdate) {
         onUpdate({
-          propertyLocation: editForm
+          propertyLocation: {
+            location: editForm
+          }
         });
       }
     } catch (error) {

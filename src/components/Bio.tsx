@@ -479,7 +479,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             name="comments"
             value={formData.comments || ''}
             onChange={handleInputChange}
-            placeholder={'Tell us more about yourself'}
+            placeholder={'Tell agistors more about yourself'}
             rows={7}
             disabled={clearFields}
             className={`form-textarea text-sm w-full resize-none ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
@@ -514,6 +514,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
       size="lg"
       footerContent={footerContent}
       slideFrom='left'
+      isUpdating={saving}
     >
       <div className="px-4 py-3">
         {modalContent}

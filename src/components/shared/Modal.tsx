@@ -5,7 +5,7 @@ import { XMarkIcon } from '../Icons';
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
+  title: string;
   children: ReactNode;
   headerContent?: ReactNode;
   footerContent?: ReactNode | (({ isUpdating }: { isUpdating: boolean }) => ReactNode);
@@ -14,7 +14,7 @@ export interface ModalProps {
   slideFrom?: 'left' | 'right' | 'top' | 'bottom';
   contentHash?: string;
   onDirtyChange?: (isDirty: boolean) => void;
-  isUpdating?: boolean;
+  isUpdating: boolean;
 }
 
 const sizeClasses = {
@@ -37,10 +37,9 @@ export function Modal({
   slideFrom = 'right',
   contentHash,
   onDirtyChange,
-  isUpdating
+  isUpdating = false
 }: ModalProps) {
   const [initialHash, setInitialHash] = useState<string | undefined>();
-  const [isDirty, setIsDirty] = useState(false);
 
   // Set initial hash when modal opens
   useEffect(() => {
@@ -53,7 +52,6 @@ export function Modal({
   useEffect(() => {
     if (!isOpen) {
       setInitialHash(undefined);
-      setIsDirty(false);
     }
   }, [isOpen]);
 
@@ -61,7 +59,6 @@ export function Modal({
   useEffect(() => {
     if (initialHash && contentHash) {
       const newIsDirty = initialHash !== contentHash;
-      setIsDirty(newIsDirty);
       onDirtyChange?.(newIsDirty);
     }
   }, [contentHash, initialHash, onDirtyChange]);
