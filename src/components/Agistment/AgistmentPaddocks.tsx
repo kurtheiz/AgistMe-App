@@ -3,7 +3,7 @@ import { formatAvailabilityDate } from '../../utils/dates';
 import { Agistment, PaddockBase } from '../../types/agistment';
 import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
-import { NumberStepper } from '../shared/NumberStepper';
+import NumberStepper from '../shared/NumberStepper';
 import toast from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
 import { Tab } from '@headlessui/react';

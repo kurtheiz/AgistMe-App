@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
 import { Modal } from '../shared/Modal';
 import { Loader2 } from 'lucide-react';
-import { NumberStepper } from '../shared/NumberStepper';
+import NumberStepper from '../shared/NumberStepper';
 
 interface Props {
   agistmentId: string;

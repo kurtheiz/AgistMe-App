@@ -6,7 +6,7 @@ import { agistmentService } from '../../services/agistment.service';
 import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { Switch } from '@headlessui/react';
-import { NumberStepper } from '../shared/NumberStepper';
+import NumberStepper from '../shared/NumberStepper';
 import {
   FeedRoomIcon,
   FloatParkingIcon,

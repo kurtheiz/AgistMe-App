@@ -12,7 +12,7 @@ interface NumberStepperProps {
   formatValue?: (value: number) => string;
 }
 
-export function NumberStepper({
+export default function NumberStepper({
   value,
   onChange,
   min = 0,
@@ -28,7 +28,7 @@ export function NumberStepper({
   const decrementInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const holdTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const speedUpTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [intervalDelay, setIntervalDelay] = useState(200); // Start with slower speed
+  const [intervalDelay, setIntervalDelay] = useState(50); // Start with slower speed
 
   const increment = () => {
     if (value + step <= max) {
@@ -76,22 +76,22 @@ export function NumberStepper({
   }, [isIncrementing, isDecrementing, value, max, min, step, intervalDelay]);
 
   const startIncrement = () => {
-    if (!disabled && value < max) {
+    if (!disabled && value < max && !isIncrementing) {  // Prevent double triggering
       increment(); // Immediate single increment
-      setIntervalDelay(200); // Reset to initial speed
+      setIntervalDelay(200);
       holdTimeout.current = setTimeout(() => {
         setIsIncrementing(true);
-      }, 750); // Longer initial delay before rapid increment
+      }, 1000); // Longer delay for touch devices
     }
   };
 
   const startDecrement = () => {
-    if (!disabled && value > min) {
+    if (!disabled && value > min && !isDecrementing) {  // Prevent double triggering
       decrement(); // Immediate single decrement
-      setIntervalDelay(200); // Reset to initial speed
+      setIntervalDelay(200);
       holdTimeout.current = setTimeout(() => {
         setIsDecrementing(true);
-      }, 750); // Longer initial delay before rapid decrement
+      }, 1000); // Longer delay for touch devices
     }
   };
 
@@ -139,17 +139,24 @@ export function NumberStepper({
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onMouseDown={startDecrement}
-          onMouseUp={stopDecrement}
-          onMouseLeave={stopDecrement}
-          onTouchStart={startDecrement}
-          onTouchEnd={stopDecrement}
-          disabled={disabled || value <= min}
           className={`h-8 w-8 flex items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200
             ${disabled || value <= min
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
+          onClick={decrement}
+          onMouseDown={startDecrement}
+          onMouseUp={stopDecrement}
+          onMouseLeave={stopDecrement}
+          onTouchStart={(e) => {
+            e.preventDefault(); // Prevent unintended double triggers
+            startDecrement();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            stopDecrement();
+          }}
+          disabled={disabled || value <= min}
         >
           <MinusIcon className="w-4 h-4" />
         </button>
@@ -158,17 +165,24 @@ export function NumberStepper({
         </div>
         <button
           type="button"
-          onMouseDown={startIncrement}
-          onMouseUp={stopIncrement}
-          onMouseLeave={stopIncrement}
-          onTouchStart={startIncrement}
-          onTouchEnd={stopIncrement}
-          disabled={disabled || value >= max}
           className={`h-8 w-8 flex items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200
             ${disabled || value >= max
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
+          onClick={increment}
+          onMouseDown={startIncrement}
+          onMouseUp={stopIncrement}
+          onMouseLeave={stopIncrement}
+          onTouchStart={(e) => {
+            e.preventDefault(); // Prevent unintended double triggers
+            startIncrement();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            stopIncrement();
+          }}
+          disabled={disabled || value >= max}
         >
           <PlusIcon className="w-4 h-4" />
         </button>
