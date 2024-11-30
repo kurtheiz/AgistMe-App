@@ -27,6 +27,8 @@ export function NumberStepper({
   const incrementInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const decrementInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const holdTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const speedUpTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [intervalDelay, setIntervalDelay] = useState(200); // Start with slower speed
 
   const increment = () => {
     if (value + step <= max) {
@@ -43,41 +45,59 @@ export function NumberStepper({
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | null = null;
 
-    if (isIncrementing && value < max) {
-      timer = setInterval(increment, 50); // Super fast continuous increment (20 changes per second)
-      incrementInterval.current = timer;
-    } else if (isDecrementing && value > min) {
-      timer = setInterval(decrement, 50); // Super fast continuous decrement (20 changes per second)
-      decrementInterval.current = timer;
+    if ((isIncrementing && value < max) || (isDecrementing && value > min)) {
+      timer = setInterval(
+        isIncrementing ? increment : decrement,
+        intervalDelay
+      );
+      
+      if (isIncrementing) {
+        incrementInterval.current = timer;
+      } else {
+        decrementInterval.current = timer;
+      }
+
+      // Gradually speed up after 2 seconds of holding
+      if (intervalDelay > 50) {
+        speedUpTimeout.current = setTimeout(() => {
+          setIntervalDelay(prev => Math.max(50, prev - 50));
+        }, 500);
+      }
     }
 
     return () => {
       if (timer) {
         clearInterval(timer);
       }
+      if (speedUpTimeout.current) {
+        clearTimeout(speedUpTimeout.current);
+      }
     };
-  }, [isIncrementing, isDecrementing, value, max, min, step, increment, decrement]);
+  }, [isIncrementing, isDecrementing, value, max, min, step, intervalDelay]);
 
   const startIncrement = () => {
     if (!disabled && value < max) {
       increment(); // Immediate single increment
+      setIntervalDelay(200); // Reset to initial speed
       holdTimeout.current = setTimeout(() => {
         setIsIncrementing(true);
-      }, 500); // Start rapid increment after 500ms hold
+      }, 750); // Longer initial delay before rapid increment
     }
   };
 
   const startDecrement = () => {
     if (!disabled && value > min) {
       decrement(); // Immediate single decrement
+      setIntervalDelay(200); // Reset to initial speed
       holdTimeout.current = setTimeout(() => {
         setIsDecrementing(true);
-      }, 500); // Start rapid decrement after 500ms hold
+      }, 750); // Longer initial delay before rapid decrement
     }
   };
 
   const stopIncrement = () => {
     setIsIncrementing(false);
+    setIntervalDelay(200); // Reset speed
     if (incrementInterval.current) {
       clearInterval(incrementInterval.current);
       incrementInterval.current = null;
@@ -86,10 +106,15 @@ export function NumberStepper({
       clearTimeout(holdTimeout.current);
       holdTimeout.current = null;
     }
+    if (speedUpTimeout.current) {
+      clearTimeout(speedUpTimeout.current);
+      speedUpTimeout.current = null;
+    }
   };
 
   const stopDecrement = () => {
     setIsDecrementing(false);
+    setIntervalDelay(200); // Reset speed
     if (decrementInterval.current) {
       clearInterval(decrementInterval.current);
       decrementInterval.current = null;
@@ -97,6 +122,10 @@ export function NumberStepper({
     if (holdTimeout.current) {
       clearTimeout(holdTimeout.current);
       holdTimeout.current = null;
+    }
+    if (speedUpTimeout.current) {
+      clearTimeout(speedUpTimeout.current);
+      speedUpTimeout.current = null;
     }
   };
 
