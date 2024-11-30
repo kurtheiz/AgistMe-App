@@ -6,8 +6,8 @@ interface NumberStepperProps {
   min?: number;
   max?: number;
   step?: number;
-  label?: string;
   disabled?: boolean;
+  label?: string;
   formatValue?: (value: number) => string;
 }
 
@@ -23,14 +23,14 @@ export default function NumberStepper({
 }: NumberStepperProps) {
 
   const increment = () => {
-    if (value + 1 <= max) {
-      onChange(value + 1);
+    if (value + step <= max) {
+      onChange(value + step);
     }
   };
 
   const decrement = () => {
-    if (value - 1 >= min) {
-      onChange(value - 1);
+    if (value - step >= min) {
+      onChange(value - step);
     }
   };
 

@@ -5,8 +5,6 @@ import { SearchCriteria, PaddockType, CareType, FacilityType } from '../../types
 import { LocationType } from '../../types/suburb';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
-  PlusIcon,
-  MinusIcon,
   ArenaIcon,
   RoundYardIcon,
   FeedRoomIcon,
