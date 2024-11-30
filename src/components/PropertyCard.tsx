@@ -76,10 +76,16 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
     >
       <div className="relative bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
         {/* Property Name Header */}
-        <div className="title-header">
-          <div className="flex justify-between items-start">
-            
-            <h2 className="title-text dark:text-neutral-200 truncate px-2">{agistment.basicInfo.name}</h2>
+        <div className="title-header relative">
+          <div className="flex justify-between items-start relative z-10 py-2">
+            <div className="flex items-center gap-2">
+              <h2 className="title-text dark:text-neutral-200 truncate px-2">{agistment.basicInfo.name}</h2>
+              {agistment.listing.listingType === 'PROFESSIONAL' && (
+                <span className="bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                  PRO
+                </span>
+              )}
+            </div>
             <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md dark:bg-primary-400 dark:text-neutral-200">
               {agistment.basicInfo.propertySize} acres
             </div>
