@@ -1,10 +1,9 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
 import { Agistment } from '../../types/agistment';
-import { EditIcon } from '../../components/Icons';
-import { Pencil } from 'lucide-react';
+import { Pencil, Loader2 } from 'lucide-react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -75,11 +74,6 @@ const SortablePhoto = ({ photo, index, disabled, onRemove, onCommentEdit }: Sort
               className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
               title="Add/Edit comment"
             >
-              <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
-            </button>
-          )}
-          {true && (
-            <button className="btn-edit">
               <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
             </button>
           )}
@@ -100,6 +94,9 @@ export const AgistmentPhotos = ({
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [currentComment, setCurrentComment] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [originalComment, setOriginalComment] = useState('');
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -114,6 +111,21 @@ export const AgistmentPhotos = ({
       },
     })
   );
+
+  useEffect(() => {
+    if (isCommentModalOpen && selectedPhotoIndex !== null) {
+      const comment = agistment.photoGallery.photos[selectedPhotoIndex].comment || '';
+      setCurrentComment(comment);
+      setOriginalComment(comment);
+    }
+  }, [isCommentModalOpen, selectedPhotoIndex, agistment.photoGallery.photos]);
+
+  const contentHash = useMemo(() => {
+    return JSON.stringify({
+      current: currentComment,
+      original: originalComment
+    });
+  }, [currentComment, originalComment]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -155,21 +167,37 @@ export const AgistmentPhotos = ({
 
   const openCommentModal = (index: number) => {
     setSelectedPhotoIndex(index);
-    setCurrentComment(agistment.photoGallery.photos[index].comment || '');
     setIsCommentModalOpen(true);
   };
 
-  const handleUpdateComment = (index: number, comment: string) => {
-    if (index === null) return;
+  const handleUpdateComment = async () => {
+    if (selectedPhotoIndex === null || !isDirty) return;
     
-    const newPhotos = [...agistment.photoGallery.photos];
-    newPhotos[index] = {
-      ...newPhotos[index],
-      comment: comment
-    };
-    updatePhotos(newPhotos);
-    setIsCommentModalOpen(false);
-    toast.success('Photo comment updated');
+    setIsUpdating(true);
+    try {
+      const newPhotos = [...agistment.photoGallery.photos];
+      newPhotos[selectedPhotoIndex] = {
+        ...newPhotos[selectedPhotoIndex],
+        comment: currentComment
+      };
+      
+      // Update the backend using the agistment service
+      await agistmentService.updateAgistment(agistment.id, {
+        photoGallery: {
+          photos: newPhotos
+        }
+      });
+      
+      // Update the local state
+      onPhotosChange(newPhotos);
+      setIsCommentModalOpen(false);
+      toast.success('Photo comment updated');
+    } catch (error) {
+      console.error('Error updating photo comment:', error);
+      toast.error('Failed to update photo comment');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const updatePhotos = async (photos: { link: string; comment?: string }[]) => {
@@ -245,49 +273,66 @@ export const AgistmentPhotos = ({
         disabled={disabled || isUploading}
       />
 
+      {/* Comment Edit Modal */}
       <Modal
         isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
         size="sm"
         title="Edit Photo Comment"
-        isUpdating={false}
-        footerContent={
-          <div className="flex justify-end gap-3">
+        contentHash={contentHash}
+        onDirtyChange={setIsDirty}
+        isUpdating={isUpdating}
+        footerContent={({ isUpdating }) => (
+          <div className="flex justify-center space-x-2">
             <button
-              onClick={() => setIsCommentModalOpen(false)}
-              className="btn-secondary"
+              onClick={handleUpdateComment}
+              className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
+                !isDirty || isUpdating
+                  ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
+                  : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
+              }`}
+              disabled={!isDirty || isUpdating}
             >
-              Cancel
-            </button>
-            <button
-              onClick={() => handleUpdateComment(selectedPhotoIndex!, currentComment)}
-              className="btn-primary"
-            >
-              Save Comment
+              {isUpdating ? (
+                <>
+                  <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
             </button>
           </div>
-        }
+        )}
       >
-        <div>
-          <label className="form-label">
-            Comment
-          </label>
-          <div className="input-wrapper">
-            <input
-              type="text"
-              value={currentComment}
-              onChange={(e) => setCurrentComment(e.target.value)}
-              className="form-input"
-              placeholder="Add a comment to this photo..."
-            />
-            <button
-              type="button"
-              className="input-delete-button"
-              onClick={() => setCurrentComment('')}
-              aria-label="Clear comment"
-            >
-              ✕
-            </button>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+              Comment
+            </label>
+            <div className="input-wrapper">
+              <input
+                type="text"
+                value={currentComment}
+                onChange={(e) => {
+                  setCurrentComment(e.target.value);
+                  setIsDirty(true);
+                }}
+                className="form-input"
+                placeholder="Add a comment about this photo..."
+              />
+              <button
+                type="button"
+                className="input-delete-button"
+                onClick={() => {
+                  setCurrentComment('');
+                  setIsDirty(true);
+                }}
+                aria-label="Clear comment"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         </div>
       </Modal>

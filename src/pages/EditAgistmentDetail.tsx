@@ -28,7 +28,7 @@ function EditAgistmentDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const maxPhotos = usePlanPhotoLimit(agistment?.listing ? String(agistment.listing) : 'STANDARD');
+  const maxPhotos = usePlanPhotoLimit(agistment?.listing?.listingType || 'STANDARD');
   console.log('Max photos:', maxPhotos);
   // Scroll to top when component mounts
   useEffect(() => {

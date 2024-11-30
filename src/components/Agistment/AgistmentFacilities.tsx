@@ -136,7 +136,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
         )}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-6 gap-6">
         {/* Feed Room */}
         <div className="border-title-card">
           <span className="border-title-card-title">Feed Room</span>
