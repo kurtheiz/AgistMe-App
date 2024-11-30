@@ -140,7 +140,7 @@ export default function NumberStepper({
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
-          onClick={(e) => {
+          onClick={() => {
             if (!isDecrementing) {
               decrement();
             }
@@ -170,7 +170,7 @@ export default function NumberStepper({
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
-          onClick={(e) => {
+          onClick={() => {
             if (!isIncrementing) {
               increment();
             }
