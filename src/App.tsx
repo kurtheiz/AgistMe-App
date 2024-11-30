@@ -96,7 +96,7 @@ const AuthInitializer = () => {
 
 function App() {
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-800">
+    <div className="min-h-screen bg-neutral-50">
       <ErrorBoundary>
         <ClerkProvider publishableKey={clerkPubKey}>
           <AuthInitializer />

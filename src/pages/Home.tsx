@@ -21,7 +21,7 @@ export const Home = () => {
   };
 
   return (
-    <div className="flex-1 relative flex flex-col items-center text-lg pt-4 sm:pt-16 bg-white dark:bg-neutral-900 border-0">
+    <div className="flex-1 relative flex flex-col items-center text-lg pt-4 sm:pt-16 bg-white border-0">
  
       {/* Hero Section */}
       <div className="relative w-full max-w-7xl aspect-[3/2] sm:aspect-[5/2]">
@@ -32,7 +32,7 @@ export const Home = () => {
           }}
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-8">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-gray-900 dark:text-white text-center max-w-2xl">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-gray-900 text-center max-w-2xl">
             Find the perfect home for your horse
           </h1>
           <button

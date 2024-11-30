@@ -25,10 +25,6 @@ html {
   background-color: rgb(250 249 247); /* neutral-50 from our theme */
 }
 
-:root.dark #root {
-  background-color: rgb(23 23 23); /* neutral-900 from our theme */
-}
-
 /* Modal open state - prevent layout shifts */
 html.modal-open {
   overflow: hidden;
@@ -60,25 +56,21 @@ body {
 @layer components {
   /* Visibility icon styles */
   .visibility-icon-visible {
-    @apply text-visibility-visible-light hover:text-visibility-visible-hover-light 
-           dark:text-visibility-visible-dark dark:hover:text-visibility-visible-hover-dark
-           transition-colors;
+    @apply text-visibility-visible-light hover:text-visibility-visible-hover-light transition-colors;
   }
 
   .visibility-icon-hidden {
-    @apply text-visibility-hidden-light hover:text-visibility-hidden-hover-light 
-           dark:text-visibility-hidden-dark dark:hover:text-visibility-hidden-hover-dark
-           transition-colors;
+    @apply text-visibility-hidden-light hover:text-visibility-hidden-hover-light transition-colors;
   }
 
   .form-input {
     @apply mt-1 block w-full px-3 py-2 
-           bg-white dark:bg-neutral-900 
-           border border-neutral-300 dark:border-neutral-600 
+           bg-white
+           border border-neutral-300
            rounded-md shadow-sm 
            text-sm
-           text-neutral-700 dark:text-neutral-300 
-           placeholder-neutral-400 dark:placeholder-neutral-500
+           text-neutral-700
+           placeholder-neutral-400
            focus:border-primary-500 focus:ring-1 focus:ring-primary-500;
   }
 
@@ -99,50 +91,39 @@ body {
   .input-delete-button {
     @apply absolute right-2 hidden
            text-neutral-400 hover:text-neutral-600
-           dark:text-neutral-500 dark:hover:text-neutral-300
-           cursor-pointer transition-colors;
-  }
-
-  /* Show delete button when input has value */
-  .input-wrapper:has(input:not(:placeholder-shown)) .input-delete-button {
-    @apply block;
-  }
-
-  /* Adjust input padding when delete button is present */
-  .input-wrapper input {
-    @apply pr-8;
+           group-hover:block group-focus-within:block;
   }
 
   /* Title styling */
   .title-header {
-    @apply w-full bg-primary-600 dark:bg-primary-900/50 border-b border-primary-700/50 dark:border-primary-800/50 py-3;
+    @apply w-full bg-primary-600 border-b border-primary-700/50 py-3;
   }
 
   .title-text {
-    @apply text-lg sm:text-xl font-medium text-white dark:text-primary-300;
+    @apply text-lg sm:text-xl font-medium text-white;
   }
 
   /* Modal header styling */
   .modal-header {
-    @apply text-lg font-medium leading-6 text-white bg-primary-600 dark:bg-neutral-800 flex justify-between items-center mb-4 p-4 -mx-6 -mt-6 dark:border-b dark:border-neutral-700;
+    @apply text-lg font-medium leading-6 text-white bg-primary-600 flex justify-between items-center mb-4 p-4 -mx-6 -mt-6 border-b border-primary-700/50;
   }
 
   /* Modal panel styling */
   .modal-panel {
-    @apply fixed inset-0 md:inset-auto w-full h-[100dvh] md:h-auto md:min-h-0 transform bg-white dark:bg-neutral-800 md:rounded-2xl text-left align-middle shadow-xl transition-all;
+    @apply fixed inset-0 md:inset-auto w-full h-[100dvh] md:h-auto md:min-h-0 transform bg-white rounded-2xl text-left align-middle shadow-xl transition-all;
   }
 
   /* Modal button styling */
   .modal-button-primary {
-    @apply px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-700 rounded-md transition-colors disabled:cursor-not-allowed;
+    @apply px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-neutral-300 rounded-md transition-colors disabled:cursor-not-allowed;
   }
 
   .modal-button-secondary {
-    @apply px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-md transition-colors;
+    @apply px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 rounded-md transition-colors;
   }
 
   .modal-footer {
-    @apply sticky bottom-0 border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 sm:px-6 py-3;
+    @apply sticky bottom-0 border-t border-neutral-200 bg-white px-4 sm:px-6 py-3;
   }
 
   .no-scroll {
@@ -152,20 +133,20 @@ body {
   /* Agistment Component Styles */
   /* Common text styles */
   .text-title {
-    @apply text-2xl font-semibold text-neutral-900 dark:text-white;
+    @apply text-2xl font-semibold text-neutral-900;
   }
 
   .text-subtitle {
-    @apply text-lg font-medium text-neutral-700 dark:text-neutral-400;
+    @apply text-lg font-medium text-neutral-700;
   }
 
   .text-body {
-    @apply text-neutral-900 dark:text-neutral-400;
+    @apply text-neutral-900;
   }
 
   /* Common button styles */
   .btn-edit {
-    @apply p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors;
+    @apply p-1 hover:bg-neutral-100 rounded-full transition-colors;
   }
 
   .btn-primary {
@@ -175,9 +156,9 @@ body {
   }
 
   .btn-secondary {
-    @apply px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 
-           bg-white dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 
-           rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none 
+    @apply px-4 py-2 text-sm font-medium text-neutral-700 
+           bg-white border border-neutral-300 
+           rounded-md hover:bg-neutral-50 focus:outline-none 
            focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
   }
 
@@ -197,12 +178,12 @@ body {
   /* Availability chip styles */
   .chip-available {
     @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-           bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300;
+           bg-primary-100 text-primary-700;
   }
 
   .chip-unavailable {
     @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-           bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100;
+           bg-neutral-100 text-neutral-800;
   }
 
   /* Modal styles */
@@ -215,16 +196,16 @@ body {
   }
 
   .modal-content {
-    @apply relative bg-white dark:bg-neutral-800 rounded-lg p-6 max-w-md w-full mx-4;
+    @apply relative bg-white rounded-lg p-6 max-w-md w-full mx-4;
   }
 
   .modal-title {
-    @apply text-lg font-medium text-neutral-900 dark:text-white mb-4;
+    @apply text-lg font-medium text-neutral-900 mb-4;
   }
 
   /* Form styles */
   .form-label {
-    @apply block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1;
+    @apply block text-sm font-medium text-neutral-700 mb-1;
   }
 
   .form-group {
@@ -233,12 +214,12 @@ body {
 
   /* Card styles with border title */
   .border-title-card {
-    @apply p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative;
+    @apply p-4 rounded-lg border border-neutral-200 relative;
   }
 
   .border-title-card-title {
-    @apply absolute -top-3 left-4 px-2 bg-white dark:bg-neutral-900 
-           text-base text-neutral-900 dark:text-white font-medium;
+    @apply absolute -top-3 left-4 px-2 bg-white 
+           text-base text-neutral-900 font-medium;
   }
 
   .border-title-card-content {
@@ -251,22 +232,22 @@ body {
   }
 
   .facility-icon-available {
-    @apply text-primary-600 dark:text-primary-400;
+    @apply text-primary-600;
   }
 
   .facility-icon-unavailable {
-    @apply text-neutral-300 dark:text-neutral-600;
+    @apply text-neutral-300;
   }
 
   /* Status badges */
   .status-badge-success {
-    @apply text-sm font-medium bg-green-100 dark:bg-green-900/30 
-           text-green-800 dark:text-green-100 px-3 py-1.5 rounded-lg;
+    @apply text-sm font-medium bg-green-100 
+           text-green-800 px-3 py-1.5 rounded-lg;
   }
 
   .status-badge-neutral {
-    @apply text-sm font-medium bg-neutral-100 dark:bg-neutral-700 
-           text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-lg;
+    @apply text-sm font-medium bg-neutral-100 
+           text-neutral-800 px-3 py-1.5 rounded-lg;
   }
 
   /* Paddock styles */
@@ -279,23 +260,23 @@ body {
   }
 
   .paddock-availability-none {
-    @apply text-sm font-medium bg-neutral-100 dark:bg-neutral-800/50 text-neutral-500 dark:text-neutral-400 px-3 py-1.5 rounded-lg;
+    @apply text-sm font-medium bg-neutral-100 text-neutral-500 px-3 py-1.5 rounded-lg;
   }
 
   .paddock-availability-unavailable {
-    @apply bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400;
+    @apply bg-red-100 text-red-600;
   }
 
   .paddock-availability-pending {
-    @apply bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300;
+    @apply bg-amber-100 text-amber-700;
   }
 
   .paddock-availability-available {
-    @apply bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300;
+    @apply bg-green-100 text-green-700;
   }
 
   .paddock-availability-date {
-    @apply text-sm font-semibold text-neutral-900 dark:text-neutral-100 mt-1;
+    @apply text-sm font-semibold text-neutral-900 mt-1;
   }
 
   .paddock-costs {
@@ -303,16 +284,16 @@ body {
   }
 
   .paddock-cost-item {
-    @apply text-base sm:text-lg font-bold text-neutral-900 dark:text-white;
+    @apply text-base sm:text-lg font-bold text-neutral-900;
   }
 
   .paddock-cost-period {
-    @apply text-sm font-medium text-neutral-600 dark:text-neutral-400;
+    @apply text-sm font-medium text-neutral-600;
   }
 
   /* Common container styles for Agistment components */
   .agistment-section {
-    @apply bg-white dark:bg-transparent p-6;
+    @apply bg-white p-6;
   }
 
   .agistment-section-header {
@@ -320,7 +301,7 @@ body {
   }
 
   .agistment-section-title {
-    @apply text-lg font-medium text-neutral-900 dark:text-white;
+    @apply text-lg font-medium text-neutral-900;
   }
 
   .agistment-section-content {
@@ -329,6 +310,6 @@ body {
 
   /* Comments */
   .comments {
-    @apply mt-3 text-sm text-neutral-600 dark:text-neutral-400;
+    @apply mt-3 text-sm text-neutral-600;
   }
 }

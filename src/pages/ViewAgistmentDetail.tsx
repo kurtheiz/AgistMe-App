@@ -6,9 +6,7 @@ import { ArrowLeftIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
 import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
 import '../styles/gallery.css';
-import { AgistmentBasicInfo } from '../components/Agistment/AgistmentBasicInfo';
-import { AgistmentContact } from '../components/Agistment/AgistmentContact';
-import { AgistmentLocation } from '../components/Agistment/AgistmentLocation';
+import { AgistmentHeader } from '../components/Agistment/AgistmentHeader';
 import { AgistmentDescription } from '../components/Agistment/AgistmentDescription';
 import { AgistmentPaddocks } from '../components/Agistment/AgistmentPaddocks';
 import { AgistmentRidingFacilities } from '../components/Agistment/AgistmentRidingFacilities';
@@ -127,27 +125,15 @@ export function ViewAgistmentDetail() {
                   />
                 </div>
 
-                <AgistmentBasicInfo
+                <AgistmentHeader
                   agistmentId={agistment.id}
                   basicInfo={agistment.basicInfo}
+                  location={agistment.propertyLocation.location}
+                  contactDetails={agistment.contact}
+                  socialMedia={agistment.socialMedia}
                   isEditable={false}
+                  showEnquireButton={true}
                 />
-
-                <div className="space-y-6">
-                  <AgistmentLocation
-                    agistmentId={agistment.id}
-                    location={agistment.propertyLocation.location}
-                    isEditable={false}
-                  />
-
-                  <AgistmentContact
-                    agistmentId={agistment.id}
-                    contactDetails={agistment.contact.contactDetails}
-                    socialMedia={agistment.socialMedia}
-                    isEditable={false}
-                    showEnquireButton={true}
-                  />
-                </div>
               </div>
             </div>
           </div>

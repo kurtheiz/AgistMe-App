@@ -37,26 +37,26 @@ export default function NumberStepper({
   return (
     <div className="flex flex-col items-center gap-2">
       {label && (
-        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+        <label className="block text-sm font-medium text-neutral-700 mb-1">
           {label}
         </label>
       )}
       <div className="flex items-center justify-center space-x-4">
         <button
           type="button"
-          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 touch-none
+          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none
             ${disabled || value <= min ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={decrement}
           disabled={disabled || value <= min}
         >
           <MinusIcon className="h-5 w-5" />
         </button>
-        <div className="text-3xl font-semibold text-neutral-900 dark:text-white min-w-[3ch] text-center">
+        <div className="text-3xl font-semibold text-neutral-900 min-w-[3ch] text-center">
           {formatValue(value)}
         </div>
         <button
           type="button"
-          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 touch-none
+          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none
             ${disabled || value >= max ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={increment}
           disabled={disabled || value >= max}

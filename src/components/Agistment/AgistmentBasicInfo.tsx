@@ -79,7 +79,7 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
               <h2 className="text-title">
                 {basicInfo.name}
               </h2>
-              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+              <span className="text-sm text-neutral-600">
                 {basicInfo.propertySize > 0 ? `Situated on ${basicInfo.propertySize} acres` : ''}
               </span>
             </div>
@@ -94,7 +94,7 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
                 }}
                 className="btn-edit"
               >
-                <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                <Pencil className="w-5 h-5 text-neutral-500" />
               </button>
             )}
           </div>
@@ -115,8 +115,8 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
                 onClick={handleUpdateBasicInfo}
                 className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
                   !isDirty || isUpdating
-                    ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
-                    : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
+                    ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 opacity-50 cursor-not-allowed'
+                    : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
                 }`}
                 disabled={!isDirty || isUpdating}
               >
@@ -134,7 +134,7 @@ export const AgistmentBasicInfo = ({ agistmentId, basicInfo, isEditable = false,
         >
           <div className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
                 Property Name
               </label>
               <div className="input-wrapper">
