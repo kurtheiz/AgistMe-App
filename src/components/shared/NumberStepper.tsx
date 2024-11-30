@@ -76,22 +76,18 @@ export default function NumberStepper({
   }, [isIncrementing, isDecrementing, value, max, min, step, intervalDelay]);
 
   const startIncrement = () => {
-    if (!disabled && value < max && !isIncrementing) {  // Prevent double triggering
-      increment(); // Immediate single increment
-      setIntervalDelay(200);
+    if (!disabled && value < max && !isIncrementing) {
       holdTimeout.current = setTimeout(() => {
         setIsIncrementing(true);
-      }, 1000); // Longer delay for touch devices
+      }, 1000);
     }
   };
 
   const startDecrement = () => {
-    if (!disabled && value > min && !isDecrementing) {  // Prevent double triggering
-      decrement(); // Immediate single decrement
-      setIntervalDelay(200);
+    if (!disabled && value > min && !isDecrementing) {
       holdTimeout.current = setTimeout(() => {
         setIsDecrementing(true);
-      }, 1000); // Longer delay for touch devices
+      }, 1000);
     }
   };
 
@@ -144,12 +140,16 @@ export default function NumberStepper({
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
-          onClick={decrement}
+          onClick={(e) => {
+            if (!isDecrementing) {
+              decrement();
+            }
+          }}
           onMouseDown={startDecrement}
           onMouseUp={stopDecrement}
           onMouseLeave={stopDecrement}
           onTouchStart={(e) => {
-            e.preventDefault(); // Prevent unintended double triggers
+            e.preventDefault();
             startDecrement();
           }}
           onTouchEnd={(e) => {
@@ -170,12 +170,16 @@ export default function NumberStepper({
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
-          onClick={increment}
+          onClick={(e) => {
+            if (!isIncrementing) {
+              increment();
+            }
+          }}
           onMouseDown={startIncrement}
           onMouseUp={stopIncrement}
           onMouseLeave={stopIncrement}
           onTouchStart={(e) => {
-            e.preventDefault(); // Prevent unintended double triggers
+            e.preventDefault();
             startIncrement();
           }}
           onTouchEnd={(e) => {
