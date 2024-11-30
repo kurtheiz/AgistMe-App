@@ -37,7 +37,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                       </span>
                     </div>
                     {arena.comments && (
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                      <p className="comments">
                         {arena.comments}
                       </p>
                     )}
@@ -78,7 +78,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                       </span>
                     </div>
                     {yard.comments && (
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                      <p className="comments">
                         {yard.comments}
                       </p>
                     )}

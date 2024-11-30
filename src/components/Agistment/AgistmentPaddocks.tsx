@@ -227,6 +227,11 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                     </p>
                   </div>
                 </div>
+                {paddocks?.privatePaddocks?.comments && (
+                  <p className="comments">
+                    {paddocks.privatePaddocks.comments}
+                  </p>
+                )}
               </>
             )}
           </div>
@@ -269,6 +274,11 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                     </p>
                   </div>
                 </div>
+                {paddocks?.sharedPaddocks?.comments && (
+                  <p className="comments">
+                    {paddocks.sharedPaddocks.comments}
+                  </p>
+                )}
               </>
             )}
           </div>
@@ -311,6 +321,11 @@ export const AgistmentPaddocks: React.FC<AgistmentPaddocksProps> = ({
                     </p>
                   </div>
                 </div>
+                {paddocks?.groupPaddocks?.comments && (
+                  <p className="comments">
+                    {paddocks.groupPaddocks.comments}
+                  </p>
+                )}
               </>
             )}
           </div>

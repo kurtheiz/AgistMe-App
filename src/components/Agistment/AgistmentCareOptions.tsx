@@ -40,7 +40,7 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                     </div>
                   )}
                   {care.selfCare.comments && (
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400 text-center">
+                    <p className="comments">
                       {care.selfCare.comments}
                     </p>
                   )}
@@ -73,7 +73,7 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                     </div>
                   )}
                   {care.partCare?.comments && (
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400 text-center">
+                    <p className="comments">
                       {care.partCare?.comments}
                     </p>
                   )}
@@ -106,7 +106,7 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                     </div>
                   )}
                   {care.fullCare.comments && (
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400 text-center">
+                    <p className="comments">
                       {care.fullCare.comments}
                     </p>
                   )}

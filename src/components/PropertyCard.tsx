@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { 
-  MapPinIcon, 
   ArenaIcon,
   RoundYardIcon,
   FeedRoomIcon,
@@ -13,11 +10,9 @@ import {
   TieUpIcon,
   PhotoIcon,
   HeartIcon,
-  CheckIcon,
-  CrossIcon,
 } from './Icons';
+import { MapPin, Check, X } from 'lucide-react';
 import { Agistment } from '../types/agistment';
-import { useUser } from '@clerk/clerk-react';
 import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
@@ -30,7 +25,6 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ agistment, onClick }: PropertyCardProps) {
   const navigate = useNavigate();
-  const { isSignedIn } = useUser();
 
   const handleClick = (_: React.MouseEvent) => {
     if (onClick) {
@@ -92,7 +86,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
               className="text-neutral-800 hover:text-neutral-700 dark:text-neutral-300 dark:hover:text-neutral-100 transition-colors"
               title="Open in Google Maps"
             >
-              <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
             <div className="flex justify-between items-center">
               <div className="text-sm text-neutral-800 dark:text-neutral-400">
@@ -105,64 +99,69 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         {/* Availability Info */}
         <div className="px-5 py-3 bg-white dark:bg-neutral-700 border-b border-neutral-200 dark:border-neutral-600">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-6">
-              {/* Private Paddocks */}
-              <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold ${
-                  agistment.paddocks?.privatePaddocks?.total > 0 
-                    ? agistment.paddocks?.privatePaddocks?.available > 0
-                      ? agistment.paddocks?.privatePaddocks?.whenAvailable && new Date(agistment.paddocks?.privatePaddocks?.whenAvailable) > new Date()
-                        ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
-                        : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
-                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
-                } rounded-lg`}>
-                  {agistment.paddocks?.privatePaddocks?.total > 0 ? agistment.paddocks?.privatePaddocks?.available : '-'}
-                </span>
-                <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
-                  Private
-                </span>
-              </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-3">
+                Spaces Available
+              </h3>
+              <div className="flex items-center gap-4 sm:gap-8">
+                {/* Private Paddocks */}
+                <div className="flex flex-col items-center">
+                  <span className={`text-xl sm:text-2xl font-bold ${
+                    agistment.paddocks?.privatePaddocks?.total > 0 
+                      ? agistment.paddocks?.privatePaddocks?.available > 0
+                        ? agistment.paddocks?.privatePaddocks?.whenAvailable && new Date(agistment.paddocks?.privatePaddocks?.whenAvailable) > new Date()
+                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
+                          : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                        : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
+                      : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                  } rounded-lg`}>
+                    {agistment.paddocks?.privatePaddocks?.total > 0 ? agistment.paddocks?.privatePaddocks?.available : '-'}
+                  </span>
+                  <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
+                    Private
+                  </span>
+                </div>
 
-              {/* Shared Paddocks */}
-              <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold ${
-                  agistment.paddocks?.sharedPaddocks?.total > 0 
-                    ? agistment.paddocks?.sharedPaddocks?.available > 0
-                      ? agistment.paddocks?.sharedPaddocks?.whenAvailable && new Date(agistment.paddocks?.sharedPaddocks?.whenAvailable) > new Date()
-                        ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
-                        : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
-                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
-                } rounded-lg`}>
-                  {agistment.paddocks?.sharedPaddocks?.total > 0 ? agistment.paddocks?.sharedPaddocks?.available : '-'}
-                </span>
-                <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
-                  Shared
-                </span>
-              </div>
+                {/* Shared Paddocks */}
+                <div className="flex flex-col items-center">
+                  <span className={`text-xl sm:text-2xl font-bold ${
+                    agistment.paddocks?.sharedPaddocks?.total > 0 
+                      ? agistment.paddocks?.sharedPaddocks?.available > 0
+                        ? agistment.paddocks?.sharedPaddocks?.whenAvailable && new Date(agistment.paddocks?.sharedPaddocks?.whenAvailable) > new Date()
+                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
+                          : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                        : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
+                      : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                  } rounded-lg`}>
+                    {agistment.paddocks?.sharedPaddocks?.total > 0 ? agistment.paddocks?.sharedPaddocks?.available : '-'}
+                  </span>
+                  <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
+                    Shared
+                  </span>
+                </div>
 
-              {/* Group Paddocks */}
-              <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold ${
-                  agistment.paddocks?.groupPaddocks?.total > 0 
-                    ? agistment.paddocks?.groupPaddocks?.available > 0
-                      ? agistment.paddocks?.groupPaddocks?.whenAvailable && new Date(agistment.paddocks?.groupPaddocks?.whenAvailable) > new Date()
-                        ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
-                        : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
-                      : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
-                    : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
-                } rounded-lg`}>
-                  {agistment.paddocks?.groupPaddocks?.total > 0 ? agistment.paddocks?.groupPaddocks?.available : '-'}
-                </span>
-                <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
-                  Group
-                </span>
+                {/* Group Paddocks */}
+                <div className="flex flex-col items-center">
+                  <span className={`text-xl sm:text-2xl font-bold ${
+                    agistment.paddocks?.groupPaddocks?.total > 0 
+                      ? agistment.paddocks?.groupPaddocks?.available > 0
+                        ? agistment.paddocks?.groupPaddocks?.whenAvailable && new Date(agistment.paddocks?.groupPaddocks?.whenAvailable) > new Date()
+                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
+                          : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
+                        : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
+                      : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                  } rounded-lg`}>
+                    {agistment.paddocks?.groupPaddocks?.total > 0 ? agistment.paddocks?.groupPaddocks?.available : '-'}
+                  </span>
+                  <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
+                    Group
+                  </span>
+                </div>
               </div>
             </div>
             
             {/* Paddock Types */}
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="flex flex-wrap gap-4 mt-4">
               {agistment.paddockTypes?.map((type: string, index: number) => (
                 <span
                   key={index}
@@ -175,13 +174,38 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
 
             {/* Price Range */}
             <div className="text-right flex flex-col justify-start h-[72px]">
-              <div className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">From</div>
+              <div className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">
+                {(() => {
+                  const minPrice = Math.min(
+                    agistment.paddocks?.privatePaddocks?.weeklyPrice || Infinity,
+                    agistment.paddocks?.sharedPaddocks?.weeklyPrice || Infinity,
+                    agistment.paddocks?.groupPaddocks?.weeklyPrice || Infinity
+                  );
+                  const maxPrice = Math.max(
+                    agistment.paddocks?.privatePaddocks?.weeklyPrice || 0,
+                    agistment.paddocks?.sharedPaddocks?.weeklyPrice || 0,
+                    agistment.paddocks?.groupPaddocks?.weeklyPrice || 0
+                  );
+                  return minPrice === maxPrice ? 'Price' : 'Price Range';
+                })()}
+              </div>
               <div className="font-bold text-lg text-neutral-900 dark:text-neutral-100">
-                ${formatCurrency(Math.min(
-                  agistment.paddocks?.privatePaddocks?.weeklyPrice || Infinity,
-                  agistment.paddocks?.sharedPaddocks?.weeklyPrice || Infinity,
-                  agistment.paddocks?.groupPaddocks?.weeklyPrice || Infinity
-                ))}/week
+                {(() => {
+                  const minPrice = Math.min(
+                    agistment.paddocks?.privatePaddocks?.weeklyPrice || Infinity,
+                    agistment.paddocks?.sharedPaddocks?.weeklyPrice || Infinity,
+                    agistment.paddocks?.groupPaddocks?.weeklyPrice || Infinity
+                  );
+                  const maxPrice = Math.max(
+                    agistment.paddocks?.privatePaddocks?.weeklyPrice || 0,
+                    agistment.paddocks?.sharedPaddocks?.weeklyPrice || 0,
+                    agistment.paddocks?.groupPaddocks?.weeklyPrice || 0
+                  );
+                  return minPrice === maxPrice 
+                    ? `From $${formatCurrency(minPrice)}`
+                    : `$${formatCurrency(minPrice)} - $${formatCurrency(maxPrice)}`;
+                })()}
+                <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400 ml-1">/week</span>
               </div>
             </div>
           </div>
@@ -213,9 +237,9 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
                 key: 'care', 
                 label: (() => {
                   const careTypes = [];
-                  if (agistment.care.fullCare.available) careTypes.push('Full');
-                  if (agistment.care.partCare.available) careTypes.push('Part');
                   if (agistment.care.selfCare.available) careTypes.push('Self');
+                  if (agistment.care.partCare.available) careTypes.push('Part');
+                  if (agistment.care.fullCare.available) careTypes.push('Full');
                   return careTypes.length > 0 ? careTypes.join('/') : 'No Care';
                 })(),
                 icon: HeartIcon,
@@ -228,9 +252,9 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
                   {label}
                   {key !== 'care' && (
                     available ? (
-                      <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                     ) : (
-                      <CrossIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      <X className="w-4 h-4 text-red-600 dark:text-red-400" />
                     )
                   )}
                 </span>

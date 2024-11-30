@@ -145,7 +145,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
               <FeedRoomIcon className="w-full h-full" />
             </div>
             {facilities.feedRoom.comments && (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+              <p className="comments">
                 {facilities.feedRoom.comments}
               </p>
             )}
@@ -163,7 +163,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
               {facilities.floatParking.monthlyPrice > 0 ? `$${facilities.floatParking.monthlyPrice}/month` : 'Free'}
             </span>
             {facilities.floatParking.comments && (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+              <p className="comments">
                 {facilities.floatParking.comments}
               </p>
             )}
@@ -178,7 +178,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
               <HotWashIcon className="w-full h-full" />
             </div>
             {facilities.hotWash.comments && (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+              <p className="comments">
                 {facilities.hotWash.comments}
               </p>
             )}
@@ -196,7 +196,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
               {facilities.stables.quantity || 0} {facilities.stables.quantity === 1 ? 'stable' : 'stables'}
             </span>
             {facilities.stables.comments && (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+              <p className="comments">
                 {facilities.stables.comments}
               </p>
             )}
@@ -211,7 +211,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
               <TackRoomIcon className="w-full h-full" />
             </div>
             {facilities.tackRoom.comments && (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+              <p className="comments">
                 {facilities.tackRoom.comments}
               </p>
             )}
@@ -226,7 +226,7 @@ export const AgistmentFacilities: React.FC<AgistmentFacilitiesProps> = ({
               <TieUpIcon className="w-full h-full" />
             </div>
             {facilities.tieUp.comments && (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-1">
+              <p className="comments">
                 {facilities.tieUp.comments}
               </p>
             )}

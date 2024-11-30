@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2Icon, StarIcon } from 'lucide-react';
+import { Share2Icon, Star } from 'lucide-react';
 import { useProfile } from '../../context/ProfileContext';
 
 interface ShareFavoriteButtonsProps {
@@ -53,16 +53,18 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
       <button
         type="button"
         onClick={handleShare}
-        className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 touch-none"
+        className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
       >
-        <Share2Icon className="h-6 w-6" />
+        <Share2Icon className="h-5 w-5" />
       </button>
       <button
         type="button"
         onClick={handleFavorite}
-        className="w-11 h-11 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 touch-none"
+        className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
       >
-        <StarIcon className={`h-6 w-6 ${isFavorited ? 'fill-current text-yellow-400' : ''}`} />
+        <Star 
+          className={`h-5 w-5 ${isFavorited ? 'fill-current text-yellow-400' : ''}`} 
+        />
       </button>
     </div>
   );
