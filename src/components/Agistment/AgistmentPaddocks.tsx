@@ -113,8 +113,8 @@ export const AgistmentPaddocks = ({
               Private Paddocks
             </h3>
             {!paddocks?.privatePaddocks?.total && (
-              <div className="inline-flex bg-red-50 rounded-full px-2 py-0.5">
-                <div className="text-sm text-red-600">
+              <div className="chip-unavailable">
+                <div>
                   Unavailable
                 </div>
               </div>
@@ -134,8 +134,8 @@ export const AgistmentPaddocks = ({
               Shared Paddocks
             </h3>
             {!paddocks?.sharedPaddocks?.total && (
-              <div className="inline-flex bg-red-50 rounded-full px-2 py-0.5">
-                <div className="text-sm text-red-600">
+              <div className="chip-unavailable">
+                <div>
                   Unavailable
                 </div>
               </div>
@@ -155,8 +155,8 @@ export const AgistmentPaddocks = ({
               Group Paddocks
             </h3>
             {!paddocks?.groupPaddocks?.total && (
-              <div className="inline-flex bg-red-50 rounded-full px-2 py-0.5">
-                <div className="text-sm text-red-600">
+              <div className="chip-unavailable">
+                <div>
                   Unavailable
                 </div>
               </div>

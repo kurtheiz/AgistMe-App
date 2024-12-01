@@ -18,7 +18,7 @@ export const AgistmentServices: React.FC<AgistmentServicesProps> = ({
             {services.map((service, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100"
+                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 dark:bg-blue-700 text-blue-700 dark:text-blue-100"
               >
                 {service}
               </span>

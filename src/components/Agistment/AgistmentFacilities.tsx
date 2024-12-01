@@ -48,7 +48,7 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 {!isAvailable && (
-                  <div className="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">
+                  <div className="chip-unavailable">
                     Unavailable
                   </div>
                 )}
@@ -75,8 +75,8 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
       {facilityItems.every(({ key }) => !facilities?.[key]?.available) && (
         <div>
           <div className="inline-flex">
-            <div className="font-bold text-red-600 dark:text-red-400">
-              No facilities available
+            <div className="chip-unavailable">
+              Unavailable
             </div>
           </div>
         </div>

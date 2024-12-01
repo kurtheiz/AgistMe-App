@@ -37,6 +37,19 @@ export default {
           800: '#1e361e',
           900: '#162b16',
         },
+        // Complementary Blue
+        blue: {
+          50: '#f0f7ff',
+          100: '#e0effe',
+          200: '#b9dffb',
+          300: '#7cc2f7',
+          400: '#36a3f1',
+          500: '#0b87dd',
+          600: '#006cbe',
+          700: '#015796',
+          800: '#064b7d',
+          900: '#0a3e68',
+        },
         // Secondary colors - Matte Green
         secondary: {
           50: '#f5f7f5',

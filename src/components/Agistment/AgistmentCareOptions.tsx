@@ -36,12 +36,8 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
             <div className={care?.selfCare?.available ? "font-medium text-neutral-900 dark:text-neutral-100" : "text-neutral-500 dark:text-neutral-400"}>
               Self Care
             </div>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${
-              care?.selfCare?.available 
-                ? "bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200"
-                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-            }`}>
-              {care?.selfCare?.available ? "Available" : "Not Available"}
+            <span className={care?.selfCare?.available ? "chip-available" : "chip-unavailable"}>
+              {care?.selfCare?.available ? "Available" : "Unavailable"}
             </span>
           </div>
           {care?.selfCare?.available && care.selfCare.monthlyPrice > 0 && (
@@ -67,12 +63,8 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
             <div className={care?.partCare?.available ? "font-medium text-neutral-900 dark:text-neutral-100" : "text-neutral-500 dark:text-neutral-400"}>
               Part Care
             </div>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${
-              care?.partCare?.available 
-                ? "bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200"
-                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-            }`}>
-              {care?.partCare?.available ? "Available" : "Not Available"}
+            <span className={care?.partCare?.available ? "chip-available" : "chip-unavailable"}>
+              {care?.partCare?.available ? "Available" : "Unavailable"}
             </span>
           </div>
           {care?.partCare?.available && care.partCare.monthlyPrice > 0 && (
@@ -98,12 +90,8 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
             <div className={care?.fullCare?.available ? "font-medium text-neutral-900 dark:text-neutral-100" : "text-neutral-500 dark:text-neutral-400"}>
               Full Care
             </div>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${
-              care?.fullCare?.available 
-                ? "bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200"
-                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-            }`}>
-              {care?.fullCare?.available ? "Available" : "Not Available"}
+            <span className={care?.fullCare?.available ? "chip-available" : "chip-unavailable"}>
+              {care?.fullCare?.available ? "Available" : "Unavailable"}
             </span>
           </div>
           {care?.fullCare?.available && care.fullCare.monthlyPrice > 0 && (
