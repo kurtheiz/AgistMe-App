@@ -107,22 +107,24 @@ export function ViewAgistmentDetail() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col space-y-8 p-4">
             {/* Photo Gallery Section */}
-            <div className="w-full">
+            <div className="w-full border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <AgistmentPhotosView
                 photos={agistment.photoGallery?.photos || []}
               />
             </div>
 
             {/* Header Section */}
-            <AgistmentHeader
-              basicInfo={agistment.basicInfo}
-              propertyLocation={agistment.propertyLocation}
-              contactDetails={agistment.contact}
-              propertyDescription={agistment.propertyDescription}
-            />
+            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <AgistmentHeader
+                basicInfo={agistment.basicInfo}
+                propertyLocation={agistment.propertyLocation}
+                contactDetails={agistment.contact}
+                propertyDescription={agistment.propertyDescription}
+              />
+            </div>
 
             {/* Paddocks Section */}
-            <div>
+            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
                 Paddock Management
               </h2>
@@ -132,7 +134,7 @@ export function ViewAgistmentDetail() {
             </div>
 
             {/* Riding Facilities */}
-            <div>
+            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
                 Riding Facilities
               </h2>
@@ -143,7 +145,7 @@ export function ViewAgistmentDetail() {
             </div>
 
             {/* Facilities */}
-            <div>
+            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
                 Property Facilities
               </h2>
@@ -153,14 +155,18 @@ export function ViewAgistmentDetail() {
             </div>
 
             {/* Care Options */}
-            <AgistmentCareOptions
-              care={agistment.care}
-            />
+            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <AgistmentCareOptions
+                care={agistment.care}
+              />
+            </div>
 
             {/* Services */}
-            <AgistmentServices
-              services={agistment.propertyServices.services}
-            />
+            <div>
+              <AgistmentServices
+                services={agistment.propertyServices.services}
+              />
+            </div>
           </div>
         </div>
       </div>
