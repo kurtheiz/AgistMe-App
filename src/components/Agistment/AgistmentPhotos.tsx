@@ -127,16 +127,19 @@ export const AgistmentPhotos = ({
     });
   }, [currentComment, originalComment]);
 
+  const handlePhotosUpdate = (newPhotos: { link: string; comment?: string }[]) => {
+    onPhotosChange(newPhotos);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
-    if (over && active.id !== over.id) {
-      const oldIndex = agistment.photoGallery.photos.findIndex(photo => photo.link === active.id);
-      const newIndex = agistment.photoGallery.photos.findIndex(photo => photo.link === over.id);
-      
-      const newPhotos = arrayMove(agistment.photoGallery.photos, oldIndex, newIndex);
-      updatePhotos(newPhotos);
-    }
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = agistment.photoGallery.photos.findIndex((photo) => photo.link === active.id);
+    const newIndex = agistment.photoGallery.photos.findIndex((photo) => photo.link === over.id);
+
+    const newPhotos = arrayMove(agistment.photoGallery.photos, oldIndex, newIndex);
+    handlePhotosUpdate(newPhotos);
   };
 
   const handlePhotoUpload = async (file: File) => {
@@ -150,7 +153,7 @@ export const AgistmentPhotos = ({
     try {
       const s3Url = await agistmentService.uploadAgistmentPhoto(file, agistment.id);
       const newPhotos = [...(agistment.photoGallery?.photos || []), { link: s3Url }];
-      updatePhotos(newPhotos);
+      handlePhotosUpdate(newPhotos);
       toast.success('Photo uploaded successfully');
     } catch (error) {
       console.error('Error uploading photo:', error);
@@ -162,7 +165,7 @@ export const AgistmentPhotos = ({
 
   const handlePhotoRemove = (index: number) => {
     const newPhotos = agistment.photoGallery.photos.filter((_, i) => i !== index);
-    updatePhotos(newPhotos);
+    handlePhotosUpdate(newPhotos);
   };
 
   const openCommentModal = (index: number) => {
@@ -189,7 +192,7 @@ export const AgistmentPhotos = ({
       });
       
       // Update the local state
-      onPhotosChange(newPhotos);
+      handlePhotosUpdate(newPhotos);
       setIsCommentModalOpen(false);
       toast.success('Photo comment updated');
     } catch (error) {
@@ -197,16 +200,6 @@ export const AgistmentPhotos = ({
       toast.error('Failed to update photo comment');
     } finally {
       setIsUpdating(false);
-    }
-  };
-
-  const updatePhotos = async (photos: { link: string; comment?: string }[]) => {
-    try {
-      await agistmentService.updatePhotoGallery(agistment.id, { photos });
-      onPhotosChange(photos);
-    } catch (error) {
-      console.error('Error updating photos:', error);
-      toast.error('Failed to update photos');
     }
   };
 

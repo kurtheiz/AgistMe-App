@@ -7,6 +7,7 @@ interface ShareFavoriteButtonsProps {
   shareDescription: string;
   onShare?: () => void;
   onFavorite?: () => void;
+  hideShare?: boolean;
 }
 
 export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
@@ -14,6 +15,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   shareDescription,
   onShare,
   onFavorite,
+  hideShare = false,
 }) => {
   const { profile } = useProfile();
   const [isFavorited, setIsFavorited] = useState(false);
@@ -50,13 +52,15 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={handleShare}
-        className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors"
-      >
-        <Share2Icon className="h-5 w-5" />
-      </button>
+      {!hideShare && (
+        <button
+          type="button"
+          onClick={handleShare}
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors"
+        >
+          <Share2Icon className="h-5 w-5" />
+        </button>
+      )}
       <button
         type="button"
         onClick={handleFavorite}

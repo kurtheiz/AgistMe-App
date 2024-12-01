@@ -1,3 +1,7 @@
+export type Status = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+
+export type ListingType = 'STANDARD' | 'FEATURED' | 'PREMIUM' | 'PROFESSIONAL';
+
 export interface AgistmentResponse {
   original: Agistment[];
   adjacent: Agistment[];
@@ -36,6 +40,7 @@ export interface PaddockBase {
   comments: string;
   total: number;
   weeklyPrice: number;
+  totalPaddocks: number;
   whenAvailable?: Date;
 }
 
@@ -92,7 +97,7 @@ export interface AgistmentContact {
 }
 
 export interface AgistmentListingType {
-  listingType: string;
+  listingType: ListingType;
 }
 
 export interface AgistmentPaddocks {
@@ -127,6 +132,7 @@ export interface AgistmentVisibility {
 
 export interface Agistment {
   id: string;
+  status: Status;
   ridingFacilities: AgistmentRidingFacilities;
   contact: AgistmentContact;
   createdAt?: string;

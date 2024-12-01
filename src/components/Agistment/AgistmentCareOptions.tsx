@@ -1,37 +1,29 @@
-import { EditIcon } from '../../components/Icons';
 import { AgistmentCare } from '../../types/agistment';
 
 interface AgistmentCareOptionsProps {
-  care: AgistmentCare;
-  isEditable?: boolean;
+  care?: AgistmentCare;
 }
 
 export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
-  care,
-  isEditable = false
+  care
 }) => {
   return (
     <div className="agistment-section">
       <div className="agistment-section-header">
         <h3 className="agistment-section-title">Care Options</h3>
-        {isEditable && (
-          <button className="btn-edit">
-            <EditIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
-          </button>
-        )}
       </div>
       <div className="agistment-section-content grid grid-cols-1 sm:grid-cols-3 gap-6">
         {/* Self Care */}
         <div className="border-title-card">
           <span className="border-title-card-title">Self Care</span>
           <div className="border-title-card-content">
-            {care.selfCare.available ? (
+            {care?.selfCare?.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
                   <span className="chip-available">
                     Available
                   </span>
-                  {care.selfCare.monthlyPrice !== 0 && (
+                  {care.selfCare.monthlyPrice > 0 && (
                     <div className="paddock-costs">
                       <p className="paddock-cost-item">
                         ${care.selfCare.monthlyPrice}
@@ -47,9 +39,9 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                 </div>
               </div>
             ) : (
-              <span className="chip-unavailable">
-                Unavailable
-              </span>
+              <div className="flex flex-col items-center">
+                <span className="chip-unavailable">Not Available</span>
+              </div>
             )}
           </div>
         </div>
@@ -58,31 +50,31 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
         <div className="border-title-card">
           <span className="border-title-card-title">Part Care</span>
           <div className="border-title-card-content">
-            {care.partCare?.available ? (
+            {care?.partCare?.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
                   <span className="chip-available">
                     Available
                   </span>
-                  {care.partCare?.monthlyPrice !== 0 && (
+                  {care.partCare.monthlyPrice > 0 && (
                     <div className="paddock-costs">
                       <p className="paddock-cost-item">
-                        ${care.partCare?.monthlyPrice}
+                        ${care.partCare.monthlyPrice}
                         <span className="paddock-cost-period">/month</span>
                       </p>
                     </div>
                   )}
-                  {care.partCare?.comments && (
+                  {care.partCare.comments && (
                     <p className="comments">
-                      {care.partCare?.comments}
+                      {care.partCare.comments}
                     </p>
                   )}
                 </div>
               </div>
             ) : (
-              <span className="chip-unavailable">
-                Unavailable
-              </span>
+              <div className="flex flex-col items-center">
+                <span className="chip-unavailable">Not Available</span>
+              </div>
             )}
           </div>
         </div>
@@ -91,13 +83,13 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
         <div className="border-title-card">
           <span className="border-title-card-title">Full Care</span>
           <div className="border-title-card-content">
-            {care.fullCare.available ? (
+            {care?.fullCare?.available ? (
               <div className="flex flex-col items-center">
                 <div className="flex flex-col items-center gap-2">
                   <span className="chip-available">
                     Available
                   </span>
-                  {care.fullCare.monthlyPrice !== 0 && (
+                  {care.fullCare.monthlyPrice > 0 && (
                     <div className="paddock-costs">
                       <p className="paddock-cost-item">
                         ${care.fullCare.monthlyPrice}
@@ -113,9 +105,9 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
                 </div>
               </div>
             ) : (
-              <span className="chip-unavailable">
-                Unavailable
-              </span>
+              <div className="flex flex-col items-center">
+                <span className="chip-unavailable">Not Available</span>
+              </div>
             )}
           </div>
         </div>

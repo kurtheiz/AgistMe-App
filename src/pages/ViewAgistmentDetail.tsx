@@ -4,10 +4,8 @@ import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { ArrowLeftIcon } from '../components/Icons';
 import { PageToolbar } from '../components/PageToolbar';
-import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
 import '../styles/gallery.css';
 import { AgistmentHeader } from '../components/Agistment/AgistmentHeader';
-import { AgistmentDescription } from '../components/Agistment/AgistmentDescription';
 import { AgistmentPaddocks } from '../components/Agistment/AgistmentPaddocks';
 import { AgistmentRidingFacilities } from '../components/Agistment/AgistmentRidingFacilities';
 import { AgistmentFacilities } from '../components/Agistment/AgistmentFacilities';
@@ -118,41 +116,50 @@ export function ViewAgistmentDetail() {
             {/* Header Section */}
             <AgistmentHeader
               basicInfo={agistment.basicInfo}
-              propertyLocation={agistment.propertyLocation.location}
+              propertyLocation={agistment.propertyLocation}
               contactDetails={agistment.contact}
               propertyDescription={agistment.propertyDescription}
             />
 
             {/* Paddocks Section */}
-            <AgistmentPaddocks
-              paddocks={agistment.paddocks}
-            />
-
-
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                Paddock Management
+              </h2>
+              <AgistmentPaddocks
+                paddocks={agistment.paddocks}
+              />
+            </div>
 
             {/* Riding Facilities */}
-            <AgistmentRidingFacilities
-              ridingFacilities={agistment.ridingFacilities}
-              isEditable={false}
-            />
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                Riding Facilities
+              </h2>
+              <AgistmentRidingFacilities
+                ridingFacilities={agistment.ridingFacilities}
+                isEditable={false}
+              />
+            </div>
 
             {/* Facilities */}
-            <AgistmentFacilities
-              agistmentId={agistment.id}
-              facilities={agistment.facilities}
-              isEditable={false}
-            />
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                Property Facilities
+              </h2>
+              <AgistmentFacilities
+                facilities={agistment.facilities}
+              />
+            </div>
 
             {/* Care Options */}
             <AgistmentCareOptions
               care={agistment.care}
-              isEditable={false}
             />
 
             {/* Services */}
             <AgistmentServices
               services={agistment.propertyServices.services}
-              isEditable={false}
             />
           </div>
         </div>

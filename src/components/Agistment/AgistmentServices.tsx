@@ -1,23 +1,17 @@
 import { Pencil } from 'lucide-react';
+import { Agistment } from '../../types/agistment';
 
 interface AgistmentServicesProps {
-  services: string[];
-  isEditable?: boolean;
+  services?: string[];
 }
 
 export const AgistmentServices: React.FC<AgistmentServicesProps> = ({
-  services,
-  isEditable = false
+  services = []
 }) => {
   return (
     <div className="agistment-section">
       <div className="agistment-section-header">
         <h2 className="agistment-section-title">Property Services</h2>
-        {isEditable && (
-          <button className="btn-edit">
-            <Pencil className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
-          </button>
-        )}
       </div>
       <div className="agistment-section-content">
         {services && services.length > 0 ? (

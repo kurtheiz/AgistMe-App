@@ -86,27 +86,29 @@ function EditAgistmentDetail() {
       // Create a new agistment object with updated fields
       const updatedAgistment: Agistment = {
         ...agistment,
-        basicInfo: {
-          ...agistment.basicInfo,
-          ...(updatedFields.basicInfo || {})
-        },
-        propertyLocation: {
-          ...agistment.propertyLocation,
-          ...(updatedFields.propertyLocation || {})
-        },
-        contact: {
-          ...agistment.contact,
-          ...(updatedFields.contact || {})
-        },
+        basicInfo: updatedFields.basicInfo || agistment.basicInfo,
+        propertyLocation: updatedFields.propertyLocation || agistment.propertyLocation,
+        contact: updatedFields.contact || agistment.contact,
         paddocks: updatedFields.paddocks || agistment.paddocks,
-        propertyDescription: updatedFields.propertyDescription || agistment.propertyDescription
+        propertyDescription: updatedFields.propertyDescription || agistment.propertyDescription,
+        photoGallery: updatedFields.photoGallery || agistment.photoGallery,
+        propertyServices: updatedFields.propertyServices || agistment.propertyServices,
+        ridingFacilities: updatedFields.ridingFacilities || agistment.ridingFacilities,
+        facilities: updatedFields.facilities || agistment.facilities,
+        care: updatedFields.care || agistment.care,
+        visibility: updatedFields.visibility || agistment.visibility,
+        listing: updatedFields.listing || agistment.listing,
+        socialMedia: updatedFields.socialMedia || agistment.socialMedia,
+        urgentAvailability: updatedFields.urgentAvailability ?? agistment.urgentAvailability,
+        paddockTypes: updatedFields.paddockTypes || agistment.paddockTypes,
+        status: updatedFields.status || agistment.status
       };
       
       // Update the local state first
       setAgistment(updatedAgistment);
 
-      // Send the update to the server
-      const serverUpdatedAgistment = await agistmentService.updateAgistment(agistment.id, updatedFields);
+      // Send the FULL updated agistment to the server
+      const serverUpdatedAgistment = await agistmentService.updateAgistment(agistment.id, updatedAgistment);
       
       // Update local state with server response
       setAgistment(serverUpdatedAgistment);
@@ -122,6 +124,19 @@ function EditAgistmentDetail() {
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const handlePhotoGalleryUpdate = async (photos: { link: string; comment?: string }[]) => {
+    if (!agistment) return;
+    
+    const updatedFields: Partial<Agistment> = {
+      photoGallery: {
+        ...agistment.photoGallery,
+        photos
+      }
+    };
+    
+    await handleAgistmentUpdate(updatedFields);
   };
 
   if (loading) {
@@ -187,26 +202,26 @@ function EditAgistmentDetail() {
                 onClick={handleVisibilityToggle}
                 disabled={isUpdating}
                 title={
-                  agistment.visibility.hidden
+                  agistment?.visibility.hidden
                   ? "Hidden - This agistment will not appear in search results"
                   : "Visible - This agistment will appear in search results"
                 }
                 className={`
                   px-4 py-2 text-sm font-medium rounded-md transition-colors
                   flex items-center justify-center gap-2
-                  ${agistment.visibility.hidden 
+                  ${agistment?.visibility.hidden 
                     ? 'text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600' 
                     : 'text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600'
                   }
                   disabled:opacity-50 disabled:cursor-not-allowed
                   focus:outline-none focus:ring-2 focus:ring-offset-2
-                  ${agistment.visibility.hidden 
+                  ${agistment?.visibility.hidden 
                     ? 'focus:ring-red-500' 
                     : 'focus:ring-green-500'
                   }
                 `}
               >
-                {agistment.visibility.hidden ? 'Make Visible' : 'Make Hidden'}
+                {agistment?.visibility.hidden ? 'Make Visible' : 'Make Hidden'}
                 {isUpdating && (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                 )}
@@ -232,13 +247,7 @@ function EditAgistmentDetail() {
                 <AgistmentPhotos
                   agistment={agistment}
                   maxPhotos={maxPhotos}
-                  onPhotosChange={(photos) => {
-                    setAgistment(prev => prev ? {
-                      ...prev,
-                      photoGallery: { photos }
-                    } : null);
-                    return photos;
-                  }}
+                  onPhotosChange={handlePhotoGalleryUpdate}
                   isEditable={true}
                 />
               </div>
@@ -259,10 +268,10 @@ function EditAgistmentDetail() {
                 </button>
               </div>
               <AgistmentHeader
-                basicInfo={agistment.basicInfo}
-                propertyLocation={agistment.propertyLocation}
-                contactDetails={agistment.contact}
-                propertyDescription={agistment.propertyDescription}
+                basicInfo={agistment?.basicInfo}
+                propertyLocation={agistment?.propertyLocation}
+                contactDetails={agistment?.contact}
+                propertyDescription={agistment?.propertyDescription}
               />
             </div>
 
@@ -278,47 +287,40 @@ function EditAgistmentDetail() {
               </div>
               <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">Our paddocks and space availability</h2>
               <AgistmentPaddocks
-                paddocks={agistment.paddocks}
+                paddocks={agistment?.paddocks}
               />
             </div>
 
             <div className="py-6">
               <AgistmentRidingFacilities
-                ridingFacilities={agistment.ridingFacilities}
+                ridingFacilities={agistment?.ridingFacilities}
                 isEditable={true}
-                onUpdate={(updatedAgistment) => {
-                  handleAgistmentUpdate(updatedAgistment);
-                }}
+                onUpdate={handleAgistmentUpdate}
               />
             </div>
 
             <div className="py-6">
               <AgistmentFacilities
-                facilities={agistment.facilities}
+                facilities={agistment?.facilities}
+                agistmentId={agistment?.id}
                 isEditable={true}
-                onUpdate={(updatedAgistment) => {
-                  handleAgistmentUpdate(updatedAgistment);
-                }}
+                onUpdate={handleAgistmentUpdate}
               />
             </div>
 
             <div className="py-6">
               <AgistmentCareOptions
-                care={agistment.care}
+                care={agistment?.care}
                 isEditable={true}
-                onUpdate={(updatedAgistment) => {
-                  handleAgistmentUpdate(updatedAgistment);
-                }}
+                onUpdate={handleAgistmentUpdate}
               />
             </div>
 
             <div className="py-6">
               <AgistmentServices
-                services={agistment.services}
+                services={agistment?.propertyServices?.services}
                 isEditable={true}
-                onUpdate={(updatedAgistment) => {
-                  handleAgistmentUpdate(updatedAgistment);
-                }}
+                onUpdate={handleAgistmentUpdate}
               />
             </div>
           </div>
@@ -326,10 +328,10 @@ function EditAgistmentDetail() {
       </div>
       {/* Header Edit Modal */}
       <AgistmentHeaderModal
-        basicInfo={agistment.basicInfo}
-        propertyLocation={agistment.propertyLocation}
-        contactDetails={agistment.contact}
-        propertyDescription={agistment.propertyDescription}
+        basicInfo={agistment?.basicInfo}
+        propertyLocation={agistment?.propertyLocation}
+        contactDetails={agistment?.contact}
+        propertyDescription={agistment?.propertyDescription}
         isOpen={isHeaderModalOpen}
         onClose={() => setIsHeaderModalOpen(false)}
         onUpdate={(updatedAgistment) => {
@@ -338,7 +340,7 @@ function EditAgistmentDetail() {
       />
       {/* Paddocks Modal */}
       <AgistmentPaddocksModal
-        paddocks={agistment.paddocks}
+        paddocks={agistment?.paddocks}
         isOpen={isPaddocksModalOpen}
         onClose={() => setIsPaddocksModalOpen(false)}
         onUpdate={handleAgistmentUpdate}

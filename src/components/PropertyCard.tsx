@@ -26,6 +26,20 @@ interface PropertyCardProps {
 export default function PropertyCard({ agistment, onClick }: PropertyCardProps) {
   const navigate = useNavigate();
 
+  console.log('PropertyCard received agistment:', agistment);
+  console.log('PropertyCard paddocks:', agistment?.paddocks);
+
+  // If agistment is not loaded yet, show loading state
+  if (!agistment || !agistment.basicInfo) {
+    return (
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl p-4 animate-pulse">
+        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-4"></div>
+        <div className="h-48 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2"></div>
+      </div>
+    );
+  }
+
   const handleClick = (_: React.MouseEvent) => {
     if (onClick) {
       onClick();
@@ -268,7 +282,8 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
           <div className="flex justify-between items-center">
             <ShareFavoriteButtons 
               agistmentId={agistment.id}
-              shareDescription={`Check out this agistment ${agistment.basicInfo.name} in ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.region}, ${agistment.propertyLocation.location.state}`}
+              shareDescription={`Check out ${agistment.basicInfo.name} on AgistMe`}
+              hideShare={true}
             />
             <div className="text-xs sm:text-sm">
               Last updated: {formatRelativeDate(agistment.modifiedAt)}

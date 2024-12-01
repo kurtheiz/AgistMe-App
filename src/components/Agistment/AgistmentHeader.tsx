@@ -1,13 +1,13 @@
-import { Mail, Phone } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { AgistmentContact, AgistmentBasicInfo, AgistmentPropertyLocation, AgistmentDescription } from '../../types/agistment';
 import { getGoogleMapsUrl } from '../../utils/location';
 import { useState } from 'react';
 
 interface Props {
-  basicInfo: AgistmentBasicInfo;
-  propertyLocation: AgistmentPropertyLocation;
-  contactDetails: AgistmentContact;
-  propertyDescription: AgistmentDescription;
+  basicInfo?: AgistmentBasicInfo;
+  propertyLocation?: AgistmentPropertyLocation;
+  contactDetails?: AgistmentContact;
+  propertyDescription?: AgistmentDescription;
 }
 
 export const AgistmentHeader = ({
@@ -26,7 +26,7 @@ export const AgistmentHeader = ({
       <div className="flex justify-between items-start mb-4">
         <div className="w-full">
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-            {basicInfo.name || 'Unnamed Agistment'}
+            {basicInfo?.name || 'Unnamed Agistment'}
           </h1>
         </div>
       </div>
@@ -52,7 +52,7 @@ export const AgistmentHeader = ({
               </a>
             </p>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
-              {basicInfo.propertySize > 0 
+              {basicInfo?.propertySize && basicInfo.propertySize > 0 
                 ? <>Property is located on <strong className="text-neutral-900 dark:text-neutral-100">{basicInfo.propertySize} acres</strong> in the <strong className="text-neutral-900 dark:text-neutral-100">{propertyLocation.location.region}</strong> region</>
                 : <>Located in the <strong className="text-neutral-900 dark:text-neutral-100">{propertyLocation.location.region}</strong> region</>
               }
@@ -123,6 +123,7 @@ export const AgistmentHeader = ({
           </div>
         )}
       </div>
+      
     </>
   );
 };

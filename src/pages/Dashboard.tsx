@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
-import { Badge } from '../components/shared/Badge';
-import { ListBulletIcon, ChartBarIcon, UserGroupIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
-import { EditIcon, VisibleIcon, HiddenIcon } from '../components/Icons';
-import { Disclosure } from '@headlessui/react';
+import { ListBulletIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import PropertyCard from '../components/PropertyCard';
+import { Pencil as PencilIcon, Eye as EyeIcon, EyeOff as EyeOffIcon, Loader2 } from 'lucide-react';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,8 +19,8 @@ export const Dashboard = () => {
       try {
         const response = await agistmentService.getMyAgistments();
         console.log('Dashboard received response:', response);
+        
         setAgistments(response.agistments || []);
-        console.log('Agistments set to:', response.agistments || []);
       } catch (error) {
         console.error('Error fetching agistments:', error);
       } finally {
@@ -57,25 +55,31 @@ export const Dashboard = () => {
   };
 
   const handleVisibilityToggle = async (agistmentId: string, currentHidden: boolean) => {
-    setIsUpdating(prev => ({ ...prev, [agistmentId]: true }));
     try {
-      await agistmentService.updateAgistment(agistmentId, {
-        visibility: { hidden: !currentHidden }
-      });
+      setIsUpdating(prev => ({ ...prev, [agistmentId]: true }));
       
+      // Find the current agistment
+      const currentAgistment = agistments.find(a => a.id === agistmentId);
+      if (!currentAgistment) return;
+
+      // Update the entire agistment with new visibility
+      const updatedAgistment = {
+        ...currentAgistment,
+        visibility: { hidden: !currentHidden }
+      };
+      
+      await agistmentService.updateAgistment(agistmentId, updatedAgistment);
+
       // Update the local state
-      setAgistments(prevAgistments => 
-        prevAgistments.map(a => 
-          a.id === agistmentId 
-            ? { ...a, visibility: { hidden: !currentHidden } }
-            : a
+      setAgistments(prev => 
+        prev.map(agistment => 
+          agistment.id === agistmentId 
+            ? updatedAgistment
+            : agistment
         )
       );
-      
-      // toast.success(`Agistment is now ${!currentHidden ? 'hidden from' : 'visible in'} search results`);
     } catch (error) {
       console.error('Error updating visibility:', error);
-      // toast.error('Failed to update visibility');
     } finally {
       setIsUpdating(prev => ({ ...prev, [agistmentId]: false }));
     }
@@ -83,7 +87,7 @@ export const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-0 sm:px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">Dashboard</h1>
 
         {/* Stats */}
@@ -119,83 +123,46 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* Listings List */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">My Listings</h2>
-          </div>
-          <div className="divide-y divide-gray-200">
-            {agistments.map((agistment) => (
-              <Disclosure key={agistment.id}>
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50">
-                      <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-8 w-full">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/agistments/${agistment.id}/edit`);
-                            }}
-                            className="min-w-[44px] min-h-[44px] p-1 hover:bg-neutral-100 rounded-full transition-colors flex items-center justify-center"
-                          >
-                            <EditIcon className="w-5 h-5 text-neutral-500" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleVisibilityToggle(agistment.id, agistment.visibility.hidden);
-                            }}
-                            disabled={isUpdating[agistment.id]}
-                            title={agistment.visibility.hidden 
-                              ? "Hidden - This agistment will not appear in search results" 
-                              : "Visible - This agistment will appear in search results"
-                            }
-                            className={`
-                              min-w-[44px] min-h-[44px] p-1 hover:bg-neutral-100 rounded-full transition-colors
-                              flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed
-                            `}
-                          >
-                            {agistment.visibility.hidden ? (
-                              <HiddenIcon className="w-5 h-5 text-neutral-500" />
-                            ) : (
-                              <VisibleIcon className="w-5 h-5 text-neutral-500" />
-                            )}
-                            {isUpdating[agistment.id] && (
-                              <div className="absolute animate-spin rounded-full h-5 w-5 border-2 border-neutral-500 border-t-transparent" />
-                            )}
-                          </button>
-                          <div className="text-sm font-medium text-gray-900">{agistment.basicInfo.name}</div>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.state}
-                        </div>
-                        <Badge
-                          color={agistment.listing.listingType === 'PROFESSIONAL' ? 'emerald' : 'blue'}
-                          text={agistment.listing.listingType.toLowerCase()}
-                        />
-                        <div className="text-sm text-gray-500 whitespace-nowrap">
-                          {agistment.views || 0} views
-                        </div>
-                        <div className="flex items-center">
-                          {open ? (
-                            <ChevronUpIcon className="h-5 w-5 text-gray-500" />
-                          ) : (
-                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
-                          )}
-                        </div>
-                      </div>
-                    </Disclosure.Button>
-                    <Disclosure.Panel className="px-6 py-4 bg-gray-50">
-                      <div className="max-w-2xl mx-auto">
-                        <PropertyCard agistment={agistment} />
-                      </div>
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
-            ))}
-          </div>
+        {/* Property Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          {agistments.map((agistment) => {
+            console.log('Rendering agistment:', agistment);
+            return (
+              <div key={agistment.id} className="relative">
+                <PropertyCard agistment={agistment} />
+                <div className="absolute left-1/2 transform -translate-x-1/2 bottom-[18px] z-20">
+                  <div className="flex items-center gap-2 bg-sky-600 rounded-full px-3 py-1.5 shadow-lg">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/agistments/${agistment.id}/edit`);
+                      }}
+                      className="text-white hover:text-sky-100 transition-colors"
+                    >
+                      <PencilIcon className="h-4 w-4" />
+                    </button>
+                    <div className="w-px h-4 bg-sky-500"></div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleVisibilityToggle(agistment.id, agistment.visibility.hidden);
+                      }}
+                      className="text-white hover:text-sky-100 transition-colors"
+                      disabled={isUpdating[agistment.id]}
+                    >
+                      {isUpdating[agistment.id] ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : agistment.visibility.hidden ? (
+                        <EyeOffIcon className="h-4 w-4" />
+                      ) : (
+                        <EyeIcon className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

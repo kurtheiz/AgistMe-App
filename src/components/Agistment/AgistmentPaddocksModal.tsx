@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 interface PaddockForm extends Omit<PaddockBase, 'whenAvailable'> {
   whenAvailable: Date | undefined;
   enabled: boolean;
+  totalPaddocks: number;
 }
 
 interface EditForm {
@@ -38,17 +39,20 @@ export const AgistmentPaddocksModal = ({
     privatePaddocks: {
       ...paddocks.privatePaddocks,
       whenAvailable: paddocks.privatePaddocks.whenAvailable ? new Date(paddocks.privatePaddocks.whenAvailable) : undefined,
-      enabled: paddocks.privatePaddocks.available > 0
+      enabled: paddocks.privatePaddocks.available > 0,
+      totalPaddocks: paddocks.privatePaddocks.totalPaddocks || 1
     },
     sharedPaddocks: {
       ...paddocks.sharedPaddocks,
       whenAvailable: paddocks.sharedPaddocks.whenAvailable ? new Date(paddocks.sharedPaddocks.whenAvailable) : undefined,
-      enabled: paddocks.sharedPaddocks.available > 0
+      enabled: paddocks.sharedPaddocks.available > 0,
+      totalPaddocks: paddocks.sharedPaddocks.totalPaddocks || 1
     },
     groupPaddocks: {
       ...paddocks.groupPaddocks,
       whenAvailable: paddocks.groupPaddocks.whenAvailable ? new Date(paddocks.groupPaddocks.whenAvailable) : undefined,
-      enabled: paddocks.groupPaddocks.available > 0
+      enabled: paddocks.groupPaddocks.available > 0,
+      totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 1
     }
   });
   const [isUpdating, setIsUpdating] = useState(false);
@@ -59,17 +63,20 @@ export const AgistmentPaddocksModal = ({
         privatePaddocks: {
           ...paddocks.privatePaddocks,
           whenAvailable: paddocks.privatePaddocks.whenAvailable ? new Date(paddocks.privatePaddocks.whenAvailable) : undefined,
-          enabled: paddocks.privatePaddocks.available > 0
+          enabled: paddocks.privatePaddocks.available > 0,
+          totalPaddocks: paddocks.privatePaddocks.totalPaddocks || 1
         },
         sharedPaddocks: {
           ...paddocks.sharedPaddocks,
           whenAvailable: paddocks.sharedPaddocks.whenAvailable ? new Date(paddocks.sharedPaddocks.whenAvailable) : undefined,
-          enabled: paddocks.sharedPaddocks.available > 0
+          enabled: paddocks.sharedPaddocks.available > 0,
+          totalPaddocks: paddocks.sharedPaddocks.totalPaddocks || 1
         },
         groupPaddocks: {
           ...paddocks.groupPaddocks,
           whenAvailable: paddocks.groupPaddocks.whenAvailable ? new Date(paddocks.groupPaddocks.whenAvailable) : undefined,
-          enabled: paddocks.groupPaddocks.available > 0
+          enabled: paddocks.groupPaddocks.available > 0,
+          totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 1
         }
       });
       setIsDirty(false);
@@ -89,21 +96,24 @@ export const AgistmentPaddocksModal = ({
             available: editForm.privatePaddocks.available,
             weeklyPrice: editForm.privatePaddocks.weeklyPrice,
             comments: editForm.privatePaddocks.comments,
-            whenAvailable: editForm.privatePaddocks.whenAvailable
+            whenAvailable: editForm.privatePaddocks.whenAvailable,
+            totalPaddocks: editForm.privatePaddocks.totalPaddocks
           },
           sharedPaddocks: {
             total: editForm.sharedPaddocks.total,
             available: editForm.sharedPaddocks.available,
             weeklyPrice: editForm.sharedPaddocks.weeklyPrice,
             comments: editForm.sharedPaddocks.comments,
-            whenAvailable: editForm.sharedPaddocks.whenAvailable
+            whenAvailable: editForm.sharedPaddocks.whenAvailable,
+            totalPaddocks: editForm.sharedPaddocks.totalPaddocks
           },
           groupPaddocks: {
             total: editForm.groupPaddocks.total,
             available: editForm.groupPaddocks.available,
             weeklyPrice: editForm.groupPaddocks.weeklyPrice,
             comments: editForm.groupPaddocks.comments,
-            whenAvailable: editForm.groupPaddocks.whenAvailable
+            whenAvailable: editForm.groupPaddocks.whenAvailable,
+            totalPaddocks: editForm.groupPaddocks.totalPaddocks
           }
         }
       };
@@ -147,23 +157,6 @@ export const AgistmentPaddocksModal = ({
       }
       return updatedForm;
     });
-  };
-
-  const handleTogglePaddockType = (type: keyof EditForm) => {
-    setEditForm(prev => {
-      const newForm = { ...prev };
-      newForm[type] = {
-        ...newForm[type],
-        enabled: !newForm[type].enabled,
-        total: !newForm[type].enabled ? 1 : 0,
-        available: 0,
-        weeklyPrice: 0,
-        comments: '',
-        whenAvailable: undefined
-      };
-      return newForm;
-    });
-    setIsDirty(true);
   };
 
   return (
@@ -224,60 +217,93 @@ export const AgistmentPaddocksModal = ({
           </Tab.List>
           <Tab.Panels className="mt-4">
             {[
-              { type: 'privatePaddocks', title: 'Private Paddocks' },
-              { type: 'sharedPaddocks', title: 'Shared Paddocks' },
-              { type: 'groupPaddocks', title: 'Group Paddocks' }
+              { type: 'privatePaddocks', title: 'Private' },
+              { type: 'sharedPaddocks', title: 'Shared' },
+              { type: 'groupPaddocks', title: 'Group' }
             ].map(({ type, title }) => (
               <Tab.Panel key={type} className="focus:outline-none">
-                <div className="flex items-center justify-between mb-4 bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-lg">
-                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {editForm[type as keyof EditForm].enabled ? `I have ${title.toLowerCase()}` : `No ${title.toLowerCase()}`}
-                  </span>
-                  <Switch
-                    checked={editForm[type as keyof EditForm].enabled}
-                    onChange={() => handleTogglePaddockType(type as keyof EditForm)}
-                    className={`${
-                      editForm[type as keyof EditForm].enabled ? 'bg-primary-600' : 'bg-neutral-300 dark:bg-neutral-600'
-                    } relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2`}
-                  >
-                    <span
-                      className={`${
-                        editForm[type as keyof EditForm].enabled ? 'translate-x-5' : 'translate-x-1'
-                      } inline-block h-3 w-3 transform rounded-full bg-white transition-transform`}
-                    />
-                  </Switch>
-                </div>
                 <div className="space-y-6">
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
-                    <p>Total spaces is the total number of horse spaces you have in this paddock type.</p>
-                    <p>Available spaces is how many individual horse spaces are currently vacant.</p>
-                    <p>Weekly price is the cost per horse, per week.</p>
+                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-4">
+                    <p>How many <span className="font-bold">{title}</span> paddocks do you have?</p>
+                    <p>If you set it to <b>0</b>, then this will be displayed as<br/> "We do not offer <b>{title}</b> paddocks."</p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="flex flex-col items-center">
-                      <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
-                        Total Spaces
-                      </label>
-                      <NumberStepper
-                        value={editForm[type as keyof EditForm].total}
-                        onChange={(value) => handleEditFormChange(type as keyof EditForm, 'total', value)}
-                        min={editForm[type as keyof EditForm].enabled ? 1 : 0}
-                      />
+                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                    <div className="flex flex-col items-center gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                          Number of Paddocks
+                        </label>
+                        <NumberStepper
+                          value={editForm[type as keyof EditForm].totalPaddocks}
+                          onChange={(value) => {
+                            setEditForm(prev => ({
+                              ...prev,
+                              [type]: {
+                                ...prev[type as keyof EditForm],
+                                totalPaddocks: value,
+                                total: value === 0 ? 0 : prev[type as keyof EditForm].total,
+                                available: value === 0 ? 0 : prev[type as keyof EditForm].available
+                              }
+                            }));
+                            setIsDirty(true);
+                          }}
+                          min={0}
+                          max={100}
+                        />
+                      </div>
                     </div>
+                  </div>
+                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-4">
+                    <p>How many horses can your <span className="font-bold">{editForm[type as keyof EditForm].totalPaddocks}</span> paddocks accommodate in total?</p>
+                  </div>
+                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                    <div className="flex justify-center">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                          Total Horse Spot Capacity
+                        </label>
+                        <NumberStepper
+                          value={editForm[type as keyof EditForm].total}
+                          onChange={(value) => {
+                            setEditForm(prev => ({
+                              ...prev,
+                              [type]: {
+                                ...prev[type as keyof EditForm],
+                                total: value,
+                                available: Math.min(value, prev[type as keyof EditForm].available)
+                              }
+                            }));
+                            setIsDirty(true);
+                          }}
+                          min={1}
+                          max={100}
+                          disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                    <p>How many horse spots are currently vacant?</p>
+                  </div>
+                  <div className="flex flex-col items-center justify-center space-y-4">
                     <div className="flex flex-col items-center">
                       <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
-                        Available Spaces
+                        Available Horse Spots
                       </label>
                       <NumberStepper
                         value={editForm[type as keyof EditForm].available}
                         onChange={(value) => handleEditFormChange(type as keyof EditForm, 'available', value)}
                         min={0}
                         max={editForm[type as keyof EditForm].total}
+                        disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />
                     </div>
                   </div>
                   
                   <div className="flex flex-col items-center">
+                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                    <p>What is the weekly cost per horse?</p>
+                  </div>
                     <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
                       Weekly Price ($)
                     </label>
@@ -286,7 +312,7 @@ export const AgistmentPaddocksModal = ({
                         value={editForm[type as keyof EditForm].weeklyPrice}
                         onChange={(value) => handleEditFormChange(type as keyof EditForm, 'weeklyPrice', value)}
                         min={0}
-                        step={1}
+                        disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />
                       <div className="text-sm text-neutral-500 dark:text-neutral-400">
                         ≈ ${calculateMonthlyPrice(editForm[type as keyof EditForm].weeklyPrice)}/month
@@ -295,6 +321,9 @@ export const AgistmentPaddocksModal = ({
                   </div>
 
                   <div className="flex flex-col items-center">
+                    <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                      <p>When is the soonest spot available?</p>
+                    </div>
                     <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
                       Available From
                     </label>
@@ -310,6 +339,7 @@ export const AgistmentPaddocksModal = ({
                           'whenAvailable',
                           e.target.value ? new Date(e.target.value) : undefined
                         )}
+                        disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />
                     </div>
                   </div>
@@ -324,6 +354,7 @@ export const AgistmentPaddocksModal = ({
                         value={editForm[type as keyof EditForm].comments}
                         onChange={(e) => handleEditFormChange(type as keyof EditForm, 'comments', e.target.value)}
                         placeholder="Add any additional information about these spaces..."
+                        disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />
                       {editForm[type as keyof EditForm].comments && (
                         <button

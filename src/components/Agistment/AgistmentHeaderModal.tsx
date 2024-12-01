@@ -8,9 +8,9 @@ import { Suburb } from '../../types/suburb';
 import NumberStepper from '../shared/NumberStepper';
 
 interface Props {
-  basicInfo: AgistmentBasicInfo;
-  propertyLocation: AgistmentPropertyLocation;
-  contactDetails: AgistmentContact;
+  basicInfo?: AgistmentBasicInfo;
+  propertyLocation?: AgistmentPropertyLocation;
+  contactDetails?: AgistmentContact;
   propertyDescription?: AgistmentDescription;
   isOpen: boolean;
   onClose: () => void;
@@ -24,7 +24,7 @@ interface EditForm {
   suburb: string;
   state: string;
   postcode: string;
-  region?: string;
+  region: string;
   contactName: string;
   contactEmail: string;
   contactNumber: string;
@@ -41,16 +41,16 @@ export const AgistmentHeaderModal = ({
   onUpdate
 }: Props) => {
   const [editForm, setEditForm] = useState<EditForm>({
-    propertyName: basicInfo.name,
-    propertySize: basicInfo.propertySize,
-    address: propertyLocation.location.address,
-    suburb: propertyLocation.location.suburb,
-    state: propertyLocation.location.state,
-    postcode: propertyLocation.location.postcode,
-    region: propertyLocation.location.region,
-    contactName: contactDetails.contactDetails.name,
-    contactEmail: contactDetails.contactDetails.email,
-    contactNumber: contactDetails.contactDetails.number,
+    propertyName: basicInfo?.name || '',
+    propertySize: basicInfo?.propertySize || 0,
+    address: propertyLocation?.location?.address || '',
+    suburb: propertyLocation?.location?.suburb || '',
+    state: propertyLocation?.location?.state || '',
+    postcode: propertyLocation?.location?.postcode || '',
+    region: propertyLocation?.location?.region || '',
+    contactName: contactDetails?.contactDetails?.name || '',
+    contactEmail: contactDetails?.contactDetails?.email || '',
+    contactNumber: contactDetails?.contactDetails?.number || '',
     description: propertyDescription?.description || ''
   });
   const [selectedSuburbs, setSelectedSuburbs] = useState<Suburb[]>([]);
@@ -155,7 +155,7 @@ export const AgistmentHeaderModal = ({
         suburb: suburb.suburb,
         state: suburb.state,
         postcode: suburb.postcode,
-        region: suburb.region || ''
+        region: suburb.region
       }));
       setSelectedSuburbs(suburbs);
       setIsDirty(true);
@@ -270,7 +270,7 @@ export const AgistmentHeaderModal = ({
                     </label>
                     <input
                       type="text"
-                      value={editForm.region || ''}
+                      value={editForm.region}
                       readOnly
                       disabled
                       className="form-input form-input-compact bg-neutral-50"
