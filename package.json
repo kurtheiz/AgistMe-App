@@ -21,6 +21,7 @@
     "@types/react-image-gallery": "^1.2.4",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.6.2",
+    "date-fns": "^4.1.0",
     "filepond": "^4.32.4",
     "idb": "^8.0.0",
     "lucide-react": "^0.462.0",

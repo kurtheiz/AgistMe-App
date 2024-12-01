@@ -43,8 +43,8 @@ const SortablePhoto = ({ photo, index, disabled, onRemove, onCommentEdit }: Sort
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div className="rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-sm cursor-move">
-        <div className="aspect-square w-full max-w-[200px] relative">
+      <div className="rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-sm cursor-move w-[160px]">
+        <div className="aspect-square relative">
           <img
             src={photo.link}
             alt={photo.comment || `Property photo ${index + 1}`}
@@ -63,7 +63,7 @@ const SortablePhoto = ({ photo, index, disabled, onRemove, onCommentEdit }: Sort
             </div>
           )}
         </div>
-        <div className="p-3 text-sm text-neutral-600 dark:text-neutral-300 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 flex items-start justify-between">
+        <div className="p-2 text-sm text-neutral-600 dark:text-neutral-300 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 flex items-start justify-between">
           <div className="flex-1 min-w-0">
             {photo.comment || <span className="text-neutral-400 dark:text-neutral-500 italic">Comment...</span>}
           </div>
@@ -216,10 +216,10 @@ export const AgistmentPhotos = ({
 
   return (
     <div className="space-y-4">
-      <div className="max-h-[400px] overflow-y-auto pr-2">
+      <div className="max-h-[400px] overflow-y-auto">
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <SortableContext items={agistment.photoGallery?.photos?.map(p => p.link) || []} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div className="flex flex-wrap gap-2">
               {agistment.photoGallery?.photos?.map((photo, index) => (
                 <SortablePhoto
                   key={photo.link}
@@ -233,7 +233,7 @@ export const AgistmentPhotos = ({
 
               {/* Placeholder Upload Buttons */}
               {!disabled && Array.from({ length: placeholdersNeeded }).map((_, index) => (
-                <div key={`placeholder-${index}`} className="aspect-square w-full max-w-[200px] bg-neutral-100 dark:bg-neutral-800 rounded-lg flex items-center justify-center border-2 border-dashed border-neutral-300 dark:border-neutral-600 hover:border-primary-400 dark:hover:border-primary-500 transition-colors">
+                <div key={`placeholder-${index}`} className="w-[160px] aspect-square bg-neutral-100 dark:bg-neutral-800 rounded-lg flex items-center justify-center border-2 border-dashed border-neutral-300 dark:border-neutral-600 hover:border-primary-400 dark:hover:border-primary-500 transition-colors">
                   <button
                     type="button"
                     onClick={() => !isUploading && fileInputRef.current?.click()}
@@ -247,8 +247,8 @@ export const AgistmentPhotos = ({
                         className="flex flex-col items-center justify-center h-full text-center text-neutral-600 dark:text-neutral-400"
                       >
                         <PhotoIcon className="w-12 h-12 mb-2" />
-                        <span className="text-lg font-medium">Add Photo</span>
-                        <span className="text-sm">Click to Upload</span>
+                        <span className="text-base font-medium">Add Photo</span>
+                        <span className="text-xs">Click to Upload</span>
                       </div>
                     )}
                   </button>

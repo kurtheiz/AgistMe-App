@@ -292,8 +292,12 @@ body {
   }
 
   /* Common container styles for Agistment components */
+  .agistment-container {
+    @apply bg-white dark:bg-neutral-800 shadow-sm rounded-lg py-6 relative;
+  }
+
   .agistment-section {
-    @apply bg-white p-6;
+    @apply space-y-6;
   }
 
   .agistment-section-header {
@@ -306,6 +310,31 @@ body {
 
   .agistment-section-content {
     @apply w-full;
+  }
+
+  /* Agistment Styles */
+  .agistment-card {
+    @apply bg-white dark:bg-neutral-800 shadow-sm rounded-lg px-6 py-4;
+  }
+
+  .agistment-text {
+    @apply text-neutral-900 dark:text-neutral-100;
+  }
+
+  .agistment-text-secondary {
+    @apply text-neutral-600 dark:text-neutral-400;
+  }
+
+  .agistment-text-muted {
+    @apply text-sm text-neutral-500 dark:text-neutral-400;
+  }
+
+  .agistment-link {
+    @apply text-neutral-900 dark:text-neutral-100 hover:text-primary-600;
+  }
+
+  .agistment-icon {
+    @apply w-4 h-4 text-neutral-500 dark:text-neutral-400;
   }
 
   /* Comments */
