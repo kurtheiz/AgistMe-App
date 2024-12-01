@@ -1,0 +1,47 @@
+interface RoundYardDiagramProps {
+  diameter: number;
+}
+
+export const RoundYardDiagram: React.FC<RoundYardDiagramProps> = ({ diameter }) => {
+  // If diameter is 0, use default value but don't show dimensions
+  const isDefault = diameter === 0;
+  const actualDiameter = isDefault ? 30 : diameter;
+
+  // Calculate dimensions based on 40m reference
+  const maxDiameter = 150; // Maximum diameter in pixels
+  const referenceSize = 40; // Reference size in meters
+  
+  // Calculate scale based on reference size
+  const scale = maxDiameter / referenceSize;
+  
+  // Calculate display size
+  const displaySize = Math.round(actualDiameter * scale);
+
+  if (isDefault) {
+    return (
+      <div className="flex justify-center">
+        <div className="relative" style={{ width: displaySize, height: displaySize }}>
+          {/* Circle */}
+          <div className="absolute inset-0 border-2 border-neutral-300 rounded-full bg-neutral-50"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-center">
+      <div className="relative" style={{ width: displaySize, height: displaySize }}>
+        {/* Circle */}
+        <div className="absolute inset-0 border-2 border-neutral-300 rounded-full bg-neutral-50"></div>
+        {/* Horizontal diameter line */}
+        <div className="absolute top-1/2 left-0 w-full h-[1px] bg-neutral-300"></div>
+        {/* Diameter text */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xs text-neutral-600 bg-neutral-50 px-1">
+            {`${diameter}m`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
