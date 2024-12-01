@@ -410,7 +410,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               Care Types
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {(['Full Care', 'Part Care', 'Self Care'] as CareType[]).map((type) => (
+              {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
                 <button
                   key={type}
                   type="button"
@@ -421,7 +421,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                       : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
                     } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
-                  {type}
+                  {type} Care
                 </button>
               ))}
             </div>
