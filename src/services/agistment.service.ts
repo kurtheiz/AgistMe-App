@@ -4,7 +4,6 @@ import {
   AgistmentResponse,
   AgistmentBasicInfo,
   AgistmentDescription,
-  AgistmentLocation,
   AgistmentContact,
   AgistmentListingType,
   AgistmentPhotos,
@@ -13,7 +12,8 @@ import {
   AgistmentFacilities,
   AgistmentCare,
   AgistmentPaddocks,
-  AgistmentVisibility
+  AgistmentVisibility,
+  AgistmentPropertyLocation,
 } from '../types/agistment';
 
 interface PresignedUrlRequest {
@@ -157,7 +157,7 @@ class AgistmentService {
     return this.updateAgistmentSection(id, 'propertyDescription', data);
   }
 
-  async updatePropertyLocation(id: string, data: AgistmentLocation): Promise<Agistment> {
+  async updatePropertyLocation(id: string, data: AgistmentPropertyLocation): Promise<Agistment> {
     return this.updateAgistmentSection(id, 'propertyLocation', data);
   }
 

@@ -1,8 +1,9 @@
-import { Pencil } from 'lucide-react';
-import { Agistment } from '../../types/agistment';
+import React from 'react';
 
 interface AgistmentServicesProps {
   services?: string[];
+  isEditable?: boolean;
+  onUpdate?: (updatedFields: any) => Promise<void>;
 }
 
 export const AgistmentServices: React.FC<AgistmentServicesProps> = ({

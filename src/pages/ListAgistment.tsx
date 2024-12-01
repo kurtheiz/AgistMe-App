@@ -11,7 +11,7 @@ const ListAgistment = () => {
   const setSelectedType = useListingTypeStore(state => state.setSelectedType);
 
   const handlePlanSelect = (planName: string) => {
-    const listingType = { listingType: planName.toUpperCase() as 'PROFESSIONAL' | 'STANDARD' };
+    const listingType = planName.toUpperCase() as 'PROFESSIONAL' | 'STANDARD';
     setSelectedType(listingType);
     
     if (!isSignedIn) {

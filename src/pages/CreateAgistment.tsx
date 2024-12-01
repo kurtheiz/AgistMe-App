@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment, Status, ListingType } from '../types/agistment';
+import { Agistment } from '../types/agistment';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { useProfile } from '../context/ProfileContext';
 import { useListingTypeStore } from '../stores/listingType.store';
-import { Switch } from '@headlessui/react';
 
 const CreateAgistment: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ const CreateAgistment: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasClickedCreateFromText, setHasClickedCreateFromText] = useState(false);
   const { profile, loading: profileLoading } = useProfile();
-  const [useProfileData, setUseProfileData] = useState(true);
+  const [useProfileData] = useState(true);
 
   // Wait for both Clerk and profile to be loaded
   if (!isLoaded || profileLoading) {
@@ -101,19 +100,22 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
           available: 0,
           comments: '',
           total: 0,
-          weeklyPrice: 0
+          weeklyPrice: 0,
+          totalPaddocks: 0
         },
         privatePaddocks: {
           available: 0,
           comments: '',
           total: 0,
-          weeklyPrice: 0
+          weeklyPrice: 0,
+          totalPaddocks: 0
         },
         sharedPaddocks: {
           available: 0,
           comments: '',
           total: 0,
-          weeklyPrice: 0
+          weeklyPrice: 0,
+          totalPaddocks: 0
         }
       },
       photoGallery: {
@@ -158,14 +160,23 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
             number: ''
           }
         },
-        location: useProfileData ? {
-          address: profile?.address || result.location?.address || '',
-          postcode: profile?.postcode || result.location?.postcode || '',
-          region: profile?.region || result.location?.region || '',
-          state: profile?.state || result.location?.state || '',
-          suburb: profile?.suburb || result.location?.suburb || ''
-        } : undefined,
-        geohash: useProfileData ? profile?.geohash || result.geohash : ''
+        propertyLocation: useProfileData ? {
+          location: {
+            address: profile?.address || result.propertyLocation?.location?.address || '',
+            postcode: profile?.postcode || result.propertyLocation?.location?.postcode || '',
+            region: profile?.region || result.propertyLocation?.location?.region || '',
+            state: profile?.state || result.propertyLocation?.location?.state || '',
+            suburb: profile?.suburb || result.propertyLocation?.location?.suburb || ''
+          }
+        } : {
+          location: {
+            address: '',
+            postcode: '',
+            region: '',
+            state: '',
+            suburb: ''
+          }
+        }
       };
       
       // Save the agistment
@@ -235,23 +246,6 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
         
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center space-x-3 mb-6 bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg">
-            <Switch
-              checked={!!(useProfileData && hasProfileData)}
-              onChange={setUseProfileData}
-              disabled={!hasProfileData}
-              className={`${
-                useProfileData && hasProfileData ? 'bg-primary-600' : 'bg-neutral-300 dark:bg-neutral-600'
-              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 ${
-                !hasProfileData ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              <span className="sr-only">Use profile data</span>
-              <span
-                className={`${
-                  useProfileData && hasProfileData ? 'translate-x-6' : 'translate-x-1'
-                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-              />
-            </Switch>
             <div className="flex-1">
               <div className="font-medium text-neutral-900 dark:text-white">
                 Use my profile data

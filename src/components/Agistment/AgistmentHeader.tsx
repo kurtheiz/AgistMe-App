@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { AgistmentContact, AgistmentBasicInfo, AgistmentPropertyLocation, AgistmentDescription } from '../../types/agistment';
 import { getGoogleMapsUrl } from '../../utils/location';
 import { useState } from 'react';

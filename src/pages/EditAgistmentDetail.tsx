@@ -245,7 +245,40 @@ function EditAgistmentDetail() {
                   </span>
                 </div>
                 <AgistmentPhotos
-                  agistment={agistment}
+                  agistment={agistment || {
+                    id: '',
+                    status: 'DRAFT',
+                    basicInfo: { name: '', propertySize: 0 },
+                    photoGallery: { photos: [] },
+                    propertyLocation: { location: { address: '', suburb: '', state: '', postcode: '', region: '' } },
+                    contact: { contactDetails: { name: '', email: '', number: '' } },
+                    propertyDescription: { description: '' },
+                    facilities: {
+                      feedRoom: { available: false, comments: '' },
+                      floatParking: { available: false, comments: '', monthlyPrice: 0 },
+                      hotWash: { available: false, comments: '' },
+                      tackRoom: { available: false, comments: '' },
+                      tieUp: { available: false, comments: '' },
+                      stables: { available: false, comments: '', quantity: 0 }
+                    },
+                    visibility: { hidden: true },
+                    ridingFacilities: { arenas: [], roundYards: [] },
+                    paddocks: {
+                      groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+                      privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+                      sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
+                    },
+                    propertyServices: { services: [] },
+                    care: {
+                      fullCare: { available: false, comments: '', monthlyPrice: 0 },
+                      partCare: { available: false, comments: '', monthlyPrice: 0 },
+                      selfCare: { available: false, comments: '', monthlyPrice: 0 }
+                    },
+                    socialMedia: [],
+                    urgentAvailability: false,
+                    paddockTypes: [],
+                    listing: { listingType: 'STANDARD' }
+                  }}
                   maxPhotos={maxPhotos}
                   onPhotosChange={handlePhotoGalleryUpdate}
                   isEditable={true}
@@ -287,13 +320,20 @@ function EditAgistmentDetail() {
               </div>
               <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">Our paddocks and space availability</h2>
               <AgistmentPaddocks
-                paddocks={agistment?.paddocks}
+                paddocks={{
+                  groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+                  privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+                  sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
+                }}
+                onUpdate={handleAgistmentUpdate}
+                isEditable={true}
+                agistmentId={agistment?.id || ''}
               />
             </div>
 
             <div className="py-6">
               <AgistmentRidingFacilities
-                ridingFacilities={agistment?.ridingFacilities}
+                ridingFacilities={agistment?.ridingFacilities || { arenas: [], roundYards: [] }}
                 isEditable={true}
                 onUpdate={handleAgistmentUpdate}
               />
@@ -301,8 +341,14 @@ function EditAgistmentDetail() {
 
             <div className="py-6">
               <AgistmentFacilities
-                facilities={agistment?.facilities}
-                agistmentId={agistment?.id}
+                facilities={agistment?.facilities || {
+                  feedRoom: { available: false, comments: '' },
+                  floatParking: { available: false, comments: '', monthlyPrice: 0 },
+                  hotWash: { available: false, comments: '' },
+                  tackRoom: { available: false, comments: '' },
+                  tieUp: { available: false, comments: '' },
+                  stables: { available: false, comments: '', quantity: 0 }
+                }}
                 isEditable={true}
                 onUpdate={handleAgistmentUpdate}
               />
@@ -310,7 +356,11 @@ function EditAgistmentDetail() {
 
             <div className="py-6">
               <AgistmentCareOptions
-                care={agistment?.care}
+                care={agistment?.care || {
+                  fullCare: { available: false, comments: '', monthlyPrice: 0 },
+                  partCare: { available: false, comments: '', monthlyPrice: 0 },
+                  selfCare: { available: false, comments: '', monthlyPrice: 0 }
+                }}
                 isEditable={true}
                 onUpdate={handleAgistmentUpdate}
               />
@@ -318,7 +368,7 @@ function EditAgistmentDetail() {
 
             <div className="py-6">
               <AgistmentServices
-                services={agistment?.propertyServices?.services}
+                services={agistment?.propertyServices?.services || []}
                 isEditable={true}
                 onUpdate={handleAgistmentUpdate}
               />
@@ -334,16 +384,21 @@ function EditAgistmentDetail() {
         propertyDescription={agistment?.propertyDescription}
         isOpen={isHeaderModalOpen}
         onClose={() => setIsHeaderModalOpen(false)}
-        onUpdate={(updatedAgistment) => {
+        onUpdate={(updatedAgistment: Partial<Agistment>) => {
           handleAgistmentUpdate(updatedAgistment);
         }}
       />
       {/* Paddocks Modal */}
       <AgistmentPaddocksModal
-        paddocks={agistment?.paddocks}
+        paddocks={agistment?.paddocks || {
+          groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+          privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+          sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
+        }}
         isOpen={isPaddocksModalOpen}
         onClose={() => setIsPaddocksModalOpen(false)}
         onUpdate={handleAgistmentUpdate}
+        agistmentId={agistment?.id || ''}
       />
     </div>
   );

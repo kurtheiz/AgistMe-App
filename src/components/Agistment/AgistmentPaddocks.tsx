@@ -2,7 +2,10 @@ import { format, parseISO } from 'date-fns';
 import { Agistment, PaddockBase } from '../../types/agistment';
 
 interface AgistmentPaddocksProps {
-  paddocks?: Agistment['paddocks'];
+  paddocks: Agistment['paddocks'];
+  onUpdate?: (updatedFields: Partial<Agistment>) => Promise<void>;
+  isEditable?: boolean;
+  agistmentId?: string;
 }
 
 const calculateMonthlyPrice = (weeklyPrice: number) => {
@@ -45,7 +48,6 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
   if (availabilityDate) {
     availabilityDate.setHours(0, 0, 0, 0);
   }
-  const isFutureDate = availabilityDate && availabilityDate.getTime() > now.getTime();
 
   return (
     <div>
@@ -58,18 +60,22 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
         </p>
 
         {paddock.available > 0 ? (
-          <div className="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-3">
-            <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-              {paddock.available} {paddock.available === 1 ? 'spot' : 'spots'}
-            </div>
-            <div className="text-sm text-primary-700 dark:text-primary-300">
-              Available {formatAvailabilityDate(paddock.whenAvailable)}
+          <div>
+            <div className="inline-flex items-center gap-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg px-3 py-2">
+              <div className="font-bold text-primary-600 dark:text-primary-400">
+                {paddock.available} {paddock.available === 1 ? 'spot' : 'spots'}
+              </div>
+              <div className="text-primary-700 dark:text-primary-300">
+                available {formatAvailabilityDate(paddock.whenAvailable)}
+              </div>
             </div>
           </div>
         ) : (
-          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-              No spots available
+          <div>
+            <div className="inline-flex bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">
+              <div className="font-bold text-red-600 dark:text-red-400">
+                No spots available
+              </div>
             </div>
           </div>
         )}
@@ -95,11 +101,10 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
 };
 
 export const AgistmentPaddocks = ({
-  paddocks = {
-    privatePaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: undefined, totalPaddocks: 0 },
-    sharedPaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: undefined, totalPaddocks: 0 },
-    groupPaddocks: { total: 0, available: 0, weeklyPrice: 0, comments: '', whenAvailable: undefined, totalPaddocks: 0 }
-  }
+  paddocks,
+  onUpdate: _onUpdate,
+  isEditable: _isEditable,
+  agistmentId: _agistmentId
 }: AgistmentPaddocksProps) => {
   return (
     <div>

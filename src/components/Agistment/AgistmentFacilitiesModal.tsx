@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Switch } from '@headlessui/react';
-import { Agistment, FacilityBase } from '../../types/agistment';
+import { Agistment, FacilityBase, Stables, FloatParking } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
 
@@ -139,8 +139,8 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
                         {key === 'stables' && (
                           <div className="mt-2">
                             <NumberStepper
-                              value={(facility as Agistment['facilities']['stables']).quantity}
-                              onChange={(value) => updateFacility('stables', { quantity: value })}
+                              value={(facility as Stables).quantity}
+                              onChange={(value) => updateFacility('stables', { available: true, comments: facility.comments, quantity: value } as Stables)}
                               min={0}
                               label="Number of Stables"
                             />
@@ -149,8 +149,8 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
                         {key === 'floatParking' && (
                           <div className="mt-2">
                             <NumberStepper
-                              value={(facility as Agistment['facilities']['floatParking']).monthlyPrice}
-                              onChange={(value) => updateFacility('floatParking', { monthlyPrice: value })}
+                              value={(facility as FloatParking).monthlyPrice}
+                              onChange={(value) => updateFacility('floatParking', { available: true, comments: facility.comments, monthlyPrice: value } as FloatParking)}
                               min={0}
                               label="Monthly Price ($)"
                             />

@@ -14,6 +14,7 @@ interface AgistmentPhotosProps {
   onPhotosChange: (photos: { link: string; comment?: string }[]) => void;
   disabled?: boolean;
   maxPhotos?: number;
+  isEditable?: boolean;
 }
 
 interface SortablePhotoProps {
@@ -87,7 +88,8 @@ export const AgistmentPhotos = ({
   agistment,
   onPhotosChange,
   disabled = false,
-  maxPhotos = 3
+  maxPhotos = 3,
+  isEditable: _isEditable = true
 }: AgistmentPhotosProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
