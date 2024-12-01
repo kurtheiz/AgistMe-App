@@ -16,9 +16,6 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-          Care Options
-        </h2>
         {isEditable && onUpdate && (
           <button 
             className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
@@ -49,7 +46,7 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
           </div>
           {care?.selfCare?.available && care.selfCare.monthlyPrice > 0 && (
             <div className="text-neutral-700 dark:text-neutral-300">
-              (${care.selfCare.monthlyPrice}/month)
+              (<b>${care.selfCare.monthlyPrice}</b> per month)
             </div>
           )}
         </div>
@@ -80,7 +77,7 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
           </div>
           {care?.partCare?.available && care.partCare.monthlyPrice > 0 && (
             <div className="text-neutral-700 dark:text-neutral-300">
-              (${care.partCare.monthlyPrice}/month)
+              (<b>${care.partCare.monthlyPrice}</b> per month)
             </div>
           )}
         </div>
@@ -111,7 +108,7 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
           </div>
           {care?.fullCare?.available && care.fullCare.monthlyPrice > 0 && (
             <div className="text-neutral-700 dark:text-neutral-300">
-              (${care.fullCare.monthlyPrice}/month)
+              (<b>${care.fullCare.monthlyPrice}</b> per month)
             </div>
           )}
         </div>
@@ -122,15 +119,6 @@ export const AgistmentCareOptions: React.FC<AgistmentCareOptionsProps> = ({
         )}
       </div>
 
-      {!care?.selfCare?.available && !care?.partCare?.available && !care?.fullCare?.available && (
-        <div>
-          <div className="inline-flex">
-            <div className="font-bold text-red-600 dark:text-red-400">
-              No care options available
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

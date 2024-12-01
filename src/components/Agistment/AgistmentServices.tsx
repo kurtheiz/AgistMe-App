@@ -11,9 +11,7 @@ export const AgistmentServices: React.FC<AgistmentServicesProps> = ({
 }) => {
   return (
     <div className="agistment-section">
-      <div className="agistment-section-header">
-        <h2 className="agistment-section-title">Property Services</h2>
-      </div>
+      
       <div className="agistment-section-content">
         {services && services.length > 0 ? (
           <div className="flex flex-wrap gap-2">

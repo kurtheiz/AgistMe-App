@@ -123,46 +123,62 @@ export function ViewAgistmentDetail() {
               />
             </div>
 
-            {/* Paddocks Section */}
+            {/* Paddocks and Care Options Grid */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
-                Paddock Management
-              </h2>
-              <AgistmentPaddocks
-                paddocks={agistment.paddocks}
-              />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Paddocks Section */}
+                <div>
+                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                    Paddock Management
+                  </h2>
+                  <AgistmentPaddocks
+                    paddocks={agistment.paddocks}
+                  />
+                </div>
+
+                {/* Care Options Section */}
+                <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                    Care Options
+                  </h2>
+                  <AgistmentCareOptions
+                    care={agistment.care}
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Riding Facilities */}
+            {/* Riding Facilities and Property Facilities Grid */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
-                Riding Facilities
-              </h2>
-              <AgistmentRidingFacilities
-                ridingFacilities={agistment.ridingFacilities}
-                isEditable={false}
-              />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Riding Facilities Section */}
+                <div>
+                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                    Riding Facilities
+                  </h2>
+                  <AgistmentRidingFacilities
+                    ridingFacilities={agistment.ridingFacilities}
+                    isEditable={false}
+                  />
+                </div>
+
+                {/* Property Facilities Section */}
+                <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                    Property Facilities
+                  </h2>
+                  <AgistmentFacilities
+                    facilities={agistment.facilities}
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Facilities */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
-                Property Facilities
-              </h2>
-              <AgistmentFacilities
-                facilities={agistment.facilities}
-              />
-            </div>
-
-            {/* Care Options */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <AgistmentCareOptions
-                care={agistment.care}
-              />
-            </div>
-
-            {/* Services */}
+            {/* Services Section */}
             <div>
+              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                Services
+              </h2>
               <AgistmentServices
                 services={agistment.propertyServices.services}
               />

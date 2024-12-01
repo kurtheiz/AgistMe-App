@@ -21,7 +21,7 @@ const formatAvailabilityDate = (whenAvailable: Date | undefined | null) => {
   const now = new Date();
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  
+
   // Reset hours to compare just the dates
   now.setHours(0, 0, 0, 0);
   tomorrow.setHours(0, 0, 0, 0);
@@ -40,7 +40,7 @@ const formatAvailabilityDate = (whenAvailable: Date | undefined | null) => {
 
 const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
   if (!paddock.total) return null;
-  
+
   const monthlyPrice = calculateMonthlyPrice(paddock.weeklyPrice);
   const now = new Date();
   now.setHours(0, 0, 0, 0);
@@ -51,47 +51,44 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
 
   return (
     <div>
-      <h3 className="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-3">
-        {type} Paddocks
-      </h3>
       <div className="space-y-3">
-        <p className="text-neutral-700 dark:text-neutral-300">
-          This property offers <span className="font-semibold text-neutral-900 dark:text-neutral-100">{paddock.totalPaddocks}</span> {type.toLowerCase()} {paddock.totalPaddocks === 1 ? 'paddock' : 'paddocks'} that can accommodate up to <span className="font-semibold text-neutral-900 dark:text-neutral-100">{paddock.total}</span> horses.
+        <p className="text-neutral-700">
+          This property offers <span className="font-semibold text-neutral-900">{paddock.totalPaddocks}</span> {type.toLowerCase()} {paddock.totalPaddocks === 1 ? 'paddock' : 'paddocks'} that can accommodate up to <span className="font-semibold text-neutral-900">{paddock.total}</span> horses.
         </p>
 
         {paddock.available > 0 ? (
           <div>
-            <div className="inline-flex items-center gap-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg px-3 py-2">
-              <div className="font-bold text-primary-600 dark:text-primary-400">
+            <div className="inline-flex items-center gap-2 bg-primary-50 rounded-lg px-3 py-2">
+              <div className="font-bold text-primary-600">
                 {paddock.available} {paddock.available === 1 ? 'spot' : 'spots'}
               </div>
-              <div className="text-primary-700 dark:text-primary-300">
+              <div className="text-primary-700">
                 available {formatAvailabilityDate(paddock.whenAvailable)}
               </div>
             </div>
           </div>
         ) : (
           <div>
-            <div className="inline-flex bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">
-              <div className="font-bold text-red-600 dark:text-red-400">
+            <div className="inline-flex bg-red-50 rounded-lg px-3 py-2">
+              <div className="font-bold text-red-600">
                 No spots available
               </div>
             </div>
           </div>
         )}
-        
-        <p className="text-neutral-700 dark:text-neutral-300">
+
+        <p className="text-neutral-700">
           {paddock.weeklyPrice === 0 ? (
             <>Please contact us for pricing details.</>
           ) : (
             <>
-              Agistment is <span className="font-semibold text-neutral-900 dark:text-neutral-100">${paddock.weeklyPrice}</span> per week per horse (approximately <span className="font-semibold text-neutral-900 dark:text-neutral-100">${monthlyPrice}</span> per month).
+              Agistment is <span className="font-semibold text-neutral-900">${paddock.weeklyPrice}</span> per week per horse (approximately <span className="font-semibold text-neutral-900">${monthlyPrice}</span> per month).
             </>
           )}
         </p>
-        
+
         {paddock.comments && (
-          <p className="text-neutral-700 dark:text-neutral-300">
+          <p className="text-neutral-700">
             {paddock.comments}
           </p>
         )}
@@ -111,41 +108,66 @@ export const AgistmentPaddocks = ({
       <div className="grid grid-cols-1 gap-4">
         {/* Private Paddocks */}
         <div>
-          {paddocks?.privatePaddocks?.total > 0 ? (
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-base font-medium text-neutral-900">
+              Private Paddocks
+            </h3>
+            {!paddocks?.privatePaddocks?.total && (
+              <div className="inline-flex bg-red-50 rounded-full px-2 py-0.5">
+                <div className="text-sm text-red-600">
+                  Unavailable
+                </div>
+              </div>
+            )}
+          </div>
+          {paddocks?.privatePaddocks?.total > 0 && (
             <div className="rounded-lg">
               {formatPaddockInfo(paddocks.privatePaddocks, "Private")}
             </div>
-          ) : (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">This property does not offer private paddock arrangements.</p>
           )}
         </div>
 
         {/* Shared Paddocks */}
         <div>
-          {paddocks?.sharedPaddocks?.total > 0 ? (
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-base font-medium text-neutral-900">
+              Shared Paddocks
+            </h3>
+            {!paddocks?.sharedPaddocks?.total && (
+              <div className="inline-flex bg-red-50 rounded-full px-2 py-0.5">
+                <div className="text-sm text-red-600">
+                  Unavailable
+                </div>
+              </div>
+            )}
+          </div>
+          {paddocks?.sharedPaddocks?.total > 0 && (
             <div className="rounded-lg">
               {formatPaddockInfo(paddocks.sharedPaddocks, "Shared")}
             </div>
-          ) : (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">This property does not offer shared paddock arrangements.</p>
           )}
         </div>
 
         {/* Group Paddocks */}
         <div>
-          {paddocks?.groupPaddocks?.total > 0 ? (
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-base font-medium text-neutral-900">
+              Group Paddocks
+            </h3>
+            {!paddocks?.groupPaddocks?.total && (
+              <div className="inline-flex bg-red-50 rounded-full px-2 py-0.5">
+                <div className="text-sm text-red-600">
+                  Unavailable
+                </div>
+              </div>
+            )}
+          </div>
+          {paddocks?.groupPaddocks?.total > 0 && (
             <div className="rounded-lg">
               {formatPaddockInfo(paddocks.groupPaddocks, "Group")}
             </div>
-          ) : (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">This property does not offer group paddock arrangements.</p>
           )}
         </div>
-
-        {/* Show if no paddocks at all are offered */}
-        {!paddocks?.privatePaddocks?.total && !paddocks?.sharedPaddocks?.total && !paddocks?.groupPaddocks?.total && (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">This property is not currently offering any paddock arrangements.</p>
-        )}
       </div>
     </div>
   );

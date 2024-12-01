@@ -47,6 +47,11 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {!isAvailable && (
+                  <div className="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">
+                    Unavailable
+                  </div>
+                )}
                 {key === 'stables' && facility && 'quantity' in facility && facility.quantity > 0 && (
                   <div className="text-neutral-700 dark:text-neutral-300">
                     ({facility.quantity} {facility.quantity === 1 ? 'stable' : 'stables'})
@@ -54,7 +59,7 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
                 )}
                 {key === 'floatParking' && facility && 'monthlyPrice' in facility && typeof facility.monthlyPrice === 'number' && facility.monthlyPrice > 0 && (
                   <div className="text-neutral-700 dark:text-neutral-300">
-                    (${facility.monthlyPrice}/month)
+                    (<b>${facility.monthlyPrice}</b> per month)
                   </div>
                 )}
               </div>
