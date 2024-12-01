@@ -59,7 +59,7 @@ export function Agistments() {
   // Helper function to format location
   const formatLocation = (suburb: string, region: string, state: string) => {
     if (suburb && region && state) {
-      return `${suburb}, ${region}, ${state}`;
+      return `${suburb}, ${state}`;
     } else if (region && state) {
       return `${region}, ${state}`;
     } else if (state) {
@@ -241,7 +241,7 @@ export function Agistments() {
           </div>
         }
       />
-      <div className="flex-grow max-w-7xl mx-auto w-full px-0 sm:px-6 lg:px-8 py-4">
+      <div className="flex-grow max-w-7xl mx-auto w-full pt-4">
         <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50' : 'opacity-100'}`}>
           {isFetching ? (
             <div className="flex justify-center items-center min-h-[400px]">
@@ -249,15 +249,17 @@ export function Agistments() {
             </div>
           ) : originalAgistments && originalAgistments.length > 0 ? (
             <div>
-              <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">
+              <h2 className="text-base font-medium text-neutral-900 dark:text-white mb-4 px-4 sm:px-6">
                 {originalAgistments.length === 1
                   ? `1 agistment found in ${getLocationsText()}`
                   : `${originalAgistments.length} agistments found in ${getLocationsText()}`}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {originalAgistments.map((agistment) => (
-                  <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
-                ))}
+              <div className="px-0 sm:px-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {originalAgistments.map((agistment) => (
+                    <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
@@ -266,15 +268,17 @@ export function Agistments() {
 
           {adjacentAgistments.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-base text-neutral-600 dark:text-neutral-400 mb-4">
+              <h2 className="text-base font-medium text-neutral-600 dark:text-neutral-400 mb-4 px-4 sm:px-6">
                 {adjacentAgistments.length === 1
                   ? "1 agistment found in other locations"
                   : `${adjacentAgistments.length} agistments found in other locations`}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {adjacentAgistments.map((agistment) => (
-                  <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
-                ))}
+              <div className="px-0 sm:px-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {adjacentAgistments.map((agistment) => (
+                    <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
+                  ))}
+                </div>
               </div>
             </div>
           )}
