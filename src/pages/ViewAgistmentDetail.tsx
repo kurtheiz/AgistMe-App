@@ -106,52 +106,29 @@ export function ViewAgistmentDetail() {
       />
 
       <div className="w-full">
-        {/* Photo Gallery and Location Details Section */}
-        <div className="w-full bg-neutral-100 dark:bg-neutral-800">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row">
-              {/* Photo Gallery - 66% width on desktop */}
-              <div className="w-full lg:w-2/3 px-4">
-                <AgistmentPhotosView photos={agistment.photoGallery?.photos || []} />
-              </div>
-
-              {/* Location Details - 33% width on desktop */}
-              <div className="w-full lg:w-1/3 px-4 pt-4">
-                {/* Share and Favorite Buttons */}
-                <div className="mb-6">
-                  <ShareFavoriteButtons
-                    agistmentId={agistment.id}
-                    shareDescription={`Check out this property on AgistMe: ${agistment.basicInfo.name} in ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.region}, ${agistment.propertyLocation.location.state}`}
-                  />
-                </div>
-
-                <AgistmentHeader
-                  agistmentId={agistment.id}
-                  basicInfo={agistment.basicInfo}
-                  location={agistment.propertyLocation.location}
-                  contactDetails={agistment.contact}
-                  isEditable={false}
-                  showEnquireButton={true}
-                />
-              </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col space-y-8 p-4">
+            {/* Photo Gallery Section */}
+            <div className="w-full">
+              <AgistmentPhotosView
+                photos={agistment.photoGallery?.photos || []}
+              />
             </div>
-          </div>
-        </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 sm:py-4">
-          {/* Description Section */}
-          <div className="space-y-4 p-4">
-            <AgistmentDescription
-              agistmentId={agistment.id}
-              description={agistment.propertyDescription.description}
-              isEditable={false}
+            {/* Header Section */}
+            <AgistmentHeader
+              basicInfo={agistment.basicInfo}
+              propertyLocation={agistment.propertyLocation.location}
+              contactDetails={agistment.contact}
+              propertyDescription={agistment.propertyDescription}
             />
 
-            {/* Paddocks */}
+            {/* Paddocks Section */}
             <AgistmentPaddocks
               paddocks={agistment.paddocks}
-              isEditable={false}
             />
+
+
 
             {/* Riding Facilities */}
             <AgistmentRidingFacilities

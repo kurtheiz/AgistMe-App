@@ -27,7 +27,6 @@ interface Props {
 }
 
 export const AgistmentPaddocksModal = ({
-  agistmentId,
   paddocks,
   isOpen,
   onClose,

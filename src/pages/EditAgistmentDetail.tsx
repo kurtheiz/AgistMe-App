@@ -326,9 +326,8 @@ function EditAgistmentDetail() {
       </div>
       {/* Header Edit Modal */}
       <AgistmentHeaderModal
-        agistmentId={agistment.id}
         basicInfo={agistment.basicInfo}
-        location={agistment.propertyLocation.location}
+        propertyLocation={agistment.propertyLocation}
         contactDetails={agistment.contact}
         propertyDescription={agistment.propertyDescription}
         isOpen={isHeaderModalOpen}
@@ -339,7 +338,6 @@ function EditAgistmentDetail() {
       />
       {/* Paddocks Modal */}
       <AgistmentPaddocksModal
-        agistmentId={agistment.id}
         paddocks={agistment.paddocks}
         isOpen={isPaddocksModalOpen}
         onClose={() => setIsPaddocksModalOpen(false)}

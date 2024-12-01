@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Modal } from '../shared/Modal';
-import { Agistment, AgistmentContact, Location, AgistmentBasicInfo, AgistmentDescription } from '../../types/agistment';
+import { Agistment, AgistmentContact, AgistmentPropertyLocation, AgistmentBasicInfo, AgistmentDescription } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
 import { Suburb } from '../../types/suburb';
 import NumberStepper from '../shared/NumberStepper';
 
 interface Props {
-  agistmentId: string;
   basicInfo: AgistmentBasicInfo;
-  location: Location;
+  propertyLocation: AgistmentPropertyLocation;
   contactDetails: AgistmentContact;
-  propertyDescription: AgistmentDescription;
+  propertyDescription?: AgistmentDescription;
   isOpen: boolean;
   onClose: () => void;
   onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
@@ -34,7 +33,7 @@ interface EditForm {
 
 export const AgistmentHeaderModal = ({
   basicInfo,
-  location,
+  propertyLocation,
   contactDetails,
   propertyDescription,
   isOpen,
@@ -44,11 +43,11 @@ export const AgistmentHeaderModal = ({
   const [editForm, setEditForm] = useState<EditForm>({
     propertyName: basicInfo.name,
     propertySize: basicInfo.propertySize,
-    address: location.address,
-    suburb: location.suburb,
-    state: location.state,
-    postcode: location.postcode,
-    region: location.region,
+    address: propertyLocation.location.address,
+    suburb: propertyLocation.location.suburb,
+    state: propertyLocation.location.state,
+    postcode: propertyLocation.location.postcode,
+    region: propertyLocation.location.region,
     contactName: contactDetails.contactDetails.name,
     contactEmail: contactDetails.contactDetails.email,
     contactNumber: contactDetails.contactDetails.number,
@@ -247,7 +246,6 @@ export const AgistmentHeaderModal = ({
                 <SuburbSearch
                   selectedSuburbs={selectedSuburbs}
                   onSuburbsChange={handleSuburbChange}
-                  maxSelections={1}
                   multiple={false}
                 />
                 {errors.location && (
