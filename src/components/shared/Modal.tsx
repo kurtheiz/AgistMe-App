@@ -10,7 +10,7 @@ export interface ModalProps {
   headerContent?: ReactNode;
   footerContent?: ReactNode | (({ isUpdating }: { isUpdating: boolean }) => ReactNode);
   showCloseButton?: boolean;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'wide' | 'full';
   slideFrom?: 'left' | 'right' | 'top' | 'bottom';
   contentHash?: string;
   onDirtyChange?: (isDirty: boolean) => void;
@@ -22,6 +22,7 @@ const sizeClasses = {
   md: 'md:max-w-md',
   lg: 'md:max-w-lg',
   xl: 'md:max-w-xl',
+  wide: 'md:max-w-3xl',
   full: 'md:max-w-full'
 };
 
@@ -139,12 +140,12 @@ export function Modal({
               }
             >
               <Dialog.Panel 
-                className={`modal-panel w-full ${sizeClasses[size]} transform h-[100dvh] md:h-auto md:max-h-[85vh] md:rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
+                className={`modal-panel w-full ${sizeClasses[size]} transform h-[100dvh] md:h-auto md:max-h-[85vh] rounded-none md:rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
               >
                 <div className="flex flex-col h-full md:max-h-[85vh]">
                   {/* Header */}
                   {(title || headerContent || showCloseButton) && (
-                    <div className="flex-none bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700 md:rounded-t-2xl">
+                    <div className="flex-none bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700 rounded-none md:rounded-t-2xl">
                       <div className="flex items-center justify-between p-4">
                         {title && (
                           <Dialog.Title as="h3" className="text-lg font-medium text-white">

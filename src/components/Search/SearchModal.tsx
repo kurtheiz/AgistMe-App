@@ -197,9 +197,9 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
   };
 
   const modalContent = (
-    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="space-y-4">
+    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="space-y-4 p-4 sm:p-6">
       {/* Location Section */}
-      <div className="space-y-3">
+      <div className="space-y-4 sm:space-y-6">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Location</h2>
 
         {/* Location Search */}
@@ -214,12 +214,18 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
             </label>
             <SuburbSearch
               selectedSuburbs={searchCriteria.suburbs}
-              onSuburbsChange={(suburbs) => setSearchCriteria(prev => ({ ...prev, suburbs }))}
+              onSuburbsChange={(suburbs) => {
+                setSearchCriteria(prev => ({ 
+                  ...prev, 
+                  suburbs,
+                  radius: 0 // Always set to 0 when suburbs change
+                }));
+              }}
             />
           </div>
 
           {/* Radius */}
-          <div>
+          <div className="pb-6 border-b border-neutral-200 dark:border-neutral-700">
             <div className="flex justify-between items-center mb-1">
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 Radius
@@ -232,7 +238,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               type="range"
               min="0"
               max="50"
-              value={!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 0 : searchCriteria.radius}
+              value={searchCriteria.radius}
               disabled={!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)}
               onChange={(e) => {
                 const hasSuburb = searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB);
@@ -241,7 +247,12 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                   radius: hasSuburb ? parseInt(e.target.value) : 0 
                 }));
               }}
-              className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer ${!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 'opacity-50 cursor-not-allowed' : ''
+              className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer 
+                ${!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)
+                    ? 'accent-primary-600 dark:accent-primary-500'
+                    : ''
                 }`}
             />
             <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
@@ -255,11 +266,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="h-2 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700" />
-
       {/* Filters Section */}
-      <div className="space-y-3">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Filters</h2>
           <button
@@ -292,11 +300,11 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
             Reset Filters
           </button>
         </div>
-        <div className="space-y-4">
-          {/* Number of Spaces */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Number of Horses */}
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Number of spaces
+              Number of Horses
             </label>
             <NumberStepper
               value={searchCriteria.spaces}
@@ -326,8 +334,10 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               disabled={searchCriteria.suburbs.length === 0}
               value={searchCriteria.maxPrice}
               onChange={(e) => setSearchCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
-              className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                }`}
+              className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'cursor-pointer accent-primary-600 dark:accent-primary-500'
+              }`}
             />
             <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
               <span>Any</span>
@@ -335,19 +345,78 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
             </div>
           </div>
 
-          {/* Paddock Types */}
+          {/* Paddock Types and Riding Facilities */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Paddock Types */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                Paddock Types
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    disabled={searchCriteria.suburbs.length === 0}
+                    onClick={() => togglePaddockType(type)}
+                    className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.paddockTypes.includes(type)
+                        ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                        : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                      } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Riding Facilities */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                Riding Facilities
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  disabled={searchCriteria.suburbs.length === 0}
+                  onClick={toggleArena}
+                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.hasArena
+                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                    } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <ArenaIcon className="h-5 w-5" />
+                  Arena
+                </button>
+                <button
+                  type="button"
+                  disabled={searchCriteria.suburbs.length === 0}
+                  onClick={toggleRoundYard}
+                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.hasRoundYard
+                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
+                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                    } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <RoundYardIcon className="h-5 w-5" />
+                  Round Yard
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Care Types */}
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Paddock Types
+              Care Types
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
+              {(['Full Care', 'Part Care', 'Self Care'] as CareType[]).map((type) => (
                 <button
                   key={type}
                   type="button"
                   disabled={searchCriteria.suburbs.length === 0}
-                  onClick={() => togglePaddockType(type)}
-                  className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.paddockTypes.includes(type)
+                  onClick={() => toggleCareType(type)}
+                  className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.careTypes.includes(type)
                       ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
                       : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
                     } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -355,39 +424,6 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                   {type}
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* Arena and Round Yard */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Riding Facilities
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                disabled={searchCriteria.suburbs.length === 0}
-                onClick={toggleArena}
-                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.hasArena
-                    ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                  } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-              >
-                <ArenaIcon className="h-5 w-5" />
-                Arena
-              </button>
-              <button
-                type="button"
-                disabled={searchCriteria.suburbs.length === 0}
-                onClick={toggleRoundYard}
-                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.hasRoundYard
-                    ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                  } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-              >
-                <RoundYardIcon className="h-5 w-5" />
-                Round Yard
-              </button>
             </div>
           </div>
 
@@ -421,29 +457,6 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               ))}
             </div>
           </div>
-
-          {/* Care Types */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Care Types
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  disabled={searchCriteria.suburbs.length === 0}
-                  onClick={() => toggleCareType(type)}
-                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.careTypes.includes(type)
-                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
-                    } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </form>
@@ -468,8 +481,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Search Agistment"
-      size="md"
+      title="Search"
+      size="wide"
       slideFrom="left"
       footerContent={footerContent}
       isUpdating={false}

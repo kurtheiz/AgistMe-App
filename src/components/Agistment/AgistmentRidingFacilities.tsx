@@ -104,6 +104,11 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
           </div>
         </div>
       </div>
+      {(ridingFacilities.arenas.length > 0 || ridingFacilities.roundYards.length > 0) && (
+        <p className="text-xs text-neutral-500 mt-4 text-center italic">
+          * Diagrams are indicative only and not to scale
+        </p>
+      )}
     </div>
   );
 };
