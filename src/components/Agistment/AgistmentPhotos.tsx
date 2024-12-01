@@ -51,6 +51,13 @@ const SortablePhoto = ({ photo, index, disabled, onRemove, onCommentEdit }: Sort
             alt={photo.comment || `Property photo ${index + 1}`}
             className="w-full h-full object-cover"
           />
+          {index === 0 && (
+            <div className="absolute top-2 left-2">
+              <span className="px-2 py-1 bg-primary-500 text-white text-xs font-medium rounded shadow-sm">
+                Main Photo
+              </span>
+            </div>
+          )}
           {!disabled && (
             <div className="absolute bottom-2 right-2">
               <button

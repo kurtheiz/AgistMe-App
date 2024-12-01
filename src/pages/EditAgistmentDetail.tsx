@@ -232,65 +232,59 @@ function EditAgistmentDetail() {
       </div>
 
       <div className="w-full">
-        {/* Photo Gallery and Location Details Section */}
-        <div className="w-full bg-neutral-100 dark:bg-neutral-800">
-          <div className="max-w-7xl mx-auto px-4 relative">
-            <div className="w-full">
-              {/* Photo Gallery - Full width */}
-              <div className="w-full">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">Photos</h3>
-                  <span className="text-sm text-neutral-500 dark:text-neutral-400">
-                    {agistment?.photoGallery?.photos?.length || 0} of {maxPhotos} photos
-                  </span>
-                </div>
-                <AgistmentPhotos
-                  agistment={agistment || {
-                    id: '',
-                    status: 'DRAFT',
-                    basicInfo: { name: '', propertySize: 0 },
-                    photoGallery: { photos: [] },
-                    propertyLocation: { location: { address: '', suburb: '', state: '', postcode: '', region: '' } },
-                    contact: { contactDetails: { name: '', email: '', number: '' } },
-                    propertyDescription: { description: '' },
-                    facilities: {
-                      feedRoom: { available: false, comments: '' },
-                      floatParking: { available: false, comments: '', monthlyPrice: 0 },
-                      hotWash: { available: false, comments: '' },
-                      tackRoom: { available: false, comments: '' },
-                      tieUp: { available: false, comments: '' },
-                      stables: { available: false, comments: '', quantity: 0 }
-                    },
-                    visibility: { hidden: true },
-                    ridingFacilities: { arenas: [], roundYards: [] },
-                    paddocks: {
-                      groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-                      privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-                      sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
-                    },
-                    propertyServices: { services: [] },
-                    care: {
-                      fullCare: { available: false, comments: '', monthlyPrice: 0 },
-                      partCare: { available: false, comments: '', monthlyPrice: 0 },
-                      selfCare: { available: false, comments: '', monthlyPrice: 0 }
-                    },
-                    socialMedia: [],
-                    urgentAvailability: false,
-                    paddockTypes: [],
-                    listing: { listingType: 'STANDARD' }
-                  }}
-                  maxPhotos={maxPhotos}
-                  onPhotosChange={handlePhotoGalleryUpdate}
-                  isEditable={true}
-                />
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col space-y-8 p-4">
+            {/* Photo Gallery Section */}
+            <div className="w-full border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">Photos</h3>
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                  {agistment?.photoGallery?.photos?.length || 0} of {maxPhotos} photos
+                </span>
               </div>
+              <AgistmentPhotos
+                agistment={agistment || {
+                  id: '',
+                  status: 'DRAFT',
+                  basicInfo: { name: '', propertySize: 0 },
+                  photoGallery: { photos: [] },
+                  propertyLocation: { location: { address: '', suburb: '', state: '', postcode: '', region: '' } },
+                  contact: { contactDetails: { name: '', email: '', number: '' } },
+                  propertyDescription: { description: '' },
+                  facilities: {
+                    feedRoom: { available: false, comments: '' },
+                    floatParking: { available: false, comments: '', monthlyPrice: 0 },
+                    hotWash: { available: false, comments: '' },
+                    tackRoom: { available: false, comments: '' },
+                    tieUp: { available: false, comments: '' },
+                    stables: { available: false, comments: '', quantity: 0 }
+                  },
+                  visibility: { hidden: true },
+                  ridingFacilities: { arenas: [], roundYards: [] },
+                  paddocks: {
+                    groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+                    privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+                    sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
+                  },
+                  propertyServices: { services: [] },
+                  care: {
+                    fullCare: { available: false, comments: '', monthlyPrice: 0 },
+                    partCare: { available: false, comments: '', monthlyPrice: 0 },
+                    selfCare: { available: false, comments: '', monthlyPrice: 0 }
+                  },
+                  socialMedia: [],
+                  urgentAvailability: false,
+                  paddockTypes: [],
+                  listing: { listingType: 'STANDARD' }
+                }}
+                maxPhotos={maxPhotos}
+                onPhotosChange={handlePhotoGalleryUpdate}
+                isEditable={true}
+              />
             </div>
-          </div>
-        </div>
 
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="divide-y divide-neutral-200 dark:divide-neutral-700">
-            <div className="py-6">
+            {/* Header Section */}
+            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <div className="mb-4">
                 <button
                   onClick={() => setIsHeaderModalOpen(true)}
@@ -308,65 +302,94 @@ function EditAgistmentDetail() {
               />
             </div>
 
-            <div className="py-6">
-              <div className="mb-4">
-                <button
-                  onClick={() => setIsPaddocksModalOpen(true)}
-                  className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit
-                </button>
+            {/* Paddocks and Care Options Grid */}
+            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Paddocks Section */}
+                <div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">
+                      Paddock Management
+                    </h2>
+                    <button
+                      onClick={() => setIsPaddocksModalOpen(true)}
+                      className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </button>
+                  </div>
+                  <AgistmentPaddocks
+                    paddocks={agistment?.paddocks || {
+                      groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+                      privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
+                      sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
+                    }}
+                    onUpdate={handleAgistmentUpdate}
+                    isEditable={true}
+                    agistmentId={agistment?.id || ''}
+                  />
+                </div>
+
+                {/* Care Options Section */}
+                <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                    Care Options
+                  </h2>
+                  <AgistmentCareOptions
+                    care={agistment?.care || {
+                      fullCare: { available: false, comments: '', monthlyPrice: 0 },
+                      partCare: { available: false, comments: '', monthlyPrice: 0 },
+                      selfCare: { available: false, comments: '', monthlyPrice: 0 }
+                    }}
+                    isEditable={true}
+                    onUpdate={handleAgistmentUpdate}
+                  />
+                </div>
               </div>
-              <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">Our paddocks and space availability</h2>
-              <AgistmentPaddocks
-                paddocks={{
-                  groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-                  privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-                  sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
-                }}
-                onUpdate={handleAgistmentUpdate}
-                isEditable={true}
-                agistmentId={agistment?.id || ''}
-              />
             </div>
 
-            <div className="py-6">
-              <AgistmentRidingFacilities
-                ridingFacilities={agistment?.ridingFacilities || { arenas: [], roundYards: [] }}
-                isEditable={true}
-                onUpdate={handleAgistmentUpdate}
-              />
+            {/* Riding Facilities and Property Facilities Grid */}
+            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Riding Facilities Section */}
+                <div>
+                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                    Riding Facilities
+                  </h2>
+                  <AgistmentRidingFacilities
+                    ridingFacilities={agistment?.ridingFacilities || { arenas: [], roundYards: [] }}
+                    isEditable={true}
+                    onUpdate={handleAgistmentUpdate}
+                  />
+                </div>
+
+                {/* Property Facilities Section */}
+                <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                    Property Facilities
+                  </h2>
+                  <AgistmentFacilities
+                    facilities={agistment?.facilities || {
+                      feedRoom: { available: false, comments: '' },
+                      floatParking: { available: false, comments: '', monthlyPrice: 0 },
+                      hotWash: { available: false, comments: '' },
+                      tackRoom: { available: false, comments: '' },
+                      tieUp: { available: false, comments: '' },
+                      stables: { available: false, comments: '', quantity: 0 }
+                    }}
+                    isEditable={true}
+                    onUpdate={handleAgistmentUpdate}
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="py-6">
-              <AgistmentFacilities
-                facilities={agistment?.facilities || {
-                  feedRoom: { available: false, comments: '' },
-                  floatParking: { available: false, comments: '', monthlyPrice: 0 },
-                  hotWash: { available: false, comments: '' },
-                  tackRoom: { available: false, comments: '' },
-                  tieUp: { available: false, comments: '' },
-                  stables: { available: false, comments: '', quantity: 0 }
-                }}
-                isEditable={true}
-                onUpdate={handleAgistmentUpdate}
-              />
-            </div>
-
-            <div className="py-6">
-              <AgistmentCareOptions
-                care={agistment?.care || {
-                  fullCare: { available: false, comments: '', monthlyPrice: 0 },
-                  partCare: { available: false, comments: '', monthlyPrice: 0 },
-                  selfCare: { available: false, comments: '', monthlyPrice: 0 }
-                }}
-                isEditable={true}
-                onUpdate={handleAgistmentUpdate}
-              />
-            </div>
-
-            <div className="py-6">
+            {/* Services Section */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                Services
+              </h2>
               <AgistmentServices
                 services={agistment?.propertyServices?.services || []}
                 isEditable={true}
@@ -376,7 +399,8 @@ function EditAgistmentDetail() {
           </div>
         </div>
       </div>
-      {/* Header Edit Modal */}
+
+      {/* Modals */}
       <AgistmentHeaderModal
         basicInfo={agistment?.basicInfo}
         propertyLocation={agistment?.propertyLocation}
@@ -388,7 +412,6 @@ function EditAgistmentDetail() {
           handleAgistmentUpdate(updatedAgistment);
         }}
       />
-      {/* Paddocks Modal */}
       <AgistmentPaddocksModal
         paddocks={agistment?.paddocks || {
           groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
