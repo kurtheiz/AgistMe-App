@@ -3,10 +3,15 @@ import { Modal } from '../shared/Modal';
 import { Agistment } from '../../types/agistment';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-import { Loader2, Plus, Trash2, X } from 'lucide-react';
+import { Loader2, Plus, Trash2, X, Save } from 'lucide-react';
 import { ArenaDiagram } from './ArenaDiagram';
 import { RoundYardDiagram } from './RoundYardDiagram';
 import NumberStepper from '../shared/NumberStepper';
+import toast from 'react-hot-toast';
+
+const calculateHash = (obj: any): string => {
+  return JSON.stringify(obj);
+};
 
 interface Props {
   agistmentId: string;
@@ -35,7 +40,6 @@ export const AgistmentRidingFacilitiesModal = ({
   onUpdate
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [isDirty, setIsDirty] = useState(false);
   const [editForm, setEditForm] = useState({
     arenas: ridingFacilities.arenas?.map(arena => ({
       length: arena.length || 0,
@@ -48,7 +52,9 @@ export const AgistmentRidingFacilitiesModal = ({
       comments: yard.comments || ''
     })) || []
   });
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [initialHash, setInitialHash] = useState<string>('');
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -64,15 +70,37 @@ export const AgistmentRidingFacilitiesModal = ({
           comments: yard.comments || ''
         })) || []
       });
+      setInitialHash(calculateHash(editForm));
       setIsDirty(false);
       setSelectedTab(0);
     }
   }, [isOpen, ridingFacilities]);
 
+  useEffect(() => {
+    const currentHash = calculateHash(editForm);
+    setIsDirty(currentHash !== initialHash);
+  }, [editForm, initialHash]);
+
+  const handleClose = () => {
+    setEditForm({
+      arenas: ridingFacilities.arenas?.map(arena => ({
+        length: arena.length || 0,
+        width: arena.width || 0,
+        comments: arena.comments || '',
+        features: arena.features || []
+      })) || [],
+      roundYards: ridingFacilities.roundYards?.map(yard => ({
+        diameter: yard.diameter || 0,
+        comments: yard.comments || ''
+      })) || []
+    });
+    setInitialHash(calculateHash(editForm));
+    setIsDirty(false);
+    onClose();
+  };
+
   const handleUpdateFacilities = async () => {
-    if (!isDirty) return;
-    setIsUpdating(true);
-    
+    setIsSaving(true);
     try {
       if (onUpdate) {
         await onUpdate({
@@ -85,8 +113,9 @@ export const AgistmentRidingFacilitiesModal = ({
       onClose();
     } catch (error) {
       console.error('Failed to update riding facilities:', error);
+      toast.error('Failed to update riding facilities');
     } finally {
-      setIsUpdating(false);
+      setIsSaving(false);
     }
   };
 
@@ -174,39 +203,12 @@ export const AgistmentRidingFacilitiesModal = ({
     <Modal
       title="Edit Riding Facilities"
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       size="lg"
-      contentHash={JSON.stringify(editForm)}
-      onDirtyChange={setIsDirty}
-      isUpdating={isUpdating}
-      footerContent={({ isUpdating }) => (
-        <div className="flex w-full gap-2">
-          <button
-            onClick={onClose}
-            className="w-1/3 px-4 py-2.5 text-sm font-medium rounded-md text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleUpdateFacilities}
-            disabled={!isDirty || isUpdating}
-            className={`w-2/3 px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
-              !isDirty || isUpdating
-                ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
-                : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
-            }`}
-          >
-            {isUpdating ? (
-              <>
-                <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              'Save Changes'
-            )}
-          </button>
-        </div>
-      )}
+      isUpdating={isSaving}
+      actionIcon={<Save className="h-5 w-5" />}
+      onAction={handleUpdateFacilities}
+      isDirty={isDirty}
     >
       <div className="h-[800px] overflow-y-auto">
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>

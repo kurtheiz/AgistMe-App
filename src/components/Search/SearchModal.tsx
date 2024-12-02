@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
-import { SearchCriteria, PaddockType, CareType, FacilityType } from '../../types/search';
+import { SearchCriteria } from '../../types/search';
 import { LocationType } from '../../types/suburb';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -12,11 +12,12 @@ import {
   FloatParkingIcon,
   HotWashIcon,
   StableIcon,
-  TieUpIcon
+  TieUpIcon,
+  SearchIcon
 } from '../Icons';
 import NumberStepper from '../shared/NumberStepper';
 
-const initialFacilities: FacilityType[] = [];
+const initialFacilities = [];
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
   const location = useLocation();
   const navigate = useNavigate();
   const searchHash = searchParams.get('q') || initialSearchHash;
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({
     suburbs: [],
@@ -106,7 +108,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }
   }, [searchHash, isOpen]);
 
-  const togglePaddockType = (type: PaddockType) => {
+  const togglePaddockType = (type: string) => {
     setSearchCriteria(prev => ({
       ...prev,
       paddockTypes: prev.paddockTypes.includes(type)
@@ -115,7 +117,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }));
   };
 
-  const toggleCareType = (type: CareType) => {
+  const toggleCareType = (type: string) => {
     setSearchCriteria(prev => ({
       ...prev,
       careTypes: prev.careTypes.includes(type)
@@ -124,7 +126,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }));
   };
 
-  const toggleFacility = (facility: FacilityType) => {
+  const toggleFacility = (facility: string) => {
     setSearchCriteria(prev => ({
       ...prev,
       facilities: prev.facilities.includes(facility)
@@ -161,8 +163,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
   };
 
   const handleSearch = () => {
-    // Create the search hash
-    const searchData = {
+    const searchHash = btoa(JSON.stringify({
       s: searchCriteria.suburbs.map(s => ({
         i: s.id,
         n: s.suburb,
@@ -180,19 +181,9 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
       ry: searchCriteria.hasRoundYard,
       f: searchCriteria.facilities,
       ct: searchCriteria.careTypes
-    };
+    }));
 
-    const hash = btoa(JSON.stringify(searchData));
-
-    // If not on agistments page, navigate there
-    if (!location.pathname.includes('/agistments')) {
-      navigate(`/agistments/search?q=${hash}`);
-    } else {
-      // Update URL without navigation if already on agistments page
-      navigate(`?q=${hash}`, { replace: true });
-    }
-
-    onSearch({ ...searchCriteria, searchHash: hash });
+    onSearch({ ...searchCriteria, searchHash });
     onClose();
   };
 
@@ -218,7 +209,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                 setSearchCriteria(prev => ({ 
                   ...prev, 
                   suburbs,
-                  radius: 0 // Always set to 0 when suburbs change
+                  radius: 0 
                 }));
               }}
             />
@@ -277,15 +268,13 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               e.stopPropagation();
               resetFilters();
             }}
-            disabled={
-              searchCriteria.spaces === 0 &&
+            disabled={searchCriteria.spaces === 0 &&
               searchCriteria.maxPrice === 0 &&
               searchCriteria.paddockTypes.length === 0 &&
               !searchCriteria.hasArena &&
               !searchCriteria.hasRoundYard &&
               searchCriteria.facilities.length === 0 &&
-              searchCriteria.careTypes.length === 0
-            }
+              searchCriteria.careTypes.length === 0}
             className={`text-sm font-medium text-neutral-700 hover:text-neutral-900 ${searchCriteria.spaces === 0 &&
                 searchCriteria.maxPrice === 0 &&
                 searchCriteria.paddockTypes.length === 0 &&
@@ -308,7 +297,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
             </label>
             <NumberStepper
               value={searchCriteria.spaces}
-              onChange={(value) => setSearchCriteria(prev => ({ ...prev, spaces: value }))}
+              onChange={(value) => setSearchCriteria(prev => ({ ...prev, spaces: value }))} 
               min={0}
               max={10}
               disabled={searchCriteria.suburbs.length === 0}
@@ -333,7 +322,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               step="10"
               disabled={searchCriteria.suburbs.length === 0}
               value={searchCriteria.maxPrice}
-              onChange={(e) => setSearchCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
+              onChange={(e) => setSearchCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))} 
               className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 
                 ? 'opacity-50 cursor-not-allowed' 
                 : 'cursor-pointer accent-primary-600'
@@ -351,7 +340,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
             <div>
               <h2 className="text-lg font-semibold text-neutral-900">Paddock Type</h2>
               <div className="grid grid-cols-3 gap-2">
-                {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
+                {(['Private', 'Shared', 'Group'] as string[]).map((type) => (
                   <button
                     key={type}
                     type="button"
@@ -404,7 +393,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
           <div>
             <h2 className="text-lg font-semibold text-neutral-900">Care Type</h2>
             <div className="grid grid-cols-3 gap-2">
-              {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
+              {(['Self', 'Part', 'Full'] as string[]).map((type) => (
                 <button
                   key={type}
                   type="button"
@@ -426,12 +415,12 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
             <h2 className="text-lg font-semibold text-neutral-900">Facilities</h2>
             <div className="grid grid-cols-2 gap-2">
               {[/* eslint-disable @typescript-eslint/naming-convention */
-                { key: 'feedRoom' as FacilityType, icon: FeedRoomIcon, label: 'Feed Room' },
-                { key: 'tackRoom' as FacilityType, icon: TackRoomIcon, label: 'Tack Room' },
-                { key: 'floatParking' as FacilityType, icon: FloatParkingIcon, label: 'Float' },
-                { key: 'hotWash' as FacilityType, icon: HotWashIcon, label: 'Hot Wash' },
-                { key: 'stable' as FacilityType, icon: StableIcon, label: 'Stable' },
-                { key: 'tieUp' as FacilityType, icon: TieUpIcon, label: 'Tie Up' }
+                { key: 'feedRoom', icon: FeedRoomIcon, label: 'Feed Room' },
+                { key: 'tackRoom', icon: TackRoomIcon, label: 'Tack Room' },
+                { key: 'floatParking', icon: FloatParkingIcon, label: 'Float' },
+                { key: 'hotWash', icon: HotWashIcon, label: 'Hot Wash' },
+                { key: 'stable', icon: StableIcon, label: 'Stable' },
+                { key: 'tieUp', icon: TieUpIcon, label: 'Tie Up' }
               ].map(({ key, icon: Icon, label }) => (
                 <button
                   key={key}
@@ -454,30 +443,16 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     </form>
   );
 
-  const footerContent = (
-    <div className="flex justify-end">
-      <button
-        type="submit"
-        form="search-form"
-        disabled={searchCriteria.suburbs.length === 0}
-        className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${searchCriteria.suburbs.length === 0
-            ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
-            : 'bg-primary-600 text-white hover:bg-primary-700'
-          }`}
-      >
-        Search Agistments
-      </button>
-    </div>
-  );
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Search"
-      size="wide"
-      slideFrom="left"
-      footerContent={footerContent}
-      isUpdating={false}
+      title="Search Properties"
+      size="lg"
+      actionIcon={<SearchIcon className="h-5 w-5" />}
+      onAction={handleSearch}
+      isUpdating={isUpdating}
+      disableAction={searchCriteria.suburbs.length === 0}
     >
       <div className="px-4 py-3">
         {modalContent}

@@ -5,6 +5,12 @@ import { Agistment, FacilityBase, Stables, FloatParking } from '../../types/agis
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
 import { classNames } from '../../utils/classNames';
+import { Save } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const calculateHash = (obj: any): string => {
+  return JSON.stringify(obj);
+};
 
 interface AgistmentFacilitiesModalProps {
   isOpen: boolean;
@@ -21,36 +27,33 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
   onUpdate
 }) => {
   const [editableFacilities, setEditableFacilities] = useState<Agistment['facilities']>(facilities);
-  const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [initialHash, setInitialHash] = useState<string>('');
+  const [isDirty, setIsDirty] = useState(false);
 
-  // Reset form when modal opens or facilities change
+  // Set initial hash when modal opens or props change
   useEffect(() => {
-    if (isOpen || facilities) {
+    if (isOpen) {
       setEditableFacilities(facilities);
+      setInitialHash(calculateHash(facilities));
       setIsDirty(false);
     }
   }, [isOpen, facilities]);
 
-  // Create content hash for form state tracking
-  const contentHash = useMemo(() => {
-    return JSON.stringify(editableFacilities);
-  }, [editableFacilities]);
+  // Update dirty state whenever form changes
+  useEffect(() => {
+    const currentHash = calculateHash(editableFacilities);
+    setIsDirty(currentHash !== initialHash);
+  }, [editableFacilities, initialHash]);
 
-  const updateFacility = (facility: keyof Agistment['facilities'], updates: Partial<FacilityBase>) => {
-    setEditableFacilities(prev => ({
-      ...prev,
-      [facility]: {
-        ...prev[facility],
-        ...updates
-      }
-    }));
-    setIsDirty(true);
+  const handleClose = () => {
+    setEditableFacilities(facilities);
+    setInitialHash(calculateHash(facilities));
+    setIsDirty(false);
+    onClose();
   };
 
   const handleUpdateAll = async () => {
-    if (!isDirty) return;
-
     setIsSaving(true);
     try {
       if (onUpdate) {
@@ -61,49 +64,36 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
       onClose();
     } catch (error) {
       console.error('Failed to update facilities:', error);
+      toast.error('Failed to update facilities');
     } finally {
       setIsSaving(false);
     }
   };
 
+  const handleAction = () => {
+    handleUpdateAll();
+  };
+
+  const updateFacility = (facility: keyof Agistment['facilities'], updates: Partial<FacilityBase>) => {
+    setEditableFacilities(prev => ({
+      ...prev,
+      [facility]: {
+        ...prev[facility],
+        ...updates
+      }
+    }));
+  };
+
   return (
-    <Modal 
+    <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title="Edit Facilities"
       size="md"
-      onDirtyChange={setIsDirty}
       isUpdating={isSaving}
-      contentHash={contentHash}
-      footerContent={({ isUpdating }) => (
-        <div className="flex w-full gap-2">
-          <button
-            onClick={onClose}
-            className="w-1/3 px-4 py-2.5 text-sm font-medium rounded-md text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleUpdateAll}
-            disabled={!isDirty || isUpdating}
-            className={classNames(
-              'w-2/3 px-4 py-2.5 text-sm font-medium rounded-md transition-colors',
-              !isDirty || isUpdating
-                ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
-                : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
-            )}
-          >
-            {isUpdating ? (
-              <>
-                <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              'Save Changes'
-            )}
-          </button>
-        </div>
-      )}
+      actionIcon={<Save className="h-5 w-5" />}
+      onAction={handleAction}
+      isDirty={isDirty}
     >
       {Object.entries(editableFacilities)
         .sort(([keyA], [keyB]) => {

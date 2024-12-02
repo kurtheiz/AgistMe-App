@@ -466,9 +466,7 @@ function EditAgistmentDetail() {
         propertyDescription={agistment?.propertyDescription}
         isOpen={isHeaderModalOpen}
         onClose={() => setIsHeaderModalOpen(false)}
-        onUpdate={(updatedAgistment: Partial<Agistment>) => {
-          handleAgistmentUpdate(updatedAgistment);
-        }}
+        onUpdate={handleAgistmentUpdate}
       />
       <AgistmentPaddocksModal
         isOpen={isPaddocksModalOpen}

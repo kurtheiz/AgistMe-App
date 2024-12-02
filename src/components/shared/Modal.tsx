@@ -1,6 +1,7 @@
 import { Fragment, ReactNode, useEffect, useState } from 'react';
 import { Dialog, Transition, TransitionChild } from '@headlessui/react';
 import { XMarkIcon } from '../Icons';
+import { Loader2 } from 'lucide-react';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -12,9 +13,11 @@ export interface ModalProps {
   showCloseButton?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'wide' | 'full';
   slideFrom?: 'left' | 'right' | 'top' | 'bottom';
-  contentHash?: string;
-  onDirtyChange?: (isDirty: boolean) => void;
   isUpdating: boolean;
+  actionIcon?: ReactNode;
+  onAction?: () => void;
+  disableAction?: boolean;
+  isDirty?: boolean;
 }
 
 const sizeClasses = {
@@ -36,34 +39,12 @@ export function Modal({
   showCloseButton = true,
   size = 'md',
   slideFrom = 'right',
-  contentHash,
-  onDirtyChange,
-  isUpdating = false
+  isUpdating = false,
+  actionIcon,
+  onAction,
+  disableAction,
+  isDirty = false
 }: ModalProps) {
-  const [initialHash, setInitialHash] = useState<string | undefined>();
-
-  // Set initial hash when modal opens
-  useEffect(() => {
-    if (isOpen && contentHash && !initialHash) {
-      setInitialHash(contentHash);
-    }
-  }, [isOpen, contentHash]);
-
-  // Reset state when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setInitialHash(undefined);
-    }
-  }, [isOpen]);
-
-  // Check for changes when content hash updates
-  useEffect(() => {
-    if (initialHash && contentHash) {
-      const newIsDirty = initialHash !== contentHash;
-      onDirtyChange?.(newIsDirty);
-    }
-  }, [contentHash, initialHash, onDirtyChange]);
-
   useEffect(() => {
     if (isOpen) {
       // Check if content will cause overflow
@@ -142,22 +123,35 @@ export function Modal({
               >
                 <div className="flex flex-col h-full flex-grow">
                   {/* Header */}
-                  {(title || headerContent || showCloseButton) && (
-                    <div className="flex-none bg-primary-500 border-b border-primary-600 rounded-none md:rounded-t-2xl">
-                      <div className="flex items-center justify-between px-6 py-4">
-                        {title && (
-                          <Dialog.Title as="h3" className="text-lg font-medium text-white">
-                            {title}
-                          </Dialog.Title>
+                  {(title || headerContent || showCloseButton || actionIcon) && (
+                    <div className="flex items-center justify-between px-4 py-4 sm:px-6 bg-primary-500 border-b border-primary-600 rounded-none md:rounded-t-2xl">
+                      <div className="flex items-center space-x-2">
+                        {actionIcon && onAction && (
+                          <button
+                            onClick={onAction}
+                            className="rounded-md p-2 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={!isDirty || isUpdating || disableAction}
+                          >
+                            {isUpdating ? (
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : (
+                              actionIcon
+                            )}
+                          </button>
                         )}
-                        {headerContent}
+                      </div>
+                      <h2 className="text-lg font-medium text-white flex-1 text-center">
+                        {title}
+                      </h2>
+                      <div className="flex items-center space-x-2">
                         {showCloseButton && (
                           <button
-                            onClick={onClose}
+                            type="button"
                             className="rounded-md p-2 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                            onClick={onClose}
                           >
                             <span className="sr-only">Close</span>
-                            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                            <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                           </button>
                         )}
                       </div>
@@ -170,18 +164,6 @@ export function Modal({
                       {children}
                     </div>
                   </div>
-
-                  {/* Footer */}
-                  {footerContent && (
-                    <div className="flex-none border-t border-gray-200 bg-white rounded-none md:rounded-b-2xl">
-                      <div className="p-6">
-                        {typeof footerContent === 'function' ? 
-                          footerContent({ isUpdating }) : 
-                          footerContent
-                        }
-                      </div>
-                    </div>
-                  )}
                 </div>
               </Dialog.Panel>
             </TransitionChild>

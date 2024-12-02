@@ -5,6 +5,7 @@ import NumberStepper from '../shared/NumberStepper';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
 import { Loader2 } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 interface PaddockForm extends Omit<PaddockBase, 'whenAvailable'> {
   whenAvailable: Date | undefined;
@@ -26,6 +27,10 @@ interface Props {
   onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
 }
 
+const calculateHash = (obj: any): string => {
+  return JSON.stringify(obj);
+};
+
 export const AgistmentPaddocksModal = ({
   paddocks,
   isOpen,
@@ -33,7 +38,6 @@ export const AgistmentPaddocksModal = ({
   onUpdate
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [isDirty, setIsDirty] = useState(false);
   const [editForm, setEditForm] = useState<EditForm>({
     privatePaddocks: {
       ...paddocks.privatePaddocks,
@@ -55,6 +59,8 @@ export const AgistmentPaddocksModal = ({
     }
   });
   const [isUpdating, setIsUpdating] = useState(false);
+  const [initialHash, setInitialHash] = useState<string>('');
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -78,10 +84,16 @@ export const AgistmentPaddocksModal = ({
           totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 0
         }
       });
+      setInitialHash(calculateHash(editForm));
       setIsDirty(false);
       setSelectedTab(0);
     }
   }, [isOpen, paddocks]);
+
+  useEffect(() => {
+    const currentHash = calculateHash(editForm);
+    setIsDirty(currentHash !== initialHash);
+  }, [editForm, initialHash]);
 
   const handleUpdatePaddocks = async () => {
     if (!isDirty) return;
@@ -133,7 +145,6 @@ export const AgistmentPaddocksModal = ({
   };
 
   const handleEditFormChange = (type: keyof EditForm, field: keyof PaddockForm, value: any) => {
-    setIsDirty(true);
     setEditForm(prev => {
       const updatedForm = { ...prev };
       if (field === 'total') {
@@ -164,37 +175,10 @@ export const AgistmentPaddocksModal = ({
       onClose={onClose}
       title="Edit Paddocks"
       size="lg"
-      contentHash={JSON.stringify(editForm)}
-      onDirtyChange={setIsDirty}
       isUpdating={isUpdating}
-      footerContent={({ isUpdating }) => (
-        <div className="w-full grid grid-cols-2 gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-md transition-colors border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleUpdatePaddocks}
-            className={`px-4 py-2 rounded-md transition-colors ${
-              !isDirty || isUpdating
-                ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 opacity-50 cursor-not-allowed'
-                : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
-            }`}
-            disabled={!isDirty || isUpdating}
-          >
-            {isUpdating ? (
-              <div className="flex items-center justify-center space-x-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
-              </div>
-            ) : (
-              'Save Changes'
-            )}
-          </button>
-        </div>
-      )}
+      actionIcon={<Save className="h-5 w-5" />}
+      onAction={handleUpdatePaddocks}
+      isDirty={isDirty}
     >
       <div className="space-y-6">
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
@@ -250,7 +234,6 @@ export const AgistmentPaddocksModal = ({
                                 available: value === 0 ? 0 : prev[type as keyof EditForm].available
                               }
                             }));
-                            setIsDirty(true);
                           }}
                           min={0}
                           max={100}
@@ -278,7 +261,6 @@ export const AgistmentPaddocksModal = ({
                                 available: Math.min(value, prev[type as keyof EditForm].available)
                               }
                             }));
-                            setIsDirty(true);
                           }}
                           min={0}
                           max={100}
