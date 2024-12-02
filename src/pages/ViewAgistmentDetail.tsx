@@ -12,6 +12,7 @@ import { AgistmentFacilities } from '../components/Agistment/AgistmentFacilities
 import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptions';
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentPhotosView } from '../components/Agistment/AgistmentPhotosView';
+import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
 
 export function ViewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -115,6 +116,12 @@ export function ViewAgistmentDetail() {
 
             {/* Header Section */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="mb-4">
+                <ShareFavoriteButtons 
+                  agistmentId={agistment.id}
+                  shareDescription={agistment.propertyDescription?.description || ''}
+                />
+              </div>
               <AgistmentHeader
                 basicInfo={agistment.basicInfo}
                 propertyLocation={agistment.propertyLocation}

@@ -210,7 +210,7 @@ export const AgistmentRidingFacilitiesModal = ({
     >
       <div className="h-[800px] overflow-y-auto">
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
-          <div className="sticky top-0 z-20 bg-white py-2">
+          <div className="sticky top-0 z-20 bg-white">
             <Tab.List className="flex space-x-1 rounded-xl bg-neutral-100 p-1">
               {tabs.map((tab) => (
                 <Tab
@@ -230,14 +230,14 @@ export const AgistmentRidingFacilitiesModal = ({
               ))}
             </Tab.List>
           </div>
-          <div className="px-2">
+          <div>
             <Tab.Panels>
               <Tab.Panel>
                 <div className="space-y-4">
                   <div className="space-y-4">
                     {editForm.arenas.map((arena, index) => (
-                      <div key={index} className="p-4 border border-neutral-200 rounded-lg">
-                        <div className="flex justify-between items-start mb-4">
+                      <div key={index} className="border border-neutral-200 rounded-lg mb-4">
+                        <div className="flex justify-between items-start p-4 border-b border-neutral-200">
                           <h3 className="text-lg font-medium">Arena {index + 1}</h3>
                           <button
                             onClick={() => handleRemoveArena(index)}
@@ -246,7 +246,7 @@ export const AgistmentRidingFacilitiesModal = ({
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                        <div>
+                        <div className="p-4">
                           <div className="flex flex-col sm:flex-row justify-center gap-8">
                             <div>
                               <label className="block text-sm font-medium text-neutral-700 mb-1 text-center">
@@ -271,7 +271,7 @@ export const AgistmentRidingFacilitiesModal = ({
                               />
                             </div>
                           </div>
-                          <div className="flex justify-center items-center h-[200px] pl-8 pr-8">
+                          <div className="flex justify-center items-center h-[200px]">
                             <ArenaDiagram length={arena.length} width={arena.width} />
                           </div>
                           <div className="space-y-4">
@@ -357,8 +357,8 @@ export const AgistmentRidingFacilitiesModal = ({
                 <div className="space-y-4">
                   <div className="space-y-4">
                     {editForm.roundYards.map((yard, index) => (
-                      <div key={index} className="p-4 border border-neutral-200 rounded-lg">
-                        <div className="flex justify-between items-start mb-4">
+                      <div key={index} className="border border-neutral-200 rounded-lg mb-4">
+                        <div className="flex justify-between items-start p-4 border-b border-neutral-200">
                           <h3 className="text-lg font-medium">Round Yard {index + 1}</h3>
                           <button
                             onClick={() => handleRemoveRoundYard(index)}
@@ -367,33 +367,35 @@ export const AgistmentRidingFacilitiesModal = ({
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="flex justify-center items-center h-[200px]">
-                            <RoundYardDiagram diameter={yard.diameter} />
-                          </div>
-                          <div>
-                            <div>
-                              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                                Diameter (m)
-                              </label>
-                              <NumberStepper
-                                value={yard.diameter}
-                                onChange={(value) => handleUpdateRoundYard(index, 'diameter', value)}
-                                min={0}
-                                max={999}
-                              />
+                        <div className="p-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex justify-center items-center h-[200px]">
+                              <RoundYardDiagram diameter={yard.diameter} />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                                Comments
-                              </label>
-                              <input
-                                type="text"
-                                className="form-input form-input-compact"
-                                value={yard.comments}
-                                onChange={(e) => handleUpdateRoundYard(index, 'comments', e.target.value)}
-                                placeholder="Add any additional information..."
-                              />
+                              <div>
+                                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                                  Diameter (m)
+                                </label>
+                                <NumberStepper
+                                  value={yard.diameter}
+                                  onChange={(value) => handleUpdateRoundYard(index, 'diameter', value)}
+                                  min={0}
+                                  max={999}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                                  Comments
+                                </label>
+                                <input
+                                  type="text"
+                                  className="form-input form-input-compact"
+                                  value={yard.comments}
+                                  onChange={(e) => handleUpdateRoundYard(index, 'comments', e.target.value)}
+                                  placeholder="Add any additional information..."
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>

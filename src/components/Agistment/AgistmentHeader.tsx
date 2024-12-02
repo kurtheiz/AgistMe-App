@@ -31,11 +31,10 @@ export const AgistmentHeader = ({
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full items-start">
+      <div className="space-y-6 w-full">
         {/* Location Section */}
         {propertyLocation?.location && (
           <div>
-            
             <p className="text-neutral-900 dark:text-neutral-100">
               <a
                 href={getGoogleMapsUrl(propertyLocation.location)}

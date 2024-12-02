@@ -39,7 +39,7 @@ const formatAvailabilityDate = (whenAvailable: Date | undefined | null) => {
 };
 
 const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
-  if (!paddock.total) return null;
+  if (paddock.totalPaddocks === 0) return null;
 
   const monthlyPrice = calculateMonthlyPrice(paddock.weeklyPrice);
   const now = new Date();
@@ -56,25 +56,29 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
           This property offers <span className="font-semibold text-neutral-900">{paddock.totalPaddocks}</span> {type.toLowerCase()} {paddock.totalPaddocks === 1 ? 'paddock' : 'paddocks'} that can accommodate up to <span className="font-semibold text-neutral-900">{paddock.total}</span> horses.
         </p>
 
-        {paddock.available > 0 ? (
-          <div>
-            <div className="inline-flex items-center gap-2 bg-primary-50 rounded-lg px-3 py-2">
-              <div className="font-bold text-primary-600">
-                {paddock.available} {paddock.available === 1 ? 'spot' : 'spots'}
+        {paddock.total > 0 && (
+          <>
+            {paddock.available > 0 ? (
+              <div>
+                <div className="inline-flex items-center gap-2 bg-primary-50 rounded-lg px-3 py-2">
+                  <div className="font-bold text-primary-600">
+                    {paddock.available} {paddock.available === 1 ? 'spot' : 'spots'}
+                  </div>
+                  <div className="text-primary-700">
+                    available {formatAvailabilityDate(paddock.whenAvailable)}
+                  </div>
+                </div>
               </div>
-              <div className="text-primary-700">
-                available {formatAvailabilityDate(paddock.whenAvailable)}
+            ) : (
+              <div>
+                <div className="inline-flex bg-red-50 rounded-lg px-3 py-2">
+                  <div className="font-bold text-red-600">
+                    No spots available
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div className="inline-flex bg-red-50 rounded-lg px-3 py-2">
-              <div className="font-bold text-red-600">
-                No spots available
-              </div>
-            </div>
-          </div>
+            )}
+          </>
         )}
 
         <p className="text-neutral-700">
@@ -112,7 +116,7 @@ export const AgistmentPaddocks = ({
             <h3 className="text-base font-medium text-neutral-900">
               Private Paddocks
             </h3>
-            {!paddocks?.privatePaddocks?.total && (
+            {paddocks?.privatePaddocks?.totalPaddocks === 0 && (
               <div className="chip-unavailable">
                 <div>
                   Unavailable
@@ -120,7 +124,7 @@ export const AgistmentPaddocks = ({
               </div>
             )}
           </div>
-          {paddocks?.privatePaddocks?.total > 0 && (
+          {paddocks?.privatePaddocks?.totalPaddocks > 0 && (
             <div className="rounded-lg">
               {formatPaddockInfo(paddocks.privatePaddocks, "Private")}
             </div>
@@ -133,7 +137,7 @@ export const AgistmentPaddocks = ({
             <h3 className="text-base font-medium text-neutral-900">
               Shared Paddocks
             </h3>
-            {!paddocks?.sharedPaddocks?.total && (
+            {paddocks?.sharedPaddocks?.totalPaddocks === 0 && (
               <div className="chip-unavailable">
                 <div>
                   Unavailable
@@ -141,7 +145,7 @@ export const AgistmentPaddocks = ({
               </div>
             )}
           </div>
-          {paddocks?.sharedPaddocks?.total > 0 && (
+          {paddocks?.sharedPaddocks?.totalPaddocks > 0 && (
             <div className="rounded-lg">
               {formatPaddockInfo(paddocks.sharedPaddocks, "Shared")}
             </div>
@@ -154,7 +158,7 @@ export const AgistmentPaddocks = ({
             <h3 className="text-base font-medium text-neutral-900">
               Group Paddocks
             </h3>
-            {!paddocks?.groupPaddocks?.total && (
+            {paddocks?.groupPaddocks?.totalPaddocks === 0 && (
               <div className="chip-unavailable">
                 <div>
                   Unavailable
@@ -162,7 +166,7 @@ export const AgistmentPaddocks = ({
               </div>
             )}
           </div>
-          {paddocks?.groupPaddocks?.total > 0 && (
+          {paddocks?.groupPaddocks?.totalPaddocks > 0 && (
             <div className="rounded-lg">
               {formatPaddockInfo(paddocks.groupPaddocks, "Group")}
             </div>

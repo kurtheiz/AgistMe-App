@@ -39,19 +39,19 @@ export const AgistmentPaddocksModal = ({
       ...paddocks.privatePaddocks,
       whenAvailable: paddocks.privatePaddocks.whenAvailable ? new Date(paddocks.privatePaddocks.whenAvailable) : undefined,
       enabled: paddocks.privatePaddocks.available > 0,
-      totalPaddocks: paddocks.privatePaddocks.totalPaddocks || 1
+      totalPaddocks: paddocks.privatePaddocks.totalPaddocks || 0
     },
     sharedPaddocks: {
       ...paddocks.sharedPaddocks,
       whenAvailable: paddocks.sharedPaddocks.whenAvailable ? new Date(paddocks.sharedPaddocks.whenAvailable) : undefined,
       enabled: paddocks.sharedPaddocks.available > 0,
-      totalPaddocks: paddocks.sharedPaddocks.totalPaddocks || 1
+      totalPaddocks: paddocks.sharedPaddocks.totalPaddocks || 0
     },
     groupPaddocks: {
       ...paddocks.groupPaddocks,
       whenAvailable: paddocks.groupPaddocks.whenAvailable ? new Date(paddocks.groupPaddocks.whenAvailable) : undefined,
       enabled: paddocks.groupPaddocks.available > 0,
-      totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 1
+      totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 0
     }
   });
   const [isUpdating, setIsUpdating] = useState(false);
@@ -63,19 +63,19 @@ export const AgistmentPaddocksModal = ({
           ...paddocks.privatePaddocks,
           whenAvailable: paddocks.privatePaddocks.whenAvailable ? new Date(paddocks.privatePaddocks.whenAvailable) : undefined,
           enabled: paddocks.privatePaddocks.available > 0,
-          totalPaddocks: paddocks.privatePaddocks.totalPaddocks || 1
+          totalPaddocks: paddocks.privatePaddocks.totalPaddocks || 0
         },
         sharedPaddocks: {
           ...paddocks.sharedPaddocks,
           whenAvailable: paddocks.sharedPaddocks.whenAvailable ? new Date(paddocks.sharedPaddocks.whenAvailable) : undefined,
           enabled: paddocks.sharedPaddocks.available > 0,
-          totalPaddocks: paddocks.sharedPaddocks.totalPaddocks || 1
+          totalPaddocks: paddocks.sharedPaddocks.totalPaddocks || 0
         },
         groupPaddocks: {
           ...paddocks.groupPaddocks,
           whenAvailable: paddocks.groupPaddocks.whenAvailable ? new Date(paddocks.groupPaddocks.whenAvailable) : undefined,
           enabled: paddocks.groupPaddocks.available > 0,
-          totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 1
+          totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 0
         }
       });
       setIsDirty(false);
@@ -162,7 +162,7 @@ export const AgistmentPaddocksModal = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Spaces"
+      title="Edit Paddocks"
       size="lg"
       contentHash={JSON.stringify(editForm)}
       onDirtyChange={setIsDirty}
@@ -196,9 +196,9 @@ export const AgistmentPaddocksModal = ({
         </div>
       )}
     >
-      <div className="p-4 space-y-6">
+      <div className="space-y-6">
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
-          <Tab.List className="sticky top-0 z-10 flex space-x-1 rounded-xl bg-neutral-100 p-1">
+          <Tab.List className="flex space-x-1 rounded-xl bg-neutral-100 p-1">
             {[
               { type: 'privatePaddocks', title: 'Private Paddocks' },
               { type: 'sharedPaddocks', title: 'Shared Paddocks' },
@@ -280,7 +280,7 @@ export const AgistmentPaddocksModal = ({
                             }));
                             setIsDirty(true);
                           }}
-                          min={1}
+                          min={0}
                           max={100}
                           disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                         />

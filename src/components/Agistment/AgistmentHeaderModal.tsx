@@ -199,211 +199,209 @@ export const AgistmentHeaderModal = ({
         </div>
       )}
     >
-      <div className="p-6 space-y-8">
-        <div className="space-y-6">
-          {/* Property Name */}
-          <div className="section-container">
+      <div className="space-y-6">
+        {/* Property Name */}
+        <div className="section-container">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Property Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={editForm.propertyName}
+              onChange={(e) => {
+                setEditForm(prev => ({ ...prev, propertyName: e.target.value }));
+                setIsDirty(true);
+              }}
+              className={`form-input form-input-compact ${errors.propertyName ? 'border-red-500' : ''}`}
+              required
+            />
+            {errors.propertyName && (
+              <p className="mt-1 text-sm text-red-500">{errors.propertyName}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Location */}
+        <div className="section-container">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Property Name <span className="text-red-500">*</span>
+                Street Address <span className="text-red-500">*</span>
+              </label>
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  value={editForm.address}
+                  onChange={(e) => {
+                    setEditForm(prev => ({ ...prev, address: e.target.value }));
+                    setIsDirty(true);
+                  }}
+                  className={`form-input form-input-compact ${errors.address ? 'border-red-500' : ''}`}
+                />
+              </div>
+              {errors.address && (
+                <p className="mt-1 text-sm text-red-500">{errors.address}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                Suburb <span className="text-red-500">*</span>
+              </label>
+              <SuburbSearch
+                selectedSuburbs={selectedSuburbs}
+                onSuburbsChange={handleSuburbChange}
+                multiple={false}
+              />
+              {errors.location && (
+                <p className="mt-1 text-sm text-red-500">{errors.location}</p>
+              )}
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Selected Suburb
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.suburb || ''}
+                    readOnly
+                    disabled
+                    className="form-input form-input-compact bg-neutral-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Region
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.region}
+                    readOnly
+                    disabled
+                    className="form-input form-input-compact bg-neutral-50"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  State
+                </label>
+                <input
+                  type="text"
+                  value={editForm.state}
+                  readOnly
+                  disabled
+                  className="form-input form-input-compact bg-neutral-50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  Post Code
+                </label>
+                <input
+                  type="text"
+                  value={editForm.postcode}
+                  readOnly
+                  disabled
+                  className="form-input form-input-compact bg-neutral-50"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Details */}
+        <div className="section-container">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  Contact Name
+                </label>
+                <input
+                  type="text"
+                  value={editForm.contactName}
+                  onChange={(e) => {
+                    setEditForm(prev => ({ ...prev, contactName: e.target.value }));
+                    setIsDirty(true);
+                  }}
+                  className="form-input form-input-compact"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={editForm.contactNumber}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setEditForm(prev => ({ ...prev, contactNumber: value }));
+                    setIsDirty(true);
+                  }}
+                  className={`form-input form-input-compact ${errors.mobile ? 'border-red-500' : ''}`}
+                  placeholder="Enter 10 digit number"
+                />
+                {errors.mobile && (
+                  <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                Email
               </label>
               <input
-                type="text"
-                value={editForm.propertyName}
+                type="email"
+                value={editForm.contactEmail}
                 onChange={(e) => {
-                  setEditForm(prev => ({ ...prev, propertyName: e.target.value }));
+                  setEditForm(prev => ({ ...prev, contactEmail: e.target.value }));
                   setIsDirty(true);
                 }}
-                className={`form-input form-input-compact ${errors.propertyName ? 'border-red-500' : ''}`}
-                required
+                className={`form-input form-input-compact ${errors.email ? 'border-red-500' : ''}`}
               />
-              {errors.propertyName && (
-                <p className="mt-1 text-sm text-red-500">{errors.propertyName}</p>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Location */}
-          <div className="section-container">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  Street Address <span className="text-red-500">*</span>
-                </label>
-                <div className="input-wrapper">
-                  <input
-                    type="text"
-                    value={editForm.address}
-                    onChange={(e) => {
-                      setEditForm(prev => ({ ...prev, address: e.target.value }));
-                      setIsDirty(true);
-                    }}
-                    className={`form-input form-input-compact ${errors.address ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {errors.address && (
-                  <p className="mt-1 text-sm text-red-500">{errors.address}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  Suburb <span className="text-red-500">*</span>
-                </label>
-                <SuburbSearch
-                  selectedSuburbs={selectedSuburbs}
-                  onSuburbsChange={handleSuburbChange}
-                  multiple={false}
-                />
-                {errors.location && (
-                  <p className="mt-1 text-sm text-red-500">{errors.location}</p>
-                )}
-                <div className="grid grid-cols-2 gap-4 mt-2">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      Selected Suburb
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.suburb || ''}
-                      readOnly
-                      disabled
-                      className="form-input form-input-compact bg-neutral-50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      Region
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.region}
-                      readOnly
-                      disabled
-                      className="form-input form-input-compact bg-neutral-50"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                    State
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.state}
-                    readOnly
-                    disabled
-                    className="form-input form-input-compact bg-neutral-50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                    Post Code
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.postcode}
-                    readOnly
-                    disabled
-                    className="form-input form-input-compact bg-neutral-50"
-                  />
-                </div>
-              </div>
-            </div>
+        {/* Property Size */}
+        <div className="section-container">
+          <div>
+            <NumberStepper
+              label="Property Size (acres)"
+              value={editForm.propertySize}
+              onChange={(value) => {
+                setEditForm(prev => ({ ...prev, propertySize: value }));
+                setIsDirty(true);
+              }}
+              min={0}
+              step={1}
+            />
           </div>
+        </div>
 
-          {/* Contact Details */}
-          <div className="section-container">
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                    Contact Name
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.contactName}
-                    onChange={(e) => {
-                      setEditForm(prev => ({ ...prev, contactName: e.target.value }));
-                      setIsDirty(true);
-                    }}
-                    className="form-input form-input-compact"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={editForm.contactNumber}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                      setEditForm(prev => ({ ...prev, contactNumber: value }));
-                      setIsDirty(true);
-                    }}
-                    className={`form-input form-input-compact ${errors.mobile ? 'border-red-500' : ''}`}
-                    placeholder="Enter 10 digit number"
-                  />
-                  {errors.mobile && (
-                    <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={editForm.contactEmail}
-                  onChange={(e) => {
-                    setEditForm(prev => ({ ...prev, contactEmail: e.target.value }));
-                    setIsDirty(true);
-                  }}
-                  className={`form-input form-input-compact ${errors.email ? 'border-red-500' : ''}`}
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Property Size */}
-          <div className="section-container">
-            <div>
-              <NumberStepper
-                label="Property Size (acres)"
-                value={editForm.propertySize}
-                onChange={(value) => {
-                  setEditForm(prev => ({ ...prev, propertySize: value }));
-                  setIsDirty(true);
-                }}
-                min={0}
-                step={1}
-              />
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="section-container">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Description
-              </label>
-              <textarea
-                value={editForm.description}
-                onChange={(e) => {
-                  setEditForm(prev => ({ ...prev, description: e.target.value }));
-                  setIsDirty(true);
-                }}
-                rows={4}
-                className="form-textarea"
-                placeholder="Describe your property..."
-              />
-            </div>
+        {/* Description */}
+        <div className="section-container">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Description
+            </label>
+            <textarea
+              value={editForm.description}
+              onChange={(e) => {
+                setEditForm(prev => ({ ...prev, description: e.target.value }));
+                setIsDirty(true);
+              }}
+              rows={4}
+              className="form-textarea"
+              placeholder="Describe your property..."
+            />
           </div>
         </div>
       </div>

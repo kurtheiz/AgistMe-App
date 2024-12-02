@@ -161,7 +161,7 @@ export const AgistmentCareOptionsModal = ({
         </div>
       )}
     >
-      <div className="space-y-4 p-6 max-w-2xl mx-auto">
+      <div className="space-y-4 max-w-2xl mx-auto">
         {/* Self Care Section */}
         <div className="space-y-4">
           <div className="flex items-start space-x-4">

@@ -107,13 +107,11 @@ export function Modal({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/25 dark:bg-black/50" />
+          <div className="fixed inset-0 bg-gray-500/25" />
         </TransitionChild>
   
-        <div
-          className="fixed inset-0 z-10 w-screen overflow-y-auto bg-black/25 dark:bg-black/50"
-        >
-          <div className="flex min-h-full items-center justify-center md:p-4">
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto bg-gray-500/25">
+          <div className="flex min-h-full items-center justify-center p-0">
             <TransitionChild
               as={Fragment}
               enter="transform transition ease-out duration-300"
@@ -140,13 +138,13 @@ export function Modal({
               }
             >
               <Dialog.Panel 
-                className={`modal-panel w-full transform h-[100dvh] md:h-auto md:max-h-[85vh] ${sizeClasses[size]} rounded-none md:rounded-2xl overflow-hidden bg-white shadow-xl p-0`}
+                className={`w-full transform h-[100dvh] md:h-auto md:max-h-[85vh] ${sizeClasses[size]} rounded-none md:rounded-2xl bg-white shadow-xl flex flex-col`}
               >
-                <div className="flex flex-col h-full md:max-h-[85vh]">
+                <div className="flex flex-col h-full flex-grow">
                   {/* Header */}
                   {(title || headerContent || showCloseButton) && (
                     <div className="flex-none bg-primary-500 border-b border-primary-600 rounded-none md:rounded-t-2xl">
-                      <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center justify-between px-6 py-4">
                         {title && (
                           <Dialog.Title as="h3" className="text-lg font-medium text-white">
                             {title}
@@ -167,14 +165,16 @@ export function Modal({
                   )}
 
                   {/* Content */}
-                  <div className="flex-1 overflow-y-auto p-4">
-                    {children}
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="p-6 space-y-8">
+                      {children}
+                    </div>
                   </div>
 
                   {/* Footer */}
                   {footerContent && (
-                    <div className="flex-none border-t border-neutral-200 bg-white">
-                      <div className="p-4">
+                    <div className="flex-none border-t border-gray-200 bg-white rounded-none md:rounded-b-2xl">
+                      <div className="p-6">
                         {typeof footerContent === 'function' ? 
                           footerContent({ isUpdating }) : 
                           footerContent

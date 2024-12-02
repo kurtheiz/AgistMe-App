@@ -56,7 +56,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
         <button
           type="button"
           onClick={handleShare}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-700 hover:text-neutral-900 transition-colors"
         >
           <Share2Icon className="h-5 w-5" />
         </button>
@@ -64,7 +64,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
       <button
         type="button"
         onClick={handleFavorite}
-        className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors"
+        className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-700 hover:text-neutral-900 transition-colors"
       >
         <Star 
           className={`h-5 w-5 ${isFavorited ? 'fill-current text-yellow-400' : ''}`} 

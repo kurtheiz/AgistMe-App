@@ -107,7 +107,7 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
         </div>
       )}
     >
-      <div className="p-6 space-y-4">
+      <div className="space-y-4">
         <div className="form-group">
           <div className="input-wrapper group">
             <input

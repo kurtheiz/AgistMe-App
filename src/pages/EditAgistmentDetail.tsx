@@ -20,6 +20,7 @@ import { AgistmentHeaderModal } from '../components/Agistment/AgistmentHeaderMod
 import { AgistmentPaddocksModal } from '../components/Agistment/AgistmentPaddocksModal';
 import { AgistmentRidingFacilitiesModal } from '../components/Agistment/AgistmentRidingFacilitiesModal';
 import { AgistmentFacilitiesModal } from '../components/Agistment/AgistmentFacilitiesModal';
+import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
 
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -307,7 +308,7 @@ function EditAgistmentDetail() {
 
             {/* Header Section */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="mb-4">
+              <div className="mb-4 flex justify-between items-center">
                 <button
                   onClick={() => setIsHeaderModalOpen(true)}
                   className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
@@ -315,10 +316,12 @@ function EditAgistmentDetail() {
                   <Pencil className="h-4 w-4 mr-2" />
                   Edit
                 </button>
+                <ShareFavoriteButtons 
+                  agistmentId={agistment?.id || ''}
+                  shareDescription={agistment?.propertyDescription?.description || ''}
+                  hideShare={agistment?.visibility?.hidden}
+                />
               </div>
-              <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                Header
-              </h2>
               <AgistmentHeader
                 basicInfo={agistment?.basicInfo}
                 propertyLocation={agistment?.propertyLocation}
