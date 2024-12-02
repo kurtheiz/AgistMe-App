@@ -18,12 +18,12 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
   if (!facilities) return null;
 
   const facilityItems = [
-    { key: 'stables', icon: StableIcon, label: 'Stables' },
-    { key: 'hotWash', icon: HotWashIcon, label: 'Hot Wash' },
-    { key: 'floatParking', icon: FloatParkingIcon, label: 'Float Parking' },
-    { key: 'tieUp', icon: TieUpIcon, label: 'Tie Ups' },
     { key: 'feedRoom', icon: FeedRoomIcon, label: 'Feed Room' },
-    { key: 'tackRoom', icon: TackRoomIcon, label: 'Tack Room' }
+    { key: 'floatParking', icon: FloatParkingIcon, label: 'Float Parking' },
+    { key: 'hotWash', icon: HotWashIcon, label: 'Hot Wash' },
+    { key: 'stables', icon: StableIcon, label: 'Stables' },
+    { key: 'tackRoom', icon: TackRoomIcon, label: 'Tack Room' },
+    { key: 'tieUp', icon: TieUpIcon, label: 'Tie Ups' }
   ] as const;
 
   return (

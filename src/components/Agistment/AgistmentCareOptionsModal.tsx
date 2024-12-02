@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Switch } from '@headlessui/react';
-import { Modal } from '../shared/Modal';
 import { Agistment, AgistmentCare } from '../../types/agistment';
+import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
 import { classNames } from '../../utils/classNames';
-import { Save } from 'lucide-react';
+import { Switch } from '@headlessui/react';
 import toast from 'react-hot-toast';
 
 const calculateHash = (obj: any): string => {
@@ -136,20 +135,16 @@ export const AgistmentCareOptionsModal = ({
     }
   };
 
-  const handleAction = () => {
-    handleUpdateAll();
-  };
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
       title="Edit Care Options"
       size="lg"
+      actionIconType="SAVE"
+      onAction={handleUpdateAll}
       isUpdating={isSaving}
-      actionIcon={<Save className="h-5 w-5" />}
-      onAction={handleAction}
-      isDirty={isDirty}
+      disableAction={!isDirty}
     >
       <div className="space-y-4 max-w-2xl mx-auto">
         {/* Self Care Section */}

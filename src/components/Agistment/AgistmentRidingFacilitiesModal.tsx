@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Modal } from '../shared/Modal';
 import { Agistment } from '../../types/agistment';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-import { Plus, Trash2, X, Save } from 'lucide-react';
+import { Plus, Trash2, X } from 'lucide-react';
 import { ArenaDiagram } from './ArenaDiagram';
 import { RoundYardDiagram } from './RoundYardDiagram';
 import NumberStepper from '../shared/NumberStepper';
@@ -81,35 +81,17 @@ export const AgistmentRidingFacilitiesModal = ({
     setIsDirty(currentHash !== initialHash);
   }, [editForm, initialHash]);
 
-  const handleClose = () => {
-    setEditForm({
-      arenas: ridingFacilities.arenas?.map(arena => ({
-        length: arena.length || 0,
-        width: arena.width || 0,
-        comments: arena.comments || '',
-        features: arena.features || []
-      })) || [],
-      roundYards: ridingFacilities.roundYards?.map(yard => ({
-        diameter: yard.diameter || 0,
-        comments: yard.comments || ''
-      })) || []
-    });
-    setInitialHash(calculateHash(editForm));
-    setIsDirty(false);
-    onClose();
-  };
+  const handleUpdateFacilities = useCallback(async () => {
+    if (!isDirty || !onUpdate) return;
 
-  const handleUpdateFacilities = async () => {
     setIsSaving(true);
     try {
-      if (onUpdate) {
-        await onUpdate({
-          ridingFacilities: {
-            arenas: editForm.arenas,
-            roundYards: editForm.roundYards
-          }
-        });
-      }
+      await onUpdate({
+        ridingFacilities: {
+          arenas: editForm.arenas,
+          roundYards: editForm.roundYards
+        }
+      });
       onClose();
     } catch (error) {
       console.error('Failed to update riding facilities:', error);
@@ -117,7 +99,7 @@ export const AgistmentRidingFacilitiesModal = ({
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [editForm, isDirty, onClose, onUpdate]);
 
   const handleAddArena = () => {
     setEditForm(prev => ({
@@ -201,14 +183,14 @@ export const AgistmentRidingFacilitiesModal = ({
 
   return (
     <Modal
-      title="Edit Riding Facilities"
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
+      title="Edit Riding Facilities"
       size="lg"
-      isUpdating={isSaving}
-      actionIcon={<Save className="h-5 w-5" />}
+      actionIconType="SAVE"
       onAction={handleUpdateFacilities}
-      isDirty={isDirty}
+      isUpdating={isSaving}
+      disableAction={!isDirty}
     >
       <div className="h-[800px] overflow-y-auto">
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>

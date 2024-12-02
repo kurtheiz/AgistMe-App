@@ -1,7 +1,10 @@
 import { Fragment, ReactNode, useEffect } from 'react';
-import { Dialog, Transition, TransitionChild } from '@headlessui/react';
+import { Dialog, Transition, TransitionChild, DialogPanel } from '@headlessui/react';
 import { XMarkIcon } from '../Icons';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search, Save } from 'lucide-react';
+
+
+export type ActionIconType = 'SEARCH' | 'SAVE';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -13,7 +16,7 @@ export interface ModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'wide' | 'full';
   slideFrom?: 'left' | 'right' | 'top' | 'bottom';
   isUpdating: boolean;
-  actionIcon?: ReactNode;
+  actionIconType?: ActionIconType;
   onAction?: () => void;
   disableAction?: boolean;
   isDirty?: boolean;
@@ -38,10 +41,9 @@ export function Modal({
   size = 'md',
   slideFrom = 'right',
   isUpdating = false,
-  actionIcon,
+  actionIconType,
   onAction,
   disableAction,
-  isDirty = false
 }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
@@ -116,32 +118,33 @@ export function Modal({
                   : '-translate-y-full'
               }
             >
-              <Dialog.Panel 
+              <DialogPanel 
                 className={`w-full transform h-[100dvh] md:h-auto md:max-h-[85vh] ${sizeClasses[size]} rounded-none md:rounded-2xl bg-white shadow-xl flex flex-col`}
               >
                 <div className="flex flex-col h-full flex-grow">
                   {/* Header */}
-                  {(title || headerContent || showCloseButton || actionIcon) && (
+                  {(title || headerContent || showCloseButton || actionIconType) && (
                     <div className="flex items-center justify-between px-4 py-4 sm:px-6 bg-primary-500 border-b border-primary-600 rounded-none md:rounded-t-2xl">
-                      <div className="flex items-center space-x-2">
-                        {actionIcon && onAction && (
+                      <h2 className="text-lg font-medium text-white flex-1">
+                        {title}
+                      </h2>
+                      <div className="flex items-center space-x-2 ">
+                        {actionIconType && onAction && (
                           <button
                             onClick={onAction}
-                            className="rounded-md p-2 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!isDirty || isUpdating || disableAction}
+                            disabled={disableAction || isUpdating}
+                            className="flex items-center justify-center bg-white rounded-md hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed p-2"
                           >
                             {isUpdating ? (
-                              <Loader2 className="h-5 w-5 animate-spin" />
+                              <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
                             ) : (
-                              actionIcon
+                              <>
+                                {actionIconType === 'SEARCH' && <Search className="w-6 h-6 text-primary-600" />}
+                                {actionIconType === 'SAVE' && <Save className="w-6 h-6 text-primary-600" />}
+                              </>
                             )}
                           </button>
                         )}
-                      </div>
-                      <h2 className="text-lg font-medium text-white flex-1 text-center">
-                        {title}
-                      </h2>
-                      <div className="flex items-center space-x-2">
                         {showCloseButton && (
                           <button
                             type="button"
@@ -163,7 +166,7 @@ export function Modal({
                     </div>
                   </div>
                 </div>
-              </Dialog.Panel>
+              </DialogPanel>
             </TransitionChild>
           </div>
         </div>

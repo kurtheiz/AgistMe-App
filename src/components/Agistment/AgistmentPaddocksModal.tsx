@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Modal } from '../shared/Modal';
 import { Agistment, PaddockBase } from '../../types/agistment';
+import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-import { Save } from 'lucide-react';
 
 interface PaddockForm extends Omit<PaddockBase, 'whenAvailable'> {
   whenAvailable: Date | undefined;
@@ -164,6 +163,7 @@ export const AgistmentPaddocksModal = ({
           [field]: value
         };
       }
+      setIsDirty(true);
       return updatedForm;
     });
   };
@@ -174,10 +174,10 @@ export const AgistmentPaddocksModal = ({
       onClose={onClose}
       title="Edit Paddocks"
       size="lg"
-      isUpdating={isUpdating}
-      actionIcon={<Save className="h-5 w-5" />}
+      actionIconType="SAVE"
       onAction={handleUpdatePaddocks}
-      isDirty={isDirty}
+      isUpdating={isUpdating}
+      disableAction={!isDirty}
     >
       <div className="space-y-6">
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>

@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
 import { Modal } from '../shared/Modal';
 import { Agistment, AgistmentContact, AgistmentPropertyLocation, AgistmentBasicInfo, AgistmentDescription } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
 import { Suburb } from '../../types/suburb';
-import NumberStepper from '../shared/NumberStepper';
 
 interface Props {
   basicInfo?: AgistmentBasicInfo;
@@ -30,10 +28,6 @@ interface EditForm {
   contactNumber: string;
   description?: string;
 }
-
-const calculateHash = (obj: any): string => {
-  return JSON.stringify(obj);
-};
 
 export const AgistmentHeaderModal = ({
   basicInfo,
@@ -69,7 +63,6 @@ export const AgistmentHeaderModal = ({
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
 
-  // Set initial hash when modal opens or props change
   useEffect(() => {
     if (isOpen) {
       const initialFormState = {
@@ -86,16 +79,15 @@ export const AgistmentHeaderModal = ({
         description: propertyDescription?.description || ''
       };
       setEditForm(initialFormState);
-      setInitialHash(calculateHash(initialFormState));
+      setInitialHash(JSON.stringify(initialFormState));
       setSelectedSuburbs([]);
       setIsDirty(false);
       setErrors({});
     }
   }, [isOpen, basicInfo, propertyLocation, contactDetails, propertyDescription]);
 
-  // Update dirty state whenever form changes
   useEffect(() => {
-    const currentHash = calculateHash(editForm);
+    const currentHash = JSON.stringify(editForm);
     setIsDirty(currentHash !== initialHash);
   }, [editForm, initialHash]);
 
@@ -114,7 +106,7 @@ export const AgistmentHeaderModal = ({
       description: propertyDescription?.description || ''
     };
     setEditForm(initialFormState);
-    setInitialHash(calculateHash(initialFormState));
+    setInitialHash(JSON.stringify(initialFormState));
     setSelectedSuburbs([]);
     setIsDirty(false);
     setErrors({});
@@ -124,22 +116,18 @@ export const AgistmentHeaderModal = ({
   const validateFields = () => {
     const newErrors: { propertyName?: string; address?: string; location?: string; email?: string; mobile?: string; } = {};
     
-    // Property Name is required
     if (!editForm.propertyName?.trim()) {
       newErrors.propertyName = 'Property Name is required';
     }
 
-    // Address is required
     if (!editForm.address?.trim()) {
       newErrors.address = 'Address is required';
     }
 
-    // Suburb selection is required
     if (!editForm.suburb || !editForm.state || !editForm.postcode || !editForm.region) {
       newErrors.location = 'Please select a suburb';
     }
 
-    // Email validation - optional but must be valid if provided
     if (editForm.contactEmail && editForm.contactEmail.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(editForm.contactEmail)) {
@@ -147,7 +135,6 @@ export const AgistmentHeaderModal = ({
       }
     }
 
-    // Mobile validation - optional but must be 10 digits if provided
     if (editForm.contactNumber && editForm.contactNumber.trim()) {
       const mobileRegex = /^\d{10}$/;
       if (!mobileRegex.test(editForm.contactNumber)) {
@@ -160,6 +147,10 @@ export const AgistmentHeaderModal = ({
   };
 
   const handleUpdateAll = async () => {
+    if (!validateFields()) {
+      return;
+    }
+
     setIsSaving(true);
     try {
       const updatedAgistment: Partial<Agistment> = {
@@ -200,13 +191,6 @@ export const AgistmentHeaderModal = ({
     }
   };
 
-  const handleAction = () => {
-    if (!validateFields()) {
-      return;
-    }
-    handleUpdateAll();
-  };
-
   const handleSuburbChange = (suburbs: Suburb[]) => {
     const suburb = suburbs[0];
     if (suburb) {
@@ -227,10 +211,10 @@ export const AgistmentHeaderModal = ({
       onClose={handleClose}
       title="Edit Property Details"
       size="lg"
+      actionIconType="SAVE"
+      onAction={handleUpdateAll}
       isUpdating={isSaving}
-      actionIcon={<Save className="h-5 w-5" />}
-      onAction={handleAction}
-      isDirty={isDirty}
+      disableAction={!isDirty || Object.keys(errors).length > 0}
     >
       <div className="space-y-6">
         {/* Property Name */}
@@ -401,15 +385,7 @@ export const AgistmentHeaderModal = ({
         {/* Property Size */}
         <div className="section-container">
           <div>
-            <NumberStepper
-              label="Property Size (acres)"
-              value={editForm.propertySize}
-              onChange={(value) => {
-                setEditForm(prev => ({ ...prev, propertySize: value }));
-              }}
-              min={0}
-              step={1}
-            />
+            {/* Removed NumberStepper component */}
           </div>
         </div>
 

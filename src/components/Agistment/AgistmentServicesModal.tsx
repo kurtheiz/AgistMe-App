@@ -3,7 +3,6 @@ import { X, Plus } from 'lucide-react';
 import { Agistment } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import { classNames } from '../../utils/classNames';
-import { Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const calculateHash = (obj: any): string => {
@@ -90,10 +89,10 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
       onClose={onClose}
       title="Edit Services"
       size="md"
-      isUpdating={isSaving}
-      actionIcon={<Save className="h-5 w-5" />}
+      actionIconType="SAVE"
       onAction={handleUpdateAll}
-      isDirty={isDirty}
+      isUpdating={isSaving}
+      disableAction={!isDirty}
     >
       <div className="space-y-4">
         <div className="form-group">

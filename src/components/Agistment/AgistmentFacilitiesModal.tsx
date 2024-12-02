@@ -4,7 +4,6 @@ import { Agistment, FacilityBase, Stables, FloatParking } from '../../types/agis
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
 import { classNames } from '../../utils/classNames';
-import { Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const calculateHash = (obj: any): string => {
@@ -69,10 +68,6 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
     }
   };
 
-  const handleAction = () => {
-    handleUpdateAll();
-  };
-
   const updateFacility = (facility: keyof Agistment['facilities'], updates: Partial<FacilityBase>) => {
     setEditableFacilities(prev => ({
       ...prev,
@@ -89,10 +84,10 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
       onClose={handleClose}
       title="Edit Facilities"
       size="md"
+      actionIconType="SAVE"
+      onAction={handleUpdateAll}
       isUpdating={isSaving}
-      actionIcon={<Save className="h-5 w-5" />}
-      onAction={handleAction}
-      isDirty={isDirty}
+      disableAction={!isDirty}
     >
       {Object.entries(editableFacilities)
         .sort(([keyA], [keyB]) => {

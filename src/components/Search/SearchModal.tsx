@@ -15,7 +15,6 @@ import {
   HotWashIcon,
   StableIcon,
   TieUpIcon,
-  SearchIcon
 } from '../Icons';
 import NumberStepper from '../shared/NumberStepper';
 
@@ -32,7 +31,7 @@ interface SearchModalProps {
 export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: SearchModalProps) {
   const [searchParams] = useSearchParams();
   const searchHash = searchParams.get('q') || initialSearchHash;
-  const [isUpdating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({
     suburbs: [],
@@ -162,29 +161,34 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }));
   };
 
-  const handleSearch = () => {
-    const searchHash = btoa(JSON.stringify({
-      s: searchCriteria.suburbs.map(s => ({
-        i: s.id,
-        n: s.suburb,
-        p: s.postcode,
-        t: s.state,
-        r: s.region,
-        g: s.geohash,
-        l: s.locationType
-      })),
-      r: searchCriteria.radius,
-      pt: searchCriteria.paddockTypes,
-      sp: searchCriteria.spaces,
-      mp: searchCriteria.maxPrice,
-      a: searchCriteria.hasArena,
-      ry: searchCriteria.hasRoundYard,
-      f: searchCriteria.facilities,
-      ct: searchCriteria.careTypes
-    }));
+  const handleSearch = async () => {
+    setIsUpdating(true);
+    try {
+      const searchHash = btoa(JSON.stringify({
+        s: searchCriteria.suburbs.map(s => ({
+          i: s.id,
+          n: s.suburb,
+          p: s.postcode,
+          t: s.state,
+          r: s.region,
+          g: s.geohash,
+          l: s.locationType
+        })),
+        r: searchCriteria.radius,
+        pt: searchCriteria.paddockTypes,
+        sp: searchCriteria.spaces,
+        mp: searchCriteria.maxPrice,
+        a: searchCriteria.hasArena,
+        ry: searchCriteria.hasRoundYard,
+        f: searchCriteria.facilities,
+        ct: searchCriteria.careTypes
+      }));
 
-    onSearch({ ...searchCriteria, searchHash });
-    onClose();
+      onSearch({ ...searchCriteria, searchHash });
+    } finally {
+      setIsUpdating(false);
+      onClose();
+    }
   };
 
   const modalContent = (
@@ -449,10 +453,9 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
       onClose={onClose}
       title="Search Properties"
       size="lg"
-      actionIcon={<SearchIcon className="h-5 w-5" />}
+      actionIconType="SEARCH"
       onAction={handleSearch}
       disableAction={searchCriteria.suburbs.length === 0}
-      isDirty={searchCriteria.suburbs.length > 0}
       isUpdating={isUpdating}
     >
       <div className="px-4 py-3">
