@@ -21,7 +21,7 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
 
   const facilityItems = [
     { key: 'stables', icon: StableIcon, label: 'Stables' },
-    { key: 'hotWash', icon: HotWashIcon, label: 'Wash Bays' },
+    { key: 'hotWash', icon: HotWashIcon, label: 'Hot Wash' },
     { key: 'floatParking', icon: FloatParkingIcon, label: 'Float Parking' },
     { key: 'tieUp', icon: TieUpIcon, label: 'Tie Ups' },
     { key: 'feedRoom', icon: FeedRoomIcon, label: 'Feed Room' },
@@ -39,10 +39,10 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
           <div key={key} className="flex flex-col gap-1">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <div className={isAvailable ? "text-primary-600 dark:text-primary-400" : "text-neutral-400 dark:text-neutral-500"}>
+                <div className={isAvailable ? "text-primary-600" : "text-neutral-400"}>
                   <Icon className="w-5 h-5" />
                 </div>
-                <div className={isAvailable ? "font-medium text-neutral-900 dark:text-neutral-100" : "text-neutral-500 dark:text-neutral-400"}>
+                <div className={isAvailable ? "font-medium text-neutral-900" : "text-neutral-500"}>
                   {label}
                 </div>
               </div>
@@ -52,20 +52,20 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
                     Unavailable
                   </div>
                 )}
-                {key === 'stables' && facility && 'quantity' in facility && facility.quantity > 0 && (
-                  <div className="text-neutral-700 dark:text-neutral-300">
-                    ({facility.quantity} {facility.quantity === 1 ? 'stable' : 'stables'})
+                {isAvailable && key === 'stables' && 'quantity' in facility && (
+                  <div className="text-neutral-700">
+                    (<b>{facility.quantity}</b> available)
                   </div>
                 )}
-                {key === 'floatParking' && facility && 'monthlyPrice' in facility && typeof facility.monthlyPrice === 'number' && facility.monthlyPrice > 0 && (
-                  <div className="text-neutral-700 dark:text-neutral-300">
+                {isAvailable && key === 'floatParking' && 'monthlyPrice' in facility && facility.monthlyPrice !== undefined && (
+                  <div className="text-neutral-700">
                     (<b>${facility.monthlyPrice}</b> per month)
                   </div>
                 )}
               </div>
             </div>
             {facility?.comments && (
-              <div className="text-sm text-neutral-600 dark:text-neutral-400 pl-7">
+              <div className="text-sm text-neutral-600 pl-7">
                 {facility.comments}
               </div>
             )}

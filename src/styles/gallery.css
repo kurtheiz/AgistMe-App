@@ -49,10 +49,6 @@
   color: var(--primary-600);
 }
 
-.dark .custom-image-gallery .image-gallery-icon:hover {
-  color: var(--primary-400);
-}
-
 .custom-image-gallery .image-gallery-icon.image-gallery-left-nav,
 .custom-image-gallery .image-gallery-icon.image-gallery-right-nav {
   padding: 0 10px;
@@ -97,13 +93,6 @@
   height: 95vh !important;
   width: auto !important;
   object-fit: contain !important;
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  .image-gallery-thumbnails-wrapper.left {
-    background: rgba(255, 255, 255, 0.03);
-  }
 }
 
 /* Fullscreen adjustments */
@@ -152,15 +141,6 @@
   width: auto !important;
   height: auto !important;
   object-fit: contain !important;
-}
-
-.fullscreen-gallery .image-gallery-icon {
-  font-size: 2.5rem !important;
-}
-
-.fullscreen-gallery .image-gallery-svg {
-  height: 80px !important;
-  width: 40px !important;
 }
 
 @media (max-width: 768px) {

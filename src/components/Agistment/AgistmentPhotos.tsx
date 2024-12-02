@@ -285,10 +285,17 @@ export const AgistmentPhotos = ({
         onDirtyChange={setIsDirty}
         isUpdating={isUpdating}
         footerContent={({ isUpdating }) => (
-          <div className="flex justify-center space-x-2">
+          <div className="flex w-full gap-2">
+            <button
+              onClick={() => setIsCommentModalOpen(false)}
+              className="w-1/3 px-4 py-2.5 text-sm font-medium rounded-md text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
+              disabled={isUpdating}
+            >
+              Cancel
+            </button>
             <button
               onClick={handleUpdateComment}
-              className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
+              className={`w-2/3 px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
                 !isDirty || isUpdating
                   ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
                   : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'

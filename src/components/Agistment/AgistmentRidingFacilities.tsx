@@ -4,8 +4,6 @@ import { RoundYardDiagram } from './RoundYardDiagram';
 
 interface AgistmentRidingFacilitiesProps {
   ridingFacilities: Agistment['ridingFacilities'];
-  isEditable?: boolean;
-  onUpdate?: (updatedFields: Partial<Agistment>) => Promise<void>;
 }
 
 export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps> = ({
@@ -13,6 +11,11 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
 }) => {
   return (
     <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-neutral-900">
+          Riding Facilities
+        </h2>
+      </div>
       <div className="space-y-6">
         {/* Arenas */}
         <div>
@@ -34,11 +37,9 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                   <div key={index}>
                     <div className="space-y-3 flex flex-col items-center">
                       <ArenaDiagram length={arena.length} width={arena.width} />
-                      {arena.comments && (
-                        <p className="text-neutral-700 text-sm text-center max-w-xs">
-                          {arena.comments}
-                        </p>
-                      )}
+                      <p className="text-neutral-700 text-sm text-center max-w-xs min-h-[1.5rem]">
+                        {arena.comments || '\u00A0'}
+                      </p>
                       {arena.features && arena.features.length > 0 && (
                         <div className="flex flex-wrap gap-2 justify-center">
                           {arena.features.map((feature, featureIndex) => (
@@ -85,11 +86,9 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                   <div key={index}>
                     <div className="space-y-3 flex flex-col items-center">
                       <RoundYardDiagram diameter={yard.diameter} />
-                      {yard.comments && (
-                        <p className="text-neutral-700 text-sm text-center max-w-xs">
-                          {yard.comments}
-                        </p>
-                      )}
+                      <p className="text-neutral-700 text-sm text-center max-w-xs min-h-[1.5rem]">
+                        {yard.comments || '\u00A0'}
+                      </p>
                     </div>
                   </div>
                 ))}

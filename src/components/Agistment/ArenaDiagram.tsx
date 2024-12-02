@@ -13,12 +13,25 @@ export const ArenaDiagram: React.FC<ArenaDiagramProps> = ({ length, width }) => 
   const maxWidth = 200; // Maximum width in pixels
   const maxHeight = 150; // Maximum height in pixels
   
-  // Calculate scale based on the larger dimension
-  const scale = Math.min(maxWidth / actualLength, maxHeight / actualWidth);
+  // Calculate the aspect ratio of the actual dimensions
+  const aspectRatio = actualLength / actualWidth;
   
-  // Calculate actual display dimensions
-  const displayLength = Math.round(actualLength * scale);
-  const displayWidth = Math.round(actualWidth * scale);
+  // Determine the capped dimensions while preserving aspect ratio
+  let cappedLength, cappedWidth;
+  if (aspectRatio >= 2) { // If length is more than twice the width
+    cappedLength = 100;
+    cappedWidth = 100 / aspectRatio;
+  } else {
+    cappedWidth = 50;
+    cappedLength = 50 * aspectRatio;
+  }
+  
+  // Calculate scale based on the capped dimensions
+  const scale = Math.min(maxWidth / cappedLength, maxHeight / cappedWidth);
+  
+  // Calculate actual display dimensions using the capped values
+  const displayLength = Math.round(cappedLength * scale);
+  const displayWidth = Math.round(cappedWidth * scale);
 
   if (isDefault) {
     return (

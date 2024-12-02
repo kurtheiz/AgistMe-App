@@ -7,15 +7,15 @@ export const RoundYardDiagram: React.FC<RoundYardDiagramProps> = ({ diameter }) 
   const isDefault = diameter === 0;
   const actualDiameter = isDefault ? 30 : diameter;
 
-  // Calculate dimensions based on 40m reference
+  // Calculate dimensions based on 30m reference
   const maxDiameter = 150; // Maximum diameter in pixels
-  const referenceSize = 40; // Reference size in meters
+  const referenceSize = 30; // Reference size in meters
   
-  // Calculate scale based on reference size
+  // Calculate scale based on reference size, but cap the visual size at 30m
   const scale = maxDiameter / referenceSize;
   
-  // Calculate display size
-  const displaySize = Math.round(actualDiameter * scale);
+  // Calculate display size, capped at 30m for visual representation
+  const displaySize = Math.round(Math.min(30, actualDiameter) * scale);
 
   if (isDefault) {
     return (

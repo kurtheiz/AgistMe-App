@@ -113,7 +113,7 @@ export function Modal({
         <div
           className="fixed inset-0 z-10 w-screen overflow-y-auto bg-black/25 dark:bg-black/50"
         >
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="flex min-h-full items-center justify-center md:p-4">
             <TransitionChild
               as={Fragment}
               enter="transform transition ease-out duration-300"
@@ -140,12 +140,12 @@ export function Modal({
               }
             >
               <Dialog.Panel 
-                className={`modal-panel w-full ${sizeClasses[size]} transform h-[100dvh] md:h-auto md:max-h-[85vh] rounded-none md:rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl`}
+                className={`modal-panel w-full transform h-[100dvh] md:h-auto md:max-h-[85vh] ${sizeClasses[size]} rounded-none md:rounded-2xl overflow-hidden bg-white shadow-xl p-0`}
               >
                 <div className="flex flex-col h-full md:max-h-[85vh]">
                   {/* Header */}
                   {(title || headerContent || showCloseButton) && (
-                    <div className="flex-none bg-primary-500 dark:bg-primary-600 border-b border-primary-600 dark:border-primary-700 rounded-none md:rounded-t-2xl">
+                    <div className="flex-none bg-primary-500 border-b border-primary-600 rounded-none md:rounded-t-2xl">
                       <div className="flex items-center justify-between p-4">
                         {title && (
                           <Dialog.Title as="h3" className="text-lg font-medium text-white">
@@ -156,27 +156,30 @@ export function Modal({
                         {showCloseButton && (
                           <button
                             onClick={onClose}
-                            className="rounded-md p-2 -mr-2 text-primary-100 hover:text-white dark:text-primary-200 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-primary-500"
+                            className="rounded-md p-2 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
                           >
-                            <XMarkIcon className="h-5 w-5" />
+                            <span className="sr-only">Close</span>
+                            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                           </button>
                         )}
                       </div>
                     </div>
                   )}
-  
+
                   {/* Content */}
-                  <div className="flex-1 overflow-y-auto">
+                  <div className="flex-1 overflow-y-auto p-4">
                     {children}
                   </div>
-  
+
                   {/* Footer */}
                   {footerContent && (
-                    <div className="flex-none bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-700 p-4">
-                      {typeof footerContent === 'function' ? 
-                        footerContent({ isUpdating }) : 
-                        footerContent
-                      }
+                    <div className="flex-none border-t border-neutral-200 bg-white">
+                      <div className="p-4">
+                        {typeof footerContent === 'function' ? 
+                          footerContent({ isUpdating }) : 
+                          footerContent
+                        }
+                      </div>
                     </div>
                   )}
                 </div>

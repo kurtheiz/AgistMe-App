@@ -147,7 +147,7 @@ export function Agistments() {
   const EmptyState = ({ onSearch }: EmptyStateProps) => (
     <div className="flex flex-col items-center justify-center flex-grow">
       <div className="relative mb-8 w-48 h-48">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-100 via-primary-50 to-transparent dark:from-primary-900/30 dark:via-primary-800/10 rounded-full blur-2xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-100 via-primary-50 to-transparent rounded-full blur-2xl"></div>
         <div className="relative w-full h-full">
           <svg
             className="w-full h-full"
@@ -156,7 +156,7 @@ export function Agistments() {
             xmlns="http://www.w3.org/2000/svg"
           >
             {/* Background circle */}
-            <circle cx="50" cy="50" r="45" className="stroke-primary-200 dark:stroke-primary-400" strokeWidth="1" />
+            <circle cx="50" cy="50" r="45" className="stroke-primary-200" strokeWidth="1" />
             
             {/* AgistMe Logo in the center */}
             <image
@@ -165,7 +165,7 @@ export function Agistments() {
               y="30"
               width="40"
               height="40"
-              className="opacity-80 dark:invert"
+              className="opacity-80"
             />
             
             {/* Animated magnifying glass */}
@@ -176,7 +176,7 @@ export function Agistments() {
                   cx="42"
                   cy="42"
                   r="16"
-                  className="fill-white/80 dark:fill-neutral-800/80 backdrop-blur-sm"
+                  className="fill-white/80 backdrop-blur-sm"
                 />
                 
                 {/* Glass border */}
@@ -184,7 +184,7 @@ export function Agistments() {
                   cx="42"
                   cy="42"
                   r="16"
-                  className="fill-none stroke-primary-600 dark:stroke-primary-400"
+                  className="fill-none stroke-primary-600"
                   strokeWidth="2"
                 />
                 
@@ -194,7 +194,7 @@ export function Agistments() {
                   y1="54"
                   x2="64"
                   y2="64"
-                  className="stroke-primary-600 dark:stroke-primary-400"
+                  className="stroke-primary-600"
                   strokeWidth="3"
                   strokeLinecap="round"
                 />
@@ -203,14 +203,14 @@ export function Agistments() {
           </svg>
         </div>
       </div>
-      <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-3 px-4 sm:px-0 text-center">
+      <h2 className="text-2xl font-bold text-neutral-900 mb-4">
         {searchHash 
           ? `No agistments found in ${getLocationsText()}`
           : 'Find your perfect agistment'}
       </h2>
       <button
         onClick={onSearch}
-        className="mt-8 flex items-center gap-2 px-6 py-3 text-base font-medium text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 rounded-lg transition-colors"
+        className="mt-8 flex items-center gap-2 px-6 py-3 text-base font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
       >
         Search
       </button>

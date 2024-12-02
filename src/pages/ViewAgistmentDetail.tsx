@@ -128,7 +128,7 @@ export function ViewAgistmentDetail() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Paddocks Section */}
                 <div>
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Paddock Management
                   </h2>
                   <AgistmentPaddocks
@@ -138,7 +138,7 @@ export function ViewAgistmentDetail() {
 
                 {/* Care Options Section */}
                 <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Care Options
                   </h2>
                   <AgistmentCareOptions
@@ -153,7 +153,7 @@ export function ViewAgistmentDetail() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Riding Facilities Section */}
                 <div>
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Riding Facilities
                   </h2>
                   <AgistmentRidingFacilities
@@ -164,7 +164,7 @@ export function ViewAgistmentDetail() {
 
                 {/* Property Facilities Section */}
                 <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Property Facilities
                   </h2>
                   <AgistmentFacilities
@@ -176,7 +176,7 @@ export function ViewAgistmentDetail() {
 
             {/* Services Section */}
             <div>
-              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+              <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                 Services
               </h2>
               <AgistmentServices

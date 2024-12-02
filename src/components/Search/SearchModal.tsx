@@ -197,15 +197,15 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
   };
 
   const modalContent = (
-    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="space-y-4 p-4 sm:p-6">
+    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="space-y-4">
       {/* Location Section */}
       <div className="space-y-4 sm:space-y-6">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Location</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">Location</h2>
 
         {/* Location Search */}
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-2">
+            <label className="block text-sm font-medium text-neutral-700 mb-1 flex items-center gap-2">
               {searchCriteria.suburbs.length === 0 ? (
                 "Select at least one location"
               ) : (
@@ -225,12 +225,12 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
           </div>
 
           {/* Radius */}
-          <div className="pb-6 border-b border-neutral-200 dark:border-neutral-700">
+          <div className="pb-6 border-b border-neutral-200">
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <label className="block text-sm font-medium text-neutral-700">
                 Radius
               </label>
-              <span className="text-lg font-semibold text-neutral-900 dark:text-white">
+              <span className="text-lg font-semibold text-neutral-900">
                 {!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) ? 'Any' : searchCriteria.radius === 0 ? 'Any' : `${searchCriteria.radius}km`}
               </span>
             </div>
@@ -247,19 +247,19 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                   radius: hasSuburb ? parseInt(e.target.value) : 0 
                 }));
               }}
-              className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer 
+              className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer 
                 ${!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) 
                   ? 'opacity-50 cursor-not-allowed' 
                   : searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)
-                    ? 'accent-primary-600 dark:accent-primary-500'
+                    ? 'accent-primary-600'
                     : ''
                 }`}
             />
-            <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            <div className="flex justify-between text-xs text-neutral-500 mt-1">
               <span>0km</span>
               <span>50km</span>
             </div>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            <p className="text-xs text-neutral-500 mt-1">
               Radius search will only be available when a suburb is selected
             </p>
           </div>
@@ -269,7 +269,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
       {/* Filters Section */}
       <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Filters</h2>
+          <h2 className="text-lg font-semibold text-neutral-900">Filters</h2>
           <button
             type="button"
             onClick={(e) => {
@@ -286,15 +286,15 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               searchCriteria.facilities.length === 0 &&
               searchCriteria.careTypes.length === 0
             }
-            className={`text-sm transition-colors ${searchCriteria.spaces === 0 &&
+            className={`text-sm font-medium text-neutral-700 hover:text-neutral-900 ${searchCriteria.spaces === 0 &&
                 searchCriteria.maxPrice === 0 &&
                 searchCriteria.paddockTypes.length === 0 &&
                 !searchCriteria.hasArena &&
                 !searchCriteria.hasRoundYard &&
                 searchCriteria.facilities.length === 0 &&
                 searchCriteria.careTypes.length === 0
-                ? 'text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
-                : 'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
+                ? 'cursor-not-allowed'
+                : ''
               }`}
           >
             Reset Filters
@@ -303,7 +303,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
         <div className="space-y-4 sm:space-y-6">
           {/* Number of Horses */}
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
               Number of Horses
             </label>
             <NumberStepper
@@ -319,10 +319,10 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
           {/* Maximum Weekly Price */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <label className="block text-sm font-medium text-neutral-700">
                 Max price per space
               </label>
-              <span className="text-lg font-semibold text-neutral-900 dark:text-white">
+              <span className="text-lg font-semibold text-neutral-900">
                 {searchCriteria.maxPrice === 0 ? 'Any' : searchCriteria.maxPrice === 300 ? '$300+/week' : `$${searchCriteria.maxPrice}/week`}
               </span>
             </div>
@@ -334,12 +334,12 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
               disabled={searchCriteria.suburbs.length === 0}
               value={searchCriteria.maxPrice}
               onChange={(e) => setSearchCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
-              className={`w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 
+              className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 
                 ? 'opacity-50 cursor-not-allowed' 
-                : 'cursor-pointer accent-primary-600 dark:accent-primary-500'
+                : 'cursor-pointer accent-primary-600'
               }`}
             />
-            <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            <div className="flex justify-between text-xs text-neutral-500 mt-1">
               <span>Any</span>
               <span>$300+/week</span>
             </div>
@@ -349,9 +349,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Paddock Types */}
             <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Paddock Types
-              </label>
+              <h2 className="text-lg font-semibold text-neutral-900">Paddock Type</h2>
               <div className="grid grid-cols-3 gap-2">
                 {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
                   <button
@@ -360,8 +358,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                     disabled={searchCriteria.suburbs.length === 0}
                     onClick={() => togglePaddockType(type)}
                     className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.paddockTypes.includes(type)
-                        ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                        : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
                       } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
                     {type}
@@ -372,17 +370,15 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
 
             {/* Riding Facilities */}
             <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Riding Facilities
-              </label>
+              <h2 className="text-lg font-semibold text-neutral-900">Riding Facilities</h2>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   disabled={searchCriteria.suburbs.length === 0}
                   onClick={toggleArena}
                   className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.hasArena
-                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
                     } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <ArenaIcon className="h-5 w-5" />
@@ -393,8 +389,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                   disabled={searchCriteria.suburbs.length === 0}
                   onClick={toggleRoundYard}
                   className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.hasRoundYard
-                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
                     } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <RoundYardIcon className="h-5 w-5" />
@@ -406,9 +402,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
 
           {/* Care Types */}
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Care Types
-            </label>
+            <h2 className="text-lg font-semibold text-neutral-900">Care Type</h2>
             <div className="grid grid-cols-3 gap-2">
               {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
                 <button
@@ -417,8 +411,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                   disabled={searchCriteria.suburbs.length === 0}
                   onClick={() => toggleCareType(type)}
                   className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.careTypes.includes(type)
-                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
                     } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   {type} Care
@@ -429,9 +423,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
 
           {/* Additional Facilities */}
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Additional Facilities
-            </label>
+            <h2 className="text-lg font-semibold text-neutral-900">Facilities</h2>
             <div className="grid grid-cols-2 gap-2">
               {[/* eslint-disable @typescript-eslint/naming-convention */
                 { key: 'feedRoom' as FacilityType, icon: FeedRoomIcon, label: 'Feed Room' },
@@ -447,8 +439,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                   disabled={searchCriteria.suburbs.length === 0}
                   onClick={() => toggleFacility(key)}
                   className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.facilities.includes(key)
-                      ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-600 hover:border-primary-600 dark:hover:border-primary-500'
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
                     } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <Icon className="h-5 w-5" />
@@ -469,8 +461,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
         form="search-form"
         disabled={searchCriteria.suburbs.length === 0}
         className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${searchCriteria.suburbs.length === 0
-            ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
-            : 'bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400'
+            ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
+            : 'bg-primary-600 text-white hover:bg-primary-700'
           }`}
       >
         Search Agistments

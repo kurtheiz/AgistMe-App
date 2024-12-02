@@ -41,35 +41,35 @@ export const Header = () => {
   const agistmentsPath = searchHash ? `/agistments?q=${searchHash}` : '/agistments';
 
   return (
-    <header className={`bg-white dark:bg-neutral-900 w-full ${location.pathname !== '/' && 'border-b border-neutral-200 dark:border-neutral-800'}`}>
+    <header className={`bg-white w-full ${location.pathname !== '/' && 'border-b border-neutral-200'}`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-1 relative">
         <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Left side */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             <Link 
               to="/" 
-              className="flex items-center space-x-2 sm:space-x-3 text-lg sm:text-xl font-bold text-gray-900 dark:text-white"
+              className="flex items-center space-x-2 sm:space-x-3 text-lg sm:text-xl font-bold text-gray-900"
             >
-              <img src="/AgistMeLogo.svg" alt="Agist Me Logo" className="h-9 w-9 sm:h-10 sm:w-10 dark:invert" />
+              <img src="/AgistMeLogo.svg" alt="Agist Me Logo" className="h-9 w-9 sm:h-10 sm:w-10" />
               <span>Agist Me</span>
             </Link>
             <nav className="hidden md:flex space-x-4">
               <Link 
                 to={agistmentsPath}
-                className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
+                className="text-base sm:text text-gray-600 hover:text-primary-600"
               >
                 Agistments
               </Link>
               <Link 
                 to="/listagistment" 
-                className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
+                className="text-base sm:text text-gray-600 hover:text-primary-600"
               >
                 List Agistment
               </Link>
               {isSignedIn && (wasAgistor || (profile?.agistor && !profileLoading)) && (
                 <Link 
                   to="/dashboard"
-                  className="text-base sm:text text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400"
+                  className="text-base sm:text text-gray-600 hover:text-primary-600"
                 >
                   Dashboard
                 </Link>
@@ -99,7 +99,7 @@ export const Header = () => {
                     viewBox="0 0 24 24" 
                     strokeWidth={1.5} 
                     stroke="currentColor" 
-                    className="w-8 h-8 text-gray-800 dark:text-white"
+                    className="w-8 h-8 text-gray-800"
                   >
                     <path 
                       strokeLinecap="round" 

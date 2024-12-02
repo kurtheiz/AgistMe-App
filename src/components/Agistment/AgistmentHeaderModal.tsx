@@ -171,14 +171,20 @@ export const AgistmentHeaderModal = ({
       onDirtyChange={setIsDirty}
       isUpdating={isSaving}
       footerContent={({ isUpdating }) => (
-        <div className="flex justify-end space-x-2">
+        <div className="flex w-full gap-2">
+          <button
+            onClick={onClose}
+            className="w-1/3 px-4 py-2.5 text-sm font-medium rounded-md text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
+          >
+            Cancel
+          </button>
           <button
             onClick={handleUpdateAll}
             disabled={!isDirty || isUpdating}
-            className={`px-4 py-2 rounded-md transition-colors ${
+            className={`w-2/3 px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
               !isDirty || isUpdating
-                ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
-                : 'bg-primary-600 text-white hover:bg-primary-700'
+                ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
+                : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
             }`}
           >
             {isUpdating ? (
@@ -258,7 +264,7 @@ export const AgistmentHeaderModal = ({
                     </label>
                     <input
                       type="text"
-                      value={editForm.suburb ? `${editForm.suburb}, ${editForm.state} ${editForm.postcode}` : ''}
+                      value={editForm.suburb || ''}
                       readOnly
                       disabled
                       className="form-input form-input-compact bg-neutral-50"
@@ -309,20 +315,41 @@ export const AgistmentHeaderModal = ({
 
           {/* Contact Details */}
           <div className="section-container">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  Contact Name
-                </label>
-                <input
-                  type="text"
-                  value={editForm.contactName}
-                  onChange={(e) => {
-                    setEditForm(prev => ({ ...prev, contactName: e.target.value }));
-                    setIsDirty(true);
-                  }}
-                  className="form-input form-input-compact"
-                />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Contact Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.contactName}
+                    onChange={(e) => {
+                      setEditForm(prev => ({ ...prev, contactName: e.target.value }));
+                      setIsDirty(true);
+                    }}
+                    className="form-input form-input-compact"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={editForm.contactNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setEditForm(prev => ({ ...prev, contactNumber: value }));
+                      setIsDirty(true);
+                    }}
+                    className={`form-input form-input-compact ${errors.mobile ? 'border-red-500' : ''}`}
+                    placeholder="Enter 10 digit number"
+                  />
+                  {errors.mobile && (
+                    <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -339,25 +366,6 @@ export const AgistmentHeaderModal = ({
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  value={editForm.contactNumber}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                    setEditForm(prev => ({ ...prev, contactNumber: value }));
-                    setIsDirty(true);
-                  }}
-                  className={`form-input form-input-compact ${errors.mobile ? 'border-red-500' : ''}`}
-                  placeholder="Enter 10 digit number"
-                />
-                {errors.mobile && (
-                  <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
                 )}
               </div>
             </div>

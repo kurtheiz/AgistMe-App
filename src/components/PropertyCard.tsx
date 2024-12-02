@@ -32,10 +32,10 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
   // If agistment is not loaded yet, show loading state
   if (!agistment || !agistment.basicInfo) {
     return (
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl p-4 animate-pulse">
-        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-4"></div>
-        <div className="h-48 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
-        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2"></div>
+      <div className="bg-white rounded-lg shadow-xl p-4 animate-pulse">
+        <div className="h-4 bg-neutral-200 rounded w-3/4 mb-4"></div>
+        <div className="h-48 bg-neutral-200 rounded mb-4"></div>
+        <div className="h-4 bg-neutral-200 rounded w-1/2"></div>
       </div>
     );
   }
@@ -50,29 +50,29 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
 
   return (
     <div 
-      className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
+      className="bg-white rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
       onClick={handleClick}
     >
-      <div className="relative bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+      <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
         {/* Property Name Header */}
         <div className="title-header relative">
           <div className="flex justify-between items-start relative z-10 py-2">
             <div className="flex items-center gap-2">
-              <h2 className="title-text dark:text-neutral-200 truncate px-2">{agistment.basicInfo.name}</h2>
+              <h2 className="title-text truncate px-2">{agistment.basicInfo.name}</h2>
               {agistment.listing.listingType === 'PROFESSIONAL' && (
                 <span className="bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
                   PRO
                 </span>
               )}
             </div>
-            <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md dark:bg-primary-400 dark:text-neutral-200">
+            <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md">
               {agistment.basicInfo.propertySize} acres
             </div>
           </div>
         </div>
 
         {/* Photo */}
-        <div className="relative aspect-[16/9] bg-neutral-100 dark:bg-neutral-700">
+        <div className="relative aspect-[16/9] bg-neutral-100">
           {agistment.photoGallery.photos && agistment.photoGallery.photos.length > 0 ? (
             <img 
               src={agistment.photoGallery.photos[0].link} 
@@ -81,7 +81,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-neutral-400 dark:text-neutral-300 flex flex-col items-center">
+              <div className="text-neutral-400 flex flex-col items-center">
                 <PhotoIcon className="w-12 h-12 mb-2" />
                 <span className="text-sm">No photos</span>
               </div>
@@ -91,19 +91,19 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
 
         {/* Location */}
         {agistment.propertyLocation.location && (
-          <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 bg-white">
             <a
               href={getGoogleMapsUrl(agistment.propertyLocation.location)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-neutral-800 hover:text-neutral-700 dark:text-neutral-300 dark:hover:text-neutral-100 transition-colors"
+              className="text-neutral-800 hover:text-neutral-700 transition-colors"
               title="Open in Google Maps"
             >
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
             <div className="flex justify-between items-center">
-              <div className="text-sm text-neutral-800 dark:text-neutral-400">
+              <div className="text-sm text-neutral-800">
                 {agistment.propertyLocation.location.address}, {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.region}, {agistment.propertyLocation.location.state}
               </div>
             </div>
@@ -111,10 +111,10 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         )}
 
         {/* Availability Info */}
-        <div className="px-5 py-3 bg-white dark:bg-neutral-700 border-b border-neutral-200 dark:border-neutral-600">
+        <div className="px-5 py-3 bg-white border-b border-neutral-200">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base sm:text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-3">
+              <h3 className="text-base sm:text-lg font-semibold text-neutral-800 mb-3">
                 Spaces Available
               </h3>
               <div className="flex items-center gap-4 sm:gap-8">
@@ -124,14 +124,14 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
                     agistment.paddocks?.privatePaddocks?.total > 0 
                       ? agistment.paddocks?.privatePaddocks?.available > 0
                         ? agistment.paddocks?.privatePaddocks?.whenAvailable && new Date(agistment.paddocks?.privatePaddocks?.whenAvailable) > new Date()
-                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
-                          : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
-                        : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
-                      : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                          ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
+                          : 'bg-primary-100 text-primary-700 px-3 py-1.5'
+                        : 'bg-red-100 text-red-600 px-3 py-1.5'
+                      : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
                     {agistment.paddocks?.privatePaddocks?.total > 0 ? agistment.paddocks?.privatePaddocks?.available : '-'}
                   </span>
-                  <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
+                  <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Private
                   </span>
                 </div>
@@ -142,14 +142,14 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
                     agistment.paddocks?.sharedPaddocks?.total > 0 
                       ? agistment.paddocks?.sharedPaddocks?.available > 0
                         ? agistment.paddocks?.sharedPaddocks?.whenAvailable && new Date(agistment.paddocks?.sharedPaddocks?.whenAvailable) > new Date()
-                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
-                          : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
-                        : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
-                      : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                          ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
+                          : 'bg-primary-100 text-primary-700 px-3 py-1.5'
+                        : 'bg-red-100 text-red-600 px-3 py-1.5'
+                      : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
                     {agistment.paddocks?.sharedPaddocks?.total > 0 ? agistment.paddocks?.sharedPaddocks?.available : '-'}
                   </span>
-                  <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
+                  <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Shared
                   </span>
                 </div>
@@ -160,14 +160,14 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
                     agistment.paddocks?.groupPaddocks?.total > 0 
                       ? agistment.paddocks?.groupPaddocks?.available > 0
                         ? agistment.paddocks?.groupPaddocks?.whenAvailable && new Date(agistment.paddocks?.groupPaddocks?.whenAvailable) > new Date()
-                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1.5'
-                          : 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-3 py-1.5'
-                        : 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-3 py-1.5'
-                      : 'border-2 border-dotted border-neutral-300 dark:border-neutral-600 text-neutral-300 dark:text-neutral-600 px-[10px] py-[4px]'
+                          ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
+                          : 'bg-primary-100 text-primary-700 px-3 py-1.5'
+                        : 'bg-red-100 text-red-600 px-3 py-1.5'
+                      : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
                     {agistment.paddocks?.groupPaddocks?.total > 0 ? agistment.paddocks?.groupPaddocks?.available : '-'}
                   </span>
-                  <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 font-medium mt-2">
+                  <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Group
                   </span>
                 </div>
@@ -179,7 +179,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
               {agistment.paddockTypes?.map((type: string, index: number) => (
                 <span
                   key={index}
-                  className="px-2 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300"
+                  className="px-2 py-1 text-xs rounded-full bg-neutral-100 text-neutral-600"
                 >
                   {type}
                 </span>
@@ -188,7 +188,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
 
             {/* Price Range */}
             <div className="text-right flex flex-col justify-start h-[72px]">
-              <div className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">
+              <div className="text-sm text-neutral-500 mb-1">
                 {(() => {
                   const minPrice = Math.min(
                     agistment.paddocks?.privatePaddocks?.weeklyPrice || Infinity,
@@ -203,7 +203,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
                   return minPrice === maxPrice ? 'Price' : 'Price Range';
                 })()}
               </div>
-              <div className="font-bold text-lg text-neutral-900 dark:text-neutral-100">
+              <div className="font-bold text-lg text-neutral-900">
                 {(() => {
                   const minPrice = Math.min(
                     agistment.paddocks?.privatePaddocks?.weeklyPrice || Infinity,
@@ -219,14 +219,14 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
                     ? `From $${formatCurrency(minPrice)}`
                     : `$${formatCurrency(minPrice)} - $${formatCurrency(maxPrice)}`;
                 })()}
-                <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400 ml-1">/week</span>
+                <span className="text-sm font-normal text-neutral-500 ml-1">/week</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Facilities Grid */}
-        <div className="p-3 sm:p-5 flex-grow bg-white dark:bg-neutral-700">
+        <div className="p-3 sm:p-5 flex-grow bg-white">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[/* eslint-disable @typescript-eslint/no-unused-vars */
               { 
@@ -260,15 +260,15 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
                 available: agistment.care.selfCare.available || agistment.care.partCare.available || agistment.care.fullCare.available
               }
             ].map(({ key, label, icon: Icon, available }) => (
-              <div key={key} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+              <div key={key} className="flex items-center gap-2 text-neutral-600">
                 {Icon && <Icon className="w-5 h-5" />}
                 <span className="text-sm flex items-center gap-1">
                   {label}
                   {key !== 'care' && (
                     available ? (
-                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <Check className="w-4 h-4 text-green-600" />
                     ) : (
-                      <X className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      <X className="w-4 h-4 text-red-600" />
                     )
                   )}
                 </span>
@@ -278,7 +278,7 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 bg-primary-50 dark:bg-primary-900/20 border-t border-primary-100 dark:border-primary-800 text-primary-800 dark:text-primary-200">
+        <div className="px-5 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
           <div className="flex justify-between items-center">
             <ShareFavoriteButtons 
               agistmentId={agistment.id}

@@ -168,13 +168,19 @@ export const AgistmentPaddocksModal = ({
       onDirtyChange={setIsDirty}
       isUpdating={isUpdating}
       footerContent={({ isUpdating }) => (
-        <div className="flex justify-center space-x-2">
+        <div className="w-full grid grid-cols-2 gap-2">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-md transition-colors border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"
+          >
+            Cancel
+          </button>
           <button
             onClick={handleUpdatePaddocks}
-            className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
+            className={`px-4 py-2 rounded-md transition-colors ${
               !isDirty || isUpdating
-                ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
-                : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
+                ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 opacity-50 cursor-not-allowed'
+                : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
             }`}
             disabled={!isDirty || isUpdating}
           >
@@ -192,7 +198,7 @@ export const AgistmentPaddocksModal = ({
     >
       <div className="p-4 space-y-6">
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
-          <Tab.List className="sticky top-0 z-10 flex space-x-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1">
+          <Tab.List className="sticky top-0 z-10 flex space-x-1 rounded-xl bg-neutral-100 p-1">
             {[
               { type: 'privatePaddocks', title: 'Private Paddocks' },
               { type: 'sharedPaddocks', title: 'Shared Paddocks' },
@@ -205,8 +211,8 @@ export const AgistmentPaddocksModal = ({
                     'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
                     'ring-white/60 ring-offset-2 ring-offset-neutral-400 focus:outline-none focus:ring-2',
                     selected
-                      ? 'bg-white dark:bg-neutral-700 shadow text-neutral-900 dark:text-white'
-                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-white/[0.12] hover:text-neutral-900 dark:hover:text-white'
+                      ? 'bg-white shadow text-neutral-900'
+                      : 'text-neutral-700 hover:bg-white/[0.12] hover:text-neutral-900'
                   )
                 }
               >
@@ -222,14 +228,14 @@ export const AgistmentPaddocksModal = ({
             ].map(({ type, title }) => (
               <Tab.Panel key={type} className="focus:outline-none">
                 <div className="space-y-6">
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-4">
+                  <div className="text-sm text-neutral-600 text-center mb-4">
                     <p>How many <span className="font-bold">{title}</span> paddocks do you have?</p>
                     <p>If you set it to <b>0</b>, then this will be displayed as<br/> "We do not offer <b>{title}</b> paddocks."</p>
                   </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                  <div className="text-sm text-neutral-600 text-center mb-2">
                     <div className="flex flex-col items-center gap-4 mb-4">
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">
                           Number of Paddocks
                         </label>
                         <NumberStepper
@@ -252,13 +258,13 @@ export const AgistmentPaddocksModal = ({
                       </div>
                     </div>
                   </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-4">
+                  <div className="text-sm text-neutral-600 text-center mb-4">
                     <p>How many horses can your <span className="font-bold">{editForm[type as keyof EditForm].totalPaddocks}</span> paddocks accommodate in total?</p>
                   </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                  <div className="text-sm text-neutral-600 text-center mb-2">
                     <div className="flex justify-center">
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">
                           Total Horse Spot Capacity
                         </label>
                         <NumberStepper
@@ -281,12 +287,12 @@ export const AgistmentPaddocksModal = ({
                       </div>
                     </div>
                   </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                  <div className="text-sm text-neutral-600 text-center mb-2">
                     <p>How many horse spots are currently vacant?</p>
                   </div>
                   <div className="flex flex-col items-center justify-center space-y-4">
                     <div className="flex flex-col items-center">
-                      <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                      <label className="block text-sm font-medium leading-6 text-gray-900">
                         Available Horse Spots
                       </label>
                       <NumberStepper
@@ -300,10 +306,10 @@ export const AgistmentPaddocksModal = ({
                   </div>
                   
                   <div className="flex flex-col items-center">
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                  <div className="text-sm text-neutral-600 text-center mb-2">
                     <p>What is the weekly cost per horse?</p>
                   </div>
-                    <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                    <label className="block text-sm font-medium leading-6 text-gray-900">
                       Weekly Price ($)
                     </label>
                     <div className="flex flex-col items-center gap-2">
@@ -313,17 +319,17 @@ export const AgistmentPaddocksModal = ({
                         min={0}
                         disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />
-                      <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                      <div className="text-sm text-neutral-500">
                         ≈ ${calculateMonthlyPrice(editForm[type as keyof EditForm].weeklyPrice)}/month
                       </div>
                     </div>
                   </div>
 
                   <div className="flex flex-col items-center">
-                    <div className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-2">
+                    <div className="text-sm text-neutral-600 text-center mb-2">
                       <p>When is the soonest spot available?</p>
                     </div>
-                    <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                    <label className="block text-sm font-medium leading-6 text-gray-900">
                       Available From
                     </label>
                     <div className="w-full max-w-xs">
@@ -344,7 +350,7 @@ export const AgistmentPaddocksModal = ({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                    <label className="block text-sm font-medium leading-6 text-gray-900">
                       Comments
                     </label>
                     <div className="relative">
@@ -358,7 +364,7 @@ export const AgistmentPaddocksModal = ({
                       {editForm[type as keyof EditForm].comments && (
                         <button
                           type="button"
-                          className="absolute right-2 top-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                          className="absolute right-2 top-2 text-neutral-400 hover:text-neutral-600"
                           onClick={() => handleEditFormChange(type as keyof EditForm, 'comments', '')}
                           aria-label="Clear comments"
                         >

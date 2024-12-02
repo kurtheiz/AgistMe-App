@@ -1,6 +1,5 @@
 import { ClerkProvider, useAuth } from '@clerk/clerk-react';
 import { createBrowserRouter, RouterProvider, Route, createRoutesFromElements } from 'react-router-dom';
-import { ThemeProvider } from './hooks/useTheme';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
@@ -100,12 +99,10 @@ function App() {
       <ErrorBoundary>
         <ClerkProvider publishableKey={clerkPubKey}>
           <AuthInitializer />
-          <ThemeProvider>
             <ProfileProvider>
               <RouterProvider router={router} />
               <Toaster position="top-center" />
             </ProfileProvider>
-          </ThemeProvider>
         </ClerkProvider>
       </ErrorBoundary>
     </div>

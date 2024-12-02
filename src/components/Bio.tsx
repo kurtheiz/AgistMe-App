@@ -164,9 +164,9 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
       handleSubmit(e);
     }} className="space-y-4">
       {/* Privacy Settings */}
-      <div className="border-b border-neutral-200 dark:border-neutral-700 pb-4">
+      <div className="border-b border-neutral-200 pb-4">
         <div className="flex justify-between items-center mb-4">
-          <h4 className="text-lg font-medium text-neutral-900 dark:text-white">
+          <h4 className="text-lg font-medium text-neutral-900">
             Privacy Settings
           </h4>
           <button
@@ -186,10 +186,10 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
               disabled={clearFields}
               className={`sr-only peer ${clearFields ? 'cursor-not-allowed' : ''}`}
             />
-            <div className={`w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-offset-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-neutral-600 peer-checked:bg-primary-600 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
-            <span className={`ml-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}>Share my bio with agistors</span>
+            <div className={`w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-offset-2 peer-focus:ring-primary-300 rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+            <span className={`ml-3 text-sm font-medium text-neutral-700 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}>Share my bio with agistors</span>
           </label>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 ml-[3.5rem]">
+          <p className="text-sm text-neutral-500 ml-[3.5rem]">
             When enabled, your bio and horse information will be shared with agistors you've made an enquiry with, so they can better understand you and your horses.
           </p>
         </div>
@@ -227,13 +227,13 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
         </div>
       </div>
 
-      <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
+      <p className="text-sm text-neutral-500 text-center">
         {user?.primaryEmailAddress?.emailAddress}
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1">
-          <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700">
             First Name
           </label>
           <div className="input-wrapper">
@@ -245,7 +245,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
               onChange={handleInputChange}
               placeholder="First Name"
               disabled={clearFields}
-              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100' : ''}`}
             />
             <button
               type="button"
@@ -258,7 +258,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
           </div>
         </div>
         <div className="space-y-1">
-          <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700">
             Last Name
           </label>
           <div className="input-wrapper">
@@ -270,7 +270,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
               onChange={handleInputChange}
               placeholder="Last Name"
               disabled={clearFields}
-              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100' : ''}`}
             />
             <button
               type="button"
@@ -286,7 +286,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1">
-          <label htmlFor="dateOfBirth" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <label htmlFor="dateOfBirth" className="block text-sm font-medium text-neutral-700">
             Date of Birth
           </label>
           <div className="input-wrapper">
@@ -299,7 +299,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
               max={getMaxDateOfBirth()}
               min={getMinDateOfBirth()}
               disabled={clearFields}
-              className={`form-input h-10 text-sm w-full dark:[color-scheme:dark] ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100' : ''}`}
             />
             <button
               type="button"
@@ -311,13 +311,13 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             </button>
           </div>
           {formData.dateOfBirth && !isValidDateOfBirth(formData.dateOfBirth).isValid && (
-            <p className="text-xs text-red-500 dark:text-red-400">
+            <p className="text-xs text-red-500">
               {isValidDateOfBirth(formData.dateOfBirth).error}
             </p>
           )}
         </div>
         <div className="space-y-1">
-          <label htmlFor="mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <label htmlFor="mobile" className="block text-sm font-medium text-neutral-700">
             Mobile Number
           </label>
           <div className="input-wrapper">
@@ -329,7 +329,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
               onChange={handleInputChange}
               placeholder="Mobile Number"
               disabled={clearFields}
-              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+              className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100' : ''}`}
             />
             <button
               type="button"
@@ -341,7 +341,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             </button>
           </div>
           {formData.mobile && !isValidAusMobileNumber(formData.mobile) && (
-            <p className="text-xs text-red-500 dark:text-red-400">
+            <p className="text-xs text-red-500">
               Please enter a valid mobile number (xxxx-xxx-xxx)
             </p>
           )}
@@ -351,14 +351,14 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
       {/* Location Section */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <label className="text-sm font-medium text-neutral-700">
             Location
           </label>
           <button
             type="button"
             onClick={handleClearAddress}
             disabled={!formData.postcode && !formData.address && !formData.suburb}
-            className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-sm font-medium text-neutral-700 hover:text-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Clear Address
           </button>
@@ -367,7 +367,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
         {/* Suburb Search and Address */}
         <div className="grid grid-cols-1 gap-4 items-start">
           <div className="w-full">
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 block">
+            <label className="text-sm font-medium text-neutral-700 mb-1 block">
               Address
             </label>
             <div className="input-wrapper">
@@ -377,7 +377,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
                 value={formData.address}
                 onChange={handleInputChange}
                 disabled={clearFields}
-                className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+                className={`form-input h-10 text-sm w-full ${clearFields ? 'bg-neutral-100' : ''}`}
               />
               <button
                 type="button"
@@ -390,7 +390,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             </div>
           </div>
           <div className="w-full">
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 block">
+            <label className="text-sm font-medium text-neutral-700 mb-1 block">
               Suburb
             </label>
             <SuburbSearch
@@ -415,7 +415,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             />
             <div className="grid grid-cols-2 gap-4 mt-2">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                <label className="text-sm font-medium text-neutral-700">
                   Selected Suburb
                 </label>
                 <input
@@ -423,11 +423,11 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
                   value={formData.suburb ? `${formData.suburb}, ${formData.state} ${formData.postcode}` : ''}
                   readOnly
                   disabled
-                  className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
+                  className="form-input h-10 text-sm w-full bg-neutral-100"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                <label className="text-sm font-medium text-neutral-700">
                   Region
                 </label>
                 <input
@@ -435,7 +435,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
                   value={formData.region || ''}
                   readOnly
                   disabled
-                  className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
+                  className="form-input h-10 text-sm w-full bg-neutral-100"
                 />
               </div>
             </div>
@@ -445,7 +445,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
         {/* State and Postcode */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            <label className="text-sm font-medium text-neutral-700">
               State
             </label>
             <input
@@ -453,11 +453,11 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
               value={formData.state}
               readOnly
               disabled
-              className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
+              className="form-input h-10 text-sm w-full bg-neutral-100"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            <label className="text-sm font-medium text-neutral-700">
               Post Code
             </label>
             <input
@@ -465,14 +465,14 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
               value={formData.postcode}
               readOnly
               disabled
-              className="form-input h-10 text-sm w-full bg-neutral-100 dark:bg-neutral-800"
+              className="form-input h-10 text-sm w-full bg-neutral-100"
             />
           </div>
         </div>
 
         {/* About Section */}
         <div className="space-y-1">
-          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <label className="text-sm font-medium text-neutral-700">
             About
           </label>
           <textarea
@@ -482,7 +482,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             placeholder={'Tell agistors more about yourself'}
             rows={7}
             disabled={clearFields}
-            className={`form-textarea text-sm w-full resize-none ${clearFields ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}
+            className={`form-textarea text-sm w-full resize-none ${clearFields ? 'bg-neutral-100' : ''}`}
           />
         </div>
       </div>
@@ -497,8 +497,8 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
         disabled={!hasChanges || saving || isUploading}
         className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
           !hasChanges || saving || isUploading
-            ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
-            : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
+            ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 opacity-50 cursor-not-allowed'
+            : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
         }`}
       >
         {saving ? 'Saving...' : 'Save Changes'}

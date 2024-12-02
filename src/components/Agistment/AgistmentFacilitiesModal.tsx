@@ -96,7 +96,7 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
             const displayNames: Record<keyof Agistment['facilities'], string> = {
               feedRoom: 'Feed Room',
               floatParking: 'Float Parking',
-              hotWash: 'Hot Wash Bay',
+              hotWash: 'Hot Wash',
               stables: 'Stables',
               tackRoom: 'Tack Room',
               tieUp: 'Tie Ups'
@@ -107,7 +107,7 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
             const displayNames: Record<keyof Agistment['facilities'], string> = {
               feedRoom: 'Feed Room',
               floatParking: 'Float Parking',
-              hotWash: 'Hot Wash Bay',
+              hotWash: 'Hot Wash',
               stables: 'Stables',
               tackRoom: 'Tack Room',
               tieUp: 'Tie Ups'

@@ -17,6 +17,8 @@ import toast from 'react-hot-toast';
 import { AgistmentHeaderModal } from '../components/Agistment/AgistmentHeaderModal';
 import { Pencil } from 'lucide-react';
 import { AgistmentPaddocksModal } from '../components/Agistment/AgistmentPaddocksModal';
+import { AgistmentCareOptionsModal } from '../components/Agistment/AgistmentCareOptionsModal';
+import { AgistmentRidingFacilitiesModal } from '../components/Agistment/AgistmentRidingFacilitiesModal';
 
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +29,8 @@ function EditAgistmentDetail() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
   const [isPaddocksModalOpen, setIsPaddocksModalOpen] = useState(false);
+  const [isCareOptionsModalOpen, setIsCareOptionsModalOpen] = useState(false);
+  const [isRidingFacilitiesModalOpen, setIsRidingFacilitiesModalOpen] = useState(false);
   const maxPhotos = usePlanPhotoLimit(agistment?.listing?.listingType || 'STANDARD');
 
   // Scroll to top when component mounts
@@ -116,6 +120,8 @@ function EditAgistmentDetail() {
       toast.success('Agistment updated successfully');
       setIsHeaderModalOpen(false);
       setIsPaddocksModalOpen(false);
+      setIsCareOptionsModalOpen(false);
+      setIsRidingFacilitiesModalOpen(false);
     } catch (error) {
       console.error('Error updating agistment:', error);
       toast.error('Failed to update agistment');
@@ -181,6 +187,18 @@ function EditAgistmentDetail() {
                 >
                   <ArrowLeftIcon className="w-3 h-3" />
                   <span className="font-medium text-sm sm:text-base">Back</span>
+                </div>
+                <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
+                <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
+                  {agistment?.propertyLocation?.location && (
+                    <>
+                      <span>{agistment.propertyLocation.location.state}</span>
+                      <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                      <span>{agistment.propertyLocation.location.region}</span>
+                      <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                      <span>{agistment.propertyLocation.location.suburb}</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -294,6 +312,9 @@ function EditAgistmentDetail() {
                   Edit
                 </button>
               </div>
+              <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                Header
+              </h2>
               <AgistmentHeader
                 basicInfo={agistment?.basicInfo}
                 propertyLocation={agistment?.propertyLocation}
@@ -307,10 +328,7 @@ function EditAgistmentDetail() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Paddocks Section */}
                 <div>
-                  <div className="flex items-center gap-4 mb-4">
-                    <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                      Paddock Management
-                    </h2>
+                  <div className="mb-4">
                     <button
                       onClick={() => setIsPaddocksModalOpen(true)}
                       className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
@@ -319,6 +337,9 @@ function EditAgistmentDetail() {
                       Edit
                     </button>
                   </div>
+                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                    Paddock Management
+                  </h2>
                   <AgistmentPaddocks
                     paddocks={agistment?.paddocks || {
                       groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
@@ -333,7 +354,16 @@ function EditAgistmentDetail() {
 
                 {/* Care Options Section */}
                 <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  <div className="mb-4">
+                    <button
+                      onClick={() => setIsCareOptionsModalOpen(true)}
+                      className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </button>
+                  </div>
+                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Care Options
                   </h2>
                   <AgistmentCareOptions
@@ -354,19 +384,35 @@ function EditAgistmentDetail() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Riding Facilities Section */}
                 <div>
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  <div className="mb-4">
+                    <button
+                      onClick={() => setIsRidingFacilitiesModalOpen(true)}
+                      className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </button>
+                  </div>
+                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Riding Facilities
                   </h2>
                   <AgistmentRidingFacilities
                     ridingFacilities={agistment?.ridingFacilities || { arenas: [], roundYards: [] }}
-                    isEditable={true}
-                    onUpdate={handleAgistmentUpdate}
                   />
                 </div>
 
                 {/* Property Facilities Section */}
                 <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  <div className="mb-4">
+                    <button
+                      onClick={() => {}}
+                      className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </button>
+                  </div>
+                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Property Facilities
                   </h2>
                   <AgistmentFacilities
@@ -387,7 +433,7 @@ function EditAgistmentDetail() {
 
             {/* Services Section */}
             <div>
-              <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+              <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                 Services
               </h2>
               <AgistmentServices
@@ -413,15 +459,28 @@ function EditAgistmentDetail() {
         }}
       />
       <AgistmentPaddocksModal
+        isOpen={isPaddocksModalOpen}
+        onClose={() => setIsPaddocksModalOpen(false)}
+        onUpdate={handleAgistmentUpdate}
+        agistmentId={agistment?.id || ''}
         paddocks={agistment?.paddocks || {
           groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
           privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
           sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
         }}
-        isOpen={isPaddocksModalOpen}
-        onClose={() => setIsPaddocksModalOpen(false)}
+      />
+      <AgistmentCareOptionsModal
+        isOpen={isCareOptionsModalOpen}
+        onClose={() => setIsCareOptionsModalOpen(false)}
+        care={agistment?.care}
         onUpdate={handleAgistmentUpdate}
+      />
+      <AgistmentRidingFacilitiesModal
         agistmentId={agistment?.id || ''}
+        ridingFacilities={agistment?.ridingFacilities || { arenas: [], roundYards: [] }}
+        isOpen={isRidingFacilitiesModalOpen}
+        onClose={() => setIsRidingFacilitiesModalOpen(false)}
+        onUpdate={handleAgistmentUpdate}
       />
     </div>
   );
