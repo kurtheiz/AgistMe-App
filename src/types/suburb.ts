@@ -18,3 +18,5 @@ export type SuburbResponse = {
     suburbs: Suburb[];
     count: number;
 };
+
+export type FacilityType = 'stables' | 'hotWash' | 'floatParking' | 'tieUp' | 'feedRoom' | 'tackRoom';

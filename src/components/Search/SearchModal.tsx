@@ -3,6 +3,8 @@ import { Modal } from '../shared/Modal';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
 import { SearchCriteria } from '../../types/search';
 import { LocationType } from '../../types/suburb';
+import { FacilityType } from '../../types/agistment';
+import { PaddockType, CareType } from '../../types/search';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
   ArenaIcon,
@@ -17,7 +19,7 @@ import {
 } from '../Icons';
 import NumberStepper from '../shared/NumberStepper';
 
-const initialFacilities = [];
+const initialFacilities: FacilityType[] = [];
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -111,13 +113,13 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
   const togglePaddockType = (type: string) => {
     setSearchCriteria(prev => ({
       ...prev,
-      paddockTypes: prev.paddockTypes.includes(type)
+      paddockTypes: prev.paddockTypes.includes(type as PaddockType)
         ? prev.paddockTypes.filter(t => t !== type)
-        : [...prev.paddockTypes, type]
+        : [...prev.paddockTypes, type as PaddockType]
     }));
   };
 
-  const toggleCareType = (type: string) => {
+  const toggleCareType = (type: CareType) => {
     setSearchCriteria(prev => ({
       ...prev,
       careTypes: prev.careTypes.includes(type)
@@ -126,7 +128,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
     }));
   };
 
-  const toggleFacility = (facility: string) => {
+  const toggleFacility = (facility: FacilityType) => {
     setSearchCriteria(prev => ({
       ...prev,
       facilities: prev.facilities.includes(facility)
@@ -340,7 +342,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
             <div>
               <h2 className="text-lg font-semibold text-neutral-900">Paddock Type</h2>
               <div className="grid grid-cols-3 gap-2">
-                {(['Private', 'Shared', 'Group'] as string[]).map((type) => (
+                {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
                   <button
                     key={type}
                     type="button"
@@ -393,7 +395,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
           <div>
             <h2 className="text-lg font-semibold text-neutral-900">Care Type</h2>
             <div className="grid grid-cols-3 gap-2">
-              {(['Self', 'Part', 'Full'] as string[]).map((type) => (
+              {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
                 <button
                   key={type}
                   type="button"
@@ -426,8 +428,8 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
                   key={key}
                   type="button"
                   disabled={searchCriteria.suburbs.length === 0}
-                  onClick={() => toggleFacility(key)}
-                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.facilities.includes(key)
+                  onClick={() => toggleFacility(key as FacilityType)}
+                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.facilities.includes(key as FacilityType)
                       ? 'bg-primary-600 text-white border-primary-600'
                       : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
                     } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -453,6 +455,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
       onAction={handleSearch}
       isUpdating={isUpdating}
       disableAction={searchCriteria.suburbs.length === 0}
+      isDirty={searchCriteria.suburbs.length > 0}
     >
       <div className="px-4 py-3">
         {modalContent}

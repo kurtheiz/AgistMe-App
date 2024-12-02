@@ -2,6 +2,8 @@ export type Status = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
 export type ListingType = 'STANDARD' | 'FEATURED' | 'PREMIUM' | 'PROFESSIONAL';
 
+export type FacilityType = 'feedRoom' | 'tackRoom' | 'floatParking' | 'hotWash' | 'tieUp' | 'stable';
+
 export interface AgistmentResponse {
   original: Agistment[];
   adjacent: Agistment[];
