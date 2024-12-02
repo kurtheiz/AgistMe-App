@@ -1,36 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Switch } from '@headlessui/react';
 import { Agistment, FacilityBase, Stables, FloatParking } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
+import { classNames } from '../../utils/classNames';
 
 interface AgistmentFacilitiesModalProps {
   isOpen: boolean;
   onClose: () => void;
   facilities: Agistment['facilities'];
-  onSave: (facilities: Agistment['facilities']) => Promise<void>;
+  agistmentId: string;
+  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
 }
 
 export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> = ({
   isOpen,
   onClose,
   facilities,
-  onSave
+  onUpdate
 }) => {
   const [editableFacilities, setEditableFacilities] = useState<Agistment['facilities']>(facilities);
   const [isDirty, setIsDirty] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
+  // Reset form when modal opens or facilities change
   useEffect(() => {
-    setEditableFacilities(facilities);
-  }, [facilities]);
-
-  useEffect(() => {
-    if (isOpen) {
+    if (isOpen || facilities) {
+      setEditableFacilities(facilities);
       setIsDirty(false);
     }
-  }, [isOpen]);
+  }, [isOpen, facilities]);
+
+  // Create content hash for form state tracking
+  const contentHash = useMemo(() => {
+    return JSON.stringify(editableFacilities);
+  }, [editableFacilities]);
 
   const updateFacility = (facility: keyof Agistment['facilities'], updates: Partial<FacilityBase>) => {
     setEditableFacilities(prev => ({
@@ -43,43 +48,23 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
     setIsDirty(true);
   };
 
-  const handleSave = async () => {
+  const handleUpdateAll = async () => {
     if (!isDirty) return;
 
-    setIsUpdating(true);
+    setIsSaving(true);
     try {
-      await onSave(editableFacilities);
+      if (onUpdate) {
+        await onUpdate({
+          facilities: editableFacilities
+        });
+      }
       onClose();
     } catch (error) {
       console.error('Failed to update facilities:', error);
     } finally {
-      setIsUpdating(false);
+      setIsSaving(false);
     }
   };
-
-  const footerContent = (
-    <div className="flex justify-center space-x-2">
-      <button
-        type="button"
-        onClick={handleSave}
-        disabled={!isDirty || isUpdating}
-        className={`w-full px-4 py-4 sm:py-2.5 text-base sm:text-sm font-medium rounded-md transition-colors ${
-          !isDirty || isUpdating
-            ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
-            : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
-        }`}
-      >
-        {isUpdating ? (
-          <>
-            <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
-            Saving...
-          </>
-        ) : (
-          'Save Changes'
-        )}
-      </button>
-    </div>
-  );
 
   return (
     <Modal 
@@ -87,8 +72,38 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
       onClose={onClose}
       title="Edit Facilities"
       size="md"
-      footerContent={footerContent}
-      isUpdating={isUpdating}
+      onDirtyChange={setIsDirty}
+      isUpdating={isSaving}
+      contentHash={contentHash}
+      footerContent={({ isUpdating }) => (
+        <div className="flex w-full gap-2">
+          <button
+            onClick={onClose}
+            className="w-1/3 px-4 py-2.5 text-sm font-medium rounded-md text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUpdateAll}
+            disabled={!isDirty || isUpdating}
+            className={classNames(
+              'w-2/3 px-4 py-2.5 text-sm font-medium rounded-md transition-colors',
+              !isDirty || isUpdating
+                ? 'text-neutral-500 bg-neutral-100 hover:bg-neutral-200 dark:text-neutral-400 dark:bg-neutral-800 dark:hover:bg-neutral-700 opacity-50 cursor-not-allowed'
+                : 'text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600'
+            )}
+          >
+            {isUpdating ? (
+              <>
+                <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
+          </button>
+        </div>
+      )}
     >
       <div className="p-6 space-y-4">
         {Object.entries(editableFacilities)
@@ -119,54 +134,50 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
                   <Switch
                     checked={facility.available}
                     onChange={() => updateFacility(key as keyof Agistment['facilities'], { available: !facility.available })}
-                    className={`${
-                      facility.available ? 'bg-green-600' : 'bg-neutral-200'
-                    } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2`}
+                    className={classNames(
+                      facility.available ? 'bg-primary-600' : 'bg-neutral-200',
+                      'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+                    )}
                   >
                     <span className="sr-only">{displayName} Available</span>
                     <span
-                      className={`${
-                        facility.available ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                      className={classNames(
+                        facility.available ? 'translate-x-5' : 'translate-x-0',
+                        'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                      )}
                     />
                   </Switch>
                   <div className="flex-grow">
                     <label className="block text-sm font-medium text-neutral-900 dark:text-neutral-100">
                       {displayName}
                     </label>
-                    {facility.available && (
-                      <>
-                        {key === 'stables' && (
-                          <div className="mt-2">
-                            <NumberStepper
-                              value={(facility as Stables).quantity}
-                              onChange={(value) => updateFacility('stables', { available: true, comments: facility.comments, quantity: value } as Stables)}
-                              min={0}
-                              label="Number of Stables"
-                            />
-                          </div>
-                        )}
-                        {key === 'floatParking' && (
-                          <div className="mt-2">
-                            <NumberStepper
-                              value={(facility as FloatParking).monthlyPrice}
-                              onChange={(value) => updateFacility('floatParking', { available: true, comments: facility.comments, monthlyPrice: value } as FloatParking)}
-                              min={0}
-                              label="Monthly Price ($)"
-                            />
-                          </div>
-                        )}
-                        <div className="mt-2">
-                          <textarea
-                            value={facility.comments}
-                            onChange={(e) => updateFacility(key as keyof Agistment['facilities'], { comments: e.target.value })}
-                            className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-neutral-800 dark:border-neutral-700"
-                            placeholder="Add comments..."
-                            rows={2}
-                          />
-                        </div>
-                      </>
-                    )}
+                    <div className="mt-2">
+                      {key === 'stables' && (
+                        <NumberStepper
+                          value={(facility as Stables).quantity}
+                          onChange={(value) => updateFacility('stables', { available: true, comments: facility.comments, quantity: value } as Stables)}
+                          min={0}
+                          label="Number of Stables"
+                          disabled={!facility.available}
+                        />
+                      )}
+                      {key === 'floatParking' && (
+                        <NumberStepper
+                          value={(facility as FloatParking).monthlyPrice}
+                          onChange={(value) => updateFacility('floatParking', { available: true, comments: facility.comments, monthlyPrice: value } as FloatParking)}
+                          min={0}
+                          label="Monthly Price ($)"
+                          disabled={!facility.available}
+                        />
+                      )}
+                      <input
+                        type="text"
+                        value={facility.comments}
+                        onChange={(e) => updateFacility(key as keyof Agistment['facilities'], { comments: e.target.value })}
+                        className="form-input form-input-compact"
+                        placeholder="Add comments..."
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

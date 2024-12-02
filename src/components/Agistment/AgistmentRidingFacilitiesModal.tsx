@@ -3,7 +3,7 @@ import { Modal } from '../shared/Modal';
 import { Agistment } from '../../types/agistment';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, X } from 'lucide-react';
 import { ArenaDiagram } from './ArenaDiagram';
 import { RoundYardDiagram } from './RoundYardDiagram';
 import NumberStepper from '../shared/NumberStepper';
@@ -281,7 +281,7 @@ export const AgistmentRidingFacilitiesModal = ({
                               </label>
                               <input
                                 type="text"
-                                className="form-input w-full"
+                                className="form-input form-input-compact"
                                 value={arena.comments}
                                 onChange={(e) => handleUpdateArena(index, 'comments', e.target.value)}
                                 placeholder="Add any additional information..."
@@ -292,31 +292,47 @@ export const AgistmentRidingFacilitiesModal = ({
                                 Features
                               </label>
                               <div className="space-y-2">
-                                <div className="flex gap-2">
+                                <div className="input-wrapper group">
                                   <input
                                     type="text"
-                                    className="form-input flex-1"
+                                    className="form-input form-input-compact"
                                     placeholder="Add a feature (e.g., Lighting, Sprinklers)"
-                                    onKeyDown={(e) => {
+                                    onKeyPress={(e) => {
                                       if (e.key === 'Enter') {
                                         handleAddFeature(index, e.currentTarget.value);
                                         e.currentTarget.value = '';
                                       }
                                     }}
                                   />
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      const input = e.currentTarget.parentElement?.querySelector('input');
+                                      if (input && input.value.trim()) {
+                                        handleAddFeature(index, input.value);
+                                        input.value = '';
+                                      }
+                                    }}
+                                    className={classNames(
+                                      'absolute right-2 px-2 py-1 rounded-md',
+                                      'text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20'
+                                    )}
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </button>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                   {arena.features.map((feature, featureIndex) => (
                                     <div
                                       key={featureIndex}
-                                      className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 rounded-md"
+                                      className="inline-flex items-center bg-blue-100 dark:bg-blue-700 text-blue-700 dark:text-blue-100 rounded-md px-2 py-0.5 text-xs group"
                                     >
-                                      <span className="text-sm">{feature}</span>
+                                      {feature}
                                       <button
                                         onClick={() => handleRemoveFeature(index, featureIndex)}
-                                        className="text-neutral-500 hover:text-red-600"
+                                        className="input-delete-button ml-1.5"
                                       >
-                                        <Trash2 className="w-3 h-3" />
+                                        <X className="w-3 h-3" />
                                       </button>
                                     </div>
                                   ))}
@@ -373,7 +389,7 @@ export const AgistmentRidingFacilitiesModal = ({
                               </label>
                               <input
                                 type="text"
-                                className="form-input w-full"
+                                className="form-input form-input-compact"
                                 value={yard.comments}
                                 onChange={(e) => handleUpdateRoundYard(index, 'comments', e.target.value)}
                                 placeholder="Add any additional information..."

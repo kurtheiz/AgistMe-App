@@ -10,8 +10,6 @@ interface FacilitiesProps {
     feedRoom: { available: boolean; comments?: string } | null;
     tackRoom: { available: boolean; comments?: string } | null;
   } | null;
-  isEditable?: boolean;
-  onUpdate?: (updatedFields: Partial<any>) => Promise<void>;
 }
 
 export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
@@ -54,7 +52,7 @@ export const AgistmentFacilities: React.FC<FacilitiesProps> = ({
                 )}
                 {isAvailable && key === 'stables' && 'quantity' in facility && (
                   <div className="text-neutral-700">
-                    (<b>{facility.quantity}</b> available)
+                    {facility.quantity}
                   </div>
                 )}
                 {isAvailable && key === 'floatParking' && 'monthlyPrice' in facility && facility.monthlyPrice !== undefined && (

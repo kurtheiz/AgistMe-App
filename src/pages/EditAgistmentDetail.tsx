@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
-import { ArrowLeftIcon } from '../components/Icons';
+import { ChevronLeft, Pencil } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
@@ -13,12 +13,13 @@ import { AgistmentFacilities } from '../components/Agistment/AgistmentFacilities
 import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptions';
 import { AgistmentCareOptionsModal } from '../components/Agistment/AgistmentCareOptionsModal';
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
+import { AgistmentServicesModal } from '../components/Agistment/AgistmentServicesModal';
 import { usePlanPhotoLimit } from '../stores/reference.store';
 import toast from 'react-hot-toast';
 import { AgistmentHeaderModal } from '../components/Agistment/AgistmentHeaderModal';
-import { Pencil } from 'lucide-react';
 import { AgistmentPaddocksModal } from '../components/Agistment/AgistmentPaddocksModal';
 import { AgistmentRidingFacilitiesModal } from '../components/Agistment/AgistmentRidingFacilitiesModal';
+import { AgistmentFacilitiesModal } from '../components/Agistment/AgistmentFacilitiesModal';
 
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +32,8 @@ function EditAgistmentDetail() {
   const [isPaddocksModalOpen, setIsPaddocksModalOpen] = useState(false);
   const [isCareOptionsModalOpen, setIsCareOptionsModalOpen] = useState(false);
   const [isRidingFacilitiesModalOpen, setIsRidingFacilitiesModalOpen] = useState(false);
+  const [isFacilitiesModalOpen, setIsFacilitiesModalOpen] = useState(false);
+  const [isServicesModalOpen, setIsServicesModalOpen] = useState(false);
   const maxPhotos = usePlanPhotoLimit(agistment?.listing?.listingType || 'STANDARD');
 
   // Scroll to top when component mounts
@@ -122,6 +125,8 @@ function EditAgistmentDetail() {
       setIsPaddocksModalOpen(false);
       setIsCareOptionsModalOpen(false);
       setIsRidingFacilitiesModalOpen(false);
+      setIsFacilitiesModalOpen(false);
+      setIsServicesModalOpen(false);
     } catch (error) {
       console.error('Error updating agistment:', error);
       toast.error('Failed to update agistment');
@@ -185,7 +190,7 @@ function EditAgistmentDetail() {
                   onClick={handleBackClick}
                   className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white cursor-pointer"
                 >
-                  <ArrowLeftIcon className="w-3 h-3" />
+                  <ChevronLeft className="h-5 w-5" />
                   <span className="font-medium text-sm sm:text-base">Back</span>
                 </div>
                 <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
@@ -397,7 +402,7 @@ function EditAgistmentDetail() {
                 <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
                   <div className="mb-4">
                     <button
-                      onClick={() => {}}
+                      onClick={() => setIsFacilitiesModalOpen(true)}
                       className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                     >
                       <Pencil className="h-4 w-4 mr-2" />
@@ -416,7 +421,6 @@ function EditAgistmentDetail() {
                       tieUp: { available: false, comments: '' },
                       stables: { available: false, comments: '', quantity: 0 }
                     }}
-                    onUpdate={handleAgistmentUpdate}
                   />
                 </div>
               </div>
@@ -424,12 +428,20 @@ function EditAgistmentDetail() {
 
             {/* Services Section */}
             <div>
+              <div className="mb-4">
+                <button
+                  onClick={() => setIsServicesModalOpen(true)}
+                  className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit
+                </button>
+              </div>
               <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                 Services
               </h2>
               <AgistmentServices
                 services={agistment?.propertyServices?.services || []}
-                onUpdate={handleAgistmentUpdate}
               />
             </div>
           </div>
@@ -437,6 +449,13 @@ function EditAgistmentDetail() {
       </div>
 
       {/* Modals */}
+      <AgistmentServicesModal
+        isOpen={isServicesModalOpen}
+        onClose={() => setIsServicesModalOpen(false)}
+        services={agistment?.propertyServices?.services || []}
+        agistmentId={agistment?.id || ''}
+        onUpdate={handleAgistmentUpdate}
+      />
       <AgistmentHeaderModal
         basicInfo={agistment?.basicInfo}
         propertyLocation={agistment?.propertyLocation}
@@ -474,6 +493,20 @@ function EditAgistmentDetail() {
         ridingFacilities={agistment?.ridingFacilities || { arenas: [], roundYards: [] }}
         isOpen={isRidingFacilitiesModalOpen}
         onClose={() => setIsRidingFacilitiesModalOpen(false)}
+        onUpdate={handleAgistmentUpdate}
+      />
+      <AgistmentFacilitiesModal
+        agistmentId={agistment?.id || ''}
+        facilities={agistment?.facilities || {
+          feedRoom: { available: false, comments: '' },
+          floatParking: { available: false, comments: '', monthlyPrice: 0 },
+          hotWash: { available: false, comments: '' },
+          tackRoom: { available: false, comments: '' },
+          tieUp: { available: false, comments: '' },
+          stables: { available: false, comments: '', quantity: 0 }
+        }}
+        isOpen={isFacilitiesModalOpen}
+        onClose={() => setIsFacilitiesModalOpen(false)}
         onUpdate={handleAgistmentUpdate}
       />
     </div>
