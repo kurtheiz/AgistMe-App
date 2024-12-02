@@ -10,6 +10,11 @@ export interface Horse {
   photo?: string;
 }
 
+export interface FavoriteItem {
+    agistmentId: string;
+    lastUpdate: string;
+}
+
 export interface Profile {
     id: string;
     firstName: string;
@@ -31,7 +36,7 @@ export interface Profile {
     availability?: string;
     lastUpdate: string;
     horses: Horse[];
-    favourites: string[];
+    favourites: FavoriteItem[];
     agistor: boolean;
     myAgistments: string[];
 }

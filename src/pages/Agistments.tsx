@@ -145,7 +145,7 @@ export function Agistments() {
   }
 
   const EmptyState = ({ onSearch }: EmptyStateProps) => (
-    <div className="flex flex-col items-center justify-center flex-grow">
+    <div className="flex flex-col items-center justify-center flex-grow px-4">
       <div className="relative mb-8 w-48 h-48">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-100 via-primary-50 to-transparent rounded-full blur-2xl"></div>
         <div className="relative w-full h-full">
@@ -203,10 +203,10 @@ export function Agistments() {
           </svg>
         </div>
       </div>
-      <h2 className="text-2xl font-bold text-neutral-900 mb-4">
+      <h2 className="text-2xl font-bold text-neutral-900 mb-4 text-center">
         {searchHash 
-          ? `No agistments found in ${getLocationsText()}`
-          : 'Find your perfect agistment'}
+          ? `No Agistments found in ${getLocationsText()}`
+          : 'Find your perfect Agistment'}
       </h2>
       <button
         onClick={onSearch}
@@ -241,7 +241,7 @@ export function Agistments() {
           </div>
         }
       />
-      <div className="flex-grow max-w-7xl mx-auto w-full pt-4">
+      <div className="flex-grow max-w-7xl mx-auto w-full pt-4 pb-8">
         <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50' : 'opacity-100'}`}>
           {isFetching ? (
             <div className="flex justify-center items-center min-h-[400px]">
@@ -251,8 +251,8 @@ export function Agistments() {
             <div>
               <h2 className="text-base font-medium text-neutral-900 dark:text-white mb-4 px-4 sm:px-6">
                 {originalAgistments.length === 1
-                  ? `1 agistment found in ${getLocationsText()}`
-                  : `${originalAgistments.length} agistments found in ${getLocationsText()}`}
+                  ? `1 Agistment found in ${getLocationsText()}`
+                  : `${originalAgistments.length} Agistments found in ${getLocationsText()}`}
               </h2>
               <div className="px-0 sm:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -262,16 +262,34 @@ export function Agistments() {
                 </div>
               </div>
             </div>
+          ) : adjacentAgistments && adjacentAgistments.length > 0 ? (
+            <div>
+              <h2 className="text-base font-medium text-neutral-900 dark:text-white mb-4 px-4 sm:px-6">
+                {`No Agistments found in ${getLocationsText()}`}
+              </h2>
+              <h2 className="text-base font-medium text-neutral-600 dark:text-neutral-400 mb-4 px-4 sm:px-6">
+                {adjacentAgistments.length === 1
+                  ? `1 Agistment found within ${currentCriteria?.radius || 0}km radius`
+                  : `${adjacentAgistments.length} Agistments found within ${currentCriteria?.radius || 0}km radius`}
+              </h2>
+              <div className="px-0 sm:px-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {adjacentAgistments.map((agistment) => (
+                    <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
+                  ))}
+                </div>
+              </div>
+            </div>
           ) : (
             <EmptyState onSearch={() => setIsSearchModalOpen(true)} />
           )}
 
-          {adjacentAgistments.length > 0 && (
+          {(originalAgistments.length > 0 && adjacentAgistments.length > 0) && (
             <div className="mt-8">
               <h2 className="text-base font-medium text-neutral-600 dark:text-neutral-400 mb-4 px-4 sm:px-6">
                 {adjacentAgistments.length === 1
-                  ? "1 agistment found in other locations"
-                  : `${adjacentAgistments.length} agistments found in other locations`}
+                  ? `1 Agistment found within ${currentCriteria?.radius || 0}km radius`
+                  : `${adjacentAgistments.length} Agistments found within ${currentCriteria?.radius || 0}km radius`}
               </h2>
               <div className="px-0 sm:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
