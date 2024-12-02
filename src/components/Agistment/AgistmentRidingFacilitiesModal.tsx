@@ -3,7 +3,7 @@ import { Modal } from '../shared/Modal';
 import { Agistment } from '../../types/agistment';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-import { Loader2, Plus, Trash2, X, Save } from 'lucide-react';
+import { Plus, Trash2, X, Save } from 'lucide-react';
 import { ArenaDiagram } from './ArenaDiagram';
 import { RoundYardDiagram } from './RoundYardDiagram';
 import NumberStepper from '../shared/NumberStepper';

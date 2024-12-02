@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Loader2, X, Plus } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { X, Plus } from 'lucide-react';
 import { Agistment } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import { classNames } from '../../utils/classNames';
@@ -52,20 +52,20 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
     }
   }, [isOpen, services]);
 
-  const handleAddService = () => {
+  const handleAddService = useCallback(() => {
     if (newService.trim()) {
       setEditableServices(prev => [...prev, newService.trim()]);
       setNewService('');
       setIsDirty(true);
     }
-  };
+  }, [newService]);
 
-  const handleRemoveService = (index: number) => {
+  const handleRemoveService = useCallback((index: number) => {
     setEditableServices(prev => prev.filter((_, i) => i !== index));
     setIsDirty(true);
-  };
+  }, []);
 
-  const handleUpdateAll = async () => {
+  const handleUpdateAll = useCallback(async () => {
     if (!isDirty || !onUpdate) return;
 
     setIsSaving(true);
@@ -82,7 +82,7 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [editableServices, isDirty, onClose, onUpdate]);
 
   return (
     <Modal

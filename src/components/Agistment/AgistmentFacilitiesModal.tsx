@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Switch } from '@headlessui/react';
 import { Agistment, FacilityBase, Stables, FloatParking } from '../../types/agistment';
 import { Modal } from '../shared/Modal';

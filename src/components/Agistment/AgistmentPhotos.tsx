@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
@@ -105,7 +105,6 @@ export const AgistmentPhotos = ({
   const [currentComment, setCurrentComment] = useState('');
   const [isDirty, setIsDirty] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [originalComment, setOriginalComment] = useState('');
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -125,16 +124,8 @@ export const AgistmentPhotos = ({
     if (isCommentModalOpen && selectedPhotoIndex !== null) {
       const comment = agistment.photoGallery.photos[selectedPhotoIndex].comment || '';
       setCurrentComment(comment);
-      setOriginalComment(comment);
     }
   }, [isCommentModalOpen, selectedPhotoIndex, agistment.photoGallery.photos]);
-
-  const contentHash = useMemo(() => {
-    return JSON.stringify({
-      current: currentComment,
-      original: originalComment
-    });
-  }, [currentComment, originalComment]);
 
   const handlePhotosUpdate = (newPhotos: { link: string; comment?: string }[]) => {
     onPhotosChange(newPhotos);
@@ -281,10 +272,18 @@ export const AgistmentPhotos = ({
         onClose={() => setIsCommentModalOpen(false)}
         size="sm"
         title="Edit Photo Comment"
-        contentHash={contentHash}
-        onDirtyChange={setIsDirty}
         isUpdating={isUpdating}
-        footerContent={({ isUpdating }) => (
+      >
+        <div className="space-y-4">
+          <textarea
+            value={currentComment}
+            onChange={(e) => {
+              setCurrentComment(e.target.value);
+              setIsDirty(true);
+            }}
+            className="w-full h-32 px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            placeholder="Add a comment to this photo..."
+          />
           <div className="flex w-full gap-2">
             <button
               onClick={() => setIsCommentModalOpen(false)}
@@ -311,37 +310,6 @@ export const AgistmentPhotos = ({
                 'Save Changes'
               )}
             </button>
-          </div>
-        )}
-      >
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Comment
-            </label>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                value={currentComment}
-                onChange={(e) => {
-                  setCurrentComment(e.target.value);
-                  setIsDirty(true);
-                }}
-                className="form-input"
-                placeholder="Add a comment about this photo..."
-              />
-              <button
-                type="button"
-                className="input-delete-button"
-                onClick={() => {
-                  setCurrentComment('');
-                  setIsDirty(true);
-                }}
-                aria-label="Clear comment"
-              >
-                ✕
-              </button>
-            </div>
           </div>
         </div>
       </Modal>

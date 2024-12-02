@@ -4,7 +4,6 @@ import { Agistment, PaddockBase } from '../../types/agistment';
 import NumberStepper from '../shared/NumberStepper';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-import { Loader2 } from 'lucide-react';
 import { Save } from 'lucide-react';
 
 interface PaddockForm extends Omit<PaddockBase, 'whenAvailable'> {

@@ -5,7 +5,7 @@ import { SearchCriteria } from '../../types/search';
 import { LocationType } from '../../types/suburb';
 import { FacilityType } from '../../types/agistment';
 import { PaddockType, CareType } from '../../types/search';
-import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   ArenaIcon,
   RoundYardIcon,
@@ -31,10 +31,8 @@ interface SearchModalProps {
 
 export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: SearchModalProps) {
   const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const navigate = useNavigate();
   const searchHash = searchParams.get('q') || initialSearchHash;
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdating] = useState(false);
 
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({
     suburbs: [],
@@ -453,9 +451,9 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash }: Se
       size="lg"
       actionIcon={<SearchIcon className="h-5 w-5" />}
       onAction={handleSearch}
-      isUpdating={isUpdating}
       disableAction={searchCriteria.suburbs.length === 0}
       isDirty={searchCriteria.suburbs.length > 0}
+      isUpdating={isUpdating}
     >
       <div className="px-4 py-3">
         {modalContent}

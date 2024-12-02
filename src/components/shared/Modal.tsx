@@ -1,4 +1,4 @@
-import { Fragment, ReactNode, useEffect, useState } from 'react';
+import { Fragment, ReactNode, useEffect } from 'react';
 import { Dialog, Transition, TransitionChild } from '@headlessui/react';
 import { XMarkIcon } from '../Icons';
 import { Loader2 } from 'lucide-react';
@@ -9,7 +9,6 @@ export interface ModalProps {
   title: string;
   children: ReactNode;
   headerContent?: ReactNode;
-  footerContent?: ReactNode | (({ isUpdating }: { isUpdating: boolean }) => ReactNode);
   showCloseButton?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'wide' | 'full';
   slideFrom?: 'left' | 'right' | 'top' | 'bottom';
@@ -35,7 +34,6 @@ export function Modal({
   title,
   children,
   headerContent,
-  footerContent,
   showCloseButton = true,
   size = 'md',
   slideFrom = 'right',

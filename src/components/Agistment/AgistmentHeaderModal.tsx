@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { Modal } from '../shared/Modal';
 import { Agistment, AgistmentContact, AgistmentPropertyLocation, AgistmentBasicInfo, AgistmentDescription } from '../../types/agistment';
 import toast from 'react-hot-toast';

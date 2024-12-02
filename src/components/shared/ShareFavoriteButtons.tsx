@@ -4,11 +4,6 @@ import { useProfile } from '../../context/ProfileContext';
 import { profileService } from '../../services/profile.service';
 import { useNavigate } from 'react-router-dom';
 
-interface FavoriteItem {
-  agistmentId: string;
-  lastUpdate: string;
-}
-
 interface ShareFavoriteButtonsProps {
   agistmentId: string;
   shareDescription: string;

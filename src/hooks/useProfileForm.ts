@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Profile, Horse } from '../types/profile';
+import { Profile, Horse, FavoriteItem } from '../types/profile';
 import type { UserResource } from '@clerk/types';
 import { profileService } from '../services/profile.service';
 
@@ -131,8 +131,12 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
   const handleFavouriteChange = (index: number, value: string) => {
     setFormData(prev => {
       const favourites = [...prev.favourites];
-      if (!favourites.includes(value)) {
-        favourites[index] = value;
+      const newFavorite: FavoriteItem = {
+        agistmentId: value,
+        lastUpdate: new Date().toISOString()
+      };
+      if (!favourites.some(f => f.agistmentId === value)) {
+        favourites[index] = newFavorite;
       }
       const newData = { ...prev, favourites };
       setIsDirty(checkIfDirty(newData));

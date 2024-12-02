@@ -512,12 +512,12 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
       onClose={handleClose}
       title="Edit Profile"
       size="lg"
-      footerContent={footerContent}
       slideFrom='left'
       isUpdating={saving}
     >
       <div className="px-4 py-3">
         {modalContent}
+        {footerContent}
       </div>
     </Modal>
   );
