@@ -11,11 +11,6 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
 }) => {
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-neutral-900">
-          Riding Facilities
-        </h2>
-      </div>
       <div className="space-y-6">
         {/* Arenas */}
         <div>

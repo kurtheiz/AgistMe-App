@@ -7,7 +7,6 @@ import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { ArenaDiagram } from './ArenaDiagram';
 import { RoundYardDiagram } from './RoundYardDiagram';
 import NumberStepper from '../shared/NumberStepper';
-import toast from 'react-hot-toast';
 
 interface Props {
   agistmentId: string;
@@ -143,6 +142,32 @@ export const AgistmentRidingFacilitiesModal = ({
     setIsDirty(true);
   };
 
+  const handleAddFeature = (arenaIndex: number, feature: string) => {
+    if (!feature.trim()) return;
+    
+    setEditForm(prev => {
+      const newArenas = [...prev.arenas];
+      newArenas[arenaIndex] = {
+        ...newArenas[arenaIndex],
+        features: [...newArenas[arenaIndex].features, feature.trim()]
+      };
+      return { ...prev, arenas: newArenas };
+    });
+    setIsDirty(true);
+  };
+
+  const handleRemoveFeature = (arenaIndex: number, featureIndex: number) => {
+    setEditForm(prev => {
+      const newArenas = [...prev.arenas];
+      newArenas[arenaIndex] = {
+        ...newArenas[arenaIndex],
+        features: newArenas[arenaIndex].features.filter((_, index) => index !== featureIndex)
+      };
+      return { ...prev, arenas: newArenas };
+    });
+    setIsDirty(true);
+  };
+
   const tabs = ['Arenas', 'Round Yards'];
 
   return (
@@ -249,17 +274,55 @@ export const AgistmentRidingFacilitiesModal = ({
                           <div className="flex justify-center items-center h-[200px] pl-8 pr-8">
                             <ArenaDiagram length={arena.length} width={arena.width} />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-neutral-700 mb-1">
-                              Comments
-                            </label>
-                            <input
-                              type="text"
-                              className="form-input w-full"
-                              value={arena.comments}
-                              onChange={(e) => handleUpdateArena(index, 'comments', e.target.value)}
-                              placeholder="Add any additional information..."
-                            />
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                                Comments
+                              </label>
+                              <input
+                                type="text"
+                                className="form-input w-full"
+                                value={arena.comments}
+                                onChange={(e) => handleUpdateArena(index, 'comments', e.target.value)}
+                                placeholder="Add any additional information..."
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                                Features
+                              </label>
+                              <div className="space-y-2">
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    className="form-input flex-1"
+                                    placeholder="Add a feature (e.g., Lighting, Sprinklers)"
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        handleAddFeature(index, e.currentTarget.value);
+                                        e.currentTarget.value = '';
+                                      }
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {arena.features.map((feature, featureIndex) => (
+                                    <div
+                                      key={featureIndex}
+                                      className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 rounded-md"
+                                    >
+                                      <span className="text-sm">{feature}</span>
+                                      <button
+                                        onClick={() => handleRemoveFeature(index, featureIndex)}
+                                        className="text-neutral-500 hover:text-red-600"
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>

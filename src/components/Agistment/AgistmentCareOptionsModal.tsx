@@ -19,7 +19,7 @@ interface EditForm {
 }
 
 interface Props {
-  care?: AgistmentCare;
+  care: AgistmentCare;
   isOpen: boolean;
   onClose: () => void;
   onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
@@ -51,6 +51,26 @@ export const AgistmentCareOptionsModal = ({
 
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setEditForm({
+      selfCare: {
+        available: care?.selfCare?.available || false,
+        monthlyPrice: care?.selfCare?.monthlyPrice || 0,
+        comments: care?.selfCare?.comments || ''
+      },
+      partCare: {
+        available: care?.partCare?.available || false,
+        monthlyPrice: care?.partCare?.monthlyPrice || 0,
+        comments: care?.partCare?.comments || ''
+      },
+      fullCare: {
+        available: care?.fullCare?.available || false,
+        monthlyPrice: care?.fullCare?.monthlyPrice || 0,
+        comments: care?.fullCare?.comments || ''
+      }
+    });
+  }, [care]);
 
   // Reset form when modal opens
   useEffect(() => {

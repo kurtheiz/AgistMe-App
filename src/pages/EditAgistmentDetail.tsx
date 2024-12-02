@@ -11,13 +11,13 @@ import { AgistmentPaddocks } from '../components/Agistment/AgistmentPaddocks';
 import { AgistmentRidingFacilities } from '../components/Agistment/AgistmentRidingFacilities';
 import { AgistmentFacilities } from '../components/Agistment/AgistmentFacilities';
 import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptions';
+import { AgistmentCareOptionsModal } from '../components/Agistment/AgistmentCareOptionsModal';
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { usePlanPhotoLimit } from '../stores/reference.store';
 import toast from 'react-hot-toast';
 import { AgistmentHeaderModal } from '../components/Agistment/AgistmentHeaderModal';
 import { Pencil } from 'lucide-react';
 import { AgistmentPaddocksModal } from '../components/Agistment/AgistmentPaddocksModal';
-import { AgistmentCareOptionsModal } from '../components/Agistment/AgistmentCareOptionsModal';
 import { AgistmentRidingFacilitiesModal } from '../components/Agistment/AgistmentRidingFacilitiesModal';
 
 function EditAgistmentDetail() {
@@ -297,7 +297,6 @@ function EditAgistmentDetail() {
                 }}
                 maxPhotos={maxPhotos}
                 onPhotosChange={handlePhotoGalleryUpdate}
-                isEditable={true}
               />
             </div>
 
@@ -347,7 +346,6 @@ function EditAgistmentDetail() {
                       sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
                     }}
                     onUpdate={handleAgistmentUpdate}
-                    isEditable={true}
                     agistmentId={agistment?.id || ''}
                   />
                 </div>
@@ -367,13 +365,7 @@ function EditAgistmentDetail() {
                     Care Options
                   </h2>
                   <AgistmentCareOptions
-                    care={agistment?.care || {
-                      fullCare: { available: false, comments: '', monthlyPrice: 0 },
-                      partCare: { available: false, comments: '', monthlyPrice: 0 },
-                      selfCare: { available: false, comments: '', monthlyPrice: 0 }
-                    }}
-                    isEditable={true}
-                    onUpdate={handleAgistmentUpdate}
+                    care={agistment?.care}
                   />
                 </div>
               </div>
@@ -424,7 +416,6 @@ function EditAgistmentDetail() {
                       tieUp: { available: false, comments: '' },
                       stables: { available: false, comments: '', quantity: 0 }
                     }}
-                    isEditable={true}
                     onUpdate={handleAgistmentUpdate}
                   />
                 </div>
@@ -438,7 +429,6 @@ function EditAgistmentDetail() {
               </h2>
               <AgistmentServices
                 services={agistment?.propertyServices?.services || []}
-                isEditable={true}
                 onUpdate={handleAgistmentUpdate}
               />
             </div>
@@ -470,10 +460,14 @@ function EditAgistmentDetail() {
         }}
       />
       <AgistmentCareOptionsModal
+        care={agistment?.care || {
+          fullCare: { available: false, comments: '', monthlyPrice: 0 },
+          partCare: { available: false, comments: '', monthlyPrice: 0 },
+          selfCare: { available: false, comments: '', monthlyPrice: 0 }
+        }}
+        onUpdate={handleAgistmentUpdate}
         isOpen={isCareOptionsModalOpen}
         onClose={() => setIsCareOptionsModalOpen(false)}
-        care={agistment?.care}
-        onUpdate={handleAgistmentUpdate}
       />
       <AgistmentRidingFacilitiesModal
         agistmentId={agistment?.id || ''}

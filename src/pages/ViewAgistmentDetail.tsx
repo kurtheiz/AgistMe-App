@@ -158,7 +158,6 @@ export function ViewAgistmentDetail() {
                   </h2>
                   <AgistmentRidingFacilities
                     ridingFacilities={agistment.ridingFacilities}
-                    isEditable={false}
                   />
                 </div>
 
