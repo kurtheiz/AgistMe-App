@@ -49,7 +49,7 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
 
 export function Agistments() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const { profile, updateProfileData } = useProfile();
   const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
   const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
