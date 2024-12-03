@@ -108,7 +108,10 @@ export default function Profile() {
             </div>
 
             {/* Favourites Card */}
-            <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
+            <div 
+              onClick={() => navigate('/agistments/favourites')}
+              className="bg-white rounded-lg shadow-sm p-6 flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+            >
               <div className="flex flex-col h-full">
                 <h2 className="text-xl font-semibold text-neutral-900 mb-6">Favourites</h2>
 
