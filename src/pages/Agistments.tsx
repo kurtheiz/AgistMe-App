@@ -8,7 +8,7 @@ import { Search, Star, ChevronDown, BookmarkPlus } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import { AgistmentList } from '../components/AgistmentList';
 import { useProfile } from '../context/ProfileContext';
-import { StableIcon } from '../components/Icons/StableIcon';
+import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 
 const decodeSearchHash = (hash: string): SearchCriteria => {
   try {
@@ -204,6 +204,7 @@ export function Agistments() {
   };
 
   const handleSavedSearchSelect = (searchHash: string, name: string) => {
+    console.log('handleSavedSearchSelect called', { searchHash, name, isSearchModalOpen });
     setIsSearchDropdownOpen(false);
     setIsSearchModalOpen(true);
     setSelectedSearchHash(searchHash);
@@ -227,14 +228,26 @@ export function Agistments() {
                   <Search className="w-5 h-5" />
                   <span className="hidden md:inline">Search</span>
                   {(profile?.savedSearches?.length ?? 0) > 0 && (
-                    <ChevronDown className="w-4 h-4 hidden md:inline" />
+                    <ChevronDown className="w-4 h-4" />
                   )}
                 </button>
 
                 {isSearchDropdownOpen && (profile?.savedSearches?.length ?? 0) > 0 && (
                   <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        console.log('New Search click fired');
+                        e.stopPropagation();
+                        setIsSearchDropdownOpen(false);
+                        setIsSearchModalOpen(true);
+                        setSelectedSearchHash('');
+                        setForceResetSearch(true);
+                        setSearchTitle('New Search');
+                      }}
+                      onTouchStart={(e) => {
+                        console.log('New Search touch fired');
+                        e.stopPropagation();
+                        e.preventDefault();
                         setIsSearchDropdownOpen(false);
                         setIsSearchModalOpen(true);
                         setSelectedSearchHash('');
@@ -249,7 +262,17 @@ export function Agistments() {
                     {profile?.savedSearches?.map((search) => (
                       <button
                         key={search.id}
-                        onClick={() => handleSavedSearchSelect(search.searchHash, search.name)}
+                        onClick={(e) => {
+                          console.log('Click event fired');
+                          e.stopPropagation();
+                          handleSavedSearchSelect(search.searchHash, search.name);
+                        }}
+                        onTouchStart={(e) => {
+                          console.log('Touch event fired');
+                          e.stopPropagation();
+                          e.preventDefault();
+                          handleSavedSearchSelect(search.searchHash, search.name);
+                        }}
                         className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
                       >
                         {search.name}
@@ -306,7 +329,7 @@ export function Agistments() {
             {originalAgistments.length === 0 && adjacentAgistments.length === 0 && searchHash && (
               <div className="flex flex-col items-center justify-center py-16 px-4">
                 <div className="mb-8 text-neutral-400">
-                  <StableIcon className="w-24 h-24" />
+                  <AnimatedSearchLogo className="w-24 h-24" />
                 </div>
                 <h2 className="text-2xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200">No Properties Found</h2>
                 <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md text-center">
@@ -324,7 +347,7 @@ export function Agistments() {
             {!searchHash && (
               <div className="flex flex-col items-center justify-center py-16 px-4">
                 <div className="mb-8 text-neutral-400">
-                  <StableIcon className="w-32 h-32" />
+                  <AnimatedSearchLogo className="w-24 h-24" />
                 </div>
                 <h2 className="text-3xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200">Find your perfect Agistment</h2>
                 <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-lg text-center leading-relaxed">
