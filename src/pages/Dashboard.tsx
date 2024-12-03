@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
-import { List, BarChart, Users, Pencil, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { List, BarChart, Users } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 
 export const Dashboard = () => {

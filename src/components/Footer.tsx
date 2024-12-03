@@ -12,7 +12,6 @@ export const Footer = () => {
               <Link to="/about" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">About</Link>
               <Link to="/agistments" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Agistments</Link>
               <Link to="/listagistment" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">List Agistment</Link>
-              <Link to="/dashboard" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Dashboard</Link>
             </div>
           </div>
           

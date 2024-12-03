@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { SearchModal } from '../components/Search/SearchModal';
 import { SearchCriteria } from '../types/search';
 import { Agistment } from '../types/agistment';
-import { Search, Star } from 'lucide-react';
+import { Search, Star, ChevronDown } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import PropertyCard from '../components/PropertyCard';
 import { useProfile } from '../context/ProfileContext';
@@ -49,13 +49,18 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
 
 export function Agistments() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { profile } = useProfile();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { profile, updateProfileData } = useProfile();
   const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
   const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
   const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [selectedSearchHash, setSelectedSearchHash] = useState('');
+  const [forceResetSearch, setForceResetSearch] = useState(false);
+  const [searchTitle, setSearchTitle] = useState('Search Properties');
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const searchHash = searchParams.get('q') || '';
 
   // Helper function to format location
@@ -136,6 +141,29 @@ export function Agistments() {
     }
   }, [searchParams, navigate]);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsSearchDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!isSearchModalOpen) {
+      setForceResetSearch(false);
+    }
+  }, [isSearchModalOpen]);
+
+  useEffect(() => {
+    if (!isSearchModalOpen) {
+      setSearchTitle('Search Properties');
+    }
+  }, [isSearchModalOpen]);
+
   const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
     setIsSearchModalOpen(false);
     
@@ -147,6 +175,47 @@ export function Agistments() {
 
   const handleFavorites = () => {
     navigate('/agistments/favourites');
+  };
+
+  const handleSavedSearch = (searchHash: string) => {
+    setIsSearchDropdownOpen(false);
+    // Update URL with the search hash
+    const searchUrl = `/agistments?q=${encodeURIComponent(searchHash)}`.replace(/\/+/g, '/');
+    navigate(searchUrl, { replace: true });
+    // Open search modal with the saved search hash
+    setIsSearchModalOpen(true);
+  };
+
+  const handleSaveSearch = async () => {
+    if (!profile || !searchHash) return;
+
+    // Create new saved search
+    const newSavedSearch = {
+      id: crypto.randomUUID(),
+      name: `Search in ${getLocationsText()}`,
+      searchHash,
+      lastUpdate: new Date().toISOString()
+    };
+
+    // Add to profile's saved searches
+    const updatedProfile = {
+      ...profile,
+      savedSearches: [...(profile.savedSearches || []), newSavedSearch]
+    };
+
+    try {
+      await updateProfileData(updatedProfile);
+    } catch (error) {
+      console.error('Failed to save search:', error);
+      // You might want to show an error toast here
+    }
+  };
+
+  const handleSavedSearchSelect = (searchHash: string, name: string) => {
+    setIsSearchDropdownOpen(false);
+    setIsSearchModalOpen(true);
+    setSelectedSearchHash(searchHash);
+    setSearchTitle(name);
   };
 
   interface EmptyStateProps {
@@ -235,30 +304,121 @@ export function Agistments() {
         isOpen={isSearchModalOpen}
         onClose={() => setIsSearchModalOpen(false)}
         onSearch={handleSearch}
-        initialSearchHash={searchHash}
+        initialSearchHash={selectedSearchHash}
+        forceReset={forceResetSearch}
+        title={searchTitle}
       />
       <PageToolbar 
         actions={
           <div className="w-full flex items-center justify-between">
             <div className="flex items-center gap-4">
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => (profile?.savedSearches?.length ?? 0) 
+                    ? setIsSearchDropdownOpen(!isSearchDropdownOpen)
+                    : setIsSearchModalOpen(true)
+                  }
+                  className="button-toolbar inline-flex items-center"
+                >
+                  <Search className="w-5 h-5" />
+                  <span className="hidden md:inline">Search</span>
+                  {(profile?.savedSearches?.length ?? 0) > 0 && (
+                    <ChevronDown className="w-4 h-4 ml-1 hidden md:inline" />
+                  )}
+                </button>
+
+                {/* Dropdown menu for saved searches */}
+                {isSearchDropdownOpen && (profile?.savedSearches?.length ?? 0) > 0 && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
+                    <button
+                      onClick={() => {
+                        setIsSearchDropdownOpen(false);
+                        setIsSearchModalOpen(true);
+                        setSelectedSearchHash('');
+                        setForceResetSearch(true);
+                        setSearchTitle('New Search');
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+                    >
+                      New Search
+                    </button>
+                    <div className="h-px bg-neutral-200 my-1" />
+                    {profile.savedSearches.map((search) => (
+                      <button
+                        key={search.id}
+                        onClick={() => handleSavedSearchSelect(search.searchHash, search.name)}
+                        className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+                      >
+                        {search.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button
-                onClick={() => setIsSearchModalOpen(true)}
+                onClick={handleFavorites}
                 className="button-toolbar"
               >
-                <Search className="w-5 h-5" />
-                <span>Search</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleFavorites}
-                disabled={!profile?.favourites?.length}
-                className={`${profile?.favourites?.length 
-                  ? 'button-toolbar' 
-                  : 'inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg text-neutral-500 bg-neutral-200 cursor-not-allowed'}`}
-              >
                 <Star className="w-5 h-5" />
-                Favorites
+                <span className="hidden md:inline">Favorites</span>
               </button>
+            </div>
+            {/* Save Search button */}
+            {profile && searchHash && (originalAgistments.length > 0 || adjacentAgistments.length > 0) && (
+              <button
+                onClick={handleSaveSearch}
+                className="button-toolbar ml-4"
+              >
+                <span>Save this search</span>
+              </button>
+            )}
+          </div>
+        }
+        mobileActions={
+          <div className="w-full flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => (profile?.savedSearches?.length ?? 0) 
+                    ? setIsSearchDropdownOpen(!isSearchDropdownOpen)
+                    : setIsSearchModalOpen(true)
+                  }
+                  className="button-toolbar inline-flex items-center"
+                >
+                  <Search className="w-5 h-5" />
+                  {(profile?.savedSearches?.length ?? 0) > 0 && (
+                    <ChevronDown className="w-4 h-4 ml-1" />
+                  )}
+                </button>
+
+                {/* Dropdown menu for saved searches */}
+                {isSearchDropdownOpen && (profile?.savedSearches?.length ?? 0) > 0 && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
+                    <button
+                      onClick={() => {
+                        setIsSearchDropdownOpen(false);
+                        setIsSearchModalOpen(true);
+                        setSelectedSearchHash('');
+                        setForceResetSearch(true);
+                        setSearchTitle('New Search');
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+                    >
+                      New Search
+                    </button>
+                    <div className="h-px bg-neutral-200 my-1" />
+                    {profile.savedSearches.map((search) => (
+                      <button
+                        key={search.id}
+                        onClick={() => handleSavedSearchSelect(search.searchHash, search.name)}
+                        className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+                      >
+                        {search.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         }

@@ -9,9 +9,9 @@ import {
   StableIcon,
   TieUpIcon,
   PhotoIcon,
-  HeartIcon,
+  HeartIcon
 } from './Icons';
-import { MapPin, Check, X } from 'lucide-react';
+import { MapPin, Check, X, Pencil } from 'lucide-react';
 import { Agistment } from '../types/agistment';
 import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
@@ -21,9 +21,18 @@ import { ShareFavoriteButtons } from './shared/ShareFavoriteButtons';
 interface PropertyCardProps {
   agistment: Agistment;
   onClick?: () => void;
+  onEdit?: () => void;
+  onToggleVisibility?: () => Promise<void>;
+  isUpdatingVisibility?: boolean;
 }
 
-export default function PropertyCard({ agistment, onClick }: PropertyCardProps) {
+export default function PropertyCard({ 
+  agistment, 
+  onClick, 
+  onEdit, 
+  onToggleVisibility, 
+  isUpdatingVisibility 
+}: PropertyCardProps) {
   const navigate = useNavigate();
 
   console.log('PropertyCard received agistment:', agistment);
@@ -60,6 +69,39 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
       onClick={handleClick}
     >
       <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
+        {/* Visibility Toggle */}
+        {onToggleVisibility && (
+          <div className="absolute top-2 right-2 z-20">
+            <button 
+              onClick={onToggleVisibility}
+              disabled={isUpdatingVisibility}
+              className={`p-1 rounded-full ${
+                isUpdatingVisibility 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'hover:bg-neutral-100'
+              }`}
+            >
+              {agistment.visibility.hidden ? (
+                <X className="w-5 h-5 text-red-500" />
+              ) : (
+                <Check className="w-5 h-5 text-green-500" />
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Edit Button */}
+        {onEdit && (
+          <div className="absolute top-2 left-2 z-20">
+            <button 
+              onClick={onEdit}
+              className="p-1 rounded-full hover:bg-neutral-100"
+            >
+              <Pencil className="w-5 h-5 text-neutral-600" />
+            </button>
+          </div>
+        )}
+
         {/* Property Name Header */}
         <div className="title-header relative">
           <div className="flex justify-between items-start relative z-10 py-2">

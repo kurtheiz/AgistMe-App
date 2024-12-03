@@ -90,7 +90,7 @@ export function Modal({
         </TransitionChild>
   
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto bg-gray-500/25">
-          <div className="flex min-h-full items-center justify-center p-0">
+          <div className="flex min-h-full items-end sm:items-center justify-center p-0">
             <TransitionChild
               as={Fragment}
               enter="transform transition ease-out duration-300"
@@ -117,7 +117,7 @@ export function Modal({
               }
             >
               <DialogPanel 
-                className={`w-full transform h-[100dvh] md:h-auto md:max-h-[85vh] ${sizeClasses[size]} rounded-none md:rounded-2xl bg-white shadow-xl flex flex-col`}
+                className={`w-full transform overflow-hidden h-[100dvh] md:h-auto md:max-h-[85vh] ${sizeClasses[size]} rounded-none md:rounded-2xl bg-white shadow-xl flex flex-col`}
               >
                 <div className="flex flex-col h-full flex-grow">
                   {/* Header */}

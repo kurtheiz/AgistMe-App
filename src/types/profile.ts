@@ -15,6 +15,13 @@ export interface FavoriteItem {
     lastUpdate: string;
 }
 
+export interface SavedSearch {
+    id: string;
+    name: string;
+    searchHash: string;
+    lastUpdate: string;
+}
+
 export interface Profile {
     id: string;
     firstName: string;
@@ -37,6 +44,7 @@ export interface Profile {
     lastUpdate: string;
     horses: Horse[];
     favourites: FavoriteItem[];
+    savedSearches: SavedSearch[];
     agistor: boolean;
     myAgistments: string[];
 }
