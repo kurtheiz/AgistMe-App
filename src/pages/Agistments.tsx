@@ -177,15 +177,6 @@ export function Agistments() {
     navigate('/agistments/favourites');
   };
 
-  const handleSavedSearch = (searchHash: string) => {
-    setIsSearchDropdownOpen(false);
-    // Update URL with the search hash
-    const searchUrl = `/agistments?q=${encodeURIComponent(searchHash)}`.replace(/\/+/g, '/');
-    navigate(searchUrl, { replace: true });
-    // Open search modal with the saved search hash
-    setIsSearchModalOpen(true);
-  };
-
   const handleSaveSearch = async () => {
     if (!profile || !searchHash) return;
 
@@ -343,7 +334,7 @@ export function Agistments() {
                       New Search
                     </button>
                     <div className="h-px bg-neutral-200 my-1" />
-                    {profile.savedSearches.map((search) => (
+                    {profile?.savedSearches?.map((search) => (
                       <button
                         key={search.id}
                         onClick={() => handleSavedSearchSelect(search.searchHash, search.name)}
@@ -407,7 +398,7 @@ export function Agistments() {
                       New Search
                     </button>
                     <div className="h-px bg-neutral-200 my-1" />
-                    {profile.savedSearches.map((search) => (
+                    {profile?.savedSearches?.map((search) => (
                       <button
                         key={search.id}
                         onClick={() => handleSavedSearchSelect(search.searchHash, search.name)}

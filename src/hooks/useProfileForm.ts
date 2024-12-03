@@ -26,6 +26,7 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     lastUpdate: new Date().toISOString(),
     horses: [],
     favourites: [],
+    savedSearches: [],
     agistor: false,
     myAgistments: []
   });
@@ -76,6 +77,7 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
             lastUpdate: profileData.lastUpdate || new Date().toISOString(),
             horses: profileData.horses || [],
             favourites: profileData.favourites || [],
+            savedSearches: profileData.savedSearches || [],
             agistor: profileData.agistor || false,
             myAgistments: profileData.myAgistments || []
           };
@@ -100,7 +102,7 @@ export const useProfileForm = (user: UserResource | null | undefined) => {
     const fieldsToCompare = Object.keys(newData).filter(key => key !== 'lastUpdate');
     return fieldsToCompare.some(key => {
       const field = key as keyof Profile;
-      if (field === 'horses' || field === 'favourites' || field === 'myAgistments') {
+      if (field === 'horses' || field === 'favourites' || field === 'myAgistments' || field === 'savedSearches') {
         return JSON.stringify(newData[field]) !== JSON.stringify(originalData[field]);
       }
       return newData[field] !== originalData[field];
