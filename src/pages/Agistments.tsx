@@ -4,10 +4,11 @@ import { agistmentService } from '../services/agistment.service';
 import { SearchModal } from '../components/Search/SearchModal';
 import { SearchCriteria } from '../types/search';
 import { Agistment } from '../types/agistment';
-import { Search, Star, ChevronDown } from 'lucide-react';
+import { Search, Star, ChevronDown, BookmarkPlus } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import { AgistmentList } from '../components/AgistmentList';
 import { useProfile } from '../context/ProfileContext';
+import { StableIcon } from '../components/Icons/StableIcon';
 
 const decodeSearchHash = (hash: string): SearchCriteria => {
   try {
@@ -214,19 +215,19 @@ export function Agistments() {
       <PageToolbar 
         actions={
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => (profile?.savedSearches?.length ?? 0) 
                     ? setIsSearchDropdownOpen(!isSearchDropdownOpen)
                     : setIsSearchModalOpen(true)
                   }
-                  className="button-toolbar inline-flex items-center"
+                  className="button-toolbar inline-flex items-center gap-2"
                 >
                   <Search className="w-5 h-5" />
                   <span className="hidden md:inline">Search</span>
                   {(profile?.savedSearches?.length ?? 0) > 0 && (
-                    <ChevronDown className="w-4 h-4 ml-1 hidden md:inline" />
+                    <ChevronDown className="w-4 h-4 hidden md:inline" />
                   )}
                 </button>
 
@@ -259,7 +260,7 @@ export function Agistments() {
               </div>
               <button
                 onClick={handleFavorites}
-                className="button-toolbar"
+                className="button-toolbar inline-flex items-center gap-2"
               >
                 <Star className="w-5 h-5" />
                 <span className="hidden md:inline">Favorites</span>
@@ -268,60 +269,15 @@ export function Agistments() {
             {profile && searchHash && (originalAgistments.length > 0 || adjacentAgistments.length > 0) && (
               <button
                 onClick={handleSaveSearch}
-                className="button-toolbar ml-4"
+                className="button-toolbar inline-flex items-center gap-2 ml-2"
               >
-                <span>Save this search</span>
+                <BookmarkPlus className="w-5 h-5" />
+                <span className="hidden md:inline">Save this search</span>
               </button>
             )}
           </div>
         }
-        mobileActions={
-          <div className="flex items-center gap-4">
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => (profile?.savedSearches?.length ?? 0) 
-                  ? setIsSearchDropdownOpen(!isSearchDropdownOpen)
-                  : setIsSearchModalOpen(true)
-                }
-                className="button-toolbar inline-flex items-center"
-              >
-                <Search className="w-5 h-5" />
-                {(profile?.savedSearches?.length ?? 0) > 0 && (
-                  <ChevronDown className="w-4 h-4 ml-1" />
-                )}
-              </button>
-
-              {isSearchDropdownOpen && (profile?.savedSearches?.length ?? 0) > 0 && (
-                <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
-                  <button
-                    onClick={() => {
-                      setIsSearchDropdownOpen(false);
-                      setIsSearchModalOpen(true);
-                      setSelectedSearchHash('');
-                      setForceResetSearch(true);
-                      setSearchTitle('New Search');
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
-                  >
-                    New Search
-                  </button>
-                  <div className="h-px bg-neutral-200 my-1" />
-                  {profile?.savedSearches?.map((search) => (
-                    <button
-                      key={search.id}
-                      onClick={() => handleSavedSearchSelect(search.searchHash, search.name)}
-                      className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
-                    >
-                      {search.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        }
       />
-
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
         {isFetching ? (
           <div className="flex justify-center items-center h-64">
@@ -348,9 +304,14 @@ export function Agistments() {
             )}
             
             {originalAgistments.length === 0 && adjacentAgistments.length === 0 && searchHash && (
-              <div className="text-center py-8">
-                <h2 className="text-2xl font-semibold mb-4">No Properties Found</h2>
-                <p className="text-neutral-600 mb-4">Try adjusting your search criteria</p>
+              <div className="flex flex-col items-center justify-center py-16 px-4">
+                <div className="mb-8 text-neutral-400">
+                  <StableIcon className="w-24 h-24" />
+                </div>
+                <h2 className="text-2xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200">No Properties Found</h2>
+                <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md text-center">
+                  We couldn't find any properties matching your criteria. Try adjusting your search parameters.
+                </p>
                 <button
                   onClick={() => setIsSearchModalOpen(true)}
                   className="button-primary"
@@ -361,14 +322,19 @@ export function Agistments() {
             )}
 
             {!searchHash && (
-              <div className="text-center py-8">
-                <h2 className="text-2xl font-semibold mb-4">Find your perfect Agistment</h2>
-                <p className="text-neutral-600 mb-4">Your perfect agistment journey starts with a click. Search by location, facilities, and care options to find the ideal home for your horse.</p>
+              <div className="flex flex-col items-center justify-center py-16 px-4">
+                <div className="mb-8 text-neutral-400">
+                  <StableIcon className="w-32 h-32" />
+                </div>
+                <h2 className="text-3xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200">Find your perfect Agistment</h2>
+                <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-lg text-center leading-relaxed">
+                  Your perfect agistment journey starts here. Search by location, facilities, and care options to find the ideal home for your horse.
+                </p>
                 <button
                   onClick={() => setIsSearchModalOpen(true)}
-                  className="button-primary"
+                  className="button-primary text-lg px-8 py-3"
                 >
-                  Search
+                  Start Searching
                 </button>
               </div>
             )}
