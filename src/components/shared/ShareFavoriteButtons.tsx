@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Share2Icon, Star, PencilIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
 import { useProfile } from '../../context/ProfileContext';
-import { profileService } from '../../services/profile.service';
 import { useNavigate } from 'react-router-dom';
 
 interface ShareFavoriteButtonsProps {
@@ -12,6 +11,7 @@ interface ShareFavoriteButtonsProps {
   onEdit?: () => void;
   onToggleVisibility?: (newVisibility: boolean) => void;
   hideShare?: boolean;
+  hideEdit?: boolean;
   showVisibility?: boolean;
   isVisible?: boolean;
 }
@@ -24,29 +24,19 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   onEdit,
   onToggleVisibility,
   hideShare = false,
+  hideEdit = false,
   showVisibility = false,
   isVisible = true,
 }) => {
-  const { profile } = useProfile();
+  const { profile, updateProfileData } = useProfile();
   const navigate = useNavigate();
-  const [isFavorited, setIsFavorited] = useState(() => {
-    const initialState = profile?.favourites?.some((fav) => fav.agistmentId === agistmentId) || false;
-    console.log('Initial favorite state:', { agistmentId, initialState, favorites: profile?.favourites });
-    return initialState;
-  });
-
-  const isMyAgistment = profile?.myAgistments?.includes(agistmentId) || false;
+  const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
-    const newState = profile?.favourites?.some((fav) => fav.agistmentId === agistmentId) || false;
-    console.log('Profile changed:', { 
-      agistmentId, 
-      newState, 
-      favorites: profile?.favourites,
-      currentState: isFavorited 
-    });
-    setIsFavorited(newState);
-  }, [profile, agistmentId]);
+    setIsFavorited(profile?.favourites?.some((fav) => fav.agistmentId === agistmentId) || false);
+  }, [profile?.favourites, agistmentId]);
+
+  const isMyAgistment = profile?.myAgistments?.includes(agistmentId) || false;
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -73,35 +63,32 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   const handleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!profile) {
-      console.log('No profile found when trying to favorite');
       alert('Please login to favorite properties');
       return;
     }
-    const newState = !isFavorited;
-    console.log('Favorite clicked:', { 
-      agistmentId, 
-      newState, 
-      currentFavorites: profile.favourites 
-    });
 
     try {
-      let newFavorites;
-      if (newState) {
-        // Add to favorites
-        newFavorites = [...profile.favourites, { agistmentId, lastUpdate: new Date().toISOString() }];
-      } else {
-        // Remove from favorites
-        newFavorites = profile.favourites.filter(fav => fav.agistmentId !== agistmentId);
-      }
+      const newState = !isFavorited;
+      const newFavorites = newState
+        ? [...(profile.favourites || []), { agistmentId, lastUpdate: new Date().toISOString() }]
+        : (profile.favourites || []).filter(fav => fav.agistmentId !== agistmentId);
 
-      await profileService.updateProfile({
-        ...profile,
+      // Optimistically update UI
+      setIsFavorited(newState);
+
+      // Remove fields that shouldn't be sent in update
+      const { id, email, lastUpdate, ...updateData } = profile;
+      
+      // Update profile using context
+      await updateProfileData({
+        ...updateData,
         favourites: newFavorites
       });
 
-      setIsFavorited(newState);
       onFavorite?.();
     } catch (error) {
+      // Revert UI state on error
+      setIsFavorited(!isFavorited);
       console.error('Error updating favorites:', error);
       alert('Failed to update favorites. Please try again.');
     }
@@ -109,8 +96,11 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/agistments/${agistmentId}/edit`);
-    onEdit?.();
+    if (onEdit) {
+      onEdit();
+    } else {
+      navigate(`/agistments/${agistmentId}/edit`);
+    }
   };
 
   const handleToggleVisibility = (e: React.MouseEvent) => {
@@ -119,44 +109,40 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   };
 
   return (
-    <div className={`flex items-center ${hideShare ? '-ml-2' : ''}`}>
+    <div className="flex items-center gap-2">
       {!hideShare && (
         <button
-          type="button"
           onClick={handleShare}
-          className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-700 hover:text-neutral-900 transition-colors"
+          className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
         >
-          <Share2Icon className="h-5 w-5" />
+          <Share2Icon className="w-5 h-5" />
         </button>
       )}
       <button
-        type="button"
         onClick={handleFavorite}
-        className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-700 hover:text-neutral-900 transition-colors"
+        className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
       >
-        <Star 
-          className={`h-5 w-5 ${isFavorited ? 'fill-yellow-400 text-yellow-400' : 'fill-none'}`} 
+        <Star
+          className={`w-5 h-5 ${isFavorited ? 'fill-yellow-400 text-yellow-400' : ''}`}
         />
       </button>
-      {isMyAgistment && (
+      {!hideEdit && isMyAgistment && (
         <button
-          type="button"
           onClick={handleEdit}
-          className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-700 hover:text-neutral-900 transition-colors"
+          className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
         >
-          <PencilIcon className="h-5 w-5" />
+          <PencilIcon className="w-5 h-5" />
         </button>
       )}
       {showVisibility && isMyAgistment && (
         <button
-          type="button"
           onClick={handleToggleVisibility}
-          className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-700 hover:text-neutral-900 transition-colors"
+          className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
         >
           {isVisible ? (
-            <EyeIcon className="h-5 w-5" />
+            <EyeIcon className="w-5 h-5" />
           ) : (
-            <EyeOffIcon className="h-5 w-5" />
+            <EyeOffIcon className="w-5 h-5" />
           )}
         </button>
       )}

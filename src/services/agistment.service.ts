@@ -37,7 +37,8 @@ class AgistmentService {
 
   async searchAgistments(searchHash: string): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.get<AgistmentResponse>(`/v1/agistments?q=${encodeURIComponent(searchHash)}`);
+      const url = `v1/agistments?q=${encodeURIComponent(searchHash)}`;
+      const response = await this.api.get<AgistmentResponse>(url);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to search agistments:', error);
@@ -47,7 +48,7 @@ class AgistmentService {
 
   async getAgistment(id: string): Promise<Agistment> {
     try {
-      const response = await this.api.get<Agistment>(`/v1/agistments/${id}`);
+      const response = await this.api.get<Agistment>(`v1/agistments/${id}`);
       return response.data;
     } catch (error: unknown) {
       console.error(`Failed to get agistment ${id}:`, error);
@@ -57,7 +58,7 @@ class AgistmentService {
 
   async updateAgistment(id: string, agistment: Partial<Agistment>): Promise<Agistment> {
     try {
-      const response = await this.api.put<Agistment>(`/v1/protected/agistments/${id}`, agistment);
+      const response = await this.api.put<Agistment>(`v1/protected/agistments/${id}`, agistment);
       return response.data;
     } catch (error: unknown) {
       console.error(`Failed to update agistment ${id}:`, error);
@@ -67,7 +68,7 @@ class AgistmentService {
 
   async deleteAgistment(id: string): Promise<void> {
     try {
-      await this.api.delete(`/v1/protected/agistments/${id}`);
+      await this.api.delete(`v1/protected/agistments/${id}`);
     } catch (error: unknown) {
       console.error(`Failed to delete agistment ${id}:`, error);
       throw error;
@@ -76,7 +77,7 @@ class AgistmentService {
 
   async createFromText(text: string): Promise<Agistment> {
     try {
-      const response = await this.api.post<Agistment>('/v1/protected/agistments/from-text', text, {
+      const response = await this.api.post<Agistment>('v1/protected/agistments/from-text', text, {
         headers: {
           'Content-Type': 'text/plain',
         },
@@ -90,7 +91,7 @@ class AgistmentService {
 
   async getMyAgistments(): Promise<{ agistments: Agistment[], count: number, totalNewEnquiries: number }> {
     try {
-      const response = await this.api.get<{ agistments: Agistment[], count: number, totalNewEnquiries: number }>('/v1/protected/agistments/my');
+      const response = await this.api.get<{ agistments: Agistment[], count: number, totalNewEnquiries: number }>('v1/protected/agistments/my');
       console.log('My Agistments Response:', response.data);
       return response.data;
     } catch (error: unknown) {
@@ -101,10 +102,20 @@ class AgistmentService {
 
   async getFeaturedAgistments(): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.get<AgistmentResponse>('/v1/protected/agistments/featured');
+      const response = await this.api.get<AgistmentResponse>('v1/protected/agistments/featured');
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get featured agistments:', error);
+      throw error;
+    }
+  }
+
+  async getFavoriteAgistments(): Promise<Agistment[]> {
+    try {
+      const response = await this.api.get<Agistment[]>('v1/protected/agistments/favourites');
+      return response.data;
+    } catch (error: unknown) {
+      console.error('Failed to get favorite agistments:', error);
       throw error;
     }
   }
@@ -120,7 +131,7 @@ class AgistmentService {
       };
       
       console.log('Requesting presigned URL for agistment photo...');
-      const response = await this.api.post<PresignedUrlResponse[]>('/v1/presigned-urls', presignedRequest);
+      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', presignedRequest);
       const presignedData = response.data[0];
       console.log('Received presigned URL data:', presignedData);
 
@@ -200,7 +211,7 @@ class AgistmentService {
   private async updateAgistmentSection<T>(id: string, section: string, data: T): Promise<Agistment> {
     try {
       const response = await this.api.patch<Agistment>(
-        `/v1/protected/agistments/${id}/${section}`,
+        `v1/protected/agistments/${id}/${section}`,
         data
       );
       return response.data;

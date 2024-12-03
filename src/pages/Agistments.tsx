@@ -4,9 +4,10 @@ import { agistmentService } from '../services/agistment.service';
 import { SearchModal } from '../components/Search/SearchModal';
 import { SearchCriteria } from '../types/search';
 import { Agistment } from '../types/agistment';
-import { SearchIcon } from '../components/Icons';
+import { Search, Star } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import PropertyCard from '../components/PropertyCard';
+import { useProfile } from '../context/ProfileContext';
 
 const decodeSearchHash = (hash: string): SearchCriteria => {
   try {
@@ -49,6 +50,7 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
 export function Agistments() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { profile } = useProfile();
   const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
   const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
   const [isFetching, setIsFetching] = useState(false);
@@ -93,7 +95,10 @@ export function Agistments() {
       setCurrentCriteria(decodedCriteria);
       setIsFetching(true);
       
-      agistmentService.searchAgistments(searchHash)
+      // Remove any trailing slashes from the search hash
+      const cleanSearchHash = searchHash.replace(/\/$/, '');
+      
+      agistmentService.searchAgistments(cleanSearchHash)
         .then(response => {
           if (response) {
             // Handle the actual API response structure
@@ -135,9 +140,13 @@ export function Agistments() {
     setIsSearchModalOpen(false);
     
     // Update URL after search, which will trigger the useEffect to load results
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('q', criteria.searchHash);
-    navigate({ search: newParams.toString() });
+    // Remove any trailing slashes and ensure clean URL construction
+    const searchUrl = `/agistments?q=${encodeURIComponent(criteria.searchHash)}`.replace(/\/+/g, '/');
+    navigate(searchUrl, { replace: true });
+  };
+
+  const handleFavorites = () => {
+    navigate('/agistments/favourites');
   };
 
   interface EmptyStateProps {
@@ -234,8 +243,20 @@ export function Agistments() {
                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors relative
                   bg-white text-neutral-700 hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700"
               >
-                <SearchIcon className="w-5 h-5" />
+                <Search className="w-5 h-5" />
                 <span>Search</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleFavorites}
+                disabled={!profile?.favourites?.length}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg
+                  ${profile?.favourites?.length 
+                    ? 'text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300' 
+                    : 'text-neutral-500 bg-neutral-200 cursor-not-allowed'}`}
+              >
+                <Star className="w-5 h-5" />
+                Favorites
               </button>
             </div>
           </div>

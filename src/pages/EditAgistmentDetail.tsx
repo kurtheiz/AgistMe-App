@@ -318,8 +318,8 @@ function EditAgistmentDetail() {
                 </button>
                 <ShareFavoriteButtons 
                   agistmentId={agistment?.id || ''}
-                  shareDescription={agistment?.propertyDescription?.description || ''}
-                  hideShare={agistment?.visibility?.hidden}
+                  shareDescription={`Check out this property on AgistMe: ${agistment?.basicInfo?.name || ''}`}
+                  hideEdit={true}
                 />
               </div>
               <AgistmentHeader

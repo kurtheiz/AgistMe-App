@@ -17,7 +17,7 @@ interface BioModalProps {
 export default function Bio({ isOpen = false, onClose = () => { }, clearFields = false }: BioModalProps) {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
-  const { profile, loading, error, refreshProfile, updateProfileData } = useProfile();
+  const { profile, loading, error, refreshProfile, updateProfileData, clearProfile } = useProfile();
   const [saving, setSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [originalData, setOriginalData] = useState<Partial<Profile>>({});
@@ -53,6 +53,12 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
     setFormData(newFormData);
     setOriginalData(newFormData);
   }, [profile, clearFields]);
+
+  useEffect(() => {
+    if (!isSignedIn && isLoaded) {
+      clearProfile();
+    }
+  }, [isSignedIn, isLoaded, clearProfile]);
 
   // Track if there are any changes to save
   const hasChanges = useMemo(() => {

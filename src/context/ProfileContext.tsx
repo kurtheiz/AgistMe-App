@@ -8,6 +8,7 @@ interface ProfileContextType {
   error: string | null;
   refreshProfile: () => Promise<void>;
   updateProfileData: (data: UpdateProfileRequest) => Promise<void>;
+  clearProfile: () => void;
 }
 
 export const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -18,7 +19,6 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [error, setError] = useState<string | null>(null);
 
   const refreshProfile = useCallback(async () => {
-    // Wrap the entire operation in the loading state updater
     setLoading(true);
     try {
       const profileData = await profileService.getProfile();
@@ -32,7 +32,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     } finally {
       setLoading(false);
     }
-  }, []); // No dependencies needed as we use state updaters
+  }, []);
 
   const updateProfileData = useCallback(async (data: UpdateProfileRequest) => {
     try {
@@ -44,14 +44,20 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   }, []);
 
+  const clearProfile = useCallback(() => {
+    setProfile(null);
+    setError(null);
+  }, []);
+
   return (
     <ProfileContext.Provider 
       value={{ 
         profile, 
         loading, 
-        error, 
+        error,
         refreshProfile,
-        updateProfileData
+        updateProfileData,
+        clearProfile
       }}
     >
       {children}

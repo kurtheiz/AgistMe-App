@@ -71,6 +71,15 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
     },
   });
 
+  // Remove trailing slashes from URLs
+  instance.interceptors.request.use((config) => {
+    if (config.url) {
+      // Remove trailing slash from the URL if it exists
+      config.url = config.url.replace(/\/$/, '');
+    }
+    return config;
+  });
+
   // Request interceptor
   instance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {

@@ -17,6 +17,7 @@ import ListAgistment from './pages/ListAgistment';
 import { CreateAgistment } from './pages/CreateAgistment';
 import { Dashboard } from './pages/Dashboard';
 import EditAgistmentDetail from './pages/EditAgistmentDetail';
+import { FavoriteAgistments } from './pages/FavoriteAgistments';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -29,11 +30,13 @@ const router = createBrowserRouter(
     <Route element={<Layout />} errorElement={<ErrorPage />}>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
-      <Route path="/agistments" element={<Agistments />} />
-      <Route path="/agistments/search" element={<Agistments />} />
-      <Route path="/agistments/create" element={<CreateAgistment />} />
-      <Route path="/agistments/:id/edit" element={<EditAgistmentDetail />} />
-      <Route path="/agistments/:id" element={<ViewAgistmentDetail />} />
+      <Route path="agistments">
+        <Route index element={<Agistments />} />
+        <Route path="create" element={<CreateAgistment />} />
+        <Route path=":id/edit" element={<EditAgistmentDetail />} />
+        <Route path=":id" element={<ViewAgistmentDetail />} />
+        <Route path="favourites" element={<FavoriteAgistments />} />
+      </Route>
       <Route path="/listagistment" element={<ListAgistment />} />
       <Route 
         path="/dashboard"
@@ -55,6 +58,7 @@ const router = createBrowserRouter(
     </Route>
   ),
   {
+    basename: '/',
     future: {
       v7_normalizeFormMethod: true,
       v7_relativeSplatPath: true
