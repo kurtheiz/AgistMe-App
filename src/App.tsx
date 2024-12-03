@@ -18,6 +18,7 @@ import { CreateAgistment } from './pages/CreateAgistment';
 import { Dashboard } from './pages/Dashboard';
 import EditAgistmentDetail from './pages/EditAgistmentDetail';
 import { FavoriteAgistments } from './pages/FavoriteAgistments';
+import { MyAgistments } from './pages/MyAgistments';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -33,9 +34,31 @@ const router = createBrowserRouter(
       <Route path="agistments">
         <Route index element={<Agistments />} />
         <Route path="create" element={<CreateAgistment />} />
-        <Route path=":id/edit" element={<EditAgistmentDetail />} />
+        <Route 
+          path=":id/edit" 
+          element={
+            <ProtectedRoute>
+              <EditAgistmentDetail />
+            </ProtectedRoute>
+          } 
+        />
         <Route path=":id" element={<ViewAgistmentDetail />} />
-        <Route path="favourites" element={<FavoriteAgistments />} />
+        <Route 
+          path="favourites" 
+          element={
+            <ProtectedRoute>
+              <FavoriteAgistments />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="my" 
+          element={
+            <ProtectedRoute>
+              <MyAgistments />
+            </ProtectedRoute>
+          }
+        />
       </Route>
       <Route path="/listagistment" element={<ListAgistment />} />
       <Route 

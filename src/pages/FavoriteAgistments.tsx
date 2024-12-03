@@ -5,7 +5,6 @@ import { Agistment } from '../types/agistment';
 import { PageToolbar } from '../components/PageToolbar';
 import PropertyCard from '../components/PropertyCard';
 import { useProfile } from '../context/ProfileContext';
-import { Star } from 'lucide-react';
 import { ArrowLeftIcon } from '../components/Icons';
 
 export function FavoriteAgistments() {
@@ -64,27 +63,31 @@ export function FavoriteAgistments() {
         <div className="text-center py-8">
           <h2 className="text-2xl font-semibold mb-4">No Favourites Yet</h2>
           <p className="text-neutral-600 mb-4">You haven't added any agistments to your favourites.</p>
-          <button
-            onClick={() => navigate('/agistments')}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300"
-          >
-            Browse Agistments
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={() => navigate('/agistments')}
+              className="button-primary"
+            >
+              Search
+            </button>
+          </div>
         </div>
       );
     }
 
     return (
-      <div className="px-0 sm:px-6">
-        <h2 className="text-base font-medium text-neutral-900 dark:text-white mb-4">
+      <div className="flex-grow max-w-7xl mx-auto w-full pt-4 pb-8">
+        <h2 className="text-base font-medium text-neutral-900 dark:text-white mb-4 px-4 sm:px-6">
           {agistments.length === 1
             ? '1 Favourite Agistment'
             : `${agistments.length} Favourite Agistments`}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {agistments.map((agistment) => (
-            <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
-          ))}
+        <div className="sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {agistments.map((agistment) => (
+              <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -185,9 +188,7 @@ export function FavoriteAgistments() {
       />
 
       <div className="flex-grow">
-        <div className="max-w-7xl mx-auto py-8">
-          {renderContent()}
-        </div>
+        {renderContent()}
       </div>
     </div>
   );

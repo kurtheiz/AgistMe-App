@@ -42,7 +42,8 @@ export default function PropertyCard({ agistment, onClick }: PropertyCardProps) 
 
   const handleClick = (e: React.MouseEvent) => {
     // Don't navigate if the click was on a button or link
-    if ((e.target as HTMLElement).closest('button, a')) {
+    if ((e.target as HTMLElement).closest('button, a, [role="button"]')) {
+      e.stopPropagation();
       return;
     }
     

@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
-import { ListBulletIcon, ChartBarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { List, BarChart, Users, Pencil, Eye, EyeOff, Loader2 } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
-import { Pencil as PencilIcon, Eye as EyeIcon, EyeOff as EyeOffIcon, Loader2 } from 'lucide-react';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -95,7 +94,7 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-lg p-6 shadow">
               <div className="flex items-center">
-                <ListBulletIcon className="h-8 w-8 text-primary-600" />
+                <List className="h-8 w-8 text-primary-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Total Listings</p>
                   <p className="text-2xl font-semibold text-gray-900">{stats.totalAgistments}</p>
@@ -105,7 +104,7 @@ export const Dashboard = () => {
             
             <div className="bg-white rounded-lg p-6 shadow">
               <div className="flex items-center">
-                <ChartBarIcon className="h-8 w-8 text-emerald-600" />
+                <BarChart className="h-8 w-8 text-emerald-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Active Listings</p>
                   <p className="text-2xl font-semibold text-gray-900">{stats.activeAgistments}</p>
@@ -115,7 +114,7 @@ export const Dashboard = () => {
 
             <div className="bg-white rounded-lg p-6 shadow">
               <div className="flex items-center">
-                <UserGroupIcon className="h-8 w-8 text-secondary-600" />
+                <Users className="h-8 w-8 text-secondary-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Total Views</p>
                   <p className="text-2xl font-semibold text-gray-900">{stats.totalViews}</p>
@@ -126,43 +125,18 @@ export const Dashboard = () => {
         </div>
 
         {/* Property Cards Grid */}
-        <div className="px-0 sm:px-6">
+        <div className="sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {agistments.map((agistment) => {
               console.log('Rendering agistment:', agistment);
               return (
                 <div key={agistment.id} className="relative">
-                  <PropertyCard agistment={agistment} />
-                  <div className="absolute left-1/2 transform -translate-x-1/2 bottom-[18px] z-20">
-                    <div className="flex items-center gap-2 bg-sky-600 rounded-full px-3 py-1.5 shadow-lg">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/agistments/${agistment.id}/edit`);
-                        }}
-                        className="text-white hover:text-sky-100 transition-colors"
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                      </button>
-                      <div className="w-px h-4 bg-sky-500"></div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleVisibilityToggle(agistment.id, agistment.visibility.hidden);
-                        }}
-                        className="text-white hover:text-sky-100 transition-colors"
-                        disabled={isUpdating[agistment.id]}
-                      >
-                        {isUpdating[agistment.id] ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : agistment.visibility.hidden ? (
-                          <EyeOffIcon className="h-4 w-4" />
-                        ) : (
-                          <EyeIcon className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
+                  <PropertyCard 
+                    agistment={agistment}
+                    onEdit={() => navigate(`/agistments/${agistment.id}/edit`)}
+                    onToggleVisibility={() => handleVisibilityToggle(agistment.id, agistment.visibility.hidden)}
+                    isUpdatingVisibility={isUpdating[agistment.id]}
+                  />
                 </div>
               );
             })}

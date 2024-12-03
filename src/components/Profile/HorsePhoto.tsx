@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { PencilSquareIcon, TrashIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { Pencil, Trash, Image } from 'lucide-react';
 
 interface HorsePhotoProps {
   photoUrl: string;
@@ -35,7 +35,7 @@ export const HorsePhoto = ({
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <PhotoIcon className="h-12 w-12 text-neutral-400" />
+            <Image className="h-12 w-12 text-neutral-400" />
           </div>
         )}
       </div>
@@ -48,7 +48,7 @@ export const HorsePhoto = ({
           className="p-2 rounded-md bg-white dark:bg-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-600 text-neutral-600 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 transition-colors duration-200"
           title="Change photo"
         >
-          <PencilSquareIcon className="h-5 w-5" />
+          <Pencil className="h-5 w-5" />
         </button>
         {photoUrl && (
           <button
@@ -57,7 +57,7 @@ export const HorsePhoto = ({
             className="p-2 rounded-md bg-white dark:bg-neutral-700 hover:bg-red-50 dark:hover:bg-red-900 text-neutral-600 dark:text-neutral-300 hover:text-red-600 dark:hover:text-red-400 border border-neutral-300 dark:border-neutral-600 hover:border-red-300 dark:hover:border-red-700 transition-colors duration-200"
             title="Remove photo"
           >
-            <TrashIcon className="h-5 w-5" />
+            <Trash className="h-5 w-5" />
           </button>
         )}
       </div>

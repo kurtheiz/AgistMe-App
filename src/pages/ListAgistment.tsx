@@ -1,7 +1,7 @@
 import { useUser, useClerk } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { PricingPlans } from '../components/PricingPlans';
-import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import { CheckCircle } from 'lucide-react';
 import { useListingTypeStore } from '../stores/listingType.store';
 
 const ListAgistment = () => {
@@ -48,7 +48,7 @@ const ListAgistment = () => {
           <div className="space-y-8">
             <div className="flex gap-4">
               <div className="flex-shrink-0 mt-1">
-                <CheckCircleIcon className="w-6 h-6 text-emerald-500" />
+                <CheckCircle className="w-6 h-6 text-emerald-500" />
               </div>
               <div>
                 <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Flexible Listing Options</h3>
@@ -59,7 +59,7 @@ const ListAgistment = () => {
             </div>
             <div className="flex gap-4">
               <div className="flex-shrink-0 mt-1">
-                <CheckCircleIcon className="w-6 h-6 text-emerald-500" />
+                <CheckCircle className="w-6 h-6 text-emerald-500" />
               </div>
               <div>
                 <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Showcase Your Facilities</h3>
@@ -70,7 +70,7 @@ const ListAgistment = () => {
             </div>
             <div className="flex gap-4">
               <div className="flex-shrink-0 mt-1">
-                <CheckCircleIcon className="w-6 h-6 text-emerald-500" />
+                <CheckCircle className="w-6 h-6 text-emerald-500" />
               </div>
               <div>
                 <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Flexible Care Options</h3>
@@ -81,7 +81,7 @@ const ListAgistment = () => {
             </div>
             <div className="flex gap-4">
               <div className="flex-shrink-0 mt-1">
-                <CheckCircleIcon className="w-6 h-6 text-emerald-500" />
+                <CheckCircle className="w-6 h-6 text-emerald-500" />
               </div>
               <div>
                 <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Additional Revenue Streams</h3>

@@ -1,8 +1,6 @@
 import { Fragment, ReactNode, useEffect } from 'react';
 import { Dialog, Transition, TransitionChild, DialogPanel } from '@headlessui/react';
-import { XMarkIcon } from '../Icons';
-import { Loader2, Search, Save } from 'lucide-react';
-
+import { X, Loader2, Search, Save } from 'lucide-react';
 
 export type ActionIconType = 'SEARCH' | 'SAVE';
 
@@ -152,7 +150,7 @@ export function Modal({
                             onClick={onClose}
                           >
                             <span className="sr-only">Close</span>
-                            <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                            <X className="h-5 w-5" aria-hidden="true" />
                           </button>
                         )}
                       </div>

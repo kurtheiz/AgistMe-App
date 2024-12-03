@@ -128,6 +128,19 @@ body {
            focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
   }
 
+  .button-edit {
+    @apply flex items-center gap-2 bg-primary-600 rounded-full px-3 py-1.5 text-white hover:bg-primary-700 shadow-lg;
+  }
+
+  .button-primary {
+    @apply flex items-center gap-2 px-6 py-3 text-base font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors;
+  }
+
+  .button-toolbar {
+    @apply flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors relative
+      bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200;
+  }
+
   /* Common layout styles */
   .section-container {
     @apply mb-6;

@@ -71,18 +71,18 @@ function EditAgistmentDetail() {
   const handleVisibilityToggle = async () => {
     if (!agistment) return;
 
-    setIsUpdating(true);
     try {
-      const updatedAgistment = await agistmentService.updateAgistment(agistment.id, {
-        visibility: { hidden: !agistment.visibility.hidden }
-      });
-      setAgistment(updatedAgistment);
-      toast.success(`Agistment is now ${updatedAgistment.visibility.hidden ? 'hidden' : 'visible'}`);
+      const updatedVisibility = {
+        visibility: {
+          ...agistment.visibility,
+          hidden: !agistment.visibility.hidden
+        }
+      };
+      
+      await handleAgistmentUpdate(updatedVisibility);
     } catch (error) {
       console.error('Error updating agistment visibility:', error);
       toast.error('Failed to update visibility');
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -230,20 +230,7 @@ function EditAgistmentDetail() {
                   ? "Hidden - This agistment will not appear in search results"
                   : "Visible - This agistment will appear in search results"
                 }
-                className={`
-                  px-4 py-2 text-sm font-medium rounded-md transition-colors
-                  flex items-center justify-center gap-2
-                  ${agistment?.visibility.hidden 
-                    ? 'text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600' 
-                    : 'text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600'
-                  }
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                  focus:outline-none focus:ring-2 focus:ring-offset-2
-                  ${agistment?.visibility.hidden 
-                    ? 'focus:ring-red-500' 
-                    : 'focus:ring-green-500'
-                  }
-                `}
+                className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {agistment?.visibility.hidden ? 'Make Visible' : 'Make Hidden'}
                 {isUpdating && (
@@ -311,10 +298,11 @@ function EditAgistmentDetail() {
               <div className="mb-4 flex justify-between items-center">
                 <button
                   onClick={() => setIsHeaderModalOpen(true)}
-                  className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="button-toolbar"
+                  title="Edit header information"
                 >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit
+                  <Pencil className="w-4 h-4" />
+                  <span>Edit</span>
                 </button>
                 <ShareFavoriteButtons 
                   agistmentId={agistment?.id || ''}
@@ -338,10 +326,11 @@ function EditAgistmentDetail() {
                   <div className="mb-4">
                     <button
                       onClick={() => setIsPaddocksModalOpen(true)}
-                      className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      className="button-toolbar"
+                      title="Edit paddocks"
                     >
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Edit
+                      <Pencil className="w-4 h-4" />
+                      <span>Edit</span>
                     </button>
                   </div>
                   <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
@@ -363,10 +352,11 @@ function EditAgistmentDetail() {
                   <div className="mb-4">
                     <button
                       onClick={() => setIsCareOptionsModalOpen(true)}
-                      className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      className="button-toolbar"
+                      title="Edit care options"
                     >
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Edit
+                      <Pencil className="w-4 h-4" />
+                      <span>Edit</span>
                     </button>
                   </div>
                   <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
@@ -387,10 +377,11 @@ function EditAgistmentDetail() {
                   <div className="mb-4">
                     <button
                       onClick={() => setIsRidingFacilitiesModalOpen(true)}
-                      className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      className="button-toolbar"
+                      title="Edit riding facilities"
                     >
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Edit
+                      <Pencil className="w-4 h-4" />
+                      <span>Edit</span>
                     </button>
                   </div>
                   <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
@@ -406,10 +397,11 @@ function EditAgistmentDetail() {
                   <div className="mb-4">
                     <button
                       onClick={() => setIsFacilitiesModalOpen(true)}
-                      className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      className="button-toolbar"
+                      title="Edit facilities"
                     >
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Edit
+                      <Pencil className="w-4 h-4" />
+                      <span>Edit</span>
                     </button>
                   </div>
                   <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
@@ -434,10 +426,11 @@ function EditAgistmentDetail() {
               <div className="mb-4">
                 <button
                   onClick={() => setIsServicesModalOpen(true)}
-                  className="inline-flex items-center px-3 py-2 border border-neutral-300 dark:border-neutral-600 shadow-sm text-sm leading-4 font-medium rounded-md text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="button-toolbar"
+                  title="Edit services"
                 >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit
+                  <Pencil className="w-4 h-4" />
+                  <span>Edit</span>
                 </button>
               </div>
               <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">

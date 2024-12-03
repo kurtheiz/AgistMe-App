@@ -217,9 +217,12 @@ export function Agistments() {
           ? `No Agistments found in ${getLocationsText()}`
           : 'Find your perfect Agistment'}
       </h2>
+      <p className="text-center text-neutral-600 max-w-md mx-auto">
+        Your perfect agistment journey starts with a click. Search by location, facilities, and care options to find the ideal home for your horse.
+      </p>
       <button
         onClick={onSearch}
-        className="mt-8 flex items-center gap-2 px-6 py-3 text-base font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+        className="mt-8 button-primary"
       >
         Search
       </button>
@@ -240,8 +243,7 @@ export function Agistments() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setIsSearchModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors relative
-                  bg-white text-neutral-700 hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700"
+                className="button-toolbar"
               >
                 <Search className="w-5 h-5" />
                 <span>Search</span>
@@ -250,10 +252,9 @@ export function Agistments() {
                 type="button"
                 onClick={handleFavorites}
                 disabled={!profile?.favourites?.length}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg
-                  ${profile?.favourites?.length 
-                    ? 'text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300' 
-                    : 'text-neutral-500 bg-neutral-200 cursor-not-allowed'}`}
+                className={`${profile?.favourites?.length 
+                  ? 'button-toolbar' 
+                  : 'inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg text-neutral-500 bg-neutral-200 cursor-not-allowed'}`}
               >
                 <Star className="w-5 h-5" />
                 Favorites
@@ -275,7 +276,7 @@ export function Agistments() {
                   ? `1 Agistment found in ${getLocationsText()}`
                   : `${originalAgistments.length} Agistments found in ${getLocationsText()}`}
               </h2>
-              <div className="px-0 sm:px-6">
+              <div className="sm:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {originalAgistments.map((agistment) => (
                     <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
@@ -293,7 +294,7 @@ export function Agistments() {
                   ? `1 Agistment found within ${currentCriteria?.radius || 0}km radius`
                   : `${adjacentAgistments.length} Agistments found within ${currentCriteria?.radius || 0}km radius`}
               </h2>
-              <div className="px-0 sm:px-6">
+              <div className="sm:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {adjacentAgistments.map((agistment) => (
                     <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
@@ -312,7 +313,7 @@ export function Agistments() {
                   ? `1 Agistment found within ${currentCriteria?.radius || 0}km radius`
                   : `${adjacentAgistments.length} Agistments found within ${currentCriteria?.radius || 0}km radius`}
               </h2>
-              <div className="px-0 sm:px-6">
+              <div className="sm:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {adjacentAgistments.map((agistment) => (
                     <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />

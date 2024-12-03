@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { PencilSquareIcon, TrashIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { Pencil, Trash, UserCircle } from 'lucide-react';
 
 interface ProfilePhotoProps {
   photoUrl: string;
@@ -36,7 +36,7 @@ export const ProfilePhoto = ({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <UserCircleIcon className="w-32 h-32 text-neutral-300 dark:text-neutral-600" />
+              <UserCircle className="w-32 h-32 text-neutral-300 dark:text-neutral-600" />
             </div>
           )}
         </div>
@@ -54,7 +54,7 @@ export const ProfilePhoto = ({
             }`}
             title="Change photo"
           >
-            <PencilSquareIcon className="h-5 w-5" />
+            <Pencil className="h-5 w-5" />
           </button>
           {photoUrl && (
             <button
@@ -68,7 +68,7 @@ export const ProfilePhoto = ({
               }`}
               title="Remove photo"
             >
-              <TrashIcon className="h-5 w-5" />
+              <Trash className="h-5 w-5" />
             </button>
           )}
         </div>

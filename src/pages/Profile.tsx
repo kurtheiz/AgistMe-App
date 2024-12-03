@@ -94,14 +94,15 @@ export default function Profile() {
             </div>
 
             {/* My Horses Card */}
-            <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
-              <div className="flex flex-col h-full">
-                <h2 className="text-xl font-semibold text-neutral-900 mb-6">My Horses</h2>
-                
-                <div className="flex-1 flex flex-col items-left justify-left text-left space-y-3">
-                  
+            <div 
+              onClick={() => navigate('/horses')}
+              className="bg-white rounded-lg shadow-sm p-6 flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div className="flex flex-col space-y-4">
+                <div className="flex flex-col space-y-2">
+                  <h2 className="text-xl font-semibold text-neutral-900">My Horses</h2>
                   <p className="text-sm text-neutral-600">
-                    Add and manage your horses that will appear on your bio
+                    View and manage your horses
                   </p>
                 </div>
               </div>
@@ -135,6 +136,23 @@ export default function Profile() {
                 </div>
               </div>
             </div>
+
+            {/* My Agistments Card - Only shown if user is an agistor */}
+            {profile?.agistor && (
+              <div 
+                onClick={() => navigate('/agistments/my')}
+                className="bg-white rounded-lg shadow-sm p-6 flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+              >
+                <div className="flex flex-col space-y-4">
+                  <div className="flex flex-col space-y-2">
+                    <h2 className="text-xl font-semibold text-neutral-900">My Agistments</h2>
+                    <p className="text-sm text-neutral-600">
+                      View and manage your agistment listings
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Bio Modal */}
             <Bio isOpen={isBioOpen} onClose={handleCloseBio} />

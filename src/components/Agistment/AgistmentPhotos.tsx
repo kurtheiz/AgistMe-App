@@ -1,9 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
-import { PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { Image, Trash, Pencil, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
 import { Agistment } from '../../types/agistment';
-import { Pencil, Loader2 } from 'lucide-react';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -66,7 +65,7 @@ const SortablePhoto = ({ photo, index, disabled, onRemove, onCommentEdit }: Sort
                 className="p-2 rounded-md bg-white/90 hover:bg-red-50 text-neutral-600 hover:text-red-600 border border-neutral-300 hover:border-red-300 transition-colors duration-200 backdrop-blur-sm"
                 title="Remove photo"
               >
-                <TrashIcon className="h-5 w-5" />
+                <Trash className="h-5 w-5" />
               </button>
             </div>
           )}
@@ -239,7 +238,7 @@ export const AgistmentPhotos = ({
                       <div
                         className="flex flex-col items-center justify-center h-full text-center text-neutral-600 dark:text-neutral-400"
                       >
-                        <PhotoIcon className="w-12 h-12 mb-2" />
+                        <Image className="w-12 h-12 mb-2" />
                         <span className="text-base font-medium">Add Photo</span>
                         <span className="text-xs">Click to Upload</span>
                       </div>

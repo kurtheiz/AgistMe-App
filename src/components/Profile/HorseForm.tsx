@@ -1,5 +1,5 @@
 import { Horse } from '../../types/profile';
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { Trash } from 'lucide-react';
 import { HorsePhoto } from './HorsePhoto';
 
 interface HorseFormProps {
@@ -32,7 +32,7 @@ export const HorseForm = ({
           className="p-1.5 text-neutral-400 hover:text-red-500 dark:hover:text-red-400"
         >
           <span className="sr-only">Delete</span>
-          <TrashIcon className="h-5 w-5" />
+          <Trash className="h-5 w-5" />
         </button>
       </div>
 
