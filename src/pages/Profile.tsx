@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Bio from '../components/Bio';
 import { useProfile } from '../context/ProfileContext';
 import { useState, useEffect } from 'react';
-import LogoutIcon from "../components/Icons/LogoutIcon";
+import { LogOut } from 'lucide-react';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -162,7 +162,7 @@ export default function Profile() {
             onClick={handleSignOut}
             className="w-full sm:w-auto sm:mx-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:py-3 text-base sm:text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg shadow-sm hover:shadow-md transition-all"
           >
-            <LogoutIcon className="h-5 w-5 sm:h-4 sm:w-4" />
+            <LogOut className="h-5 w-5 sm:h-4 sm:w-4" />
             Sign Out
           </button>
         </div>

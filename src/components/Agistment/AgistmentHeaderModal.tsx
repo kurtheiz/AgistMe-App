@@ -4,6 +4,7 @@ import { Agistment, AgistmentContact, AgistmentPropertyLocation, AgistmentBasicI
 import toast from 'react-hot-toast';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
 import { Suburb } from '../../types/suburb';
+import NumberStepper from '../shared/NumberStepper';
 
 interface Props {
   basicInfo?: AgistmentBasicInfo;
@@ -385,7 +386,14 @@ export const AgistmentHeaderModal = ({
         {/* Property Size */}
         <div className="section-container">
           <div>
-            {/* Removed NumberStepper component */}
+            <NumberStepper
+              label="Property Size (acres)"
+              value={editForm.propertySize}
+              onChange={(value) => setEditForm(prev => ({ ...prev, propertySize: value }))}
+              min={0}
+              step={1}
+              formatValue={(value) => value.toString()}
+            />
           </div>
         </div>
 

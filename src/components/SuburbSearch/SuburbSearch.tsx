@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
 import { Suburb, LocationType } from '../../types/suburb';
 import { suburbService } from '../../services/suburb.service';
-import { XMarkIcon } from '../Icons';
+import { X } from 'lucide-react';
 
 interface SuburbSearchProps {
   selectedSuburbs: Suburb[];
@@ -53,14 +53,20 @@ export function SuburbSearch({
           LocationType.SUBURB
         )
       })) || [];
-      setResults(suburbs);
+      
+      // Filter out non-suburb locations when in single select mode
+      const filteredSuburbs = multiple ? suburbs : suburbs.filter(suburb => 
+        suburb.locationType === LocationType.SUBURB
+      );
+      
+      setResults(filteredSuburbs);
     } catch (error) {
       console.error('Error searching locations:', error);
       setResults([]);
     } finally {
       setLoading(false);
     }
-  }, [includeRegions]);
+  }, [includeRegions, multiple]);
 
   useEffect(() => {
     searchLocations(debouncedSearch);
@@ -105,7 +111,7 @@ export function SuburbSearch({
                 onClick={() => handleRemove(location.id)}
                 className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 p-0.5"
               >
-                <XMarkIcon className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
           ))}

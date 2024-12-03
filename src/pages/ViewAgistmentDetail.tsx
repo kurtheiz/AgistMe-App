@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
-import { ArrowLeftIcon } from '../components/Icons';
+import { ArrowLeft } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentHeader } from '../components/Agistment/AgistmentHeader';
@@ -83,7 +83,7 @@ export function ViewAgistmentDetail() {
                   onClick={handleBackClick}
                   className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
                 >
-                  <ArrowLeftIcon className="w-3 h-3" />
+                  <ArrowLeft className="w-3 h-3" />
                   <span className="font-medium text-sm sm:text-base">Back</span>
                 </button>
                 <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>

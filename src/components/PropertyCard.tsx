@@ -8,10 +8,8 @@ import {
   HotWashIcon,
   StableIcon,
   TieUpIcon,
-  PhotoIcon,
-  HeartIcon
 } from './Icons';
-import { MapPin, Check, X, Pencil } from 'lucide-react';
+import { MapPin, Check, X, Pencil, Image, Heart } from 'lucide-react';
 import { Agistment } from '../types/agistment';
 import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
@@ -130,7 +128,7 @@ export default function PropertyCard({
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-neutral-400 flex flex-col items-center">
-                <PhotoIcon className="w-12 h-12 mb-2" />
+                <Image className="w-12 h-12 mb-2" />
                 <span className="text-sm">No photos</span>
               </div>
             </div>
@@ -304,7 +302,7 @@ export default function PropertyCard({
                   if (agistment.care.fullCare.available) careTypes.push('Full');
                   return careTypes.length > 0 ? careTypes.join('/') : 'No Care';
                 })(),
-                icon: HeartIcon,
+                icon: Heart,
                 available: agistment.care.selfCare.available || agistment.care.partCare.available || agistment.care.fullCare.available
               }
             ].map(({ key, label, icon: Icon, available }) => (

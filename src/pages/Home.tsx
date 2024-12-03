@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchModal } from '../components/Search/SearchModal';
-import { SearchIcon } from '../components/Icons';
+import { Search } from 'lucide-react';
 import { SearchCriteria } from '../types/search';
 
 const LAST_SEARCH_KEY = 'agistme_last_search';
@@ -39,7 +39,7 @@ export const Home = () => {
             onClick={() => setIsSearchOpen(true)}
             className="flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-lg text-white text-lg font-medium transition-all hover:-translate-y-0.5 active:translate-y-0"
           >
-            <SearchIcon className="h-5 w-5" />
+            <Search className="h-5 w-5" />
             Search Agistments
           </button>
         </div>

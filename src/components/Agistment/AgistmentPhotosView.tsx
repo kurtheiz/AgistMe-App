@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PhotoIcon } from '../Icons';
+import { Image } from 'lucide-react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
@@ -40,13 +40,13 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full">
       {galleryImages.length > 0 ? (
         <>
           {/* Main large photo */}
           <div className="relative w-full aspect-video">
             <div
-              className="relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity h-full"
+              className="relative overflow-hidden cursor-pointer hover:opacity-90 transition-opacity h-full"
               onClick={() => handleImageClick(0)}
             >
               <img
@@ -64,11 +64,11 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
 
           {/* Bottom gallery */}
           {galleryImages.length > 1 && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2">
               {galleryImages.slice(1, 3).map((image, index) => (
                 <div
                   key={image.src}
-                  className="relative aspect-video overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  className="relative aspect-video overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={() => handleImageClick(index + 1)}
                 >
                   <img
@@ -133,7 +133,7 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
       ) : (
         <div className="relative w-full aspect-video bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
           <div className="text-neutral-500 dark:text-neutral-400 flex flex-col items-center">
-            <PhotoIcon className="w-12 h-12 mb-2" />
+            <Image className="w-12 h-12 mb-2" />
             <span className="text-sm">No photos available</span>
           </div>
         </div>
