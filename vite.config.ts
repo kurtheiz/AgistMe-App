@@ -9,6 +9,21 @@ export default defineConfig({
     strictPort: true,
     fs: {
       strict: true
+    },
+    headers: {
+      'Cache-Control': 'no-store',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }
+  },
+  build: {
+    // Add timestamp to asset filenames for cache busting
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
+        chunkFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
+        assetFileNames: `assets/[name]-[hash]-${Date.now()}.[ext]`
+      }
     }
   }
 })
