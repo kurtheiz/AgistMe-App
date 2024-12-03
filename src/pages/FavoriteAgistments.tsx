@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { Agistment } from '../types/agistment';
 import { PageToolbar } from '../components/PageToolbar';
-import PropertyCard from '../components/PropertyCard';
+import { AgistmentList } from '../components/AgistmentList';
 import { useProfile } from '../context/ProfileContext';
 import { ArrowLeftIcon } from '../components/Icons';
 
@@ -71,58 +71,6 @@ export function FavoriteAgistments() {
 
     fetchFavorites();
   }, [profile?.favourites]); // Re-fetch when favourites array changes
-
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-        </div>
-      );
-    }
-
-    if (error) {
-      return (
-        <div className="text-center py-8">
-          <p className="text-red-600">{error}</p>
-        </div>
-      );
-    }
-
-    if (!agistments || agistments.length === 0) {
-      return (
-        <div className="text-center py-8">
-          <h2 className="text-2xl font-semibold mb-4">No Favourites Yet</h2>
-          <p className="text-neutral-600 mb-4">You haven't added any agistments to your favourites.</p>
-          <div className="flex justify-center">
-            <button
-              onClick={() => navigate('/agistments')}
-              className="button-primary"
-            >
-              Search
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="flex-grow max-w-7xl mx-auto w-full pt-4 pb-8">
-        <h2 className="text-base font-medium text-neutral-900 dark:text-white mb-4 px-4 sm:px-6">
-          {agistments.length === 1
-            ? '1 Favourite Agistment'
-            : `${agistments.length} Favourite Agistments`}
-        </h2>
-        <div className="sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {agistments.map((agistment) => (
-              <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   // Show loading state while profile is loading
   if (isProfileLoading) {
@@ -197,30 +145,41 @@ export function FavoriteAgistments() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <>
       <PageToolbar
         actions={
-          <div className="w-full">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="flex items-center">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
-                >
-                  <ArrowLeftIcon className="w-3 h-3" />
-                  <span className="font-medium text-sm sm:text-base">Back</span>
-                </button>
-                <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
-                <span className="text-sm sm:text-base text-neutral-900 dark:text-white">Favourites</span>
-              </div>
-            </div>
+          <div className="flex items-center">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-1 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
+            >
+              <ArrowLeftIcon className="w-3 h-3" />
+              <span className="font-medium text-sm sm:text-base">Back</span>
+            </button>
+            <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
+            <span className="text-sm sm:text-base text-neutral-900 dark:text-white">Favourite Agistments</span>
           </div>
         }
       />
-
-      <div className="flex-grow">
-        {renderContent()}
+      <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
+        <div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+            </div>
+          ) : error ? (
+            <div className="text-red-500 text-center">{error}</div>
+          ) : (
+            <div className="text-center pb-8 md:px-4 text-gray-500">
+              <AgistmentList 
+                agistments={agistments} 
+                title="Favourite Agistments"
+                showCount={true}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -40,64 +40,62 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-4">
       {galleryImages.length > 0 ? (
-        <div className="relative">
-          <div className="grid grid-cols-4 gap-1 aspect-[16/9]">
-            {/* Main large photo */}
-            <div className={`${galleryImages.length === 1 ? 'col-span-4' : 'col-span-3'}`}>
-              <div
-                className="relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity h-full"
-                onClick={() => handleImageClick(0)}
-              >
-                <img
-                  src={galleryImages[0]?.src}
-                  alt={galleryImages[0]?.alt}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                {galleryImages[0]?.title && (
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/50 text-white">
-                    {galleryImages[0]?.title}
-                  </div>
-                )}
-              </div>
+        <>
+          {/* Main large photo */}
+          <div className="relative w-full aspect-video">
+            <div
+              className="relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity h-full"
+              onClick={() => handleImageClick(0)}
+            >
+              <img
+                src={galleryImages[0]?.src}
+                alt={galleryImages[0]?.alt}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              {galleryImages[0]?.title && (
+                <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/50 text-white">
+                  {galleryImages[0]?.title}
+                </div>
+              )}
             </div>
-            
-            {/* Right side photos - only show if there's more than one photo */}
-            {galleryImages.length > 1 && (
-              <div className="flex flex-col gap-1">
-                {galleryImages.slice(1, 3).map((image, index) => (
-                  <div
-                    key={image.src}
-                    className="relative h-1/2 overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => handleImageClick(index + 1)}
-                  >
-                    <img
-                      src={image.src}
-                      alt={image.alt}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    {image.title && (
-                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 text-white text-sm">
-                        {image.title}
-                      </div>
-                    )}
-                    {index === 1 && galleryImages.length > 3 && (
-                      <div 
-                        className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-medium"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsLightboxOpen(true);
-                        }}
-                      >
-                        +{galleryImages.length - 3} more
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
+
+          {/* Bottom gallery */}
+          {galleryImages.length > 1 && (
+            <div className="grid grid-cols-2 gap-2">
+              {galleryImages.slice(1, 3).map((image, index) => (
+                <div
+                  key={image.src}
+                  className="relative aspect-video overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => handleImageClick(index + 1)}
+                >
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {image.title && (
+                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 text-white text-sm truncate">
+                      {image.title}
+                    </div>
+                  )}
+                  {index === 1 && galleryImages.length > 3 && (
+                    <div 
+                      className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsLightboxOpen(true);
+                      }}
+                    >
+                      +{galleryImages.length - 3} more
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
           <Lightbox
             open={isLightboxOpen}
             close={() => setIsLightboxOpen(false)}
@@ -131,9 +129,9 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
             }}
             noScroll={{ disabled: true }}
           />
-        </div>
+        </>
       ) : (
-        <div className="relative w-full aspect-[16/9] bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+        <div className="relative w-full aspect-video bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
           <div className="text-neutral-500 dark:text-neutral-400 flex flex-col items-center">
             <PhotoIcon className="w-12 h-12 mb-2" />
             <span className="text-sm">No photos available</span>

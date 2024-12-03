@@ -6,7 +6,7 @@ import { SearchCriteria } from '../types/search';
 import { Agistment } from '../types/agistment';
 import { Search, Star, ChevronDown } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
-import PropertyCard from '../components/PropertyCard';
+import { AgistmentList } from '../components/AgistmentList';
 import { useProfile } from '../context/ProfileContext';
 
 const decodeSearchHash = (hash: string): SearchCriteria => {
@@ -209,99 +209,11 @@ export function Agistments() {
     setSearchTitle(name);
   };
 
-  interface EmptyStateProps {
-    onSearch: () => void;
-  }
-
-  const EmptyState = ({ onSearch }: EmptyStateProps) => (
-    <div className="flex flex-col items-center justify-center flex-grow px-4">
-      <div className="relative mb-8 w-48 h-48">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-100 via-primary-50 to-transparent rounded-full blur-2xl"></div>
-        <div className="relative w-full h-full">
-          <svg
-            className="w-full h-full"
-            viewBox="0 0 100 100"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Background circle */}
-            <circle cx="50" cy="50" r="45" className="stroke-primary-200" strokeWidth="1" />
-            
-            {/* AgistMe Logo in the center */}
-            <image
-              href="/AgistMeLogo.svg"
-              x="30"
-              y="30"
-              width="40"
-              height="40"
-              className="opacity-80"
-            />
-            
-            {/* Animated magnifying glass */}
-            <g className="animate-[searchMove_4s_ease-in-out_infinite]">
-              <g className="transform translate-x-2 translate-y-2">
-                {/* Glass background with slight transparency */}
-                <circle
-                  cx="42"
-                  cy="42"
-                  r="16"
-                  className="fill-white/80 backdrop-blur-sm"
-                />
-                
-                {/* Glass border */}
-                <circle
-                  cx="42"
-                  cy="42"
-                  r="16"
-                  className="fill-none stroke-primary-600"
-                  strokeWidth="2"
-                />
-                
-                {/* Handle */}
-                <line
-                  x1="54"
-                  y1="54"
-                  x2="64"
-                  y2="64"
-                  className="stroke-primary-600"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </g>
-            </g>
-          </svg>
-        </div>
-      </div>
-      <h2 className="text-2xl font-bold text-neutral-900 mb-4 text-center">
-        {searchHash 
-          ? `No Agistments found in ${getLocationsText()}`
-          : 'Find your perfect Agistment'}
-      </h2>
-      <p className="text-center text-neutral-600 max-w-md mx-auto">
-        Your perfect agistment journey starts with a click. Search by location, facilities, and care options to find the ideal home for your horse.
-      </p>
-      <button
-        onClick={onSearch}
-        className="mt-8 button-primary"
-      >
-        Search
-      </button>
-    </div>
-  );
-  
   return (
-    <div className="flex flex-col flex-grow">
-      <SearchModal
-        isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
-        onSearch={handleSearch}
-        initialSearchHash={selectedSearchHash}
-        forceReset={forceResetSearch}
-        title={searchTitle}
-      />
+    <>
       <PageToolbar 
         actions={
-          <div className="w-full flex items-center justify-between">
+          <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -318,7 +230,6 @@ export function Agistments() {
                   )}
                 </button>
 
-                {/* Dropdown menu for saved searches */}
                 {isSearchDropdownOpen && (profile?.savedSearches?.length ?? 0) > 0 && (
                   <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
                     <button
@@ -354,7 +265,6 @@ export function Agistments() {
                 <span className="hidden md:inline">Favorites</span>
               </button>
             </div>
-            {/* Save Search button */}
             {profile && searchHash && (originalAgistments.length > 0 || adjacentAgistments.length > 0) && (
               <button
                 onClick={handleSaveSearch}
@@ -366,115 +276,114 @@ export function Agistments() {
           </div>
         }
         mobileActions={
-          <div className="w-full flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => (profile?.savedSearches?.length ?? 0) 
-                    ? setIsSearchDropdownOpen(!isSearchDropdownOpen)
-                    : setIsSearchModalOpen(true)
-                  }
-                  className="button-toolbar inline-flex items-center"
-                >
-                  <Search className="w-5 h-5" />
-                  {(profile?.savedSearches?.length ?? 0) > 0 && (
-                    <ChevronDown className="w-4 h-4 ml-1" />
-                  )}
-                </button>
+          <div className="flex items-center gap-4">
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => (profile?.savedSearches?.length ?? 0) 
+                  ? setIsSearchDropdownOpen(!isSearchDropdownOpen)
+                  : setIsSearchModalOpen(true)
+                }
+                className="button-toolbar inline-flex items-center"
+              >
+                <Search className="w-5 h-5" />
+                {(profile?.savedSearches?.length ?? 0) > 0 && (
+                  <ChevronDown className="w-4 h-4 ml-1" />
+                )}
+              </button>
 
-                {/* Dropdown menu for saved searches */}
-                {isSearchDropdownOpen && (profile?.savedSearches?.length ?? 0) > 0 && (
-                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
+              {isSearchDropdownOpen && (profile?.savedSearches?.length ?? 0) > 0 && (
+                <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
+                  <button
+                    onClick={() => {
+                      setIsSearchDropdownOpen(false);
+                      setIsSearchModalOpen(true);
+                      setSelectedSearchHash('');
+                      setForceResetSearch(true);
+                      setSearchTitle('New Search');
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+                  >
+                    New Search
+                  </button>
+                  <div className="h-px bg-neutral-200 my-1" />
+                  {profile?.savedSearches?.map((search) => (
                     <button
-                      onClick={() => {
-                        setIsSearchDropdownOpen(false);
-                        setIsSearchModalOpen(true);
-                        setSelectedSearchHash('');
-                        setForceResetSearch(true);
-                        setSearchTitle('New Search');
-                      }}
+                      key={search.id}
+                      onClick={() => handleSavedSearchSelect(search.searchHash, search.name)}
                       className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
                     >
-                      New Search
+                      {search.name}
                     </button>
-                    <div className="h-px bg-neutral-200 my-1" />
-                    {profile?.savedSearches?.map((search) => (
-                      <button
-                        key={search.id}
-                        onClick={() => handleSavedSearchSelect(search.searchHash, search.name)}
-                        className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
-                      >
-                        {search.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         }
       />
-      <div className="flex-grow max-w-7xl mx-auto w-full pt-4 pb-8">
-        <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50' : 'opacity-100'}`}>
-          {isFetching ? (
-            <div className="flex justify-center items-center min-h-[400px]">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
-            </div>
-          ) : originalAgistments && originalAgistments.length > 0 ? (
-            <div>
-              <h2 className="text-base font-medium text-neutral-900 dark:text-white mb-4 px-4 sm:px-6">
-                {originalAgistments.length === 1
-                  ? `1 Agistment found in ${getLocationsText()}`
-                  : `${originalAgistments.length} Agistments found in ${getLocationsText()}`}
-              </h2>
-              <div className="sm:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {originalAgistments.map((agistment) => (
-                    <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : adjacentAgistments && adjacentAgistments.length > 0 ? (
-            <div>
-              <h2 className="text-base font-medium text-neutral-900 dark:text-white mb-4 px-4 sm:px-6">
-                {`No Agistments found in ${getLocationsText()}`}
-              </h2>
-              <h2 className="text-base font-medium text-neutral-600 dark:text-neutral-400 mb-4 px-4 sm:px-6">
-                {adjacentAgistments.length === 1
-                  ? `1 Agistment found within ${currentCriteria?.radius || 0}km radius`
-                  : `${adjacentAgistments.length} Agistments found within ${currentCriteria?.radius || 0}km radius`}
-              </h2>
-              <div className="sm:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {adjacentAgistments.map((agistment) => (
-                    <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <EmptyState onSearch={() => setIsSearchModalOpen(true)} />
-          )}
 
-          {(originalAgistments.length > 0 && adjacentAgistments.length > 0) && (
-            <div className="mt-8">
-              <h2 className="text-base font-medium text-neutral-600 dark:text-neutral-400 mb-4 px-4 sm:px-6">
-                {adjacentAgistments.length === 1
-                  ? `1 Agistment found within ${currentCriteria?.radius || 0}km radius`
-                  : `${adjacentAgistments.length} Agistments found within ${currentCriteria?.radius || 0}km radius`}
-              </h2>
-              <div className="sm:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {adjacentAgistments.map((agistment) => (
-                    <PropertyCard key={agistment.id} agistment={agistment} onClick={() => navigate(`/agistments/${agistment.id}`)} />
-                  ))}
-                </div>
+      <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
+        {isFetching ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+          </div>
+        ) : (
+          <div className="text-center pb-8 md:px-4 text-gray-500">
+            {originalAgistments.length > 0 && (
+              <AgistmentList 
+                agistments={originalAgistments} 
+                title={`${originalAgistments.length} ${originalAgistments.length === 1 ? 'Agistment' : 'Agistments'} found in ${getLocationsText()}`}
+                showCount={false}
+              />
+            )}
+            
+            {adjacentAgistments.length > 0 && (
+              <div className="mt-8">
+                <AgistmentList 
+                  agistments={adjacentAgistments} 
+                  title={`${adjacentAgistments.length} ${adjacentAgistments.length === 1 ? 'Agistment' : 'Agistments'} found in a ${currentCriteria?.radius || 0}km radius`}
+                  showCount={false}
+                />
               </div>
-            </div>
-          )}
-        </div>
+            )}
+            
+            {originalAgistments.length === 0 && adjacentAgistments.length === 0 && searchHash && (
+              <div className="text-center py-8">
+                <h2 className="text-2xl font-semibold mb-4">No Properties Found</h2>
+                <p className="text-neutral-600 mb-4">Try adjusting your search criteria</p>
+                <button
+                  onClick={() => setIsSearchModalOpen(true)}
+                  className="button-primary"
+                >
+                  Modify Search
+                </button>
+              </div>
+            )}
+
+            {!searchHash && (
+              <div className="text-center py-8">
+                <h2 className="text-2xl font-semibold mb-4">Find your perfect Agistment</h2>
+                <p className="text-neutral-600 mb-4">Your perfect agistment journey starts with a click. Search by location, facilities, and care options to find the ideal home for your horse.</p>
+                <button
+                  onClick={() => setIsSearchModalOpen(true)}
+                  className="button-primary"
+                >
+                  Search
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <SearchModal
+          isOpen={isSearchModalOpen}
+          onClose={() => setIsSearchModalOpen(false)}
+          onSearch={handleSearch}
+          initialSearchHash={selectedSearchHash}
+          forceReset={forceResetSearch}
+          title={searchTitle}
+        />
       </div>
-    </div>
+    </>
   );
 }
