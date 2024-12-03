@@ -327,12 +327,12 @@ export function Agistments() {
             )}
             
             {originalAgistments.length === 0 && adjacentAgistments.length === 0 && searchHash && (
-              <div className="flex flex-col items-center justify-center py-16 px-4">
-                <div className="mb-8 text-neutral-400">
-                  <AnimatedSearchLogo className="w-24 h-24" />
+              <div className="flex flex-col items-center justify-center py-8 md:py-16 px-4">
+                <div className="mb-4 md:mb-8 text-neutral-400">
+                  <AnimatedSearchLogo className="w-12 h-12 md:w-24 md:h-24" />
                 </div>
-                <h2 className="text-2xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200">No Properties Found</h2>
-                <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md text-center">
+                <h2 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">No Properties Found</h2>
+                <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-4 md:mb-8 max-w-md text-center">
                   We couldn't find any properties matching your criteria. Try adjusting your search parameters.
                 </p>
                 <button
@@ -345,17 +345,17 @@ export function Agistments() {
             )}
 
             {!searchHash && (
-              <div className="flex flex-col items-center justify-center py-16 px-4">
-                <div className="mb-8 text-neutral-400">
-                  <AnimatedSearchLogo className="w-24 h-24" />
+              <div className="flex flex-col items-center justify-center py-6 md:py-16 px-4">
+                <div className="mb-3 md:mb-8 text-neutral-400">
+                  <AnimatedSearchLogo className="w-10 h-10 md:w-24 md:h-24" />
                 </div>
-                <h2 className="text-3xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200">Find your perfect Agistment</h2>
-                <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-lg text-center leading-relaxed">
+                <h2 className="text-lg md:text-3xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">Find your perfect Agistment</h2>
+                <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-3 md:mb-8 max-w-lg text-center leading-relaxed">
                   Your perfect agistment journey starts here. Search by location, facilities, and care options to find the ideal home for your horse.
                 </p>
                 <button
                   onClick={() => setIsSearchModalOpen(true)}
-                  className="button-primary text-lg px-8 py-3"
+                  className="button-primary"
                 >
                   Start Searching
                 </button>

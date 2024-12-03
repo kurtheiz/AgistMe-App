@@ -7,6 +7,7 @@ export const AnimatedSearchLogo = ({ className = '' }: IconProps) => {
             viewBox="0 0 100 100"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMidYMid meet"
           >
             {/* Background circle */}
             <circle cx="50" cy="50" r="45" className="stroke-primary-200" strokeWidth="1" />
