@@ -6,6 +6,7 @@ interface ProfileContextType {
   profile: Profile | null;
   loading: boolean;
   error: string | null;
+  isUpdating: boolean;
   refreshProfile: () => Promise<void>;
   updateProfileData: (data: UpdateProfileRequest) => Promise<void>;
   clearProfile: () => void;
@@ -17,6 +18,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const refreshProfile = useCallback(async () => {
     setLoading(true);
@@ -35,14 +37,36 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, []);
 
   const updateProfileData = useCallback(async (data: UpdateProfileRequest) => {
+    setIsUpdating(true);
     try {
       const updatedProfile = await profileService.updateProfile(data);
-      setProfile(updatedProfile);
+      
+      // Ensure we properly merge the profile data
+      setProfile(prev => {
+        if (!prev) return updatedProfile;
+        
+        return {
+          ...prev,
+          ...updatedProfile,
+          // Preserve agistor status if not explicitly changed
+          agistor: 'agistor' in data ? data.agistor : prev.agistor,
+          // Ensure we merge arrays instead of replacing them
+          favourites: updatedProfile.favourites || prev.favourites || [],
+          horses: updatedProfile.horses || prev.horses || [],
+          savedSearches: updatedProfile.savedSearches || prev.savedSearches || [],
+          myAgistments: updatedProfile.myAgistments || prev.myAgistments || []
+        };
+      });
+
+      // Refresh profile to ensure we have the latest data
+      await refreshProfile();
     } catch (error) {
       console.error('Failed to update profile:', error);
       throw error;
+    } finally {
+      setIsUpdating(false);
     }
-  }, []);
+  }, [refreshProfile]);
 
   const clearProfile = useCallback(() => {
     setProfile(null);
@@ -55,6 +79,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
         profile, 
         loading, 
         error,
+        isUpdating,
         refreshProfile,
         updateProfileData,
         clearProfile

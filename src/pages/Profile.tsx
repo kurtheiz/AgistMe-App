@@ -27,22 +27,50 @@ export default function Profile() {
       }
     };
 
-    if (isLoaded && isSignedIn && !profile && !loading && !error) {
+    // Load profile on mount and when auth state changes
+    if (isLoaded && isSignedIn) {
       loadProfile();
     }
 
     return () => {
       mounted = false;
     };
-  }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile]);
+  }, [isLoaded, isSignedIn, refreshProfile]);
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
+  // Add a separate effect to handle profile updates
+  useEffect(() => {
+    if (!loading && !profile) {
+      refreshProfile();
+    }
+  }, [loading, profile, refreshProfile]);
+
+  if (!isLoaded || loading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
+      </div>
+    );
   }
 
   if (!isSignedIn) {
     navigate('/');
     return null;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-red-500">Error loading profile: {error}</div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-neutral-500">No profile data available</div>
+      </div>
+    );
   }
 
   const handleSignOut = async () => {

@@ -236,18 +236,7 @@ export function Agistments() {
                   <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
                     <button
                       onClick={(e) => {
-                        console.log('New Search click fired');
                         e.stopPropagation();
-                        setIsSearchDropdownOpen(false);
-                        setIsSearchModalOpen(true);
-                        setSelectedSearchHash('');
-                        setForceResetSearch(true);
-                        setSearchTitle('New Search');
-                      }}
-                      onTouchStart={(e) => {
-                        console.log('New Search touch fired');
-                        e.stopPropagation();
-                        e.preventDefault();
                         setIsSearchDropdownOpen(false);
                         setIsSearchModalOpen(true);
                         setSelectedSearchHash('');
@@ -263,14 +252,7 @@ export function Agistments() {
                       <button
                         key={search.id}
                         onClick={(e) => {
-                          console.log('Click event fired');
                           e.stopPropagation();
-                          handleSavedSearchSelect(search.searchHash, search.name);
-                        }}
-                        onTouchStart={(e) => {
-                          console.log('Touch event fired');
-                          e.stopPropagation();
-                          e.preventDefault();
                           handleSavedSearchSelect(search.searchHash, search.name);
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"

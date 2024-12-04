@@ -26,9 +26,10 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   hideShare = false,
   hideEdit = false,
 }) => {
-  const { profile, updateProfileData } = useProfile();
+  const { profile, updateProfileData, isLoading } = useProfile();
   const navigate = useNavigate();
   const [isFavorited, setIsFavorited] = useState(false);
+  const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
 
   useEffect(() => {
     setIsFavorited(profile?.favourites?.some((fav) => fav.agistmentId === agistmentId) || false);
@@ -65,6 +66,12 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
       return;
     }
 
+    if (isUpdatingFavorite) {
+      return;
+    }
+
+    setIsUpdatingFavorite(true);
+
     try {
       const newState = !isFavorited;
       const newFavorites = newState
@@ -90,6 +97,8 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
       setIsFavorited(!isFavorited);
       console.error('Error updating favorites:', error);
       toast.error('Failed to update favorites. Please try again.');
+    } finally {
+      setIsUpdatingFavorite(false);
     }
   };
 
@@ -114,6 +123,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
       )}
       <button
         onClick={handleFavorite}
+        disabled={isLoading || isUpdatingFavorite}
         className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100"
       >
         <Star

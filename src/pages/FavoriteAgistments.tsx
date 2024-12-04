@@ -21,44 +21,37 @@ export function FavoriteAgistments() {
       try {
         console.log('Fetching favourites, profile.favourites:', profile.favourites);
         setLoading(true);
-        try {
-          // First try to fetch all favorites at once
-          const agistmentsArray = await agistmentService.getFavoriteAgistments();
-          console.log('Fetched agistments:', agistmentsArray);
+        setError(null);
+        
+        // First try to fetch all favorites at once
+        const agistmentsArray = await agistmentService.getFavoriteAgistments();
+        console.log('Fetched agistments:', agistmentsArray);
 
-          // If that fails, try fetching each favorite individually
-          if (agistmentsArray.length === 0 && profile.favourites && profile.favourites.length > 0) {
-            console.log('Attempting to fetch favourites individually...');
-            const individualFetches = await Promise.all(
-              profile.favourites.map(async (fav) => {
-                try {
-                  const agistment = await agistmentService.getAgistment(fav.agistmentId);
-                  console.log(`Successfully fetched agistment ${fav.agistmentId}:`, agistment);
-                  return agistment;
-                } catch (error) {
-                  console.error(`Failed to fetch agistment ${fav.agistmentId}:`, error);
-                  return null;
-                }
-              })
-            );
-            const validAgistments = individualFetches.filter((a): a is Agistment => a !== null);
-            console.log('Successfully fetched individual agistments:', validAgistments);
-            setAgistments(validAgistments);
-            return;
-          }
-
-          // Filter agistments to only show current favorites
-          const currentFavorites = agistmentsArray.filter(agistment => 
-            profile.favourites?.some(fav => fav.agistmentId === agistment.id)
+        // Filter agistments to only show current favorites
+        const currentFavorites = agistmentsArray.filter(agistment => 
+          profile.favourites?.some(fav => fav.agistmentId === agistment.id)
+        );
+        
+        if (currentFavorites.length === 0 && profile.favourites && profile.favourites.length > 0) {
+          console.log('Attempting to fetch favourites individually...');
+          const individualFetches = await Promise.all(
+            profile.favourites.map(async (fav) => {
+              try {
+                const agistment = await agistmentService.getAgistment(fav.agistmentId);
+                console.log(`Successfully fetched agistment ${fav.agistmentId}:`, agistment);
+                return agistment;
+              } catch (error) {
+                console.error(`Failed to fetch agistment ${fav.agistmentId}:`, error);
+                return null;
+              }
+            })
           );
+          const validAgistments = individualFetches.filter((a): a is Agistment => a !== null);
+          console.log('Successfully fetched individual agistments:', validAgistments);
+          setAgistments(validAgistments);
+        } else {
           console.log('Current favorites after filtering:', currentFavorites);
           setAgistments(currentFavorites);
-        } catch (error) {
-          console.error('Error fetching favourite agistments:', error);
-          setError('Failed to fetch favourite agistments');
-          setAgistments([]);
-        } finally {
-          setLoading(false);
         }
       } catch (error) {
         console.error('Error fetching favourite agistments:', error);
@@ -69,8 +62,10 @@ export function FavoriteAgistments() {
       }
     };
 
-    fetchFavorites();
-  }, [profile?.favourites]); // Re-fetch when favourites array changes
+    if (!isProfileLoading) {
+      fetchFavorites();
+    }
+  }, [profile?.favourites, isProfileLoading]); // Re-fetch when favourites array changes or profile loading state changes
 
   // Show loading state while profile is loading
   if (isProfileLoading) {

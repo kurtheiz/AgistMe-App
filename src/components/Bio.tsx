@@ -7,6 +7,7 @@ import { ProfilePhoto } from './Profile/ProfilePhoto';
 import { profileService } from '../services/profile.service';
 import { Profile, UpdateProfileRequest } from '../types/profile';
 import { Modal } from './shared/Modal';
+import toast from 'react-hot-toast';
 
 interface BioModalProps {
   isOpen?: boolean;
@@ -98,7 +99,8 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
     try {
       setSaving(true);
 
-      await updateProfileData({
+      // Ensure we include the agistor status in the update if it exists
+      const updateData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         comments: formData.comments,
@@ -112,12 +114,17 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
         geohash: formData.geohash,
         suburbId: formData.suburbId,
         region: formData.region,
-        showProfileInEnquiry: formData.showProfileInEnquiry
-      } as UpdateProfileRequest);
+        showProfileInEnquiry: formData.showProfileInEnquiry,
+        // Include agistor status if it exists in the profile
+        ...(profile?.agistor !== undefined && { agistor: profile.agistor })
+      };
 
+      await updateProfileData(updateData);
+      await refreshProfile(); // Refresh to ensure we have the latest data
       onClose();
     } catch (error) {
       console.error('Error updating profile:', error);
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setSaving(false);
     }
