@@ -43,6 +43,7 @@ export interface Location {
 
 export interface Photo {
   link: string;
+  comment?: string;
 }
 
 export interface RoundYard {
@@ -92,7 +93,6 @@ export interface AgistmentPaddocks {
   groupPaddocks: PaddockBase;
   privatePaddocks: PaddockBase;
   sharedPaddocks: PaddockBase;
-  paddocks: Array<{ type: string }>;
 }
 
 export interface AgistmentRidingFacilities {
@@ -110,45 +110,20 @@ export interface AgistmentFacilities {
 }
 
 export interface AgistmentCare {
-  fullCare: PricedFacility;
-  partCare: PricedFacility;
-  selfCare: PricedFacility;
+  fullCare: PricedFacility & { comments: string };
+  partCare: PricedFacility & { comments: string };
+  selfCare: PricedFacility & { comments: string };
 }
 
-export  interface AgistmentVisibility {
+export interface AgistmentVisibility {
   hidden: boolean;
-}
-
-export interface Agistment {
-  PK: string;
-  SK: string;
-  ridingFacilities: AgistmentRidingFacilities;
-  contact: AgistmentContact;
-  createdAt?: string;
-  propertyDescription: AgistmentDescription;
-  facilities: AgistmentFacilities;
-  GSI1PK: string;
-  geohash: string;
-  visibility: AgistmentVisibility;
-  itemType: 'agistment';
-  listing: AgistmentListingType;
-  propertyLocation: AgistmentPropertyLocation;
-  modifiedAt?: string;
-  basicInfo: AgistmentBasicInfo;
-  paddocks: AgistmentPaddocks;
-  photoGallery: AgistmentPhotos;
-  propertyServices: AgistmentServices;
-  care: AgistmentCare;
-  socialMedia: SocialMediaLink[];
-  status: 'PUBLISHED' | 'DRAFT' | 'DELETED' ;
-  urgentAvailability: boolean;
 }
 
 export interface AgistmentResponse {
   id: string;
   ridingFacilities: AgistmentRidingFacilities;
   contact: AgistmentContact;
-  createdAt?: string;
+  createdAt: string | null;
   propertyDescription: AgistmentDescription;
   facilities: AgistmentFacilities;
   GSI1PK: string;
@@ -156,14 +131,14 @@ export interface AgistmentResponse {
   visibility: AgistmentVisibility;
   listing: AgistmentListingType;
   propertyLocation: AgistmentPropertyLocation;
-  modifiedAt?: string;
+  modifiedAt: string;
   basicInfo: AgistmentBasicInfo;
   paddocks: AgistmentPaddocks;
   photoGallery: AgistmentPhotos;
   propertyServices: AgistmentServices;
   care: AgistmentCare;
   socialMedia: SocialMediaLink[];
-  status: 'PUBLISHED' | 'DRAFT' | 'DELETED' ;
+  status: 'PUBLISHED' | 'DRAFT' | 'DELETED';
   urgentAvailability: boolean;
 }
 

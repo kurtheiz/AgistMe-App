@@ -44,7 +44,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
         await navigator.share({
           title: 'AgistMe Property',
           text: shareDescription,
-          url: `${window.location.origin}/agistment/${agistmentId}`,
+          url: `${window.location.origin}/agistments/${agistmentId}`,
         });
         onShare?.();
       } catch (error) {
@@ -53,7 +53,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
     } else {
       // Fallback for browsers that don't support the Web Share API
       // Copy to clipboard instead
-      const shareUrl = `${window.location.origin}/agistment/${agistmentId}`;
+      const shareUrl = `${window.location.origin}/agistments/${agistmentId}`;
       await navigator.clipboard.writeText(shareUrl);
       toast.success('Link copied to clipboard!');
     }
@@ -61,12 +61,16 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
 
   const handleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('1. Favorite clicked with agistmentId:', agistmentId);
+    console.log('Current profile:', profile);
+
     if (!profile) {
       toast.error('Please login to favorite properties');
       return;
     }
 
     if (isUpdatingFavorite) {
+      console.log('Already updating favorite, skipping');
       return;
     }
 
@@ -74,28 +78,40 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
 
     try {
       const newState = !isFavorited;
-      const newFavorites = newState
-        ? [...(profile.favourites || []), { agistmentId, lastUpdate: new Date().toISOString() }]
-        : (profile.favourites || []).filter(fav => fav.agistmentId !== agistmentId);
+      console.log('2. Current favorite state:', isFavorited);
+      console.log('3. New favorite state will be:', newState);
 
-      // Optimistically update UI
-      setIsFavorited(newState);
+      const favoriteItem = { agistmentId, lastUpdate: new Date().toISOString() };
+      console.log('4. Created favorite item:', favoriteItem);
+      
+      // Create a new profile object with updated favorites
+      const updatedProfile = {
+        ...profile,
+        favourites: newState
+          ? [...(profile.favourites || []), favoriteItem]
+          : (profile.favourites || []).filter(fav => fav.agistmentId !== agistmentId)
+      };
+      console.log('5. Updated profile object:', updatedProfile);
 
       // Remove fields that shouldn't be sent in update
-      const { id, email, lastUpdate, ...updateData } = profile;
+      const { id, email, lastUpdate, ...updateData } = updatedProfile;
+      console.log('6. Data to be sent to API:', updateData);
       
-      // Update profile using context
-      await updateProfileData({
-        ...updateData,
-        favourites: newFavorites
-      });
+      // Update profile using context with all fields
+      console.log('7. Calling updateProfileData...');
+      await updateProfileData(updateData);
+      console.log('8. Profile update successful');
 
+      // Only update UI after successful API call
+      setIsFavorited(newState);
       toast.success(newState ? 'Added to favorites' : 'Removed from favorites');
       onFavorite?.();
     } catch (error) {
-      // Revert UI state on error
-      setIsFavorited(!isFavorited);
-      console.error('Error updating favorites:', error);
+      console.error('Error updating favorites:', error, {
+        agistmentId,
+        profile,
+        isFavorited
+      });
       toast.error('Failed to update favorites. Please try again.');
     } finally {
       setIsUpdatingFavorite(false);
@@ -112,15 +128,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-2">
-      {!hideShare && (
-        <button
-          onClick={handleShare}
-          className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100"
-        >
-          <Share2 className="w-5 h-5" />
-        </button>
-      )}
+    <div className={`flex items-center gap-2 ${hideShare ? 'justify-start' : ''}`}>
       <button
         onClick={handleFavorite}
         disabled={loading || isUpdatingFavorite}
@@ -130,6 +138,14 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
           className={`w-5 h-5 ${isFavorited ? 'fill-yellow-400 text-yellow-400' : ''}`}
         />
       </button>
+      {!hideShare && (
+        <button
+          onClick={handleShare}
+          className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100"
+        >
+          <Share2 className="w-5 h-5" />
+        </button>
+      )}
       {!hideEdit && isMyAgistment && (
         <button
           onClick={handleEdit}

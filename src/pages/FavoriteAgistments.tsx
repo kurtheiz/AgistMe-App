@@ -39,10 +39,7 @@ export function FavoriteAgistments() {
             profile.favourites.map(async (fav) => {
               try {
                 const agistment = await agistmentService.getAgistment(fav.agistmentId);
-                return {
-                  ...agistment,
-                  id: agistment.PK
-                } as AgistmentResponse;
+                return agistment;
               } catch (error) {
                 console.error(`Failed to fetch agistment ${fav.agistmentId}:`, error);
                 return null;

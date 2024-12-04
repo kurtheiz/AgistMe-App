@@ -1,33 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Agistment, PaddockBase } from '../../types/agistment';
+import { AgistmentResponse, PaddockBase } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
-import { Tab, TabPanels, TabGroup, TabPanel, TabList } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-
-interface PaddockForm extends Omit<PaddockBase, 'whenAvailable'> {
-  whenAvailable: Date | undefined;
-  enabled: boolean;
-  totalPaddocks: number;
-}
+import { Tab, TabPanels, TabGroup, TabPanel, TabList } from '@headlessui/react';
+import { toast } from 'react-hot-toast';
 
 interface EditForm {
-  privatePaddocks: PaddockForm;
-  sharedPaddocks: PaddockForm;
-  groupPaddocks: PaddockForm;
+  privatePaddocks: PaddockBase;
+  sharedPaddocks: PaddockBase;
+  groupPaddocks: PaddockBase;
 }
 
 interface Props {
   agistmentId: string;
-  paddocks: Agistment['paddocks'];
+  paddocks: AgistmentResponse['paddocks'];
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
+  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
 }
-
-const calculateHash = (obj: any): string => {
-  return JSON.stringify(obj);
-};
 
 export const AgistmentPaddocksModal = ({
   paddocks,
@@ -37,23 +28,26 @@ export const AgistmentPaddocksModal = ({
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [editForm, setEditForm] = useState<EditForm>({
-    privatePaddocks: {
-      ...paddocks.privatePaddocks,
-      whenAvailable: paddocks.privatePaddocks.whenAvailable ? new Date(paddocks.privatePaddocks.whenAvailable) : undefined,
-      enabled: paddocks.privatePaddocks.available > 0,
-      totalPaddocks: paddocks.privatePaddocks.totalPaddocks || 0
+    privatePaddocks: paddocks.privatePaddocks || {
+      available: 0,
+      total: 0,
+      comments: '',
+      weeklyPrice: 0,
+      totalPaddocks: 0
     },
-    sharedPaddocks: {
-      ...paddocks.sharedPaddocks,
-      whenAvailable: paddocks.sharedPaddocks.whenAvailable ? new Date(paddocks.sharedPaddocks.whenAvailable) : undefined,
-      enabled: paddocks.sharedPaddocks.available > 0,
-      totalPaddocks: paddocks.sharedPaddocks.totalPaddocks || 0
+    sharedPaddocks: paddocks.sharedPaddocks || {
+      available: 0,
+      total: 0,
+      comments: '',
+      weeklyPrice: 0,
+      totalPaddocks: 0
     },
-    groupPaddocks: {
-      ...paddocks.groupPaddocks,
-      whenAvailable: paddocks.groupPaddocks.whenAvailable ? new Date(paddocks.groupPaddocks.whenAvailable) : undefined,
-      enabled: paddocks.groupPaddocks.available > 0,
-      totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 0
+    groupPaddocks: paddocks.groupPaddocks || {
+      available: 0,
+      total: 0,
+      comments: '',
+      weeklyPrice: 0,
+      totalPaddocks: 0
     }
   });
   const [isUpdating, setIsUpdating] = useState(false);
@@ -62,78 +56,92 @@ export const AgistmentPaddocksModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      setEditForm({
-        privatePaddocks: {
-          ...paddocks.privatePaddocks,
-          whenAvailable: paddocks.privatePaddocks.whenAvailable ? new Date(paddocks.privatePaddocks.whenAvailable) : undefined,
-          enabled: paddocks.privatePaddocks.available > 0,
-          totalPaddocks: paddocks.privatePaddocks.totalPaddocks || 0
+      const initialFormState = {
+        privatePaddocks: paddocks.privatePaddocks || {
+          available: 0,
+          total: 0,
+          comments: '',
+          weeklyPrice: 0,
+          totalPaddocks: 0
         },
-        sharedPaddocks: {
-          ...paddocks.sharedPaddocks,
-          whenAvailable: paddocks.sharedPaddocks.whenAvailable ? new Date(paddocks.sharedPaddocks.whenAvailable) : undefined,
-          enabled: paddocks.sharedPaddocks.available > 0,
-          totalPaddocks: paddocks.sharedPaddocks.totalPaddocks || 0
+        sharedPaddocks: paddocks.sharedPaddocks || {
+          available: 0,
+          total: 0,
+          comments: '',
+          weeklyPrice: 0,
+          totalPaddocks: 0
         },
-        groupPaddocks: {
-          ...paddocks.groupPaddocks,
-          whenAvailable: paddocks.groupPaddocks.whenAvailable ? new Date(paddocks.groupPaddocks.whenAvailable) : undefined,
-          enabled: paddocks.groupPaddocks.available > 0,
-          totalPaddocks: paddocks.groupPaddocks.totalPaddocks || 0
+        groupPaddocks: paddocks.groupPaddocks || {
+          available: 0,
+          total: 0,
+          comments: '',
+          weeklyPrice: 0,
+          totalPaddocks: 0
         }
-      });
-      setInitialHash(calculateHash(editForm));
+      };
+      setEditForm(initialFormState);
+      setInitialHash(JSON.stringify(initialFormState));
       setIsDirty(false);
       setSelectedTab(0);
     }
   }, [isOpen, paddocks]);
 
   useEffect(() => {
-    const currentHash = calculateHash(editForm);
+    const currentHash = JSON.stringify(editForm);
     setIsDirty(currentHash !== initialHash);
   }, [editForm, initialHash]);
+
+  const handleClose = () => {
+    const initialFormState = {
+      privatePaddocks: paddocks.privatePaddocks || {
+        available: 0,
+        total: 0,
+        comments: '',
+        weeklyPrice: 0,
+        totalPaddocks: 0
+      },
+      sharedPaddocks: paddocks.sharedPaddocks || {
+        available: 0,
+        total: 0,
+        comments: '',
+        weeklyPrice: 0,
+        totalPaddocks: 0
+      },
+      groupPaddocks: paddocks.groupPaddocks || {
+        available: 0,
+        total: 0,
+        comments: '',
+        weeklyPrice: 0,
+        totalPaddocks: 0
+      }
+    };
+    setEditForm(initialFormState);
+    setInitialHash(JSON.stringify(initialFormState));
+    setIsDirty(false);
+    setSelectedTab(0);
+    onClose();
+  };
 
   const handleUpdatePaddocks = async () => {
     if (!isDirty) return;
     setIsUpdating(true);
     
     try {
-      const paddocksData = {
+      const paddocksData: Partial<AgistmentResponse> = {
         paddocks: {
-          privatePaddocks: {
-            total: editForm.privatePaddocks.total,
-            available: editForm.privatePaddocks.available,
-            weeklyPrice: editForm.privatePaddocks.weeklyPrice,
-            comments: editForm.privatePaddocks.comments,
-            whenAvailable: editForm.privatePaddocks.whenAvailable ? editForm.privatePaddocks.whenAvailable.toISOString() : undefined,
-            totalPaddocks: editForm.privatePaddocks.totalPaddocks
-          },
-          sharedPaddocks: {
-            total: editForm.sharedPaddocks.total,
-            available: editForm.sharedPaddocks.available,
-            weeklyPrice: editForm.sharedPaddocks.weeklyPrice,
-            comments: editForm.sharedPaddocks.comments,
-            whenAvailable: editForm.sharedPaddocks.whenAvailable ? editForm.sharedPaddocks.whenAvailable.toISOString() : undefined,
-            totalPaddocks: editForm.sharedPaddocks.totalPaddocks
-          },
-          groupPaddocks: {
-            total: editForm.groupPaddocks.total,
-            available: editForm.groupPaddocks.available,
-            weeklyPrice: editForm.groupPaddocks.weeklyPrice,
-            comments: editForm.groupPaddocks.comments,
-            whenAvailable: editForm.groupPaddocks.whenAvailable ? editForm.groupPaddocks.whenAvailable.toISOString() : undefined,
-            totalPaddocks: editForm.groupPaddocks.totalPaddocks
-          },
-          paddocks: []
+          privatePaddocks: editForm.privatePaddocks,
+          sharedPaddocks: editForm.sharedPaddocks,
+          groupPaddocks: editForm.groupPaddocks
         }
       };
       
       if (onUpdate) {
         await onUpdate(paddocksData);
+        handleClose();
       }
-      onClose();
     } catch (error) {
       console.error('Error updating paddocks:', error);
+      toast.error('Failed to update paddocks');
     } finally {
       setIsUpdating(false);
     }
@@ -143,30 +151,17 @@ export const AgistmentPaddocksModal = ({
     return Math.round((weeklyPrice * 52) / 12);
   };
 
-  const handleEditFormChange = (type: keyof EditForm, field: keyof PaddockForm, value: any) => {
-    setEditForm(prev => {
-      const updatedForm = { ...prev };
-      if (field === 'total') {
-        const newTotal = Math.max(value, updatedForm[type].available);
-        updatedForm[type] = {
-          ...updatedForm[type],
-          [field]: newTotal
-        };
-      } else if (field === 'available') {
-        const newAvailable = Math.min(value, updatedForm[type].total);
-        updatedForm[type] = {
-          ...updatedForm[type],
-          [field]: newAvailable
-        };
-      } else {
-        updatedForm[type] = {
-          ...updatedForm[type],
-          [field]: value
-        };
+  const handleEditFormChange = (type: keyof EditForm, field: keyof PaddockBase, value: any) => {
+    setEditForm(prev => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        [field]: field === 'whenAvailable' && value 
+          ? value // Keep the ISO string format from the input
+          : value
       }
-      setIsDirty(true);
-      return updatedForm;
-    });
+    }));
+    setIsDirty(true);
   };
 
   const tabs = [
@@ -178,7 +173,7 @@ export const AgistmentPaddocksModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={`Edit ${tabs[selectedTab].title}`}
       size="lg"
       actionIconType="SAVE"
@@ -223,17 +218,7 @@ export const AgistmentPaddocksModal = ({
                         </label>
                         <NumberStepper
                           value={editForm[type as keyof EditForm].totalPaddocks}
-                          onChange={(value) => {
-                            setEditForm(prev => ({
-                              ...prev,
-                              [type]: {
-                                ...prev[type as keyof EditForm],
-                                totalPaddocks: value,
-                                total: value === 0 ? 0 : prev[type as keyof EditForm].total,
-                                available: value === 0 ? 0 : prev[type as keyof EditForm].available
-                              }
-                            }));
-                          }}
+                          onChange={(value) => handleEditFormChange(type as keyof EditForm, 'totalPaddocks', value)}
                           min={0}
                           max={100}
                         />
@@ -251,16 +236,7 @@ export const AgistmentPaddocksModal = ({
                         </label>
                         <NumberStepper
                           value={editForm[type as keyof EditForm].total}
-                          onChange={(value) => {
-                            setEditForm(prev => ({
-                              ...prev,
-                              [type]: {
-                                ...prev[type as keyof EditForm],
-                                total: value,
-                                available: Math.min(value, prev[type as keyof EditForm].available)
-                              }
-                            }));
-                          }}
+                          onChange={(value) => handleEditFormChange(type as keyof EditForm, 'total', value)}
                           min={0}
                           max={100}
                           disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
@@ -318,13 +294,11 @@ export const AgistmentPaddocksModal = ({
                         type="date"
                         className="form-input block w-full text-center appearance-none"
                         style={{ WebkitAppearance: 'textfield' }}
-                        value={editForm[type as keyof EditForm].whenAvailable 
-                          ? new Date(editForm[type as keyof EditForm].whenAvailable as Date).toISOString().split('T')[0] 
-                          : ''}
+                        value={editForm[type as keyof EditForm].whenAvailable || ''}
                         onChange={(e) => handleEditFormChange(
                           type as keyof EditForm,
                           'whenAvailable',
-                          e.target.value ? new Date(e.target.value) : undefined
+                          e.target.value
                         )}
                         disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />

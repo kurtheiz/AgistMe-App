@@ -1,9 +1,9 @@
 import { format, parseISO } from 'date-fns';
-import { Agistment, PaddockBase } from '../../types/agistment';
+import { AgistmentResponse, PaddockBase } from '../../types/agistment';
 
 interface AgistmentPaddocksProps {
-  paddocks: Agistment['paddocks'];
-  onUpdate?: (updatedFields: Partial<Agistment>) => Promise<void>;
+  paddocks: AgistmentResponse['paddocks'];
+  onUpdate?: (updatedFields: Partial<AgistmentResponse>) => Promise<void>;
   isEditable?: boolean;
   agistmentId?: string;
 }

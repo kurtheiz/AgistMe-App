@@ -32,6 +32,7 @@ export function ViewAgistmentDetail() {
       try {
         setLoading(true);
         const data = await agistmentService.getAgistment(id);
+        console.log('Loaded agistment:', data);
         setAgistment(data);
       } catch (err) {
         console.error('Error loading agistment:', err);
@@ -117,10 +118,16 @@ export function ViewAgistmentDetail() {
             {/* Header Section */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <div className="mb-4">
-                <ShareFavoriteButtons 
-                  agistmentId={agistment.id}
-                  shareDescription={agistment.propertyDescription?.description || ''}
-                />
+                {agistment && (
+                  <ShareFavoriteButtons 
+                    agistmentId={agistment.id}
+                    shareDescription={agistment.propertyDescription?.description || ''}
+                    hideShare={false}
+                    onFavorite={() => {
+                      console.log('Favorite toggled for:', agistment.id);
+                    }}
+                  />
+                )}
               </div>
               <AgistmentHeader
                 basicInfo={agistment.basicInfo}

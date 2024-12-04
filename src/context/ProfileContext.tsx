@@ -39,7 +39,8 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
   const updateProfileData = useCallback(async (data: UpdateProfileRequest) => {
     setIsUpdating(true);
     try {
-      await profileService.updateProfile(data);
+      const updatedProfile = await profileService.updateProfile(data);
+      setProfile(updatedProfile);
     } catch (error) {
       console.error('Failed to update profile:', error);
       throw error;

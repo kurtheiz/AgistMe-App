@@ -160,8 +160,8 @@ export default function PropertyCard({
         <div className="px-5 py-3 bg-white border-b border-neutral-200">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base sm:text-lg font-semibold text-neutral-800 mb-3">
-                Spaces Available
+              <h3 className="text-left text-base sm:text-lg font-semibold text-neutral-800 mb-3">
+                Spots Available
               </h3>
               <div className="flex items-center gap-4 sm:gap-8">
                 {/* Private Paddocks */}
@@ -222,13 +222,15 @@ export default function PropertyCard({
             
             {/* Paddock Types */}
             <div className="flex flex-wrap gap-4 mt-4">
-              {agistment.paddocks?.paddocks?.map((paddock: { type: string }, index: number) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 text-xs rounded-full bg-neutral-100 text-neutral-600"
-                >
-                  {paddock.type}
-                </span>
+              {Object.entries(agistment.paddocks || {}).map(([type, data]) => (
+                data.totalPaddocks > 0 && (
+                  <span
+                    key={type}
+                    className="px-2 py-1 text-xs rounded-full bg-neutral-100 text-neutral-600"
+                  >
+                    {type.replace(/([A-Z])/g, ' $1').trim()}
+                  </span>
+                )
               ))}
             </div>
 
@@ -324,7 +326,7 @@ export default function PropertyCard({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
+        <div className="px-2 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
           <div className="flex justify-between items-center">
             <ShareFavoriteButtons 
               agistmentId={agistment.id}

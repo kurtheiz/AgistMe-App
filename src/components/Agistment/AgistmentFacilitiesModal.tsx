@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Switch } from '@headlessui/react';
-import { Agistment, FacilityBase, Stables, FloatParking } from '../../types/agistment';
+import { AgistmentResponse, FacilityBase, Stables, FloatParking } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
 import { classNames } from '../../utils/classNames';
 import toast from 'react-hot-toast';
 
-const calculateHash = (obj: any): string => {
+const calculateHash = (obj: unknown): string => {
   return JSON.stringify(obj);
 };
 
 interface AgistmentFacilitiesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  facilities: Agistment['facilities'];
+  facilities: AgistmentResponse['facilities'];
   agistmentId: string;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
+  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
 }
 
 export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> = ({
@@ -24,7 +24,7 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
   facilities,
   onUpdate
 }) => {
-  const [editableFacilities, setEditableFacilities] = useState<Agistment['facilities']>(facilities);
+  const [editableFacilities, setEditableFacilities] = useState<AgistmentResponse['facilities']>(facilities);
   const [isSaving, setIsSaving] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
@@ -68,7 +68,7 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
     }
   };
 
-  const updateFacility = (facility: keyof Agistment['facilities'], updates: Partial<FacilityBase>) => {
+  const updateFacility = (facility: keyof AgistmentResponse['facilities'], updates: Partial<FacilityBase>) => {
     setEditableFacilities(prev => ({
       ...prev,
       [facility]: {
@@ -91,7 +91,7 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
     >
       {Object.entries(editableFacilities)
         .sort(([keyA], [keyB]) => {
-          const displayNames: Record<keyof Agistment['facilities'], string> = {
+          const displayNames: Record<keyof AgistmentResponse['facilities'], string> = {
             feedRoom: 'Feed Room',
             floatParking: 'Float Parking',
             hotWash: 'Hot Wash',
@@ -99,10 +99,10 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
             tackRoom: 'Tack Room',
             tieUp: 'Tie Ups'
           };
-          return displayNames[keyA as keyof Agistment['facilities']].localeCompare(displayNames[keyB as keyof Agistment['facilities']]);
+          return displayNames[keyA as keyof AgistmentResponse['facilities']].localeCompare(displayNames[keyB as keyof AgistmentResponse['facilities']]);
         })
         .map(([key, facility]) => {
-          const displayNames: Record<keyof Agistment['facilities'], string> = {
+          const displayNames: Record<keyof AgistmentResponse['facilities'], string> = {
             feedRoom: 'Feed Room',
             floatParking: 'Float Parking',
             hotWash: 'Hot Wash',
@@ -110,13 +110,13 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
             tackRoom: 'Tack Room',
             tieUp: 'Tie Ups'
           };
-          const displayName = displayNames[key as keyof Agistment['facilities']];
+          const displayName = displayNames[key as keyof AgistmentResponse['facilities']];
           return (
             <div key={key} className="space-y-4">
               <div className="flex items-start space-x-4">
                 <Switch
                   checked={facility.available}
-                  onChange={() => updateFacility(key as keyof Agistment['facilities'], { available: !facility.available })}
+                  onChange={() => updateFacility(key as keyof AgistmentResponse['facilities'], { available: !facility.available })}
                   className={classNames(
                     facility.available ? 'bg-primary-600' : 'bg-neutral-200',
                     'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
@@ -156,7 +156,7 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
                     <input
                       type="text"
                       value={facility.comments}
-                      onChange={(e) => updateFacility(key as keyof Agistment['facilities'], { comments: e.target.value })}
+                      onChange={(e) => updateFacility(key as keyof AgistmentResponse['facilities'], { comments: e.target.value })}
                       className="form-input form-input-compact"
                       placeholder="Add comments..."
                     />

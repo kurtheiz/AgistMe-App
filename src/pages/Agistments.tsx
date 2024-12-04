@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { SearchModal } from '../components/Search/SearchModal';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
-import { SearchCriteria } from '../types/search';
-import { AgistmentResponse } from '../types/agistment';
-import { Search, Star, ChevronDown, BookmarkPlus } from 'lucide-react';
-import { PageToolbar } from '../components/PageToolbar';
-import { AgistmentList } from '../components/AgistmentList';
 import { useProfile } from '../context/ProfileContext';
+import { AgistmentList } from '../components/AgistmentList';
+import { PageToolbar } from '../components/PageToolbar';
+import { Search, Star, ChevronDown, BookmarkPlus } from 'lucide-react';
+import { SearchCriteria } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
+import toast from 'react-hot-toast';
+import { AgistmentResponse } from '../types/agistment';
 
 const decodeSearchHash = (hash: string): SearchCriteria => {
   try {
@@ -81,7 +82,7 @@ export function Agistments() {
   // Helper function to get locations text
   const getLocationsText = () => {
     if (!currentCriteria?.suburbs?.length) return '';
-    
+
     const mainLocation = currentCriteria.suburbs[0];
     const formattedMainLocation = formatLocation(
       mainLocation.suburb,
@@ -102,16 +103,16 @@ export function Agistments() {
       const decodedCriteria = decodeSearchHash(searchHash);
       setCurrentCriteria(decodedCriteria);
       setIsFetching(true);
-      
+
       // Remove any trailing slashes from the search hash
       const cleanSearchHash = searchHash.replace(/\/$/, '');
-      
+
       agistmentService.searchAgistments(cleanSearchHash)
         .then(response => {
           if (response) {
             // Handle the actual API response structure
             setOriginalAgistments(response.original || []);
-            setAdjacentAgistments(response.adjacent || []); 
+            setAdjacentAgistments(response.adjacent || []);
           } else {
             console.error('Invalid response format:', response);
             setOriginalAgistments([]);
@@ -169,16 +170,16 @@ export function Agistments() {
 
   const handleSearch = async (criteria: SearchCriteria & { searchHash: string }) => {
     setIsSearchModalOpen(false);
-    
+
     try {
       setIsFetching(true);
       // Execute search immediately
       const response = await agistmentService.searchAgistments(criteria.searchHash);
       if (response) {
         setOriginalAgistments(response.original || []);
-        setAdjacentAgistments(response.adjacent || []); 
+        setAdjacentAgistments(response.adjacent || []);
       }
-      
+
       // Update URL after search
       const searchUrl = `/agistments?q=${encodeURIComponent(criteria.searchHash)}`.replace(/\/+/g, '/');
       navigate(searchUrl, { replace: true });
@@ -195,48 +196,25 @@ export function Agistments() {
     navigate('/agistments/favourites');
   };
 
-  const handleSaveSearch = async () => {
-    if (!profile || !searchHash) return;
-
-    // Create new saved search
-    const newSavedSearch = {
-      id: crypto.randomUUID(),
-      name: `Search in ${getLocationsText()}`,
-      searchHash,
-      lastUpdate: new Date().toISOString()
-    };
-
-    // Add to profile's saved searches
-    const updatedProfile = {
-      ...profile,
-      savedSearches: [...(profile.savedSearches || []), newSavedSearch]
-    };
-
-    try {
-      await updateProfileData(updatedProfile);
-    } catch (error) {
-      console.error('Failed to save search:', error);
-      // You might want to show an error toast here
-    }
-  };
-
   const handleSavedSearchSelect = (searchHash: string, name: string) => {
-    console.log('handleSavedSearchSelect called', { searchHash, name, isSearchModalOpen });
+    console.log('handleSavedSearchSelect called', { searchHash, name });
     setIsSearchDropdownOpen(false);
-    setIsSearchModalOpen(true);
     setSelectedSearchHash(searchHash);
     setSearchTitle(name);
+    setTimeout(() => {
+      setIsSearchModalOpen(true);
+    }, 0);
   };
 
   return (
     <>
-      <PageToolbar 
+      <PageToolbar
         actions={
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2">
               <div className="relative" ref={dropdownRef}>
                 <button
-                  onClick={() => (profile?.savedSearches?.length ?? 0) 
+                  onClick={() => (profile?.savedSearches?.length ?? 0)
                     ? setIsSearchDropdownOpen(!isSearchDropdownOpen)
                     : setIsSearchModalOpen(true)
                   }
@@ -250,9 +228,14 @@ export function Agistments() {
                 </button>
 
                 {isSearchDropdownOpen && (profile?.savedSearches?.length ?? 0) > 0 && (
-                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
+                  <div 
+                    className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50"
+                    onClick={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                  >
                     <button
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         setIsSearchDropdownOpen(false);
                         setIsSearchModalOpen(true);
@@ -260,7 +243,7 @@ export function Agistments() {
                         setForceResetSearch(!searchHash);
                         setSearchTitle('Search');
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+                      className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200"
                     >
                       Search
                     </button>
@@ -269,10 +252,16 @@ export function Agistments() {
                       <button
                         key={search.id}
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
                           handleSavedSearchSelect(search.searchHash, search.name);
                         }}
-                        className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+                        onTouchEnd={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleSavedSearchSelect(search.searchHash, search.name);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200"
                       >
                         {search.name}
                       </button>
@@ -310,23 +299,23 @@ export function Agistments() {
         ) : (
           <div className="text-center pb-8 md:px-4 text-gray-500">
             {originalAgistments.length > 0 && (
-              <AgistmentList 
-                agistments={originalAgistments} 
+              <AgistmentList
+                agistments={originalAgistments}
                 title={`${originalAgistments.length} ${originalAgistments.length === 1 ? 'Agistment' : 'Agistments'} found in ${getLocationsText()}`}
                 showCount={false}
               />
             )}
-            
+
             {adjacentAgistments.length > 0 && (
               <div className="mt-8">
-                <AgistmentList 
-                  agistments={adjacentAgistments} 
+                <AgistmentList
+                  agistments={adjacentAgistments}
                   title={`${adjacentAgistments.length} ${adjacentAgistments.length === 1 ? 'Agistment' : 'Agistments'} found in a ${currentCriteria?.radius || 0}km radius`}
                   showCount={false}
                 />
               </div>
             )}
-            
+
             {originalAgistments.length === 0 && adjacentAgistments.length === 0 && searchHash && (
               <div className="flex flex-col items-center justify-center py-8 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
@@ -374,11 +363,38 @@ export function Agistments() {
           title={searchTitle}
         />
 
-        <SaveSearchModal
-          isOpen={isSaveSearchModalOpen}
-          onClose={() => setIsSaveSearchModalOpen(false)}
-          searchCriteria={currentCriteria}
-        />
+        {isSaveSearchModalOpen && (
+          <SaveSearchModal
+            isOpen={isSaveSearchModalOpen}
+            onClose={() => setIsSaveSearchModalOpen(false)}
+            searchCriteria={currentCriteria}
+            onSave={async (name, enableNotifications) => {
+              if (!profile || !searchHash) return;
+
+              const newSavedSearch = {
+                id: crypto.randomUUID(),
+                name: name,
+                searchHash,
+                lastUpdate: new Date().toISOString(),
+                enableNotifications
+              };
+
+              const updatedProfile = {
+                ...profile,
+                savedSearches: [...(profile.savedSearches || []), newSavedSearch]
+              };
+
+              try {
+                await updateProfileData(updatedProfile);
+                setIsSaveSearchModalOpen(false);
+                toast.success('Search saved successfully');
+              } catch (error) {
+                console.error('Failed to save search:', error);
+                toast.error('Failed to save search');
+              }
+            }}
+          />
+        )}
       </div>
     </>
   );

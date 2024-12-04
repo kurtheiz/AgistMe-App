@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Plus } from 'lucide-react';
-import { Agistment } from '../../types/agistment';
+import { AgistmentResponse } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import toast from 'react-hot-toast';
 
-const calculateHash = (obj: any): string => {
+const calculateHash = (obj: unknown): string => {
   return JSON.stringify(obj);
 };
 
@@ -13,7 +13,7 @@ interface AgistmentServicesModalProps {
   onClose: () => void;
   services: string[];
   agistmentId: string;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
+  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
 }
 
 export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({

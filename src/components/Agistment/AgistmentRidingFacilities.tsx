@@ -1,9 +1,9 @@
-import { Agistment } from '../../types/agistment';
+import { AgistmentResponse, Arena, RoundYard } from '../../types/agistment';
 import { ArenaDiagram } from './ArenaDiagram';
 import { RoundYardDiagram } from './RoundYardDiagram';
 
 interface AgistmentRidingFacilitiesProps {
-  ridingFacilities: Agistment['ridingFacilities'];
+  ridingFacilities: AgistmentResponse['ridingFacilities'];
 }
 
 export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps> = ({
@@ -28,7 +28,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
             
             {ridingFacilities.arenas && ridingFacilities.arenas.length > 0 ? (
               <div className={`grid ${ridingFacilities.arenas.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-8 sm:gap-4 items-end`}>
-                {ridingFacilities.arenas.map((arena, index) => (
+                {ridingFacilities.arenas.map((arena: Arena, index: number) => (
                   <div key={index}>
                     <div className="space-y-3 flex flex-col items-center">
                       <ArenaDiagram length={arena.length} width={arena.width} />
@@ -37,7 +37,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                       </p>
                       {arena.features && arena.features.length > 0 && (
                         <div className="flex flex-wrap gap-2 justify-center">
-                          {arena.features.map((feature, featureIndex) => (
+                          {arena.features.map((feature: string, featureIndex: number) => (
                             <span
                               key={featureIndex}
                               className="inline-flex bg-blue-100 dark:bg-blue-700 text-blue-700 dark:text-blue-100 rounded-md px-2 py-0.5 text-xs"
@@ -52,11 +52,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                 ))}
               </div>
             ) : (
-              <div>
-                <div className="chip-unavailable">
-                  Unavailable
-                </div>
-              </div>
+              <p className="text-neutral-500 text-sm">No arenas available</p>
             )}
           </div>
         </div>
@@ -74,10 +70,9 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
             )}
           </div>
           <div className="space-y-3">
-            
             {ridingFacilities.roundYards && ridingFacilities.roundYards.length > 0 ? (
               <div className={`grid ${ridingFacilities.roundYards.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-8 sm:gap-4 items-end`}>
-                {ridingFacilities.roundYards.map((yard, index) => (
+                {ridingFacilities.roundYards.map((yard: RoundYard, index: number) => (
                   <div key={index}>
                     <div className="space-y-3 flex flex-col items-center">
                       <RoundYardDiagram diameter={yard.diameter} />
@@ -89,11 +84,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                 ))}
               </div>
             ) : (
-              <div>
-                <div className="chip-unavailable">
-                  Unavailable
-                </div>
-              </div>
+              <p className="text-neutral-500 text-sm">No round yards available</p>
             )}
           </div>
         </div>

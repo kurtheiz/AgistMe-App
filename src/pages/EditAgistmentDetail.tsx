@@ -92,39 +92,15 @@ function EditAgistmentDetail() {
     try {
       setIsUpdating(true);
       // Create a new agistment object with updated fields
-      const updatedAgistment: AgistmentResponse = {
+      const updatedAgistment = {
         ...agistment,
-        ...updatedFields,
-        paddocks: {
-          groupPaddocks: {
-            available: 0,
-            comments: '',
-            total: 0,
-            weeklyPrice: 0,
-            totalPaddocks: 0
-          },
-          privatePaddocks: {
-            available: 0,
-            comments: '',
-            total: 0,
-            weeklyPrice: 0,
-            totalPaddocks: 0
-          },
-          sharedPaddocks: {
-            available: 0,
-            comments: '',
-            total: 0,
-            weeklyPrice: 0,
-            totalPaddocks: 0
-          },
-          paddocks: []
-        }
+        ...updatedFields
       };
       
       // Update the local state first
       setAgistment(updatedAgistment);
 
-      // Send the FULL updated agistment to the server
+      // Send the update to the server
       const serverUpdatedAgistment = await agistmentService.updateAgistment(agistment.id, updatedAgistment);
       
       // Update local state with server response
@@ -266,7 +242,6 @@ function EditAgistmentDetail() {
                 agistment={agistment as AgistmentResponse}
                 maxPhotos={maxPhotos}
                 onPhotosChange={handlePhotoGalleryUpdate}
-                onUpdate={handleAgistmentUpdate}
               />
             </div>
 
@@ -335,8 +310,7 @@ function EditAgistmentDetail() {
                         total: 0,
                         weeklyPrice: 0,
                         totalPaddocks: 0
-                      },
-                      paddocks: []
+                      }
                     }}
                     onUpdate={handleAgistmentUpdate}
                     agistmentId={agistment?.id || ''}
@@ -458,18 +432,8 @@ function EditAgistmentDetail() {
         onUpdate={handleAgistmentUpdate}
       />
       <AgistmentPaddocksModal
-        isOpen={isPaddocksModalOpen}
-        onClose={() => setIsPaddocksModalOpen(false)}
-        onUpdate={handleAgistmentUpdate}
         agistmentId={agistment?.id || ''}
         paddocks={agistment?.paddocks || {
-          groupPaddocks: {
-            available: 0,
-            comments: '',
-            total: 0,
-            weeklyPrice: 0,
-            totalPaddocks: 0
-          },
           privatePaddocks: {
             available: 0,
             comments: '',
@@ -484,8 +448,17 @@ function EditAgistmentDetail() {
             weeklyPrice: 0,
             totalPaddocks: 0
           },
-          paddocks: []
+          groupPaddocks: {
+            available: 0,
+            comments: '',
+            total: 0,
+            weeklyPrice: 0,
+            totalPaddocks: 0
+          }
         }}
+        isOpen={isPaddocksModalOpen}
+        onClose={() => setIsPaddocksModalOpen(false)}
+        onUpdate={handleAgistmentUpdate}
       />
       <AgistmentCareOptionsModal
         care={agistment?.care || {

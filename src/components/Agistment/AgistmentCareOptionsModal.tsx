@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Agistment, AgistmentCare } from '../../types/agistment';
+import { AgistmentResponse, AgistmentCare } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
 import { classNames } from '../../utils/classNames';
 import { Switch } from '@headlessui/react';
 import toast from 'react-hot-toast';
 
-const calculateHash = (obj: any): string => {
+const calculateHash = (obj: unknown): string => {
   return JSON.stringify(obj);
 };
 
@@ -26,7 +26,7 @@ interface Props {
   care: AgistmentCare;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
+  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
 }
 
 export const AgistmentCareOptionsModal = ({
@@ -115,7 +115,7 @@ export const AgistmentCareOptionsModal = ({
   const handleUpdateAll = async () => {
     setIsSaving(true);
     try {
-      const updatedAgistment: Partial<Agistment> = {
+      const updatedAgistment: Partial<AgistmentResponse> = {
         care: {
           selfCare: editForm.selfCare,
           partCare: editForm.partCare,

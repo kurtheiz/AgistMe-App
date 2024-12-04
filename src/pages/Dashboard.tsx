@@ -15,7 +15,7 @@ export const Dashboard = () => {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
-        setAgistments(response.agistments);
+        setAgistments(response);
       } catch (error) {
         console.error('Error fetching agistments:', error);
       } finally {

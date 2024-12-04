@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
-import { Agistment, AgistmentContact, AgistmentPropertyLocation, AgistmentBasicInfo, AgistmentDescription } from '../../types/agistment';
+import { AgistmentResponse, AgistmentContact, AgistmentPropertyLocation, AgistmentBasicInfo, AgistmentDescription } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
 import { Suburb } from '../../types/suburb';
@@ -13,10 +13,10 @@ interface Props {
   propertyDescription?: AgistmentDescription;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
+  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
 }
 
-interface EditForm {
+type EditForm = {
   propertyName: string;
   propertySize: number;
   address: string;
@@ -27,7 +27,7 @@ interface EditForm {
   contactName: string;
   contactEmail: string;
   contactNumber: string;
-  description?: string;
+  description: string;
 }
 
 export const AgistmentHeaderModal = ({
@@ -154,7 +154,7 @@ export const AgistmentHeaderModal = ({
 
     setIsSaving(true);
     try {
-      const updatedAgistment: Partial<Agistment> = {
+      const updatedAgistment: Partial<AgistmentResponse> = {
         basicInfo: {
           name: editForm.propertyName,
           propertySize: editForm.propertySize

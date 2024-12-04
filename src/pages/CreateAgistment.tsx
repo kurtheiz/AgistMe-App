@@ -48,6 +48,8 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       GSI1PK: '',
       geohash: '',
       status: 'DRAFT',
+      createdAt: new Date().toISOString(),
+      modifiedAt: new Date().toISOString(),
       listing: { listingType: selectedType.listingType },
       basicInfo: {
         name: '',
@@ -118,8 +120,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
           total: 0,
           weeklyPrice: 0,
           totalPaddocks: 0
-        },
-        paddocks: []
+        }
       },
       photoGallery: {
         photos: []
@@ -185,7 +186,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       const savedAgistment = await agistmentService.updateAgistment(tempId, agistmentWithProfile);
       
       // Navigate to edit page
-      navigate(`/agistments/${savedAgistment.PK}/edit`);
+      navigate(`/agistments/${savedAgistment.id}/edit`);
     } catch (error) {
       console.error('Error creating agistment:', error);
       toast.error('Failed to create agistment. Please try again.');
@@ -204,7 +205,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       const savedAgistment = await agistmentService.updateAgistment(tempId, emptyAgistment);
       
       // Navigate to edit page
-      navigate(`/agistments/${savedAgistment.PK}/edit`);
+      navigate(`/agistments/${savedAgistment.id}/edit`);
     } catch (error) {
       console.error('Error creating empty agistment:', error);
       toast.error('Failed to create agistment. Please try again.');

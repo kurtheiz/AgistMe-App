@@ -1,69 +1,28 @@
 import { useState } from 'react';
 import { Modal } from '../shared/Modal';
 import { SearchCriteria } from '../../types/search';
-import { useProfile } from '../../context/ProfileContext';
-import { profileService } from '../../services/profile.service';
 
 interface SaveSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   searchCriteria: SearchCriteria | null;
+  onSave: (name: string, enableNotifications: boolean) => void;
 }
 
-export function SaveSearchModal({ isOpen, onClose, searchCriteria }: SaveSearchModalProps) {
+export function SaveSearchModal({ isOpen, onClose, searchCriteria, onSave }: SaveSearchModalProps) {
   const [name, setName] = useState('');
   const [enableNotifications, setEnableNotifications] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const { profile, refreshProfile } = useProfile();
 
-  const handleSave = async () => {
-    if (!name.trim() || !searchCriteria || !profile) return;
+  const handleSave = () => {
+    if (!name.trim() || !searchCriteria) return;
     
     setIsUpdating(true);
     try {
-      // Create the search hash from the criteria
-      const searchData = {
-        s: searchCriteria.suburbs.map(s => ({
-          i: s.id,
-          n: s.suburb,
-          p: s.postcode,
-          t: s.state,
-          r: s.region,
-          g: s.geohash,
-          l: s.locationType
-        })),
-        r: searchCriteria.radius,
-        pt: searchCriteria.paddockTypes,
-        sp: searchCriteria.spaces,
-        mp: searchCriteria.maxPrice,
-        a: searchCriteria.hasArena,
-        ry: searchCriteria.hasRoundYard,
-        f: searchCriteria.facilities,
-        ct: searchCriteria.careTypes
-      };
-
-      const savedSearch = {
-        id: crypto.randomUUID(),
-        name: name.trim(),
-        searchHash: btoa(JSON.stringify(searchData)),
-        lastUpdate: new Date().toISOString(),
-        enableNotifications
-      };
-
-      // Create updated profile with new saved search
-      const updatedProfile = {
-        ...profile,
-        savedSearches: [...(profile.savedSearches || []), savedSearch]
-      };
-
-      // Send complete profile update
-      await profileService.updateProfile(updatedProfile);
-      
-      // Refresh profile to get updated data
-      await refreshProfile();
+      onSave(name, enableNotifications);
       onClose();
     } catch (error) {
-      console.error('Error saving search:', error);
+      console.error('Failed to save search:', error);
     } finally {
       setIsUpdating(false);
     }

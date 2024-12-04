@@ -15,11 +15,7 @@ export const MyAgistments = () => {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
-        const agistmentResponses = response.agistments.map(agistment => ({
-          ...agistment,
-          id: agistment.PK
-        })) as AgistmentResponse[];
-        setAgistments(agistmentResponses);
+        setAgistments(response);
       } catch (error) {
         console.error('Error fetching agistments:', error);
       } finally {

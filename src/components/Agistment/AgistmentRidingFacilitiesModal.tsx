@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Modal } from '../shared/Modal';
-import { Agistment } from '../../types/agistment';
+import { AgistmentResponse, Arena, RoundYard } from '../../types/agistment';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
 import { Plus, Trash2, X } from 'lucide-react';
@@ -9,16 +9,16 @@ import { RoundYardDiagram } from './RoundYardDiagram';
 import NumberStepper from '../shared/NumberStepper';
 import toast from 'react-hot-toast';
 
-const calculateHash = (obj: any): string => {
+const calculateHash = (obj: unknown): string => {
   return JSON.stringify(obj);
 };
 
 interface Props {
   agistmentId: string;
-  ridingFacilities: Agistment['ridingFacilities'];
+  ridingFacilities: AgistmentResponse['ridingFacilities'];
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedAgistment: Partial<Agistment>) => void;
+  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
 }
 
 interface ArenaForm {
@@ -41,13 +41,13 @@ export const AgistmentRidingFacilitiesModal = ({
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [editForm, setEditForm] = useState({
-    arenas: ridingFacilities.arenas?.map(arena => ({
+    arenas: ridingFacilities.arenas?.map((arena: Arena) => ({
       length: arena.length || 0,
       width: arena.width || 0,
       comments: arena.comments || '',
       features: arena.features || []
     })) || [],
-    roundYards: ridingFacilities.roundYards?.map(yard => ({
+    roundYards: ridingFacilities.roundYards?.map((yard: RoundYard) => ({
       diameter: yard.diameter || 0,
       comments: yard.comments || ''
     })) || []
@@ -60,13 +60,13 @@ export const AgistmentRidingFacilitiesModal = ({
   useEffect(() => {
     if (isOpen) {
       setEditForm({
-        arenas: ridingFacilities.arenas?.map(arena => ({
+        arenas: ridingFacilities.arenas?.map((arena: Arena) => ({
           length: arena.length || 0,
           width: arena.width || 0,
           comments: arena.comments || '',
           features: arena.features || []
         })) || [],
-        roundYards: ridingFacilities.roundYards?.map(yard => ({
+        roundYards: ridingFacilities.roundYards?.map((yard: RoundYard) => ({
           diameter: yard.diameter || 0,
           comments: yard.comments || ''
         })) || []
@@ -102,23 +102,23 @@ export const AgistmentRidingFacilitiesModal = ({
     }
   }, [editForm, isDirty, onClose, onUpdate]);
 
-  const handleAddArena = () => {
+  const addArena = () => {
     setEditForm(prev => ({
       ...prev,
-      arenas: [...prev.arenas, { length: 0, width: 0, comments: '', features: [] }]
+      arenas: [...prev.arenas, { length: 20, width: 40, comments: '', features: [] }]
     }));
     setIsDirty(true);
   };
 
-  const handleAddRoundYard = () => {
+  const updateArena = (index: number, updates: Partial<ArenaForm>) => {
     setEditForm(prev => ({
       ...prev,
-      roundYards: [...prev.roundYards, { diameter: 0, comments: '' }]
+      arenas: prev.arenas.map((arena, i) => i === index ? { ...arena, ...updates } : arena)
     }));
     setIsDirty(true);
   };
 
-  const handleRemoveArena = (index: number) => {
+  const removeArena = (index: number) => {
     setEditForm(prev => ({
       ...prev,
       arenas: prev.arenas.filter((_, i) => i !== index)
@@ -126,30 +126,26 @@ export const AgistmentRidingFacilitiesModal = ({
     setIsDirty(true);
   };
 
-  const handleRemoveRoundYard = (index: number) => {
+  const addRoundYard = () => {
+    setEditForm(prev => ({
+      ...prev,
+      roundYards: [...prev.roundYards, { diameter: 15, comments: '' }]
+    }));
+    setIsDirty(true);
+  };
+
+  const updateRoundYard = (index: number, updates: Partial<RoundYardForm>) => {
+    setEditForm(prev => ({
+      ...prev,
+      roundYards: prev.roundYards.map((yard, i) => i === index ? { ...yard, ...updates } : yard)
+    }));
+    setIsDirty(true);
+  };
+
+  const removeRoundYard = (index: number) => {
     setEditForm(prev => ({
       ...prev,
       roundYards: prev.roundYards.filter((_, i) => i !== index)
-    }));
-    setIsDirty(true);
-  };
-
-  const handleUpdateArena = (index: number, field: keyof ArenaForm, value: any) => {
-    setEditForm(prev => ({
-      ...prev,
-      arenas: prev.arenas.map((arena, i) => 
-        i === index ? { ...arena, [field]: value } : arena
-      )
-    }));
-    setIsDirty(true);
-  };
-
-  const handleUpdateRoundYard = (index: number, field: keyof RoundYardForm, value: any) => {
-    setEditForm(prev => ({
-      ...prev,
-      roundYards: prev.roundYards.map((yard, i) => 
-        i === index ? { ...yard, [field]: value } : yard
-      )
     }));
     setIsDirty(true);
   };
@@ -237,7 +233,7 @@ export const AgistmentRidingFacilitiesModal = ({
                         <div className="flex justify-between items-start p-4 border-b border-neutral-200">
                           <h3 className="text-lg font-medium">Arena {index + 1}</h3>
                           <button
-                            onClick={() => handleRemoveArena(index)}
+                            onClick={() => removeArena(index)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -251,7 +247,7 @@ export const AgistmentRidingFacilitiesModal = ({
                               </label>
                               <NumberStepper
                                 value={arena.length}
-                                onChange={(value) => handleUpdateArena(index, 'length', value)}
+                                onChange={(value) => updateArena(index, { length: value })}
                                 min={0}
                                 max={999}
                               />
@@ -262,7 +258,7 @@ export const AgistmentRidingFacilitiesModal = ({
                               </label>
                               <NumberStepper
                                 value={arena.width}
-                                onChange={(value) => handleUpdateArena(index, 'width', value)}
+                                onChange={(value) => updateArena(index, { width: value })}
                                 min={0}
                                 max={999}
                               />
@@ -280,7 +276,7 @@ export const AgistmentRidingFacilitiesModal = ({
                                 type="text"
                                 className="form-input form-input-compact"
                                 value={arena.comments}
-                                onChange={(e) => handleUpdateArena(index, 'comments', e.target.value)}
+                                onChange={(e) => updateArena(index, { comments: e.target.value })}
                                 placeholder="Add any additional information..."
                               />
                             </div>
@@ -335,7 +331,7 @@ export const AgistmentRidingFacilitiesModal = ({
                     ))}
                   </div>
                   <button
-                    onClick={handleAddArena}
+                    onClick={addArena}
                     className="w-full flex items-center justify-center px-4 py-3 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -351,7 +347,7 @@ export const AgistmentRidingFacilitiesModal = ({
                         <div className="flex justify-between items-start p-4 border-b border-neutral-200">
                           <h3 className="text-lg font-medium">Round Yard {index + 1}</h3>
                           <button
-                            onClick={() => handleRemoveRoundYard(index)}
+                            onClick={() => removeRoundYard(index)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -369,7 +365,7 @@ export const AgistmentRidingFacilitiesModal = ({
                                 </label>
                                 <NumberStepper
                                   value={yard.diameter}
-                                  onChange={(value) => handleUpdateRoundYard(index, 'diameter', value)}
+                                  onChange={(value) => updateRoundYard(index, { diameter: value })}
                                   min={0}
                                   max={999}
                                 />
@@ -382,7 +378,7 @@ export const AgistmentRidingFacilitiesModal = ({
                                   type="text"
                                   className="form-input form-input-compact"
                                   value={yard.comments}
-                                  onChange={(e) => handleUpdateRoundYard(index, 'comments', e.target.value)}
+                                  onChange={(e) => updateRoundYard(index, { comments: e.target.value })}
                                   placeholder="Add any additional information..."
                                 />
                               </div>
@@ -393,7 +389,7 @@ export const AgistmentRidingFacilitiesModal = ({
                     ))}
                   </div>
                   <button
-                    onClick={handleAddRoundYard}
+                    onClick={addRoundYard}
                     className="w-full flex items-center justify-center px-4 py-3 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50"
                   >
                     <Plus className="w-4 h-4 mr-2" />

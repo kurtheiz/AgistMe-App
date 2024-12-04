@@ -1,20 +1,7 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { 
-  Agistment, 
   AgistmentResponse,
-  AgistmentBasicInfo,
-  AgistmentDescription,
-  AgistmentContact,
-  AgistmentListingType,
-  AgistmentPhotos,
-  AgistmentServices,
-  AgistmentRidingFacilities,
-  AgistmentFacilities,
-  AgistmentCare,
-  AgistmentPaddocks,
-  AgistmentVisibility,
   AgistmentSearchResponse,
-  AgistmentPropertyLocation
 } from '../types/agistment';
 
 interface PresignedUrlRequest {
@@ -50,23 +37,17 @@ class AgistmentService {
   async getAgistment(id: string): Promise<AgistmentResponse> {
     try {
       const url = `v1/agistments/${encodeURIComponent(id)}`;
-      const response = await this.api.get<Agistment>(url);
-      const agistment = response.data;
-      
-      // Transform Agistment to AgistmentResponse
-      return {
-        ...agistment,
-        id: agistment.PK
-      };
+      const response = await this.api.get<AgistmentResponse>(url);
+      return response.data;
     } catch (error: unknown) {
       console.error('Failed to get agistment:', error);
       throw error;
     }
   }
 
-  async updateAgistment(id: string, agistment: Partial<Agistment>): Promise<Agistment> {
+  async updateAgistment(id: string, agistment: Partial<AgistmentResponse>): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.put<Agistment>(`v1/protected/agistments/${id}`, agistment);
+      const response = await this.api.put<AgistmentResponse>(`v1/protected/agistments/${id}`, agistment);
       return response.data;
     } catch (error: unknown) {
       console.error(`Failed to update agistment ${id}:`, error);
@@ -83,9 +64,9 @@ class AgistmentService {
     }
   }
 
-  async createFromText(text: string): Promise<Agistment> {
+  async createFromText(text: string): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.post<Agistment>('v1/protected/agistments/from-text', text, {
+      const response = await this.api.post<AgistmentResponse>('v1/protected/agistments/from-text', text, {
         headers: {
           'Content-Type': 'text/plain',
         },
@@ -97,16 +78,11 @@ class AgistmentService {
     }
   }
 
-  async getMyAgistments(): Promise<{ agistments: AgistmentResponse[] }> {
+  async getMyAgistments(): Promise<AgistmentResponse[]> {
     try {
-      const url = 'v1/agistments/my';
-      const response = await this.api.get<{ agistments: Agistment[] }>(url);
-      return {
-        agistments: response.data.agistments.map(agistment => ({
-          ...agistment,
-          id: agistment.PK
-        }))
-      };
+      const url = 'v1/protected/agistments/my';
+      const response = await this.api.get<AgistmentResponse[]>(url);
+      return response.data;
     } catch (error: unknown) {
       console.error('Failed to get my agistments:', error);
       throw error;
@@ -173,69 +149,6 @@ class AgistmentService {
       throw error;
     }
   }
-
-  // New section-specific update methods
-  async updateBasicInfo(id: string, data: AgistmentBasicInfo): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'basicInfo', data);
-  }
-
-  async updatePropertyDescription(id: string, data: AgistmentDescription): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'propertyDescription', data);
-  }
-
-  async updatePropertyLocation(id: string, data: AgistmentPropertyLocation): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'propertyLocation', data);
-  }
-
-  async updateContact(id: string, data: AgistmentContact): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'contact', data);
-  }
-
-  async updateListing(id: string, data: AgistmentListingType): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'listing', data);
-  }
-
-  async updatePhotoGallery(id: string, data: AgistmentPhotos): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'photoGallery', data);
-  }
-
-  async updatePropertyServices(id: string, data: AgistmentServices): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'propertyServices', data);
-  }
-
-  async updateRidingFacilities(id: string, data: AgistmentRidingFacilities): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'ridingFacilities', data);
-  }
-
-  async updateFacilities(id: string, data: AgistmentFacilities): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'facilities', data);
-  }
-
-  async updateCare(id: string, data: AgistmentCare): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'care', data);
-  }
-
-  async updatePaddocks(id: string, data: AgistmentPaddocks): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'paddocks', data);
-  }
-
-  async updateVisibility(id: string, data: AgistmentVisibility): Promise<Agistment> {
-    return this.updateAgistmentSection(id, 'visibility', data);
-  }
-
-  private async updateAgistmentSection<T>(id: string, section: string, data: T): Promise<Agistment> {
-    try {
-      const response = await this.api.patch<Agistment>(
-        `v1/protected/agistments/${id}/${section}`,
-        data
-      );
-      return response.data;
-    } catch (error: unknown) {
-      console.error(`Failed to update agistment ${id} section ${section}:`, error);
-      throw error;
-    }
-  }
 }
-
 // Create a singleton instance
 export const agistmentService = new AgistmentService();
