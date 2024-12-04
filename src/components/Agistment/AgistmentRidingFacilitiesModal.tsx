@@ -55,6 +55,7 @@ export const AgistmentRidingFacilitiesModal = ({
   const [isSaving, setIsSaving] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
+  const [featureInputs, setFeatureInputs] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -179,13 +180,25 @@ export const AgistmentRidingFacilitiesModal = ({
     setIsDirty(true);
   };
 
+  const handleFeatureInputChange = (index: number, value: string) => {
+    setFeatureInputs(prev => ({ ...prev, [index]: value }));
+  };
+
+  const handleAddFeatureForArena = (index: number) => {
+    const value = featureInputs[index]?.trim() || '';
+    if (value) {
+      handleAddFeature(index, value);
+      setFeatureInputs(prev => ({ ...prev, [index]: '' }));
+    }
+  };
+
   const tabs = ['Arenas', 'Round Yards'];
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Riding Facilities"
+      title={`Edit ${tabs[selectedTab]}`}
       size="lg"
       actionIconType="SAVE"
       onAction={handleUpdateFacilities}
@@ -276,31 +289,24 @@ export const AgistmentRidingFacilitiesModal = ({
                                 Features
                               </label>
                               <div className="space-y-2">
-                                <div className="input-wrapper group">
+                                <div className="flex gap-2 items-center">
                                   <input
                                     type="text"
                                     className="form-input form-input-compact"
-                                    placeholder="Add a feature (e.g., Lighting, Sprinklers)"
+                                    placeholder="Add a feature (e.g., Mirrors, Spotlights)"
+                                    value={featureInputs[index] || ''}
+                                    onChange={(e) => handleFeatureInputChange(index, e.target.value)}
                                     onKeyPress={(e) => {
-                                      if (e.key === 'Enter') {
-                                        handleAddFeature(index, e.currentTarget.value);
-                                        e.currentTarget.value = '';
+                                      if (e.key === 'Enter' && featureInputs[index]?.trim()) {
+                                        handleAddFeatureForArena(index);
                                       }
                                     }}
                                   />
                                   <button
                                     type="button"
-                                    onClick={(e) => {
-                                      const input = e.currentTarget.parentElement?.querySelector('input');
-                                      if (input && input.value.trim()) {
-                                        handleAddFeature(index, input.value);
-                                        input.value = '';
-                                      }
-                                    }}
-                                    className={classNames(
-                                      'absolute right-2 px-2 py-1 rounded-md',
-                                      'text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20'
-                                    )}
+                                    onClick={() => handleAddFeatureForArena(index)}
+                                    disabled={!featureInputs[index]?.trim()}
+                                    className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     <Plus className="h-4 w-4" />
                                   </button>
@@ -309,14 +315,14 @@ export const AgistmentRidingFacilitiesModal = ({
                                   {arena.features.map((feature, featureIndex) => (
                                     <div
                                       key={featureIndex}
-                                      className="inline-flex items-center bg-blue-100 dark:bg-blue-700 text-blue-700 dark:text-blue-100 rounded-md px-2 py-0.5 text-xs group"
+                                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100"
                                     >
                                       {feature}
                                       <button
                                         onClick={() => handleRemoveFeature(index, featureIndex)}
-                                        className="input-delete-button ml-1.5"
+                                        className="ml-2 p-0.5 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800"
                                       >
-                                        <X className="w-3 h-3" />
+                                        <X className="w-4 h-4" />
                                       </button>
                                     </div>
                                   ))}

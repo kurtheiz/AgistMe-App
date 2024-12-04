@@ -10,14 +10,14 @@ import {
   TieUpIcon,
 } from './Icons';
 import { MapPin, Check, X, Pencil, Image, Heart } from 'lucide-react';
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { ShareFavoriteButtons } from './shared/ShareFavoriteButtons';
 
 interface PropertyCardProps {
-  agistment: Agistment;
+  agistment: AgistmentResponse;
   onClick?: () => void;
   onEdit?: () => void;
   onToggleVisibility?: () => Promise<void>;
@@ -222,12 +222,12 @@ export default function PropertyCard({
             
             {/* Paddock Types */}
             <div className="flex flex-wrap gap-4 mt-4">
-              {agistment.paddockTypes?.map((type: string, index: number) => (
+              {agistment.paddocks?.paddocks?.map((paddock: { type: string }, index: number) => (
                 <span
                   key={index}
                   className="px-2 py-1 text-xs rounded-full bg-neutral-100 text-neutral-600"
                 >
-                  {type}
+                  {paddock.type}
                 </span>
               ))}
             </div>

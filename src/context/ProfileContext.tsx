@@ -16,7 +16,7 @@ export const ProfileContext = createContext<ProfileContextType | undefined>(unde
 
 export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -39,34 +39,14 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
   const updateProfileData = useCallback(async (data: UpdateProfileRequest) => {
     setIsUpdating(true);
     try {
-      const updatedProfile = await profileService.updateProfile(data);
-      
-      // Ensure we properly merge the profile data
-      setProfile(prev => {
-        if (!prev) return updatedProfile;
-        
-        return {
-          ...prev,
-          ...updatedProfile,
-          // Preserve agistor status if not explicitly changed
-          agistor: 'agistor' in data ? data.agistor : prev.agistor,
-          // Ensure we merge arrays instead of replacing them
-          favourites: updatedProfile.favourites || prev.favourites || [],
-          horses: updatedProfile.horses || prev.horses || [],
-          savedSearches: updatedProfile.savedSearches || prev.savedSearches || [],
-          myAgistments: updatedProfile.myAgistments || prev.myAgistments || []
-        };
-      });
-
-      // Refresh profile to ensure we have the latest data
-      await refreshProfile();
+      await profileService.updateProfile(data);
     } catch (error) {
       console.error('Failed to update profile:', error);
       throw error;
     } finally {
       setIsUpdating(false);
     }
-  }, [refreshProfile]);
+  }, []);
 
   const clearProfile = useCallback(() => {
     setProfile(null);

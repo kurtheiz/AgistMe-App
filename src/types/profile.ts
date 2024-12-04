@@ -49,4 +49,21 @@ export interface Profile {
     myAgistments: string[];
 }
 
-export interface UpdateProfileRequest extends Omit<Profile, 'id' | 'email' | 'lastUpdate'> {}
+export interface UpdateProfileRequest {
+  firstName?: string;
+  lastName?: string;
+  comments?: string;
+  profilePhoto?: string;
+  mobile?: string;
+  dateOfBirth?: string;
+  address?: string;
+  suburb?: string;
+  state?: string;
+  postcode?: string;
+  geohash?: string;
+  suburbId?: string;
+  region?: string;
+  showProfileInEnquiry?: boolean;
+  agistor?: boolean;
+  favourites?: FavoriteItem[];
+}

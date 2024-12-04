@@ -2,8 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { SearchModal } from '../components/Search/SearchModal';
+import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchCriteria } from '../types/search';
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import { Search, Star, ChevronDown, BookmarkPlus } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import { AgistmentList } from '../components/AgistmentList';
@@ -51,11 +52,12 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
 export function Agistments() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { profile, updateProfileData } = useProfile();
-  const [originalAgistments, setOriginalAgistments] = useState<Agistment[]>([]);
-  const [adjacentAgistments, setAdjacentAgistments] = useState<Agistment[]>([]);
+  const { profile, updateProfileData, loading: profileLoading } = useProfile();
+  const [originalAgistments, setOriginalAgistments] = useState<AgistmentResponse[]>([]);
+  const [adjacentAgistments, setAdjacentAgistments] = useState<AgistmentResponse[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
+  const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [selectedSearchHash, setSelectedSearchHash] = useState('');
@@ -165,13 +167,28 @@ export function Agistments() {
     }
   }, [isSearchModalOpen]);
 
-  const handleSearch = (criteria: SearchCriteria & { searchHash: string }) => {
+  const handleSearch = async (criteria: SearchCriteria & { searchHash: string }) => {
     setIsSearchModalOpen(false);
     
-    // Update URL after search, which will trigger the useEffect to load results
-    // Remove any trailing slashes and ensure clean URL construction
-    const searchUrl = `/agistments?q=${encodeURIComponent(criteria.searchHash)}`.replace(/\/+/g, '/');
-    navigate(searchUrl, { replace: true });
+    try {
+      setIsFetching(true);
+      // Execute search immediately
+      const response = await agistmentService.searchAgistments(criteria.searchHash);
+      if (response) {
+        setOriginalAgistments(response.original || []);
+        setAdjacentAgistments(response.adjacent || []); 
+      }
+      
+      // Update URL after search
+      const searchUrl = `/agistments?q=${encodeURIComponent(criteria.searchHash)}`.replace(/\/+/g, '/');
+      navigate(searchUrl, { replace: true });
+    } catch (error) {
+      console.error('Error executing search:', error);
+      setOriginalAgistments([]);
+      setAdjacentAgistments([]);
+    } finally {
+      setIsFetching(false);
+    }
   };
 
   const handleFavorites = () => {
@@ -239,13 +256,13 @@ export function Agistments() {
                         e.stopPropagation();
                         setIsSearchDropdownOpen(false);
                         setIsSearchModalOpen(true);
-                        setSelectedSearchHash('');
-                        setForceResetSearch(true);
-                        setSearchTitle('New Search');
+                        setSelectedSearchHash(searchHash || '');
+                        setForceResetSearch(!searchHash);
+                        setSearchTitle('Search');
                       }}
                       className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
                     >
-                      New Search
+                      Search
                     </button>
                     <div className="h-px bg-neutral-200 my-1" />
                     {profile?.savedSearches?.map((search) => (
@@ -263,17 +280,19 @@ export function Agistments() {
                   </div>
                 )}
               </div>
-              <button
-                onClick={handleFavorites}
-                className="button-toolbar inline-flex items-center gap-2"
-              >
-                <Star className="w-5 h-5" />
-                <span className="hidden md:inline">Favorites</span>
-              </button>
+              {!profileLoading && profile && (
+                <button
+                  onClick={handleFavorites}
+                  className="button-toolbar inline-flex items-center gap-2"
+                >
+                  <Star className="w-5 h-5" />
+                  <span className="hidden md:inline">Favorites</span>
+                </button>
+              )}
             </div>
             {profile && searchHash && (originalAgistments.length > 0 || adjacentAgistments.length > 0) && (
               <button
-                onClick={handleSaveSearch}
+                onClick={() => setIsSaveSearchModalOpen(true)}
                 className="button-toolbar inline-flex items-center gap-2 ml-2"
               >
                 <BookmarkPlus className="w-5 h-5" />
@@ -353,6 +372,12 @@ export function Agistments() {
           initialSearchHash={selectedSearchHash}
           forceReset={forceResetSearch}
           title={searchTitle}
+        />
+
+        <SaveSearchModal
+          isOpen={isSaveSearchModalOpen}
+          onClose={() => setIsSaveSearchModalOpen(false)}
+          searchCriteria={currentCriteria}
         />
       </div>
     </>

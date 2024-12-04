@@ -1,17 +1,4 @@
-export type Status = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-
-export type ListingType = 'STANDARD' | 'FEATURED' | 'PREMIUM' | 'PROFESSIONAL';
-
-export type FacilityType = 'feedRoom' | 'tackRoom' | 'floatParking' | 'hotWash' | 'tieUp' | 'stable';
-
-export interface AgistmentResponse {
-  original: Agistment[];
-  adjacent: Agistment[];
-  totalCount: number;
-  originalCount: number;
-  adjacentCount: number;
-  nextToken?: string;
-}
+export type ListingType = 'STANDARD' | 'PROFESSIONAL';
 
 export interface Arena {
   comments: string;
@@ -42,8 +29,8 @@ export interface PaddockBase {
   comments: string;
   total: number;
   weeklyPrice: number;
+  whenAvailable?: string;
   totalPaddocks: number;
-  whenAvailable?: Date;
 }
 
 export interface Location {
@@ -55,7 +42,6 @@ export interface Location {
 }
 
 export interface Photo {
-  comment?: string;
   link: string;
 }
 
@@ -106,6 +92,7 @@ export interface AgistmentPaddocks {
   groupPaddocks: PaddockBase;
   privatePaddocks: PaddockBase;
   sharedPaddocks: PaddockBase;
+  paddocks: Array<{ type: string }>;
 }
 
 export interface AgistmentRidingFacilities {
@@ -128,18 +115,44 @@ export interface AgistmentCare {
   selfCare: PricedFacility;
 }
 
-export interface AgistmentVisibility {
+export  interface AgistmentVisibility {
   hidden: boolean;
 }
 
 export interface Agistment {
-  id: string;
-  status: Status;
+  PK: string;
+  SK: string;
   ridingFacilities: AgistmentRidingFacilities;
   contact: AgistmentContact;
   createdAt?: string;
   propertyDescription: AgistmentDescription;
   facilities: AgistmentFacilities;
+  GSI1PK: string;
+  geohash: string;
+  visibility: AgistmentVisibility;
+  itemType: 'agistment';
+  listing: AgistmentListingType;
+  propertyLocation: AgistmentPropertyLocation;
+  modifiedAt?: string;
+  basicInfo: AgistmentBasicInfo;
+  paddocks: AgistmentPaddocks;
+  photoGallery: AgistmentPhotos;
+  propertyServices: AgistmentServices;
+  care: AgistmentCare;
+  socialMedia: SocialMediaLink[];
+  status: 'PUBLISHED' | 'DRAFT' | 'DELETED' ;
+  urgentAvailability: boolean;
+}
+
+export interface AgistmentResponse {
+  id: string;
+  ridingFacilities: AgistmentRidingFacilities;
+  contact: AgistmentContact;
+  createdAt?: string;
+  propertyDescription: AgistmentDescription;
+  facilities: AgistmentFacilities;
+  GSI1PK: string;
+  geohash: string;
   visibility: AgistmentVisibility;
   listing: AgistmentListingType;
   propertyLocation: AgistmentPropertyLocation;
@@ -150,7 +163,11 @@ export interface Agistment {
   propertyServices: AgistmentServices;
   care: AgistmentCare;
   socialMedia: SocialMediaLink[];
+  status: 'PUBLISHED' | 'DRAFT' | 'DELETED' ;
   urgentAvailability: boolean;
-  paddockTypes: string[];
-  views?: number;
+}
+
+export interface AgistmentSearchResponse {
+  original: AgistmentResponse[];
+  adjacent: AgistmentResponse[];
 }

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { X, Plus } from 'lucide-react';
 import { Agistment } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
-import { classNames } from '../../utils/classNames';
 import toast from 'react-hot-toast';
 
 const calculateHash = (obj: any): string => {
@@ -96,7 +95,7 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
     >
       <div className="space-y-4">
         <div className="form-group">
-          <div className="input-wrapper group">
+          <div className="flex gap-2 items-center">
             <input
               type="text"
               value={newService}
@@ -109,32 +108,24 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
               type="button"
               onClick={handleAddService}
               disabled={!newService.trim()}
-              className={classNames(
-                'absolute right-2 px-2 py-1 rounded-md',
-                newService.trim()
-                  ? 'text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20'
-                  : 'text-neutral-400 cursor-not-allowed'
-              )}
+              className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="space-y-2 mt-4">
+          <div className="flex flex-wrap gap-2 mt-4">
             {editableServices.map((service, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-2 rounded-lg bg-neutral-50 dark:bg-neutral-800 group"
+                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100"
               >
-                <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100">
-                  {service}
-                </span>
+                {service}
                 <button
-                  type="button"
                   onClick={() => handleRemoveService(index)}
-                  className="input-delete-button"
+                  className="ml-2 p-0.5 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             ))}

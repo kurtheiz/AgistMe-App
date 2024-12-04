@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import { ArrowLeft } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
@@ -17,7 +17,7 @@ import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons'
 export function ViewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [agistment, setAgistment] = useState<Agistment | null>(null);
+  const [agistment, setAgistment] = useState<AgistmentResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

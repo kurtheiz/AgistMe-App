@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { useClerk, useUser } from '@clerk/clerk-react';
+import { useClerk, useUser, useAuth } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
 import { useProfile } from '../context/ProfileContext';
 import { useEffect, useState } from 'react';
@@ -7,32 +7,67 @@ import { useEffect, useState } from 'react';
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
   const { openSignIn } = useClerk();
+  const { getToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   useAuthToken();
-  const { profile, refreshProfile, loading: profileLoading } = useProfile();
+  const { profile, refreshProfile, loading: profileLoading, clearProfile } = useProfile();
   const [wasAgistor, setWasAgistor] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Track agistor status
   useEffect(() => {
     if (profile?.agistor) {
       setWasAgistor(true);
     }
   }, [profile?.agistor]);
 
+  // Handle profile loading based on auth state
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      refreshProfile();
-    }
-  }, [isLoaded, isSignedIn, refreshProfile]);
+    const loadProfile = async () => {
+      if (isLoaded && isSignedIn && !profile && !profileLoading) {
+        try {
+          const token = await getToken();
+          if (token) {
+            await refreshProfile();
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+        }
+      }
+    };
 
-  const handleAvatarClick = () => {
+    if (isLoaded && isSignedIn && !profile && !profileLoading) {
+      loadProfile();
+    }
+  }, [isLoaded, isSignedIn]);
+
+  // Clear profile on sign out
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      clearProfile();
+    }
+  }, [isLoaded, isSignedIn, clearProfile]);
+
+  const handleAvatarClick = async () => {
     if (isSignedIn) {
+      // If we don't have a profile yet, load it before navigating
+      if (!profile && !profileLoading) {
+        try {
+          const token = await getToken();
+          if (token) {
+            await refreshProfile();
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+        }
+      }
       navigate('/profile', { replace: true });
     } else {
       openSignIn({
         afterSignInUrl: location.pathname,
+        afterSignUpUrl: location.pathname,
       });
     }
   };

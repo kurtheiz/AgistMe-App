@@ -10,41 +10,15 @@ export default function Profile() {
   const { signOut } = useClerk();
   const navigate = useNavigate();
   const [isBioOpen, setIsBioOpen] = useState(false);
-  const { profile, refreshProfile, loading, error } = useProfile();
+  const { profile, error, clearProfile } = useProfile();
 
   useEffect(() => {
-    let mounted = true;
-
-    const loadProfile = async () => {
-      try {
-        if (mounted) {
-          await refreshProfile();
-        }
-      } catch (error) {
-        if (mounted) {
-          console.error('Error refreshing profile:', error);
-        }
-      }
-    };
-
-    // Load profile on mount and when auth state changes
-    if (isLoaded && isSignedIn) {
-      loadProfile();
+    if (!isSignedIn && isLoaded) {
+      navigate('/');
     }
+  }, [isSignedIn, isLoaded, navigate]);
 
-    return () => {
-      mounted = false;
-    };
-  }, [isLoaded, isSignedIn, refreshProfile]);
-
-  // Add a separate effect to handle profile updates
-  useEffect(() => {
-    if (!loading && !profile) {
-      refreshProfile();
-    }
-  }, [loading, profile, refreshProfile]);
-
-  if (!isLoaded || loading) {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
@@ -65,16 +39,9 @@ export default function Profile() {
     );
   }
 
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="text-neutral-500">No profile data available</div>
-      </div>
-    );
-  }
-
   const handleSignOut = async () => {
     try {
+      clearProfile();
       await signOut();
       navigate('/');
     } catch (error) {

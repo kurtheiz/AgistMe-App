@@ -2,14 +2,15 @@ import { useRef, useState, useEffect } from 'react';
 import { Image, Trash, Pencil, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
-import { Agistment } from '../../types/agistment';
+import { AgistmentResponse } from '../../types/agistment';
 import { DndContext, DragEndEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Modal } from '../shared/Modal';
 
 interface AgistmentPhotosProps {
-  agistment: Agistment;
+  agistment: AgistmentResponse;
+  onUpdate: (agistment: Partial<AgistmentResponse>) => Promise<void>;
   onPhotosChange: (photos: { link: string; comment?: string }[]) => void;
   disabled?: boolean;
   maxPhotos?: number;
@@ -92,6 +93,7 @@ const SortablePhoto = ({ photo, index, disabled, onRemove, onCommentEdit }: Sort
 
 export const AgistmentPhotos = ({
   agistment,
+  onUpdate,
   onPhotosChange,
   disabled = false,
   maxPhotos = 3,
@@ -184,7 +186,7 @@ export const AgistmentPhotos = ({
       };
       
       // Update the backend using the agistment service
-      await agistmentService.updateAgistment(agistment.id, {
+      await onUpdate({
         photoGallery: {
           photos: newPhotos
         }

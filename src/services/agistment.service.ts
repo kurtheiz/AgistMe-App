@@ -13,7 +13,8 @@ import {
   AgistmentCare,
   AgistmentPaddocks,
   AgistmentVisibility,
-  AgistmentPropertyLocation,
+  AgistmentSearchResponse,
+  AgistmentPropertyLocation
 } from '../types/agistment';
 
 interface PresignedUrlRequest {
@@ -35,10 +36,10 @@ class AgistmentService {
     this.api = createApi(API_BASE_URL);
   }
 
-  async searchAgistments(searchHash: string): Promise<AgistmentResponse> {
+  async searchAgistments(searchHash: string): Promise<AgistmentSearchResponse> {
     try {
       const url = `v1/agistments?q=${encodeURIComponent(searchHash)}`;
-      const response = await this.api.get<AgistmentResponse>(url);
+      const response = await this.api.get<AgistmentSearchResponse>(url);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to search agistments:', error);
@@ -46,12 +47,19 @@ class AgistmentService {
     }
   }
 
-  async getAgistment(id: string): Promise<Agistment> {
+  async getAgistment(id: string): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.get<Agistment>(`v1/agistments/${id}`);
-      return response.data;
+      const url = `v1/agistments/${encodeURIComponent(id)}`;
+      const response = await this.api.get<Agistment>(url);
+      const agistment = response.data;
+      
+      // Transform Agistment to AgistmentResponse
+      return {
+        ...agistment,
+        id: agistment.PK
+      };
     } catch (error: unknown) {
-      console.error(`Failed to get agistment ${id}:`, error);
+      console.error('Failed to get agistment:', error);
       throw error;
     }
   }
@@ -89,11 +97,16 @@ class AgistmentService {
     }
   }
 
-  async getMyAgistments(): Promise<{ agistments: Agistment[], count: number, totalNewEnquiries: number }> {
+  async getMyAgistments(): Promise<{ agistments: AgistmentResponse[] }> {
     try {
-      const response = await this.api.get<{ agistments: Agistment[], count: number, totalNewEnquiries: number }>('v1/protected/agistments/my');
-      console.log('My Agistments Response:', response.data);
-      return response.data;
+      const url = 'v1/agistments/my';
+      const response = await this.api.get<{ agistments: Agistment[] }>(url);
+      return {
+        agistments: response.data.agistments.map(agistment => ({
+          ...agistment,
+          id: agistment.PK
+        }))
+      };
     } catch (error: unknown) {
       console.error('Failed to get my agistments:', error);
       throw error;
@@ -110,9 +123,11 @@ class AgistmentService {
     }
   }
 
-  async getFavoriteAgistments(): Promise<Agistment[]> {
+  async getFavoriteAgistments(): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.get<Agistment[]>('v1/protected/agistments/favourites');
+      console.log('Calling getFavoriteAgistments API');
+      const response = await this.api.get<AgistmentResponse>('v1/protected/agistments/favourites');
+      console.log('API Response:', response);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get favorite agistments:', error);

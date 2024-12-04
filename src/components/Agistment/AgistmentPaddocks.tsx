@@ -12,7 +12,7 @@ const calculateMonthlyPrice = (weeklyPrice: number) => {
   return Math.round((weeklyPrice * 52) / 12);
 };
 
-const formatAvailabilityDate = (whenAvailable: Date | undefined | null) => {
+const formatAvailabilityDate = (whenAvailable: Date | string | undefined | null) => {
   if (!whenAvailable) {
     return <span className="font-bold">now</span>;
   }
@@ -60,11 +60,23 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
           <>
             {paddock.available > 0 ? (
               <div>
-                <div className="inline-flex items-center gap-2 bg-primary-50 rounded-lg px-3 py-2">
-                  <div className="font-bold text-primary-600">
+                <div className={`inline-flex items-center gap-2 ${
+                  paddock.whenAvailable && new Date(paddock.whenAvailable) > new Date()
+                    ? 'bg-amber-50'
+                    : 'bg-primary-50'
+                } rounded-lg px-3 py-2`}>
+                  <div className={`font-bold ${
+                    paddock.whenAvailable && new Date(paddock.whenAvailable) > new Date()
+                      ? 'text-amber-600'
+                      : 'text-primary-600'
+                  }`}>
                     {paddock.available} {paddock.available === 1 ? 'spot' : 'spots'}
                   </div>
-                  <div className="text-primary-700">
+                  <div className={
+                    paddock.whenAvailable && new Date(paddock.whenAvailable) > new Date()
+                      ? 'text-amber-600'
+                      : 'text-primary-700'
+                  }>
                     available {formatAvailabilityDate(paddock.whenAvailable)}
                   </div>
                 </div>
@@ -139,9 +151,7 @@ export const AgistmentPaddocks = ({
             </h3>
             {paddocks?.sharedPaddocks?.totalPaddocks === 0 && (
               <div className="chip-unavailable">
-                <div>
                   Unavailable
-                </div>
               </div>
             )}
           </div>
@@ -160,9 +170,7 @@ export const AgistmentPaddocks = ({
             </h3>
             {paddocks?.groupPaddocks?.totalPaddocks === 0 && (
               <div className="chip-unavailable">
-                <div>
                   Unavailable
-                </div>
               </div>
             )}
           </div>

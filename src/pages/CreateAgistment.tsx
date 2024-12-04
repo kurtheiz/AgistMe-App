@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { useProfile } from '../context/ProfileContext';
@@ -42,9 +42,11 @@ const CreateAgistment: React.FC = () => {
 
 Agistment is $100 per week which includes quality pasture, daily water checks and hay supplementation in winter. All agistees have full use of facilities and will be joining a great community of like-minded horse owners. Available from March 1st.`;
 
-  const createEmptyAgistment = (tempId: string): Agistment => {
+  const createEmptyAgistment = (tempId: string): AgistmentResponse => {
     return {
       id: tempId,
+      GSI1PK: '',
+      geohash: '',
       status: 'DRAFT',
       listing: { listingType: selectedType.listingType },
       basicInfo: {
@@ -116,7 +118,8 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
           total: 0,
           weeklyPrice: 0,
           totalPaddocks: 0
-        }
+        },
+        paddocks: []
       },
       photoGallery: {
         photos: []
@@ -130,8 +133,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
         selfCare: { available: false, comments: '', monthlyPrice: 0 }
       },
       socialMedia: [],
-      urgentAvailability: false,
-      paddockTypes: []
+      urgentAvailability: false
     };
   };
 
@@ -146,7 +148,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       const result = await agistmentService.createFromText(text);
       
       // Add profile information to the result
-      const agistmentWithProfile: Partial<Agistment> = {
+      const agistmentWithProfile: Partial<AgistmentResponse> = {
         ...result,
         listing: { listingType: selectedType.listingType },
         contact: {
@@ -183,7 +185,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       const savedAgistment = await agistmentService.updateAgistment(tempId, agistmentWithProfile);
       
       // Navigate to edit page
-      navigate(`/agistments/${savedAgistment.id}/edit`);
+      navigate(`/agistments/${savedAgistment.PK}/edit`);
     } catch (error) {
       console.error('Error creating agistment:', error);
       toast.error('Failed to create agistment. Please try again.');
@@ -202,7 +204,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       const savedAgistment = await agistmentService.updateAgistment(tempId, emptyAgistment);
       
       // Navigate to edit page
-      navigate(`/agistments/${savedAgistment.id}/edit`);
+      navigate(`/agistments/${savedAgistment.PK}/edit`);
     } catch (error) {
       console.error('Error creating empty agistment:', error);
       toast.error('Failed to create agistment. Please try again.');

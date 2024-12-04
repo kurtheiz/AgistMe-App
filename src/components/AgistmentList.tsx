@@ -1,8 +1,8 @@
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import PropertyCard from './PropertyCard';
 
 interface AgistmentListProps {
-  agistments: Agistment[];
+  agistments: AgistmentResponse[];
   title: string;
   showCount?: boolean;
 }

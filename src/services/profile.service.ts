@@ -17,29 +17,51 @@ interface PresignedUrlResponse {
 
 class ProfileService {
   private api;
+  private maxRetries = 3;
+  private retryDelay = 1000; // 1 second
 
   constructor() {
     this.api = createApi(API_BASE_URL);
   }
 
-  async getProfile(): Promise<Profile> {
-    try {
-      const response = await this.api.get<Profile>('/v1/protected/profile');
-      return response.data;
-    } catch (error: any) {
-      console.error('Error fetching profile:', error);
-      throw error;
+  private async retryOperation<T>(operation: () => Promise<T>): Promise<T> {
+    let lastError;
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error: any) {
+        lastError = error;
+        if (attempt === this.maxRetries) break;
+        
+        // Wait before retrying, with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, this.retryDelay * attempt));
+      }
     }
+    throw lastError;
+  }
+
+  async getProfile(): Promise<Profile> {
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.get<Profile>('/v1/protected/profile');
+        return response.data;
+      } catch (error: any) {
+        console.error('Error fetching profile:', error);
+        throw error;
+      }
+    });
   }
 
   async updateProfile(profileData: UpdateProfileRequest): Promise<Profile> {
-    try {
-      const response = await this.api.put<Profile>('/v1/protected/profile', profileData);
-      return response.data;
-    } catch (error) {
-      console.error('Failed to update profile:', error);
-      throw error;
-    }
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.put<Profile>('/v1/protected/profile', profileData);
+        return response.data;
+      } catch (error) {
+        console.error('Failed to update profile:', error);
+        throw error;
+      }
+    });
   }
 
   async uploadProfilePhoto(file: File): Promise<string> {

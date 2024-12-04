@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Agistment, PaddockBase } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
-import { Tab } from '@headlessui/react';
+import { Tab, TabPanels, TabGroup, TabPanel, TabList } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
 
 interface PaddockForm extends Omit<PaddockBase, 'whenAvailable'> {
@@ -105,7 +105,7 @@ export const AgistmentPaddocksModal = ({
             available: editForm.privatePaddocks.available,
             weeklyPrice: editForm.privatePaddocks.weeklyPrice,
             comments: editForm.privatePaddocks.comments,
-            whenAvailable: editForm.privatePaddocks.whenAvailable,
+            whenAvailable: editForm.privatePaddocks.whenAvailable ? editForm.privatePaddocks.whenAvailable.toISOString() : undefined,
             totalPaddocks: editForm.privatePaddocks.totalPaddocks
           },
           sharedPaddocks: {
@@ -113,7 +113,7 @@ export const AgistmentPaddocksModal = ({
             available: editForm.sharedPaddocks.available,
             weeklyPrice: editForm.sharedPaddocks.weeklyPrice,
             comments: editForm.sharedPaddocks.comments,
-            whenAvailable: editForm.sharedPaddocks.whenAvailable,
+            whenAvailable: editForm.sharedPaddocks.whenAvailable ? editForm.sharedPaddocks.whenAvailable.toISOString() : undefined,
             totalPaddocks: editForm.sharedPaddocks.totalPaddocks
           },
           groupPaddocks: {
@@ -121,9 +121,10 @@ export const AgistmentPaddocksModal = ({
             available: editForm.groupPaddocks.available,
             weeklyPrice: editForm.groupPaddocks.weeklyPrice,
             comments: editForm.groupPaddocks.comments,
-            whenAvailable: editForm.groupPaddocks.whenAvailable,
+            whenAvailable: editForm.groupPaddocks.whenAvailable ? editForm.groupPaddocks.whenAvailable.toISOString() : undefined,
             totalPaddocks: editForm.groupPaddocks.totalPaddocks
-          }
+          },
+          paddocks: []
         }
       };
       
@@ -168,11 +169,17 @@ export const AgistmentPaddocksModal = ({
     });
   };
 
+  const tabs = [
+    { type: 'privatePaddocks', title: 'Private Paddocks' },
+    { type: 'sharedPaddocks', title: 'Shared Paddocks' },
+    { type: 'groupPaddocks', title: 'Group Paddocks' }
+  ];
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Paddocks"
+      title={`Edit ${tabs[selectedTab].title}`}
       size="lg"
       actionIconType="SAVE"
       onAction={handleUpdatePaddocks}
@@ -180,13 +187,9 @@ export const AgistmentPaddocksModal = ({
       disableAction={!isDirty}
     >
       <div className="space-y-6">
-        <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
-          <Tab.List className="flex space-x-1 rounded-xl bg-neutral-100 p-1">
-            {[
-              { type: 'privatePaddocks', title: 'Private Paddocks' },
-              { type: 'sharedPaddocks', title: 'Shared Paddocks' },
-              { type: 'groupPaddocks', title: 'Group Paddocks' }
-            ].map(({ type, title }) => (
+        <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
+          <TabList className="flex space-x-1 rounded-xl bg-neutral-100 p-1">
+            {tabs.map(({ type, title }) => (
               <Tab
                 key={type}
                 className={({ selected }) =>
@@ -202,18 +205,15 @@ export const AgistmentPaddocksModal = ({
                 {title}
               </Tab>
             ))}
-          </Tab.List>
-          <Tab.Panels className="mt-4">
-            {[
-              { type: 'privatePaddocks', title: 'Private' },
-              { type: 'sharedPaddocks', title: 'Shared' },
-              { type: 'groupPaddocks', title: 'Group' }
-            ].map(({ type, title }) => (
-              <Tab.Panel key={type} className="focus:outline-none">
+          </TabList>
+          <TabPanels className="mt-4">
+            {tabs.map(({ type, title }) => (
+              <TabPanel key={type} className="focus:outline-none">
                 <div className="space-y-6">
                   <div className="text-sm text-neutral-600 text-center mb-4">
                     <p>How many <span className="font-bold">{title}</span> paddocks do you have?</p>
-                    <p>If you set it to <b>0</b>, then this will be displayed as<br/> "We do not offer <b>{title}</b> paddocks."</p>
+                    <p>If you set it to <b>0</b>, the it will display as <span className="chip-unavailable">
+                  Unavailable</span></p>
                   </div>
                   <div className="text-sm text-neutral-600 text-center mb-2">
                     <div className="flex flex-col items-center gap-4 mb-4">
@@ -316,7 +316,8 @@ export const AgistmentPaddocksModal = ({
                     <div className="w-full max-w-xs">
                       <input
                         type="date"
-                        className="form-input block w-full text-center"
+                        className="form-input block w-full text-center appearance-none"
+                        style={{ WebkitAppearance: 'textfield' }}
                         value={editForm[type as keyof EditForm].whenAvailable 
                           ? new Date(editForm[type as keyof EditForm].whenAvailable as Date).toISOString().split('T')[0] 
                           : ''}
@@ -355,10 +356,10 @@ export const AgistmentPaddocksModal = ({
                     </div>
                   </div>
                 </div>
-              </Tab.Panel>
+              </TabPanel>
             ))}
-          </Tab.Panels>
-        </Tab.Group>
+          </TabPanels>
+        </TabGroup>
       </div>
     </Modal>
   );

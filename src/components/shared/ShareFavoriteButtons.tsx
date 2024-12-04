@@ -26,7 +26,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   hideShare = false,
   hideEdit = false,
 }) => {
-  const { profile, updateProfileData, isLoading } = useProfile();
+  const { profile, updateProfileData, loading } = useProfile();
   const navigate = useNavigate();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
@@ -123,7 +123,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
       )}
       <button
         onClick={handleFavorite}
-        disabled={isLoading || isUpdatingFavorite}
+        disabled={loading || isUpdatingFavorite}
         className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100"
       >
         <Star

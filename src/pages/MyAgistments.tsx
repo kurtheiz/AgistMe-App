@@ -1,23 +1,25 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import { PageToolbar } from '../components/PageToolbar';
 import { ArrowLeft } from 'lucide-react';
 import { AgistmentList } from '../components/AgistmentList';
 
 export const MyAgistments = () => {
   const navigate = useNavigate();
-  const { profile, loading: profileLoading } = useProfile();
-  const [agistments, setAgistments] = useState<Agistment[]>([]);
+  const [agistments, setAgistments] = useState<AgistmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
-        setAgistments(response.agistments || []);
+        const agistmentResponses = response.agistments.map(agistment => ({
+          ...agistment,
+          id: agistment.PK
+        })) as AgistmentResponse[];
+        setAgistments(agistmentResponses);
       } catch (error) {
         console.error('Error fetching agistments:', error);
       } finally {
@@ -25,17 +27,8 @@ export const MyAgistments = () => {
       }
     };
 
-    if (!profileLoading) {
-      fetchAgistments();
-    }
-  }, [profileLoading]);
-
-  // Redirect if not an agistor
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.agistor) {
-      navigate('/');
-    }
-  }, [profile, profileLoading, navigate]);
+    fetchAgistments();
+  }, []);
 
   return (
     <>
@@ -56,7 +49,7 @@ export const MyAgistments = () => {
       />
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
         <div>
-          {loading || profileLoading ? (
+          {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
             </div>

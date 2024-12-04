@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import { PageToolbar } from '../components/PageToolbar';
 import { AgistmentList } from '../components/AgistmentList';
 import { useProfile } from '../context/ProfileContext';
@@ -10,7 +10,7 @@ import { ArrowLeft } from 'lucide-react';
 export function FavoriteAgistments() {
   const navigate = useNavigate();
   const { profile, loading: isProfileLoading } = useProfile();
-  const [agistments, setAgistments] = useState<Agistment[]>([]);
+  const [agistments, setAgistments] = useState<AgistmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,30 +28,33 @@ export function FavoriteAgistments() {
         console.log('Fetched agistments:', agistmentsArray);
 
         // Filter agistments to only show current favorites
-        const currentFavorites = agistmentsArray.filter(agistment => 
+        const validAgistments = Array.isArray(agistmentsArray) ? agistmentsArray.filter((agistment: AgistmentResponse) => 
+          agistment && agistment.status !== 'DELETED' && 
           profile.favourites?.some(fav => fav.agistmentId === agistment.id)
-        );
+        ) : [];
         
-        if (currentFavorites.length === 0 && profile.favourites && profile.favourites.length > 0) {
+        if (validAgistments.length === 0 && profile.favourites && profile.favourites.length > 0) {
           console.log('Attempting to fetch favourites individually...');
-          const individualFetches = await Promise.all(
+          const validAgistments = await Promise.all(
             profile.favourites.map(async (fav) => {
               try {
                 const agistment = await agistmentService.getAgistment(fav.agistmentId);
-                console.log(`Successfully fetched agistment ${fav.agistmentId}:`, agistment);
-                return agistment;
+                return {
+                  ...agistment,
+                  id: agistment.PK
+                } as AgistmentResponse;
               } catch (error) {
                 console.error(`Failed to fetch agistment ${fav.agistmentId}:`, error);
                 return null;
               }
             })
           );
-          const validAgistments = individualFetches.filter((a): a is Agistment => a !== null);
-          console.log('Successfully fetched individual agistments:', validAgistments);
-          setAgistments(validAgistments);
+          const filteredAgistments = validAgistments.filter((a): a is AgistmentResponse => a !== null);
+          console.log('Successfully fetched individual agistments:', filteredAgistments);
+          setAgistments(filteredAgistments);
         } else {
-          console.log('Current favorites after filtering:', currentFavorites);
-          setAgistments(currentFavorites);
+          console.log('Current favorites after filtering:', validAgistments);
+          setAgistments(validAgistments);
         }
       } catch (error) {
         console.error('Error fetching favourite agistments:', error);

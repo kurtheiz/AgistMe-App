@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import { ChevronLeft, Pencil } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
@@ -25,7 +25,7 @@ import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons'
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [agistment, setAgistment] = useState<Agistment | null>(null);
+  const [agistment, setAgistment] = useState<AgistmentResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -86,30 +86,39 @@ function EditAgistmentDetail() {
     }
   };
 
-  const handleAgistmentUpdate = async (updatedFields: Partial<Agistment>) => {
+  const handleAgistmentUpdate = async (updatedFields: Partial<AgistmentResponse>) => {
     if (!agistment) return;
 
     try {
       setIsUpdating(true);
       // Create a new agistment object with updated fields
-      const updatedAgistment: Agistment = {
+      const updatedAgistment: AgistmentResponse = {
         ...agistment,
-        basicInfo: updatedFields.basicInfo || agistment.basicInfo,
-        propertyLocation: updatedFields.propertyLocation || agistment.propertyLocation,
-        contact: updatedFields.contact || agistment.contact,
-        paddocks: updatedFields.paddocks || agistment.paddocks,
-        propertyDescription: updatedFields.propertyDescription || agistment.propertyDescription,
-        photoGallery: updatedFields.photoGallery || agistment.photoGallery,
-        propertyServices: updatedFields.propertyServices || agistment.propertyServices,
-        ridingFacilities: updatedFields.ridingFacilities || agistment.ridingFacilities,
-        facilities: updatedFields.facilities || agistment.facilities,
-        care: updatedFields.care || agistment.care,
-        visibility: updatedFields.visibility || agistment.visibility,
-        listing: updatedFields.listing || agistment.listing,
-        socialMedia: updatedFields.socialMedia || agistment.socialMedia,
-        urgentAvailability: updatedFields.urgentAvailability ?? agistment.urgentAvailability,
-        paddockTypes: updatedFields.paddockTypes || agistment.paddockTypes,
-        status: updatedFields.status || agistment.status
+        ...updatedFields,
+        paddocks: {
+          groupPaddocks: {
+            available: 0,
+            comments: '',
+            total: 0,
+            weeklyPrice: 0,
+            totalPaddocks: 0
+          },
+          privatePaddocks: {
+            available: 0,
+            comments: '',
+            total: 0,
+            weeklyPrice: 0,
+            totalPaddocks: 0
+          },
+          sharedPaddocks: {
+            available: 0,
+            comments: '',
+            total: 0,
+            weeklyPrice: 0,
+            totalPaddocks: 0
+          },
+          paddocks: []
+        }
       };
       
       // Update the local state first
@@ -141,7 +150,7 @@ function EditAgistmentDetail() {
   const handlePhotoGalleryUpdate = async (photos: { link: string; comment?: string }[]) => {
     if (!agistment) return;
     
-    const updatedFields: Partial<Agistment> = {
+    const updatedFields: Partial<AgistmentResponse> = {
       photoGallery: {
         ...agistment.photoGallery,
         photos
@@ -254,42 +263,10 @@ function EditAgistmentDetail() {
                 </span>
               </div>
               <AgistmentPhotos
-                agistment={agistment || {
-                  id: '',
-                  status: 'DRAFT',
-                  basicInfo: { name: '', propertySize: 0 },
-                  photoGallery: { photos: [] },
-                  propertyLocation: { location: { address: '', suburb: '', state: '', postcode: '', region: '' } },
-                  contact: { contactDetails: { name: '', email: '', number: '' } },
-                  propertyDescription: { description: '' },
-                  facilities: {
-                    feedRoom: { available: false, comments: '' },
-                    floatParking: { available: false, comments: '', monthlyPrice: 0 },
-                    hotWash: { available: false, comments: '' },
-                    tackRoom: { available: false, comments: '' },
-                    tieUp: { available: false, comments: '' },
-                    stables: { available: false, comments: '', quantity: 0 }
-                  },
-                  visibility: { hidden: true },
-                  ridingFacilities: { arenas: [], roundYards: [] },
-                  paddocks: {
-                    groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-                    privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-                    sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
-                  },
-                  propertyServices: { services: [] },
-                  care: {
-                    fullCare: { available: false, comments: '', monthlyPrice: 0 },
-                    partCare: { available: false, comments: '', monthlyPrice: 0 },
-                    selfCare: { available: false, comments: '', monthlyPrice: 0 }
-                  },
-                  socialMedia: [],
-                  urgentAvailability: false,
-                  paddockTypes: [],
-                  listing: { listingType: 'STANDARD' }
-                }}
+                agistment={agistment as AgistmentResponse}
                 maxPhotos={maxPhotos}
                 onPhotosChange={handlePhotoGalleryUpdate}
+                onUpdate={handleAgistmentUpdate}
               />
             </div>
 
@@ -338,9 +315,28 @@ function EditAgistmentDetail() {
                   </h2>
                   <AgistmentPaddocks
                     paddocks={agistment?.paddocks || {
-                      groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-                      privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-                      sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
+                      groupPaddocks: {
+                        available: 0,
+                        comments: '',
+                        total: 0,
+                        weeklyPrice: 0,
+                        totalPaddocks: 0
+                      },
+                      privatePaddocks: {
+                        available: 0,
+                        comments: '',
+                        total: 0,
+                        weeklyPrice: 0,
+                        totalPaddocks: 0
+                      },
+                      sharedPaddocks: {
+                        available: 0,
+                        comments: '',
+                        total: 0,
+                        weeklyPrice: 0,
+                        totalPaddocks: 0
+                      },
+                      paddocks: []
                     }}
                     onUpdate={handleAgistmentUpdate}
                     agistmentId={agistment?.id || ''}
@@ -467,9 +463,28 @@ function EditAgistmentDetail() {
         onUpdate={handleAgistmentUpdate}
         agistmentId={agistment?.id || ''}
         paddocks={agistment?.paddocks || {
-          groupPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-          privatePaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 },
-          sharedPaddocks: { available: 0, comments: '', total: 0, weeklyPrice: 0, totalPaddocks: 0 }
+          groupPaddocks: {
+            available: 0,
+            comments: '',
+            total: 0,
+            weeklyPrice: 0,
+            totalPaddocks: 0
+          },
+          privatePaddocks: {
+            available: 0,
+            comments: '',
+            total: 0,
+            weeklyPrice: 0,
+            totalPaddocks: 0
+          },
+          sharedPaddocks: {
+            available: 0,
+            comments: '',
+            total: 0,
+            weeklyPrice: 0,
+            totalPaddocks: 0
+          },
+          paddocks: []
         }}
       />
       <AgistmentCareOptionsModal

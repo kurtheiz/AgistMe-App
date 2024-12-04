@@ -1,8 +1,9 @@
 import { Suburb } from './suburb';
-import { FacilityType } from './agistment';
 
 export type PaddockType = 'Private' | 'Shared' | 'Group';
 export type CareType = 'Self' | 'Part' | 'Full';
+
+export type FacilityKey = 'feedRoom' | 'tackRoom' | 'floatParking' | 'hotWash' | 'tieUp' | 'stables';
 
 export interface SearchCriteria {
   suburbs: Suburb[];
@@ -12,7 +13,7 @@ export interface SearchCriteria {
   maxPrice: number;
   hasArena: boolean;
   hasRoundYard: boolean;
-  facilities: FacilityType[];
+  facilities: FacilityKey[];
   careTypes: CareType[];
   searchHash?: string;
 }

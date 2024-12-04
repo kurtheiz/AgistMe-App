@@ -19,6 +19,7 @@ import { Dashboard } from './pages/Dashboard';
 import EditAgistmentDetail from './pages/EditAgistmentDetail';
 import { FavoriteAgistments } from './pages/FavoriteAgistments';
 import { MyAgistments } from './pages/MyAgistments';
+import { AuthProfileManager } from './components/AuthProfileManager';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -126,10 +127,11 @@ function App() {
       <ErrorBoundary>
         <ClerkProvider publishableKey={clerkPubKey}>
           <AuthInitializer />
-            <ProfileProvider>
-              <RouterProvider router={router} />
-              <Toaster position="top-center" />
-            </ProfileProvider>
+          <ProfileProvider>
+            <AuthProfileManager />
+            <RouterProvider router={router} />
+            <Toaster position="top-center" />
+          </ProfileProvider>
         </ClerkProvider>
       </ErrorBoundary>
     </div>

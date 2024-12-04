@@ -2,24 +2,20 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
-import { Agistment } from '../types/agistment';
+import { AgistmentResponse } from '../types/agistment';
 import { List, BarChart, Users } from 'lucide-react';
-import PropertyCard from '../components/PropertyCard';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
   const { profile, loading: profileLoading } = useProfile();
-  const [agistments, setAgistments] = useState<Agistment[]>([]);
+  const [agistments, setAgistments] = useState<AgistmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
-        console.log('Dashboard received response:', response);
-        
-        setAgistments(response.agistments || []);
+        setAgistments(response.agistments);
       } catch (error) {
         console.error('Error fetching agistments:', error);
       } finally {
@@ -50,38 +46,7 @@ export const Dashboard = () => {
   const stats = {
     totalAgistments: agistments.length,
     activeAgistments: agistments.filter(a => !a.visibility.hidden).length,
-    totalViews: agistments.reduce((sum, a) => sum + (a.views || 0), 0),
-  };
-
-  const handleVisibilityToggle = async (agistmentId: string, currentHidden: boolean) => {
-    try {
-      setIsUpdating(prev => ({ ...prev, [agistmentId]: true }));
-      
-      // Find the current agistment
-      const currentAgistment = agistments.find(a => a.id === agistmentId);
-      if (!currentAgistment) return;
-
-      // Update the entire agistment with new visibility
-      const updatedAgistment = {
-        ...currentAgistment,
-        visibility: { hidden: !currentHidden }
-      };
-      
-      await agistmentService.updateAgistment(agistmentId, updatedAgistment);
-
-      // Update the local state
-      setAgistments(prev => 
-        prev.map(agistment => 
-          agistment.id === agistmentId 
-            ? updatedAgistment
-            : agistment
-        )
-      );
-    } catch (error) {
-      console.error('Error updating visibility:', error);
-    } finally {
-      setIsUpdating(prev => ({ ...prev, [agistmentId]: false }));
-    }
+    totalViews: 0
   };
 
   return (
@@ -124,24 +89,7 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* Property Cards Grid */}
-        <div className="sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {agistments.map((agistment) => {
-              console.log('Rendering agistment:', agistment);
-              return (
-                <div key={agistment.id} className="relative">
-                  <PropertyCard 
-                    agistment={agistment}
-                    onEdit={() => navigate(`/agistments/${agistment.id}/edit`)}
-                    onToggleVisibility={() => handleVisibilityToggle(agistment.id, agistment.visibility.hidden)}
-                    isUpdatingVisibility={isUpdating[agistment.id]}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        
       </div>
     </div>
   );

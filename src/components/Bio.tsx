@@ -70,11 +70,13 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
     });
   }, [formData, originalData]);
 
+  // Only refresh profile if we're signed in and don't have a profile yet
   useEffect(() => {
-    if (isLoaded && isSignedIn && !profile && !loading && !error) {
+    const shouldRefresh = isLoaded && isSignedIn && !profile && !loading && !error;
+    if (shouldRefresh && isOpen) {
       refreshProfile();
     }
-  }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile]);
+  }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile, isOpen]);
 
   const handleClose = () => {
     setFormData(originalData); // Reset form data to original state
@@ -100,7 +102,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
       setSaving(true);
 
       // Ensure we include the agistor status in the update if it exists
-      const updateData = {
+      const updateData: UpdateProfileRequest = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         comments: formData.comments,

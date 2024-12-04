@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
-import { SearchCriteria } from '../../types/search';
+import { SearchCriteria, FacilityKey, PaddockType, CareType } from '../../types/search';
 import { LocationType } from '../../types/suburb';
-import { FacilityType } from '../../types/agistment';
-import { PaddockType, CareType } from '../../types/search';
 import { useSearchParams } from 'react-router-dom';
 import {
   FeedRoomIcon,
@@ -16,7 +14,7 @@ import {
 } from '../Icons';
 import NumberStepper from '../shared/NumberStepper';
 
-const initialFacilities: FacilityType[] = [];
+const initialFacilities: FacilityKey[] = [];
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -140,7 +138,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
     }));
   };
 
-  const toggleFacility = (facility: FacilityType) => {
+  const toggleFacility = (facility: FacilityKey) => {
     setSearchCriteria(prev => ({
       ...prev,
       facilities: prev.facilities.includes(facility)
@@ -199,7 +197,10 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
         ct: searchCriteria.careTypes
       }));
 
-      onSearch({ ...searchCriteria, searchHash });
+      // Always execute search before closing modal
+      await onSearch({ ...searchCriteria, searchHash });
+    } catch (error) {
+      console.error('Error executing search:', error);
     } finally {
       setIsUpdating(false);
       onClose();
@@ -437,15 +438,15 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
                 { key: 'tackRoom', icon: TackRoomIcon, label: 'Tack Room' },
                 { key: 'floatParking', icon: FloatParkingIcon, label: 'Float' },
                 { key: 'hotWash', icon: HotWashIcon, label: 'Hot Wash' },
-                { key: 'stable', icon: StableIcon, label: 'Stable' },
+                { key: 'stables', icon: StableIcon, label: 'Stables' },
                 { key: 'tieUp', icon: TieUpIcon, label: 'Tie Up' }
               ].map(({ key, icon: Icon, label }) => (
                 <button
                   key={key}
                   type="button"
                   disabled={searchCriteria.suburbs.length === 0}
-                  onClick={() => toggleFacility(key as FacilityType)}
-                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.facilities.includes(key as FacilityType)
+                  onClick={() => toggleFacility(key as FacilityKey)}
+                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.facilities.includes(key as FacilityKey)
                       ? 'bg-primary-600 text-white border-primary-600'
                       : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
                     } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
