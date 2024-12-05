@@ -42,9 +42,9 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
   return (
     <div className="w-full">
       {galleryImages.length > 0 ? (
-        <div className="flex gap-[1px] bg-neutral-200">
+        <div className="flex flex-col gap-[1px] bg-neutral-200">
           {/* Main large photo */}
-          <div className="flex-grow relative aspect-[4/3]">
+          <div className="relative" style={{ aspectRatio: '4/2' }}>
             <div
               className="relative overflow-hidden cursor-pointer hover:opacity-90 transition-opacity h-full bg-white"
               onClick={() => handleImageClick(0)}
@@ -62,13 +62,14 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
             </div>
           </div>
 
-          {/* Right side thumbnails */}
+          {/* Bottom thumbnails */}
           {galleryImages.length > 1 && (
-            <div className="flex flex-col gap-[1px] max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="flex gap-[1px] overflow-x-auto">
               {galleryImages.slice(1).map((image, index) => (
                 <div
                   key={image.src}
-                  className="relative aspect-[4/3] w-40 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity bg-white"
+                  className="relative flex-shrink-0 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity bg-white"
+                  style={{ aspectRatio: '4/3', width: '8rem' }}
                   onClick={() => handleImageClick(index + 1)}
                 >
                   <img

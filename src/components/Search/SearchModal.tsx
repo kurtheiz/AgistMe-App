@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
 import { SearchCriteria, FacilityKey, PaddockType, CareType } from '../../types/search';
-import { LocationType } from '../../types/suburb';
+import { LocationType, Suburb } from '../../types/suburb';
 import { useSearchParams } from 'react-router-dom';
 import {
   FeedRoomIcon,
@@ -121,7 +121,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
   }, [initialSearchHash, searchHash, isOpen, forceReset]);
 
   const togglePaddockType = (type: string) => {
-    setSearchCriteria(prev => ({
+    setSearchCriteria((prev: SearchCriteria) => ({
       ...prev,
       paddockTypes: prev.paddockTypes.includes(type as PaddockType)
         ? prev.paddockTypes.filter(t => t !== type)
@@ -130,7 +130,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
   };
 
   const toggleCareType = (type: CareType) => {
-    setSearchCriteria(prev => ({
+    setSearchCriteria((prev: SearchCriteria) => ({
       ...prev,
       careTypes: prev.careTypes.includes(type)
         ? prev.careTypes.filter(t => t !== type)
@@ -139,7 +139,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
   };
 
   const toggleFacility = (facility: FacilityKey) => {
-    setSearchCriteria(prev => ({
+    setSearchCriteria((prev: SearchCriteria) => ({
       ...prev,
       facilities: prev.facilities.includes(facility)
         ? prev.facilities.filter(f => f !== facility)
@@ -148,21 +148,21 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
   };
 
   const toggleArena = () => {
-    setSearchCriteria(prev => ({
+    setSearchCriteria((prev: SearchCriteria) => ({
       ...prev,
       hasArena: !prev.hasArena
     }));
   };
 
   const toggleRoundYard = () => {
-    setSearchCriteria(prev => ({
+    setSearchCriteria((prev: SearchCriteria) => ({
       ...prev,
       hasRoundYard: !prev.hasRoundYard
     }));
   };
 
   const resetFilters = () => {
-    setSearchCriteria(prev => ({
+    setSearchCriteria((prev: SearchCriteria) => ({
       ...prev,
       spaces: 0,
       maxPrice: 0,
@@ -226,7 +226,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
             <SuburbSearch
               selectedSuburbs={searchCriteria.suburbs}
               onSuburbsChange={(suburbs) => {
-                setSearchCriteria(prev => ({ 
+                setSearchCriteria((prev: SearchCriteria) => ({ 
                   ...prev, 
                   suburbs,
                   radius: 0 
@@ -242,7 +242,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
                 Radius
               </label>
               <span className="text-lg font-semibold text-neutral-900">
-                {!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) 
+                {!searchCriteria.suburbs.some((suburb: Suburb) => suburb.locationType === LocationType.SUBURB) 
                   ? 'Any' 
                   : searchCriteria.radius === 0 
                     ? 'Exact' 
@@ -254,18 +254,18 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
               min="0"
               max="50"
               value={searchCriteria.radius}
-              disabled={!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)}
+              disabled={!searchCriteria.suburbs.some((suburb: Suburb) => suburb.locationType === LocationType.SUBURB)}
               onChange={(e) => {
-                const hasSuburb = searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB);
-                setSearchCriteria(prev => ({ 
+                const hasSuburb = searchCriteria.suburbs.some((suburb: Suburb) => suburb.locationType === LocationType.SUBURB);
+                setSearchCriteria((prev: SearchCriteria) => ({ 
                   ...prev, 
                   radius: hasSuburb ? parseInt(e.target.value) : 0 
                 }));
               }}
               className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer 
-                ${!searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB) 
+                ${!searchCriteria.suburbs.some((suburb: Suburb) => suburb.locationType === LocationType.SUBURB) 
                   ? 'opacity-50 cursor-not-allowed' 
-                  : searchCriteria.suburbs.some(suburb => suburb.locationType === LocationType.SUBURB)
+                  : searchCriteria.suburbs.some((suburb: Suburb) => suburb.locationType === LocationType.SUBURB)
                     ? 'accent-primary-600'
                     : ''
                 }`}
@@ -321,7 +321,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
             </label>
             <NumberStepper
               value={searchCriteria.spaces}
-              onChange={(value) => setSearchCriteria(prev => ({ ...prev, spaces: value }))} 
+              onChange={(value) => setSearchCriteria((prev: SearchCriteria) => ({ ...prev, spaces: value }))} 
               min={0}
               max={10}
               disabled={searchCriteria.suburbs.length === 0}
@@ -346,7 +346,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
               step="10"
               disabled={searchCriteria.suburbs.length === 0}
               value={searchCriteria.maxPrice}
-              onChange={(e) => setSearchCriteria(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))} 
+              onChange={(e) => setSearchCriteria((prev: SearchCriteria) => ({ ...prev, maxPrice: parseInt(e.target.value) }))} 
               className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 
                 ? 'opacity-50 cursor-not-allowed' 
                 : 'cursor-pointer accent-primary-600'

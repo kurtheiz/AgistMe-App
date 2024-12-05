@@ -1,8 +1,11 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { 
-  AgistmentResponse,
-  AgistmentSearchResponse,
+  AgistmentResponse
 } from '../types/agistment';
+import { 
+  SearchResponse,
+  SearchRequest
+} from '../types/search';
 
 interface PresignedUrlRequest {
   filenames: string[];
@@ -23,10 +26,10 @@ class AgistmentService {
     this.api = createApi(API_BASE_URL);
   }
 
-  async searchAgistments(searchHash: string): Promise<AgistmentSearchResponse> {
+  async searchAgistments(searchHash: string, nextToken?: string): Promise<SearchResponse> {
     try {
-      const url = `v1/agistments?q=${encodeURIComponent(searchHash)}`;
-      const response = await this.api.get<AgistmentSearchResponse>(url);
+      const url = `v1/agistments?q=${encodeURIComponent(searchHash)}${nextToken ? `&n=${nextToken}` : ''}`;
+      const response = await this.api.get<SearchResponse>(url);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to search agistments:', error);

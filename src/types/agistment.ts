@@ -141,8 +141,3 @@ export interface AgistmentResponse {
   status: 'PUBLISHED' | 'DRAFT' | 'DELETED';
   urgentAvailability: boolean;
 }
-
-export interface AgistmentSearchResponse {
-  original: AgistmentResponse[];
-  adjacent: AgistmentResponse[];
-}

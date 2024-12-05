@@ -32,10 +32,7 @@ export default function PropertyCard({
   isUpdatingVisibility 
 }: PropertyCardProps) {
   const navigate = useNavigate();
-
-  console.log('PropertyCard received agistment:', agistment);
-  console.log('PropertyCard paddocks:', agistment?.paddocks);
-
+  
   // If agistment is not loaded yet, show loading state
   if (!agistment || !agistment.basicInfo) {
     return (
@@ -219,20 +216,7 @@ export default function PropertyCard({
                 </div>
               </div>
             </div>
-            
-            {/* Paddock Types */}
-            <div className="flex flex-wrap gap-4 mt-4">
-              {Object.entries(agistment.paddocks || {}).map(([type, data]) => (
-                data.totalPaddocks > 0 && (
-                  <span
-                    key={type}
-                    className="px-2 py-1 text-xs rounded-full bg-neutral-100 text-neutral-600"
-                  >
-                    {type.replace(/([A-Z])/g, ' $1').trim()}
-                  </span>
-                )
-              ))}
-            </div>
+          
 
             {/* Price Range */}
             <div className="text-right flex flex-col justify-start h-[72px]">

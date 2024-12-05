@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
 import { PageToolbar } from '../components/PageToolbar';
 import { AgistmentList } from '../components/AgistmentList';
 import { useProfile } from '../context/ProfileContext';
 import { ArrowLeft } from 'lucide-react';
+import { scrollManager } from '../utils/scrollManager';
 
 export function FavoriteAgistments() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { profile, loading: isProfileLoading } = useProfile();
   const [agistments, setAgistments] = useState<AgistmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,23 +21,22 @@ export function FavoriteAgistments() {
       if (!profile) return;
       
       try {
-        console.log('Fetching favourites, profile.favourites:', profile.favourites);
         setLoading(true);
         setError(null);
         
-        // First try to fetch all favorites at once
-        const agistmentsArray = await agistmentService.getFavoriteAgistments();
-        console.log('Fetched agistments:', agistmentsArray);
-
+        const response = await agistmentService.getFavoriteAgistments();
+        const agistmentsList = response?.agistments || [];
+        
         // Filter agistments to only show current favorites
-        const validAgistments = Array.isArray(agistmentsArray) ? agistmentsArray.filter((agistment: AgistmentResponse) => 
-          agistment && agistment.status !== 'DELETED' && 
+        const validAgistments = Array.isArray(agistmentsList) ? agistmentsList.filter((agistment: AgistmentResponse) => 
+          agistment && 
+          agistment.status !== 'DELETED' && 
           profile.favourites?.some(fav => fav.agistmentId === agistment.id)
         ) : [];
         
         if (validAgistments.length === 0 && profile.favourites && profile.favourites.length > 0) {
           console.log('Attempting to fetch favourites individually...');
-          const validAgistments = await Promise.all(
+          const individualAgistments = await Promise.all(
             profile.favourites.map(async (fav) => {
               try {
                 const agistment = await agistmentService.getAgistment(fav.agistmentId);
@@ -46,16 +47,14 @@ export function FavoriteAgistments() {
               }
             })
           );
-          const filteredAgistments = validAgistments.filter((a): a is AgistmentResponse => a !== null);
-          console.log('Successfully fetched individual agistments:', filteredAgistments);
+          const filteredAgistments = individualAgistments.filter((a): a is AgistmentResponse => a !== null);
           setAgistments(filteredAgistments);
         } else {
-          console.log('Current favorites after filtering:', validAgistments);
           setAgistments(validAgistments);
         }
       } catch (error) {
-        console.error('Error fetching favourite agistments:', error);
-        setError('Failed to fetch favourite agistments');
+        console.error('Error fetching favorite agistments:', error);
+        setError('Failed to load favorite agistments');
         setAgistments([]);
       } finally {
         setLoading(false);
@@ -65,7 +64,42 @@ export function FavoriteAgistments() {
     if (!isProfileLoading) {
       fetchFavorites();
     }
-  }, [profile?.favourites, isProfileLoading]); // Re-fetch when favourites array changes or profile loading state changes
+  }, [profile?.favourites, isProfileLoading, profile]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Only save position if we're not in a loading state
+      if (location.key && !loading) {
+        scrollManager.savePosition(location.key);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.key, loading]);
+
+  // Restore scroll position after content loads
+  useEffect(() => {
+    // Function to handle scroll restoration
+    const restoreScroll = () => {
+      if (!loading && agistments.length > 0) {
+        if (location.key) {
+          const savedPosition = scrollManager.getPosition(location.key);
+          if (savedPosition !== undefined) {
+            // Use setTimeout to ensure DOM is fully rendered
+            setTimeout(() => {
+              window.scrollTo(0, savedPosition);
+            }, 0);
+            return;
+          }
+        }
+        // If no saved position or no location key, scroll to top
+        window.scrollTo(0, 0);
+      }
+    };
+
+    restoreScroll();
+  }, [location.key, loading, agistments.length]);
 
   // Show loading state while profile is loading
   if (isProfileLoading) {

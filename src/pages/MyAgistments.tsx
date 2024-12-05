@@ -1,23 +1,69 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
 import { PageToolbar } from '../components/PageToolbar';
-import { ArrowLeft } from 'lucide-react';
 import { AgistmentList } from '../components/AgistmentList';
+import { useProfile } from '../context/ProfileContext';
+import { Plus } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { scrollManager } from '../utils/scrollManager';
 
-export const MyAgistments = () => {
+export function MyAgistments() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { profile } = useProfile();
   const [agistments, setAgistments] = useState<AgistmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Handle scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      // Only save position if we're not in a loading state
+      if (location.key && !loading) {
+        scrollManager.savePosition(location.key);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.key, loading]);
+
+  // Restore scroll position after content loads
+  useEffect(() => {
+    // Function to handle scroll restoration
+    const restoreScroll = () => {
+      if (!loading && agistments.length > 0) {
+        if (location.key) {
+          const savedPosition = scrollManager.getPosition(location.key);
+          if (savedPosition !== undefined) {
+            // Use setTimeout to ensure DOM is fully rendered
+            setTimeout(() => {
+              window.scrollTo(0, savedPosition);
+            }, 0);
+            return;
+          }
+        }
+        // If no saved position or no location key, scroll to top
+        window.scrollTo(0, 0);
+      }
+    };
+
+    restoreScroll();
+  }, [location.key, loading, agistments.length]);
 
   useEffect(() => {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
-        setAgistments(response);
+        // Handle the nested agistments structure
+        const agistmentsList = response?.agistments || [];
+        setAgistments(Array.isArray(agistmentsList) ? agistmentsList : []);
       } catch (error) {
         console.error('Error fetching agistments:', error);
+        setError('Failed to load agistments');
+        setAgistments([]);
       } finally {
         setLoading(false);
       }

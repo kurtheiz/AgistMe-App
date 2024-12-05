@@ -15,9 +15,10 @@ export const Dashboard = () => {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
-        setAgistments(response);
+        setAgistments(Array.isArray(response) ? response : []);
       } catch (error) {
         console.error('Error fetching agistments:', error);
+        setAgistments([]);
       } finally {
         setLoading(false);
       }
@@ -44,8 +45,8 @@ export const Dashboard = () => {
   }
 
   const stats = {
-    totalAgistments: agistments.length,
-    activeAgistments: agistments.filter(a => !a.visibility.hidden).length,
+    totalAgistments: agistments?.length || 0,
+    activeAgistments: agistments?.filter(a => !a.visibility?.hidden)?.length || 0,
     totalViews: 0
   };
 

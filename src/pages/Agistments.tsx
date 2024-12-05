@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { SearchModal } from '../components/Search/SearchModal';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
@@ -7,12 +7,14 @@ import { useProfile } from '../context/ProfileContext';
 import { AgistmentList } from '../components/AgistmentList';
 import { PageToolbar } from '../components/PageToolbar';
 import { Search, Star, ChevronDown, BookmarkPlus } from 'lucide-react';
-import { SearchCriteria } from '../types/search';
+import { SearchRequest } from '../types/search';
+import { AgistmentResponse } from '../types/agistment';
+import { AgistmentSearchResponse, MatchType } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
-import { AgistmentResponse } from '../types/agistment';
+import { scrollManager } from '../utils/scrollManager';
 
-const decodeSearchHash = (hash: string): SearchCriteria => {
+const decodeSearchHash = (hash: string): SearchRequest => {
   try {
     const decodedSearch = JSON.parse(atob(hash));
     return {
@@ -52,18 +54,21 @@ const decodeSearchHash = (hash: string): SearchCriteria => {
 
 export function Agistments() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { profile, updateProfileData, loading: profileLoading } = useProfile();
-  const [originalAgistments, setOriginalAgistments] = useState<AgistmentResponse[]>([]);
-  const [adjacentAgistments, setAdjacentAgistments] = useState<AgistmentResponse[]>([]);
+  const [exactMatches, setExactMatches] = useState<AgistmentSearchResponse[]>([]);
+  const [adjacentMatches, setAdjacentMatches] = useState<AgistmentSearchResponse[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
-  const [currentCriteria, setCurrentCriteria] = useState<SearchCriteria | null>(null);
+  const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [selectedSearchHash, setSelectedSearchHash] = useState('');
   const [forceResetSearch, setForceResetSearch] = useState(false);
   const [searchTitle, setSearchTitle] = useState('Search Properties');
+  const [searchResponse, setSearchResponse] = useState<AgistmentSearchResponse | null>(null);
+  const [currentRange, setCurrentRange] = useState({ start: 1, end: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchHash = searchParams.get('q') || '';
 
@@ -97,8 +102,39 @@ export function Agistments() {
     return `${formattedMainLocation} and other locations`;
   };
 
-  // Load search results whenever the hash changes
+  const loadMore = async () => {
+    if (!searchResponse?.nextToken) return;
+    
+    setIsFetching(true);
+    try {
+      const response = await agistmentService.searchAgistments(searchHash, searchResponse.nextToken);
+      
+      if (response) {
+        setSearchResponse(response);
+        
+        // Split and append new results by match type
+        const exact = response.results.filter(item => item.matchType === MatchType.EXACT);
+        const adjacent = response.results.filter(item => item.matchType === MatchType.ADJACENT);
+        
+        setExactMatches(prev => [...prev, ...exact]);
+        setAdjacentMatches(prev => [...prev, ...adjacent]);
+        
+        setCurrentRange(prev => ({
+          start: prev.start,
+          end: prev.end + response.results.length
+        }));
+      }
+    } catch (error) {
+      console.error('Load more error:', error);
+      toast.error('Failed to load more results. Please try again.');
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
   useEffect(() => {
+    const searchHash = searchParams.get('q');
+    
     if (searchHash) {
       const decodedCriteria = decodeSearchHash(searchHash);
       setCurrentCriteria(decodedCriteria);
@@ -110,30 +146,39 @@ export function Agistments() {
       agistmentService.searchAgistments(cleanSearchHash)
         .then(response => {
           if (response) {
-            // Handle the actual API response structure
-            setOriginalAgistments(response.original || []);
-            setAdjacentAgistments(response.adjacent || []);
+            setSearchResponse(response);
+            
+            // Split results by match type
+            const exact = response.results.filter(item => item.matchType === MatchType.EXACT);
+            const adjacent = response.results.filter(item => item.matchType === MatchType.ADJACENT);
+            
+            setExactMatches(exact);
+            setAdjacentMatches(adjacent);
+            setCurrentRange({ start: 1, end: response.results.length });
           } else {
             console.error('Invalid response format:', response);
-            setOriginalAgistments([]);
-            setAdjacentAgistments([]);
+            setSearchResponse(null);
+            setExactMatches([]);
+            setAdjacentMatches([]);
           }
         })
         .catch(error => {
           console.error('Error fetching agistments:', error);
-          setOriginalAgistments([]);
-          setAdjacentAgistments([]);
+          setSearchResponse(null);
+          setExactMatches([]);
+          setAdjacentMatches([]);
         })
         .finally(() => {
           setIsFetching(false);
         });
     } else {
       // No search hash, clear results
-      setOriginalAgistments([]);
-      setAdjacentAgistments([]);
+      setSearchResponse(null);
+      setExactMatches([]);
+      setAdjacentMatches([]);
       setCurrentCriteria(null);
     }
-  }, [searchHash]);
+  }, [searchParams]);
 
   useEffect(() => {
     if (searchParams.get('openSearch') === 'true') {
@@ -168,25 +213,96 @@ export function Agistments() {
     }
   }, [isSearchModalOpen]);
 
-  const handleSearch = async (criteria: SearchCriteria & { searchHash: string }) => {
-    setIsSearchModalOpen(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      // Only save position if we're not in a loading state
+      if (location.key && !isFetching) {
+        scrollManager.savePosition(location.key);
+      }
+    };
 
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.key, isFetching]);
+
+  useEffect(() => {
+    // Function to handle scroll restoration
+    const restoreScroll = () => {
+      if (!isFetching && location.key && Array.isArray(exactMatches) && exactMatches.length > 0) {
+        const savedPosition = scrollManager.getPosition(location.key);
+        if (savedPosition !== undefined) {
+          // Use setTimeout to ensure DOM is fully rendered
+          setTimeout(() => {
+            window.scrollTo(0, savedPosition);
+          }, 0);
+        } else {
+          // Fresh navigation - scroll to top
+          window.scrollTo(0, 0);
+        }
+      }
+    };
+
+    restoreScroll();
+  }, [location.key, isFetching, exactMatches]);
+
+  useEffect(() => {
+    if (Array.isArray(exactMatches) && exactMatches.length > 0) {
+      setCurrentRange(prev => ({
+        start: 1,
+        end: exactMatches.length
+      }));
+    } else {
+      setCurrentRange({ start: 1, end: 0 });
+    }
+  }, [exactMatches]);
+
+  useEffect(() => {
+    if (searchHash) {
+      navigate(location.pathname + location.search, {
+        replace: true,
+        state: {
+          exactMatches,
+          adjacentMatches,
+          currentRange,
+          searchResponse
+        }
+      });
+    }
+  }, [exactMatches, adjacentMatches, currentRange, searchResponse]);
+
+  const handleSearch = async (criteria: SearchRequest & { searchHash: string }) => {
+    setIsSearchModalOpen(false);
+    setIsFetching(true);
     try {
-      setIsFetching(true);
-      // Execute search immediately
       const response = await agistmentService.searchAgistments(criteria.searchHash);
       if (response) {
-        setOriginalAgistments(response.original || []);
-        setAdjacentAgistments(response.adjacent || []);
+        setSearchResponse(response);
+        
+        // Split results by match type
+        const exact = response.results.filter(item => item.matchType === MatchType.EXACT);
+        const adjacent = response.results.filter(item => item.matchType === MatchType.ADJACENT);
+        
+        setExactMatches(exact);
+        setAdjacentMatches(adjacent);
+        setCurrentRange({ start: 1, end: response.results.length });
+        setCurrentCriteria(criteria);
+        
+        // Update search title based on locations
+        const locationsText = getLocationsText();
+        setSearchTitle(locationsText ? `Properties in ${locationsText}` : 'Search Results');
+        
+        // Update URL with search hash
+        setSearchParams({ q: criteria.searchHash });
+        setForceResetSearch(false);
+      } else {
+        console.error('Invalid response format:', response);
+        setSearchResponse(null);
+        setExactMatches([]);
+        setAdjacentMatches([]);
       }
-
-      // Update URL after search
-      const searchUrl = `/agistments?q=${encodeURIComponent(criteria.searchHash)}`.replace(/\/+/g, '/');
-      navigate(searchUrl, { replace: true });
     } catch (error) {
-      console.error('Error executing search:', error);
-      setOriginalAgistments([]);
-      setAdjacentAgistments([]);
+      console.error('Search error:', error);
+      toast.error('Failed to perform search. Please try again.');
     } finally {
       setIsFetching(false);
     }
@@ -243,6 +359,15 @@ export function Agistments() {
                         setForceResetSearch(!searchHash);
                         setSearchTitle('Search');
                       }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsSearchDropdownOpen(false);
+                        setIsSearchModalOpen(true);
+                        setSelectedSearchHash(searchHash || '');
+                        setForceResetSearch(!searchHash);
+                        setSearchTitle('Search');
+                      }}
                       className="w-full px-4 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200"
                     >
                       Search
@@ -279,7 +404,7 @@ export function Agistments() {
                 </button>
               )}
             </div>
-            {profile && searchHash && (originalAgistments.length > 0 || adjacentAgistments.length > 0) && (
+            {profile && searchHash && Array.isArray(exactMatches) && exactMatches.length > 0 && (
               <button
                 onClick={() => setIsSaveSearchModalOpen(true)}
                 className="button-toolbar inline-flex items-center gap-2 ml-2"
@@ -298,25 +423,33 @@ export function Agistments() {
           </div>
         ) : (
           <div className="text-center pb-8 md:px-4 text-gray-500">
-            {originalAgistments.length > 0 && (
-              <AgistmentList
-                agistments={originalAgistments}
-                title={`${originalAgistments.length} ${originalAgistments.length === 1 ? 'Agistment' : 'Agistments'} found in ${getLocationsText()}`}
-                showCount={false}
-              />
-            )}
-
-            {adjacentAgistments.length > 0 && (
-              <div className="mt-8">
+            {searchResponse && Array.isArray(exactMatches) && exactMatches.length > 0 && (
+              <>
+                <h3 className="text-lg font-bold mb-4">
+                  Found Agistments ({searchResponse?.count || 0} of {searchResponse?.totalCount || 0})
+                </h3>
                 <AgistmentList
-                  agistments={adjacentAgistments}
-                  title={`${adjacentAgistments.length} ${adjacentAgistments.length === 1 ? 'Agistment' : 'Agistments'} found in a ${currentCriteria?.radius || 0}km radius`}
-                  showCount={false}
+                  agistments={exactMatches}
+                  hasMore={!!searchResponse?.nextToken}
+                  onLoadMore={loadMore}
+                  isLoading={isFetching}
+                  matchType="EXACT"
+                  title="Exact Matches"
                 />
-              </div>
+                {adjacentMatches.length > 0 && (
+                  <AgistmentList
+                    agistments={adjacentMatches}
+                    hasMore={!!searchResponse?.nextToken}
+                    onLoadMore={loadMore}
+                    isLoading={isFetching}
+                    matchType="ADJACENT"
+                    title="Properties Nearby"
+                  />
+                )}
+              </>
             )}
 
-            {originalAgistments.length === 0 && adjacentAgistments.length === 0 && searchHash && (
+            {(!Array.isArray(exactMatches) || exactMatches.length === 0) && searchHash && (
               <div className="flex flex-col items-center justify-center py-8 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
                   <AnimatedSearchLogo className="w-12 h-12 md:w-24 md:h-24" />
