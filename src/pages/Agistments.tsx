@@ -1,41 +1,22 @@
-import { useEffect, useState, useRef } from 'react';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { agistmentService } from '../services/agistment.service';
-import { SearchModal } from '../components/Search/SearchModal';
-import { SaveSearchModal } from '../components/Search/SaveSearchModal';
+import { useState, useEffect, useRef } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { AgistmentList } from '../components/AgistmentList';
+import { SaveSearchModal } from '../components/Search/SaveSearchModal';
+import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';
 import { Search, Star, ChevronDown, BookmarkPlus } from 'lucide-react';
-import { SearchRequest } from '../types/search';
-import { AgistmentResponse } from '../types/agistment';
-import { AgistmentSearchResponse, MatchType } from '../types/search';
+import { SearchRequest, SearchResponse } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
 import { scrollManager } from '../utils/scrollManager';
+import { agistmentService } from '../services/agistment.service';
 
 const decodeSearchHash = (hash: string): SearchRequest => {
   try {
     const decodedSearch = JSON.parse(atob(hash));
-    return {
-      suburbs: decodedSearch.s?.map((s: any) => ({
-        id: s.i,
-        suburb: s.n,
-        postcode: s.p,
-        state: s.t,
-        region: s.r,
-        geohash: s.g,
-        locationType: s.l
-      })) || [],
-      radius: decodedSearch.r || 0,
-      paddockTypes: decodedSearch.pt || [],
-      spaces: decodedSearch.sp || 0,
-      maxPrice: decodedSearch.mp || 0,
-      hasArena: decodedSearch.a || false,
-      hasRoundYard: decodedSearch.ry || false,
-      facilities: decodedSearch.f || [],
-      careTypes: decodedSearch.ct || []
-    };
+    //console.log(decodedSearch);
+    return decodedSearch;
   } catch (error) {
     console.error('Error decoding search hash:', error);
     return {
@@ -53,12 +34,10 @@ const decodeSearchHash = (hash: string): SearchRequest => {
 };
 
 export function Agistments() {
-  const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { profile, updateProfileData, loading: profileLoading } = useProfile();
-  const [exactMatches, setExactMatches] = useState<AgistmentSearchResponse[]>([]);
-  const [adjacentMatches, setAdjacentMatches] = useState<AgistmentSearchResponse[]>([]);
+  const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
@@ -67,40 +46,8 @@ export function Agistments() {
   const [selectedSearchHash, setSelectedSearchHash] = useState('');
   const [forceResetSearch, setForceResetSearch] = useState(false);
   const [searchTitle, setSearchTitle] = useState('Search Properties');
-  const [searchResponse, setSearchResponse] = useState<AgistmentSearchResponse | null>(null);
-  const [currentRange, setCurrentRange] = useState({ start: 1, end: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchHash = searchParams.get('q') || '';
-
-  // Helper function to format location
-  const formatLocation = (suburb: string, region: string, state: string) => {
-    if (suburb && region && state) {
-      return `${suburb}, ${state}`;
-    } else if (region && state) {
-      return `${region}, ${state}`;
-    } else if (state) {
-      return state;
-    }
-    return '';
-  };
-
-  // Helper function to get locations text
-  const getLocationsText = () => {
-    if (!currentCriteria?.suburbs?.length) return '';
-
-    const mainLocation = currentCriteria.suburbs[0];
-    const formattedMainLocation = formatLocation(
-      mainLocation.suburb,
-      mainLocation.region,
-      mainLocation.state
-    );
-
-    if (currentCriteria.suburbs.length === 1) {
-      return formattedMainLocation;
-    }
-
-    return `${formattedMainLocation} and other locations`;
-  };
 
   const loadMore = async () => {
     if (!searchResponse?.nextToken) return;
@@ -110,19 +57,10 @@ export function Agistments() {
       const response = await agistmentService.searchAgistments(searchHash, searchResponse.nextToken);
       
       if (response) {
-        setSearchResponse(response);
-        
-        // Split and append new results by match type
-        const exact = response.results.filter(item => item.matchType === MatchType.EXACT);
-        const adjacent = response.results.filter(item => item.matchType === MatchType.ADJACENT);
-        
-        setExactMatches(prev => [...prev, ...exact]);
-        setAdjacentMatches(prev => [...prev, ...adjacent]);
-        
-        setCurrentRange(prev => ({
-          start: prev.start,
-          end: prev.end + response.results.length
-        }));
+        setSearchResponse({
+          ...response,
+          results: [...(searchResponse?.results || []), ...response.results]
+        });
       }
     } catch (error) {
       console.error('Load more error:', error);
@@ -147,26 +85,14 @@ export function Agistments() {
         .then(response => {
           if (response) {
             setSearchResponse(response);
-            
-            // Split results by match type
-            const exact = response.results.filter(item => item.matchType === MatchType.EXACT);
-            const adjacent = response.results.filter(item => item.matchType === MatchType.ADJACENT);
-            
-            setExactMatches(exact);
-            setAdjacentMatches(adjacent);
-            setCurrentRange({ start: 1, end: response.results.length });
           } else {
             console.error('Invalid response format:', response);
             setSearchResponse(null);
-            setExactMatches([]);
-            setAdjacentMatches([]);
           }
         })
         .catch(error => {
           console.error('Error fetching agistments:', error);
           setSearchResponse(null);
-          setExactMatches([]);
-          setAdjacentMatches([]);
         })
         .finally(() => {
           setIsFetching(false);
@@ -174,8 +100,6 @@ export function Agistments() {
     } else {
       // No search hash, clear results
       setSearchResponse(null);
-      setExactMatches([]);
-      setAdjacentMatches([]);
       setCurrentCriteria(null);
     }
   }, [searchParams]);
@@ -186,9 +110,9 @@ export function Agistments() {
       // Remove the openSearch parameter to prevent reopening
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('openSearch');
-      navigate({ search: newParams.toString() }, { replace: true });
+      setSearchParams(newParams.toString());
     }
-  }, [searchParams, navigate]);
+  }, [searchParams]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -228,7 +152,7 @@ export function Agistments() {
   useEffect(() => {
     // Function to handle scroll restoration
     const restoreScroll = () => {
-      if (!isFetching && location.key && Array.isArray(exactMatches) && exactMatches.length > 0) {
+      if (!isFetching && location.key) {
         const savedPosition = scrollManager.getPosition(location.key);
         if (savedPosition !== undefined) {
           // Use setTimeout to ensure DOM is fully rendered
@@ -243,63 +167,22 @@ export function Agistments() {
     };
 
     restoreScroll();
-  }, [location.key, isFetching, exactMatches]);
-
-  useEffect(() => {
-    if (Array.isArray(exactMatches) && exactMatches.length > 0) {
-      setCurrentRange(prev => ({
-        start: 1,
-        end: exactMatches.length
-      }));
-    } else {
-      setCurrentRange({ start: 1, end: 0 });
-    }
-  }, [exactMatches]);
+  }, [location.key, isFetching]);
 
   useEffect(() => {
     if (searchHash) {
-      navigate(location.pathname + location.search, {
-        replace: true,
-        state: {
-          exactMatches,
-          adjacentMatches,
-          currentRange,
-          searchResponse
-        }
-      });
+      setSearchParams({ q: searchHash });
     }
-  }, [exactMatches, adjacentMatches, currentRange, searchResponse]);
+  }, [searchHash]);
 
   const handleSearch = async (criteria: SearchRequest & { searchHash: string }) => {
     setIsSearchModalOpen(false);
     setIsFetching(true);
     try {
       const response = await agistmentService.searchAgistments(criteria.searchHash);
-      if (response) {
-        setSearchResponse(response);
-        
-        // Split results by match type
-        const exact = response.results.filter(item => item.matchType === MatchType.EXACT);
-        const adjacent = response.results.filter(item => item.matchType === MatchType.ADJACENT);
-        
-        setExactMatches(exact);
-        setAdjacentMatches(adjacent);
-        setCurrentRange({ start: 1, end: response.results.length });
-        setCurrentCriteria(criteria);
-        
-        // Update search title based on locations
-        const locationsText = getLocationsText();
-        setSearchTitle(locationsText ? `Properties in ${locationsText}` : 'Search Results');
-        
-        // Update URL with search hash
-        setSearchParams({ q: criteria.searchHash });
-        setForceResetSearch(false);
-      } else {
-        console.error('Invalid response format:', response);
-        setSearchResponse(null);
-        setExactMatches([]);
-        setAdjacentMatches([]);
-      }
+      setSearchResponse(response);
+      setSearchParams({ q: criteria.searchHash });
+      setForceResetSearch(false);
     } catch (error) {
       console.error('Search error:', error);
       toast.error('Failed to perform search. Please try again.');
@@ -309,7 +192,7 @@ export function Agistments() {
   };
 
   const handleFavorites = () => {
-    navigate('/agistments/favourites');
+    setSearchParams({ favourites: 'true' });
   };
 
   const handleSavedSearchSelect = (searchHash: string, name: string) => {
@@ -321,6 +204,9 @@ export function Agistments() {
       setIsSearchModalOpen(true);
     }, 0);
   };
+
+  const { count = 0, totalCount = 0 } = searchResponse || {};
+  const hasMore = searchResponse?.nextToken !== undefined;
 
   return (
     <>
@@ -404,7 +290,7 @@ export function Agistments() {
                 </button>
               )}
             </div>
-            {profile && searchHash && Array.isArray(exactMatches) && exactMatches.length > 0 && (
+            {profile && searchHash && (
               <button
                 onClick={() => setIsSaveSearchModalOpen(true)}
                 className="button-toolbar inline-flex items-center gap-2 ml-2"
@@ -423,23 +309,23 @@ export function Agistments() {
           </div>
         ) : (
           <div className="text-center pb-8 md:px-4 text-gray-500">
-            {searchResponse && Array.isArray(exactMatches) && exactMatches.length > 0 && (
+            {searchResponse && (
               <>
                 <h3 className="text-lg font-bold mb-4">
-                  Found Agistments ({searchResponse?.count || 0} of {searchResponse?.totalCount || 0})
+                  Found Agistments ({count} of {totalCount})
                 </h3>
                 <AgistmentList
-                  agistments={exactMatches}
-                  hasMore={!!searchResponse?.nextToken}
+                  agistments={searchResponse.results.filter(item => item.matchType === 'EXACT')}
+                  hasMore={hasMore}
                   onLoadMore={loadMore}
                   isLoading={isFetching}
                   matchType="EXACT"
                   title="Exact Matches"
                 />
-                {adjacentMatches.length > 0 && (
+                {searchResponse.results.filter(item => item.matchType === 'ADJACENT').length > 0 && (
                   <AgistmentList
-                    agistments={adjacentMatches}
-                    hasMore={!!searchResponse?.nextToken}
+                    agistments={searchResponse.results.filter(item => item.matchType === 'ADJACENT')}
+                    hasMore={hasMore}
                     onLoadMore={loadMore}
                     isLoading={isFetching}
                     matchType="ADJACENT"
@@ -449,7 +335,7 @@ export function Agistments() {
               </>
             )}
 
-            {(!Array.isArray(exactMatches) || exactMatches.length === 0) && searchHash && (
+            {(!searchResponse || searchResponse.results.length === 0) && searchHash && (
               <div className="flex flex-col items-center justify-center py-8 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
                   <AnimatedSearchLogo className="w-12 h-12 md:w-24 md:h-24" />

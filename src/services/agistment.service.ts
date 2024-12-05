@@ -3,8 +3,7 @@ import {
   AgistmentResponse
 } from '../types/agistment';
 import { 
-  SearchResponse,
-  SearchRequest
+  SearchResponse
 } from '../types/search';
 
 interface PresignedUrlRequest {

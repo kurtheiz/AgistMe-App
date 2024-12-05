@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
-import { AgistmentResponse } from '../types/agistment';
+import { AgistmentSearchResponse, MatchType } from '../types/search';
 import { PageToolbar } from '../components/PageToolbar';
 import { AgistmentList } from '../components/AgistmentList';
 import { useProfile } from '../context/ProfileContext';
@@ -12,8 +12,8 @@ export function FavoriteAgistments() {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile, loading: isProfileLoading } = useProfile();
-  const [agistments, setAgistments] = useState<AgistmentResponse[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [agistments, setAgistments] = useState<AgistmentSearchResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,68 +21,49 @@ export function FavoriteAgistments() {
       if (!profile) return;
       
       try {
-        setLoading(true);
+        setIsLoading(true);
         setError(null);
-        
         const response = await agistmentService.getFavoriteAgistments();
-        const agistmentsList = response?.agistments || [];
         
-        // Filter agistments to only show current favorites
-        const validAgistments = Array.isArray(agistmentsList) ? agistmentsList.filter((agistment: AgistmentResponse) => 
-          agistment && 
-          agistment.status !== 'DELETED' && 
-          profile.favourites?.some(fav => fav.agistmentId === agistment.id)
-        ) : [];
-        
-        if (validAgistments.length === 0 && profile.favourites && profile.favourites.length > 0) {
-          console.log('Attempting to fetch favourites individually...');
-          const individualAgistments = await Promise.all(
-            profile.favourites.map(async (fav) => {
-              try {
-                const agistment = await agistmentService.getAgistment(fav.agistmentId);
-                return agistment;
-              } catch (error) {
-                console.error(`Failed to fetch agistment ${fav.agistmentId}:`, error);
-                return null;
-              }
-            })
-          );
-          const filteredAgistments = individualAgistments.filter((a): a is AgistmentResponse => a !== null);
-          setAgistments(filteredAgistments);
+        if (response) {
+          setAgistments([{
+            ...response,
+            matchType: MatchType.EXACT
+          }]);
         } else {
-          setAgistments(validAgistments);
+          setAgistments([]);
         }
       } catch (error) {
         console.error('Error fetching favorite agistments:', error);
         setError('Failed to load favorite agistments');
         setAgistments([]);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     if (!isProfileLoading) {
       fetchFavorites();
     }
-  }, [profile?.favourites, isProfileLoading, profile]);
+  }, [profile, isProfileLoading]);
 
   useEffect(() => {
     const handleScroll = () => {
       // Only save position if we're not in a loading state
-      if (location.key && !loading) {
+      if (location.key && !isLoading) {
         scrollManager.savePosition(location.key);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.key, loading]);
+  }, [location.key, isLoading]);
 
   // Restore scroll position after content loads
   useEffect(() => {
     // Function to handle scroll restoration
     const restoreScroll = () => {
-      if (!loading && agistments.length > 0) {
+      if (!isLoading && agistments.length > 0) {
         if (location.key) {
           const savedPosition = scrollManager.getPosition(location.key);
           if (savedPosition !== undefined) {
@@ -99,7 +80,7 @@ export function FavoriteAgistments() {
     };
 
     restoreScroll();
-  }, [location.key, loading, agistments.length]);
+  }, [location.key, isLoading, agistments.length]);
 
   // Show loading state while profile is loading
   if (isProfileLoading) {
@@ -192,7 +173,7 @@ export function FavoriteAgistments() {
       />
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
         <div>
-          {loading ? (
+          {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
             </div>
@@ -203,7 +184,6 @@ export function FavoriteAgistments() {
               <AgistmentList 
                 agistments={agistments} 
                 title="Favourite Agistments"
-                showCount={true}
               />
             </div>
           )}

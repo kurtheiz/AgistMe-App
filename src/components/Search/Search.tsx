@@ -1,5 +1,5 @@
 import { SearchModal } from './SearchModal';
-import { SearchCriteria } from '../../types/search';
+import { SearchRequest } from '../../types/search';
 
 interface SearchProps {
   isOpen: boolean;
@@ -7,7 +7,7 @@ interface SearchProps {
 }
 
 export function Search({ isOpen, onClose }: SearchProps) {
-  const handleSearch = (criteria: SearchCriteria) => {
+  const handleSearch = (criteria: SearchRequest) => {
     // TODO: Implement search functionality
     console.log('Search criteria:', criteria);
   };

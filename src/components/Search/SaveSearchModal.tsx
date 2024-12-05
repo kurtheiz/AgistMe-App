@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Modal } from '../shared/Modal';
-import { SearchCriteria } from '../../types/search';
+import { SearchRequest } from '../../types/search';
 
 interface SaveSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  searchCriteria: SearchCriteria | null;
+  searchCriteria: SearchRequest | null;
   onSave: (name: string, enableNotifications: boolean) => void;
 }
 
@@ -49,34 +49,39 @@ export function SaveSearchModal({ isOpen, onClose, searchCriteria, onSave }: Sav
     
     if (searchCriteria.suburbs?.length > 0) {
       parts.push(`Location: ${searchCriteria.suburbs.map(s => s.suburb).join(', ')}`);
-      if (searchCriteria.radius > 0) {
+      if (searchCriteria.radius) {
         parts.push(`within ${searchCriteria.radius}km`);
       }
     }
-    
-    if (searchCriteria.spaces > 0) {
-      parts.push(`Spaces: ${searchCriteria.spaces}`);
-    }
-    
-    if (searchCriteria.maxPrice > 0) {
-      parts.push(`Max Price: $${searchCriteria.maxPrice}/week`);
-    }
-    
+
     if (searchCriteria.paddockTypes?.length > 0) {
       parts.push(`Paddock Types: ${searchCriteria.paddockTypes.join(', ')}`);
     }
-    
-    if (searchCriteria.hasArena) parts.push('Arena');
-    if (searchCriteria.hasRoundYard) parts.push('Round Yard');
-    
+
+    if (searchCriteria.spaces > 0) {
+      parts.push(`Spaces: ${searchCriteria.spaces}`);
+    }
+
+    if (searchCriteria.maxPrice > 0) {
+      parts.push(`Max Price: $${searchCriteria.maxPrice}`);
+    }
+
+    if (searchCriteria.hasArena) {
+      parts.push('Has Arena');
+    }
+
+    if (searchCriteria.hasRoundYard) {
+      parts.push('Has Round Yard');
+    }
+
     if (searchCriteria.facilities?.length > 0) {
       parts.push(`Facilities: ${searchCriteria.facilities.map(formatFacilityName).join(', ')}`);
     }
-    
+
     if (searchCriteria.careTypes?.length > 0) {
       parts.push(`Care Types: ${searchCriteria.careTypes.map(type => `${type} Care`).join(', ')}`);
     }
-    
+
     return parts;
   };
 

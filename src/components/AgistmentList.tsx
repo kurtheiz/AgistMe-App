@@ -4,7 +4,6 @@ import PropertyCard from './PropertyCard';
 
 interface AgistmentListProps {
   agistments: AgistmentSearchResponse[];
-  totalCount?: number;
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoading?: boolean;
@@ -14,7 +13,6 @@ interface AgistmentListProps {
 
 export function AgistmentList({ 
   agistments = [], 
-  totalCount, 
   onLoadMore, 
   hasMore = false,
   isLoading = false,
