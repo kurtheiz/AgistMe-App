@@ -59,13 +59,12 @@ const decodeSearchHash = (hash: string): SearchRequest => {
 export function Agistments() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { profile, updateProfileData, loading: profileLoading } = useProfile();
+  const { profile, updateProfileData } = useProfile();
   const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
-  const [selectedSearchHash, setSelectedSearchHash] = useState('');
   const [forceResetSearch, setForceResetSearch] = useState(false);
   const [searchTitle, setSearchTitle] = useState('Search Properties');
   const searchHash = searchParams.get('q') || '';
@@ -200,10 +199,6 @@ export function Agistments() {
     } finally {
       setIsFetching(false);
     }
-  };
-
-  const handleFavorites = () => {
-    setSearchParams({ favourites: 'true' });
   };
 
   const getLocationTitle = (suburbs: any[]) => {
@@ -382,7 +377,7 @@ export function Agistments() {
           isOpen={isSearchModalOpen}
           onClose={() => setIsSearchModalOpen(false)}
           onSearch={handleSearch}
-          initialSearchHash={selectedSearchHash}
+          initialSearchHash={searchHash}
           forceReset={forceResetSearch}
           title={searchTitle}
         />
