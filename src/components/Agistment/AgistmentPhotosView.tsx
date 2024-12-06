@@ -42,9 +42,9 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
   return (
     <div className="w-full">
       {galleryImages.length > 0 ? (
-        <div className="flex flex-col gap-[1px] bg-neutral-200">
+        <div className="flex flex-row md:flex-col gap-[1px] bg-neutral-200 h-[36vh] md:h-auto">
           {/* Main large photo */}
-          <div className="relative" style={{ aspectRatio: '4/2' }}>
+          <div className="relative flex-grow md:aspect-[4/2]">
             <div
               className="relative overflow-hidden cursor-pointer hover:opacity-90 transition-opacity h-full bg-white"
               onClick={() => handleImageClick(0)}
@@ -62,14 +62,14 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
             </div>
           </div>
 
-          {/* Bottom thumbnails */}
+          {/* Thumbnails - right on mobile, bottom on desktop */}
           {galleryImages.length > 1 && (
-            <div className="flex gap-[1px] overflow-x-auto">
+            <div className="flex flex-col md:flex-row gap-[0.15rem] md:gap-[1px] w-20 md:w-full h-full md:h-auto overflow-y-auto md:overflow-x-auto md:overflow-y-hidden">
               {galleryImages.slice(1).map((image, index) => (
                 <div
                   key={image.src}
-                  className="relative flex-shrink-0 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity bg-white"
-                  style={{ aspectRatio: '4/3', width: '8rem' }}
+                  className="relative flex-shrink-0 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity bg-white md:w-32 h-[calc(33.4%-0.1rem)]"
+                  style={{ aspectRatio: '1/1' }}
                   onClick={() => handleImageClick(index + 1)}
                 >
                   <img
@@ -78,7 +78,7 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {image.title && (
-                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 text-white text-sm truncate">
+                    <div className="absolute bottom-0 left-0 right-0 p-1 bg-black/50 text-white text-xs truncate">
                       {image.title}
                     </div>
                   )}

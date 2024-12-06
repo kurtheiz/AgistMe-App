@@ -34,16 +34,29 @@ export function MyAgistments() {
     <>
       <PageToolbar
         actions={
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="button-toolbar inline-flex items-center gap-2"
-              aria-label="Back"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="hidden md:inline">Back</span>
-            </button>
-            <span className="text-lg font-semibold text-neutral-900">My Agistments</span>
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
+                >
+                  <ArrowLeft className="w-3 h-3" />
+                  <span className="font-medium text-sm sm:text-base">Back</span>
+                </button>
+                <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
+                <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap">
+                  <button
+                    onClick={() => navigate('/agistments')}
+                    className="hover:text-primary-600 dark:hover:text-primary-400"
+                  >
+                    Agistments
+                  </button>
+                  <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                  <span>My</span>
+                </div>
+              </div>
+            </div>
           </div>
         }
       />
