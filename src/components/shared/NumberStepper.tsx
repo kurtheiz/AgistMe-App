@@ -127,11 +127,6 @@ export default function NumberStepper({
           <PlusIcon className="h-5 w-5" />
         </button>
       </div>
-      {speed > 1 && (
-        <div className="text-sm text-neutral-600">
-          Speed: {speed}x
-        </div>
-      )}
     </div>
   );
 }
