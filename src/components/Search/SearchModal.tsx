@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
 import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
 import { SearchRequest, PaddockType, CareType, FacilityKey } from '../../types/search';

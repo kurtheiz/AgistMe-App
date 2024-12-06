@@ -117,7 +117,7 @@ export function Modal({
               }
             >
               <DialogPanel 
-                className={`w-full transform overflow-hidden h-[100dvh] md:h-auto md:max-h-[85vh] ${sizeClasses[size]} rounded-none md:rounded-2xl bg-white shadow-xl flex flex-col`}
+                className={`w-full transform overflow-hidden h-[100dvh] md:h-auto md:max-h-[95vh] ${sizeClasses[size]} rounded-none md:rounded-2xl bg-white shadow-xl flex flex-col`}
               >
                 <div className="flex flex-col h-full flex-grow">
                   {/* Header */}
