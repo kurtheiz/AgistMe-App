@@ -1,4 +1,5 @@
 import { MinusIcon, PlusIcon } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 interface NumberStepperProps {
   value: number;
@@ -21,18 +22,70 @@ export default function NumberStepper({
   disabled = false,
   formatValue = (value) => value.toString()
 }: NumberStepperProps) {
-
-  const increment = () => {
-    if (value + step <= max) {
-      onChange(value + step);
+  const [speed, setSpeed] = useState(1);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const longPressRef = useRef(false);
+  const valueRef = useRef(value);
+  
+  // Keep valueRef in sync with value prop
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+  
+  const startCounting = useCallback((increment: boolean) => {
+    if (intervalRef.current || disabled) return;
+    
+    // Initial change
+    const newValue = valueRef.current + (increment ? step : -step);
+    if (newValue >= min && newValue <= max) {
+      onChange(newValue);
     }
-  };
-
-  const decrement = () => {
-    if (value - step >= min) {
-      onChange(value - step);
+    
+    // Start accelerating after holding
+    let holdTime = 0;
+    intervalRef.current = setInterval(() => {
+      holdTime += 100;
+      
+      // Increase speed based on hold duration
+      if (holdTime > 1000) {
+        setSpeed(prev => Math.min(prev + 1, 10));
+      }
+      
+      const nextValue = valueRef.current + (increment ? step * speed : -step * speed);
+      if (nextValue >= min && nextValue <= max) {
+        onChange(nextValue);
+      }
+    }, 100);
+    
+    longPressRef.current = true;
+  }, [step, speed, min, max, onChange, disabled]);
+  
+  const stopCounting = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-  };
+    setSpeed(1);
+    longPressRef.current = false;
+  }, []);
+  
+  const handleMouseDown = useCallback((increment: boolean) => {
+    startCounting(increment);
+  }, [startCounting]);
+  
+  const handleMouseUp = useCallback(() => {
+    stopCounting();
+  }, [stopCounting]);
+  
+  const handleTouchStart = useCallback((e: React.TouchEvent, increment: boolean) => {
+    e.preventDefault(); // Prevent mouse events from firing
+    startCounting(increment);
+  }, [startCounting]);
+  
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent mouse events from firing
+    stopCounting();
+  }, [stopCounting]);
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -46,8 +99,13 @@ export default function NumberStepper({
           type="button"
           className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none
             ${disabled || value <= min ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-          onClick={decrement}
           disabled={disabled || value <= min}
+          onMouseDown={() => !disabled && value > min && handleMouseDown(false)}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={(e) => !disabled && value > min && handleTouchStart(e, false)}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
         >
           <MinusIcon className="h-5 w-5" />
         </button>
@@ -58,12 +116,22 @@ export default function NumberStepper({
           type="button"
           className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none
             ${disabled || value >= max ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-          onClick={increment}
           disabled={disabled || value >= max}
+          onMouseDown={() => !disabled && value < max && handleMouseDown(true)}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={(e) => !disabled && value < max && handleTouchStart(e, true)}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
         >
           <PlusIcon className="h-5 w-5" />
         </button>
       </div>
+      {speed > 1 && (
+        <div className="text-sm text-neutral-600">
+          Speed: {speed}x
+        </div>
+      )}
     </div>
   );
 }
