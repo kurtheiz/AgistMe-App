@@ -65,7 +65,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
     console.log('Current profile:', profile);
 
     if (!profile) {
-      toast.error('Please login to favorite properties');
+      toast.error('Please sign in to favorite properties');
       return;
     }
 
