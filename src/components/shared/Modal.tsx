@@ -123,7 +123,12 @@ export function Modal({
                   {/* Header */}
                   {(title || headerContent || showCloseButton || actionIconType) && (
                     <div className="flex items-center justify-between px-4 py-4 sm:px-6 bg-primary-500 border-b border-primary-600 rounded-none md:rounded-t-2xl">
-                      <div className="flex items-center space-x-4">
+                      <div className="flex items-center">
+                        <h2 className="text-lg font-medium text-white">
+                          {title}
+                        </h2>
+                      </div>
+                      <div className="flex items-center space-x-2">
                         {actionIconType && onAction && (
                           <button
                             onClick={onAction}
@@ -140,20 +145,17 @@ export function Modal({
                             )}
                           </button>
                         )}
-                        <h2 className="text-lg font-medium text-white">
-                          {title}
-                        </h2>
+                        {showCloseButton && (
+                          <button
+                            type="button"
+                            className="rounded-md p-2 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                            onClick={onClose}
+                          >
+                            <span className="sr-only">Close</span>
+                            <X className="h-5 w-5" aria-hidden="true" />
+                          </button>
+                        )}
                       </div>
-                      {showCloseButton && (
-                        <button
-                          type="button"
-                          className="rounded-md p-2 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
-                          onClick={onClose}
-                        >
-                          <span className="sr-only">Close</span>
-                          <X className="h-5 w-5" aria-hidden="true" />
-                        </button>
-                      )}
                     </div>
                   )}
 
