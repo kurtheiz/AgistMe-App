@@ -271,7 +271,6 @@ export function Agistments() {
     return `${firstLoc.suburb}, ${firstLoc.postcode}, ${firstLoc.state} and other locations`;
   };
 
-  const { totalCount = 0 } = searchResponse || {};
   const hasMore = searchResponse?.nextToken !== null && searchResponse?.nextToken !== undefined;
 
   return (
