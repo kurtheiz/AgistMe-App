@@ -232,6 +232,7 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
                   radius: 0 
                 }));
               }}
+              disabled={isUpdating}
             />
           </div>
 

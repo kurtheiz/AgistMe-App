@@ -15,7 +15,30 @@ import { agistmentService } from '../services/agistment.service';
 const decodeSearchHash = (hash: string): SearchRequest => {
   try {
     const decodedSearch = JSON.parse(atob(hash));
-    //console.log(decodedSearch);
+    
+    // Convert old format to new format if necessary
+    if (decodedSearch.s && Array.isArray(decodedSearch.s)) {
+      return {
+        suburbs: decodedSearch.s.map((s: any) => ({
+          id: s.i,
+          suburb: s.n,
+          postcode: s.p,
+          state: s.t,
+          region: s.r,
+          geohash: s.g,
+          locationType: s.l
+        })),
+        radius: decodedSearch.r || 0,
+        paddockTypes: decodedSearch.pt || [],
+        spaces: decodedSearch.sp || 0,
+        maxPrice: decodedSearch.mp || 0,
+        hasArena: decodedSearch.a || false,
+        hasRoundYard: decodedSearch.ry || false,
+        facilities: decodedSearch.f || [],
+        careTypes: decodedSearch.ct || []
+      };
+    }
+    
     return decodedSearch;
   } catch (error) {
     console.error('Error decoding search hash:', error);
@@ -75,6 +98,7 @@ export function Agistments() {
     
     if (searchHash) {
       const decodedCriteria = decodeSearchHash(searchHash);
+      console.log('Decoded search criteria:', decodedCriteria); // Debug log
       setCurrentCriteria(decodedCriteria);
       setIsFetching(true);
 
@@ -205,8 +229,50 @@ export function Agistments() {
     }, 0);
   };
 
-  const { count = 0, totalCount = 0 } = searchResponse || {};
-  const hasMore = searchResponse?.nextToken !== undefined;
+  const getLocationTitle = (suburbs: any[]) => {
+    if (!suburbs || suburbs.length === 0) return '';
+    
+    if (suburbs.length === 1) {
+      const loc = suburbs[0];
+      // Handle old format (s array with i, n, p, t, r properties)
+      if ('n' in loc && 'p' in loc && 't' in loc) {
+        // If it's a state-only search
+        if (loc.i.split('#').length === 2) {
+          return loc.n;
+        }
+        // If suburb is provided, show suburb, postcode, state
+        if (loc.n && loc.p) return `${loc.n}, ${loc.p}, ${loc.t}`;
+        // If region is provided, show region, state
+        if (loc.r) return `${loc.r}, ${loc.t}`;
+        // If only state, show state
+        return loc.t;
+      }
+      
+      // Handle new format (suburbs array with suburb, postcode, state properties)
+      // If it's a state-only search
+      if (loc.id.split('#').length === 2) {
+        return loc.suburb;
+      }
+      // If suburb is provided, show suburb, postcode, state
+      if (loc.suburb && loc.postcode) return `${loc.suburb}, ${loc.postcode}, ${loc.state}`;
+      // If region is provided, show region, state
+      if (loc.region) return `${loc.region}, ${loc.state}`;
+      // If only state, show state
+      return loc.state;
+    }
+
+    // Multiple locations - show first location and indicate others
+    const firstLoc = suburbs[0];
+    // Handle old format
+    if ('n' in firstLoc && 'p' in firstLoc && 't' in firstLoc) {
+      return `${firstLoc.n}, ${firstLoc.p}, ${firstLoc.t} and other locations`;
+    }
+    // Handle new format
+    return `${firstLoc.suburb}, ${firstLoc.postcode}, ${firstLoc.state} and other locations`;
+  };
+
+  const { totalCount = 0 } = searchResponse || {};
+  const hasMore = searchResponse?.nextToken !== null && searchResponse?.nextToken !== undefined;
 
   return (
     <>
@@ -308,40 +374,66 @@ export function Agistments() {
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <div className="text-center pb-8 md:px-4 text-gray-500">
+          <div className="pb-8 pt-4 md:px-4 text-gray-500">
             {searchResponse && (
               <>
-                <h3 className="text-lg font-bold mb-4">
-                  Found Agistments ({count} of {totalCount})
-                </h3>
-                <AgistmentList
-                  agistments={searchResponse.results.filter(item => item.matchType === 'EXACT')}
-                  hasMore={hasMore}
-                  onLoadMore={loadMore}
-                  isLoading={isFetching}
-                  matchType="EXACT"
-                  title="Exact Matches"
-                />
-                {searchResponse.results.filter(item => item.matchType === 'ADJACENT').length > 0 && (
-                  <AgistmentList
-                    agistments={searchResponse.results.filter(item => item.matchType === 'ADJACENT')}
-                    hasMore={hasMore}
-                    onLoadMore={loadMore}
-                    isLoading={isFetching}
-                    matchType="ADJACENT"
-                    title="Properties Nearby"
-                  />
+                {/* Exact Matches Section */}
+                {searchResponse.results.some(item => item.matchType === 'EXACT') && (
+                  <div className="text-left">
+                    <AgistmentList
+                      agistments={searchResponse.results.filter(item => item.matchType === 'EXACT')}
+                      hasMore={hasMore}
+                      onLoadMore={loadMore}
+                      isLoading={isFetching}
+                      matchType="EXACT"
+                      title={currentCriteria ? `${searchResponse.results.filter(item => item.matchType === 'EXACT').length} Agistment${searchResponse.results.filter(item => item.matchType === 'EXACT').length === 1 ? '' : 's'} in ${getLocationTitle(currentCriteria.suburbs)}` : ''}
+                    />
+                  </div>
+                )}
+
+                {/* Properties Nearby Section */}
+                {searchResponse.results.some(item => item.matchType === 'ADJACENT') && (
+                  <>
+                    {searchResponse.results.some(item => item.matchType === 'EXACT') && (
+                      <div className="my-8 border-t border-neutral-200" />
+                    )}
+                    <div className="text-left">
+                      <AgistmentList
+                        agistments={searchResponse.results.filter(item => item.matchType === 'ADJACENT')}
+                        hasMore={hasMore}
+                        onLoadMore={loadMore}
+                        isLoading={isFetching}
+                        matchType="ADJACENT"
+                        title={currentCriteria ? `${searchResponse.results.filter(item => item.matchType === 'ADJACENT').length} Agistment${searchResponse.results.filter(item => item.matchType === 'ADJACENT').length === 1 ? '' : 's'} within ${currentCriteria.radius}km` : ''}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* No Results Message */}
+                {searchResponse.results.length === 0 && (
+                  <div className="flex flex-col items-start py-8 px-4">
+                    <p className="text-neutral-600 mb-4">
+                      No properties found matching your search criteria. Try adjusting your search parameters.
+                    </p>
+                    <button
+                      onClick={() => setIsSearchModalOpen(true)}
+                      className="button-primary"
+                    >
+                      Modify Search
+                    </button>
+                  </div>
                 )}
               </>
             )}
 
             {(!searchResponse || searchResponse.results.length === 0) && searchHash && (
-              <div className="flex flex-col items-center justify-center py-8 md:py-16 px-4">
+              <div className="flex flex-col items-start py-8 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
                   <AnimatedSearchLogo className="w-12 h-12 md:w-24 md:h-24" />
                 </div>
                 <h2 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">No Properties Found</h2>
-                <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-4 md:mb-8 max-w-md text-center">
+                <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-4 md:mb-8 max-w-md text-left leading-relaxed">
                   We couldn't find any properties matching your criteria. Try adjusting your search parameters.
                 </p>
                 <button
@@ -354,12 +446,14 @@ export function Agistments() {
             )}
 
             {!searchHash && (
-              <div className="flex flex-col items-center justify-center py-6 md:py-16 px-4">
+              <div className="flex flex-col items-start py-6 md:py-16 px-4">
                 <div className="mb-3 md:mb-8 text-neutral-400">
                   <AnimatedSearchLogo className="w-10 h-10 md:w-24 md:h-24" />
                 </div>
-                <h2 className="text-lg md:text-3xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">Find your perfect Agistment</h2>
-                <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-3 md:mb-8 max-w-lg text-center leading-relaxed">
+                <h2 className="text-lg md:text-3xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">
+                  Find your perfect Agistment
+                </h2>
+                <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-3 md:mb-8 max-w-lg text-left leading-relaxed">
                   Your perfect agistment journey starts here. Search by location, facilities, and care options to find the ideal home for your horse.
                 </p>
                 <button
@@ -370,6 +464,17 @@ export function Agistments() {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {hasMore && !isFetching && (
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={loadMore}
+              className="button-secondary"
+            >
+              Load More Results
+            </button>
           </div>
         )}
 

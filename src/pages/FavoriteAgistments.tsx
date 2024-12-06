@@ -26,10 +26,10 @@ export function FavoriteAgistments() {
         const response = await agistmentService.getFavoriteAgistments();
         
         if (response) {
-          setAgistments([{
-            ...response,
+          setAgistments(response.results.map(agistment => ({
+            ...agistment,
             matchType: MatchType.EXACT
-          }]);
+          })));
         } else {
           setAgistments([]);
         }

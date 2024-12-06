@@ -13,11 +13,7 @@ export function MyAgistments() {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
-        const agistmentsList = response || [];
-        setAgistments(agistmentsList.map((agistment: any) => ({
-          ...agistment,
-          matchType: 'EXACT'
-        })));
+        setAgistments(response.results || []);
       } catch (error) {
         console.error('Error fetching agistments:', error);
       } finally {
@@ -42,7 +38,8 @@ export function MyAgistments() {
             <div className="text-center pb-8 md:px-4 pb text-gray-500">
               <AgistmentList 
                 agistments={agistments} 
-                title="Agistments"
+                title="My Agistments"
+                matchType="EXACT"
               />
             </div>
           )}

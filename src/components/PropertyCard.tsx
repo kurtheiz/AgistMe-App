@@ -164,7 +164,7 @@ export default function PropertyCard({
                 {/* Private Paddocks */}
                 <div className="flex flex-col items-center">
                   <span className={`text-xl sm:text-2xl font-bold ${
-                    agistment.paddocks?.privatePaddocks?.total > 0 
+                    agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.privatePaddocks?.available > 0
                         ? agistment.paddocks?.privatePaddocks?.whenAvailable && new Date(agistment.paddocks?.privatePaddocks?.whenAvailable) > new Date()
                           ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
@@ -172,7 +172,7 @@ export default function PropertyCard({
                         : 'bg-red-100 text-red-600 px-3 py-1.5'
                       : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
-                    {agistment.paddocks?.privatePaddocks?.total > 0 ? agistment.paddocks?.privatePaddocks?.available : '-'}
+                    {agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ? agistment.paddocks?.privatePaddocks?.available : '-'}
                   </span>
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Private
@@ -182,7 +182,7 @@ export default function PropertyCard({
                 {/* Shared Paddocks */}
                 <div className="flex flex-col items-center">
                   <span className={`text-xl sm:text-2xl font-bold ${
-                    agistment.paddocks?.sharedPaddocks?.total > 0 
+                    agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.sharedPaddocks?.available > 0
                         ? agistment.paddocks?.sharedPaddocks?.whenAvailable && new Date(agistment.paddocks?.sharedPaddocks?.whenAvailable) > new Date()
                           ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
@@ -190,7 +190,7 @@ export default function PropertyCard({
                         : 'bg-red-100 text-red-600 px-3 py-1.5'
                       : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
-                    {agistment.paddocks?.sharedPaddocks?.total > 0 ? agistment.paddocks?.sharedPaddocks?.available : '-'}
+                    {agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ? agistment.paddocks?.sharedPaddocks?.available : '-'}
                   </span>
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Shared
@@ -200,7 +200,7 @@ export default function PropertyCard({
                 {/* Group Paddocks */}
                 <div className="flex flex-col items-center">
                   <span className={`text-xl sm:text-2xl font-bold ${
-                    agistment.paddocks?.groupPaddocks?.total > 0 
+                    agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.groupPaddocks?.available > 0
                         ? agistment.paddocks?.groupPaddocks?.whenAvailable && new Date(agistment.paddocks?.groupPaddocks?.whenAvailable) > new Date()
                           ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
@@ -208,7 +208,7 @@ export default function PropertyCard({
                         : 'bg-red-100 text-red-600 px-3 py-1.5'
                       : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
-                    {agistment.paddocks?.groupPaddocks?.total > 0 ? agistment.paddocks?.groupPaddocks?.available : '-'}
+                    {agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 ? agistment.paddocks?.groupPaddocks?.available : '-'}
                   </span>
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Group
@@ -222,17 +222,11 @@ export default function PropertyCard({
             <div className="text-right flex flex-col justify-start h-[72px]">
               <div className="text-sm text-neutral-500 mb-1">
                 {(() => {
-                  const minPrice = Math.min(
-                    agistment.paddocks?.privatePaddocks?.weeklyPrice || Infinity,
-                    agistment.paddocks?.sharedPaddocks?.weeklyPrice || Infinity,
-                    agistment.paddocks?.groupPaddocks?.weeklyPrice || Infinity
-                  );
-                  const maxPrice = Math.max(
-                    agistment.paddocks?.privatePaddocks?.weeklyPrice || 0,
-                    agistment.paddocks?.sharedPaddocks?.weeklyPrice || 0,
-                    agistment.paddocks?.groupPaddocks?.weeklyPrice || 0
-                  );
-                  return minPrice === maxPrice ? 'Price' : 'Price Range';
+                  const careTypes = [];
+                  if (agistment.care.selfCare.available) careTypes.push('Self');
+                  if (agistment.care.partCare.available) careTypes.push('Part');
+                  if (agistment.care.fullCare.available) careTypes.push('Full');
+                  return careTypes.length > 0 ? careTypes.join('/') : 'No Care';
                 })()}
               </div>
               <div className="font-bold text-lg text-neutral-900">

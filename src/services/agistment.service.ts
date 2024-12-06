@@ -1,10 +1,6 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
-import { 
-  AgistmentResponse
-} from '../types/agistment';
-import { 
-  SearchResponse
-} from '../types/search';
+import { AgistmentResponse } from '../types/agistment';
+import { SearchResponse } from '../types/search';
 
 interface PresignedUrlRequest {
   filenames: string[];
@@ -80,10 +76,10 @@ class AgistmentService {
     }
   }
 
-  async getMyAgistments(): Promise<AgistmentResponse[]> {
+  async getMyAgistments(): Promise<SearchResponse> {
     try {
       const url = 'v1/protected/agistments/my';
-      const response = await this.api.get<AgistmentResponse[]>(url);
+      const response = await this.api.get<SearchResponse>(url);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get my agistments:', error);
@@ -91,9 +87,9 @@ class AgistmentService {
     }
   }
 
-  async getFeaturedAgistments(): Promise<AgistmentResponse> {
+  async getFeaturedAgistments(): Promise<SearchResponse> {
     try {
-      const response = await this.api.get<AgistmentResponse>('v1/protected/agistments/featured');
+      const response = await this.api.get<SearchResponse>('v1/protected/agistments/featured');
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get featured agistments:', error);
@@ -101,10 +97,10 @@ class AgistmentService {
     }
   }
 
-  async getFavoriteAgistments(): Promise<AgistmentResponse> {
+  async getFavoriteAgistments(): Promise<SearchResponse> {
     try {
       console.log('Calling getFavoriteAgistments API');
-      const response = await this.api.get<AgistmentResponse>('v1/protected/agistments/favourites');
+      const response = await this.api.get<SearchResponse>('v1/protected/agistments/favourites');
       console.log('API Response:', response);
       return response.data;
     } catch (error: unknown) {
