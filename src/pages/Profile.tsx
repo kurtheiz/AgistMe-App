@@ -1,26 +1,23 @@
-import { useAuth, useClerk, useUser } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { LogOut, ChevronDown, Bell, BellOff, Pencil } from 'lucide-react';
 import { useAgistor } from '../hooks/useAgistor';
-import { SavedSearchesModal } from '../components/Search/SavedSearchesModal';
-import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { Disclosure } from '@headlessui/react';
 import Bio from '../components/Bio';
 import { toast } from 'react-hot-toast';
 import { profileService } from '../services/profile.service';
 import { SavedSearch } from '../types/profile';
+import { Favourite } from '../types/profile';
+import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { decodeSearchHash } from '../utils/searchUtils';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
-  const { signOut } = useClerk();
-  const { user } = useUser();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
-  const clerk = useClerk();
-  const { isAgistor } = useAgistor();
+  const isAgistor = useAgistor();
   const [isBioOpen, setIsBioOpen] = useState(false);
-  const [isSavedSearchesOpen, setIsSavedSearchesOpen] = useState(false);
   const [showProfileInEnquiry, setShowProfileInEnquiry] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,10 +73,8 @@ export default function Profile() {
       }
     };
 
-    if (user) {
-      loadProfile();
-    }
-  }, [user]);
+    loadProfile();
+  }, []);
 
   useEffect(() => {
     const loadFavourites = async () => {
@@ -162,7 +157,7 @@ export default function Profile() {
         <div className="space-y-6">
           <div className="space-y-4">
             {/* Bio */}
-            <Disclosure defaultOpen={false}>
+            <Disclosure defaultOpen={true}>
               {({ open }) => (
                 <div className="bg-white rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
@@ -190,7 +185,7 @@ export default function Profile() {
             </Disclosure>
 
             {/* My Horses */}
-            <Disclosure defaultOpen={false}>
+            <Disclosure defaultOpen={true}>
               {({ open }) => (
                 <div className="bg-white rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
@@ -215,7 +210,7 @@ export default function Profile() {
             </Disclosure>
 
             {/* Favourites */}
-            <Disclosure defaultOpen={false}>
+            <Disclosure defaultOpen={true}>
               {({ open }) => (
                 <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
@@ -300,7 +295,7 @@ export default function Profile() {
             </Disclosure>
 
             {/* Saved Searches */}
-            <Disclosure defaultOpen={false}>
+            <Disclosure defaultOpen={true}>
               {({ open }) => (
                 <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
@@ -327,32 +322,45 @@ export default function Profile() {
                         <div className="space-y-4">
                           {savedSearches.map((search) => {
                             const decodedSearch = decodeSearchHash(search.searchHash);
-                            const locationName = decodedSearch.suburbs[0]?.suburb || 'Any location';
-                            const radius = decodedSearch.radius > 0 ? ` within ${decodedSearch.radius}km` : '';
+                            if (!decodedSearch) return null;
+                            
+                            const locationName = decodedSearch.suburbs?.[0]?.suburb || 'Any location';
+                            const radius = decodedSearch.radius || 0;
                             
                             // Format additional details
                             const details = [];
-                            if (decodedSearch.spaces > 0) details.push(`${decodedSearch.spaces} spaces`);
-                            if (decodedSearch.maxPrice > 0) details.push(`$${decodedSearch.maxPrice}/week`);
-                            if (decodedSearch.paddockTypes.length > 0) {
-                              details.push(...decodedSearch.paddockTypes.map(type => 
-                                type.charAt(0).toUpperCase() + type.slice(1)
-                              ));
+                            if (decodedSearch.spaces > 0) details.push({ type: 'spaces', value: `${decodedSearch.spaces} spaces` });
+                            if (decodedSearch.maxPrice > 0) details.push({ type: 'maxPrice', value: `$${decodedSearch.maxPrice}/week` });
+
+                            if (decodedSearch.paddockTypes?.length > 0) {
+                              details.push(...decodedSearch.paddockTypes.map(type => ({
+                                type: 'paddockTypes',
+                                value: type.charAt(0).toUpperCase() + type.slice(1)
+                              })));
                             }
-                            if (decodedSearch.hasArena) details.push('Arena');
-                            if (decodedSearch.hasRoundYard) details.push('Round Yard');
+
+                            if (decodedSearch.hasArena) details.push({ type: 'hasArena', value: 'Arena' });
+                            if (decodedSearch.hasRoundYard) details.push({ type: 'hasRoundYard', value: 'Round Yard' });
+
                             if (decodedSearch.facilities?.length > 0) {
                               details.push(...decodedSearch.facilities.map(facility => {
                                 switch (facility) {
-                                  case 'feedRoom': return 'Feed Room';
-                                  case 'tackRoom': return 'Tack Room';
-                                  case 'floatParking': return 'Float Parking';
-                                  case 'hotWash': return 'Hot Wash';
-                                  case 'stables': return 'Stables';
-                                  case 'tieUp': return 'Tie Up';
-                                  default: return facility;
+                                  case 'feedRoom': return { type: 'facilities', value: 'Feed Room' };
+                                  case 'tackRoom': return { type: 'facilities', value: 'Tack Room' };
+                                  case 'floatParking': return { type: 'facilities', value: 'Float Parking' };
+                                  case 'hotWash': return { type: 'facilities', value: 'Hot Wash' };
+                                  case 'stables': return { type: 'facilities', value: 'Stables' };
+                                  case 'tieUp': return { type: 'facilities', value: 'Tie Up' };
+                                  default: return { type: 'facilities', value: facility };
                                 }
                               }));
+                            }
+
+                            if (decodedSearch.careTypes?.length > 0) {
+                              details.push(...decodedSearch.careTypes.map(care => ({
+                                type: 'careTypes',
+                                value: `${care} Care`
+                              })));
                             }
 
                             return (
@@ -375,16 +383,16 @@ export default function Profile() {
                                     </div>
                                     <div className="flex flex-col space-y-1">
                                       <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                                        {locationName}{radius}
+                                        {locationName}{radius > 0 ? ` within ${radius}km` : ''}
                                       </div>
                                       {details.length > 0 && (
                                         <div className="flex flex-wrap gap-1.5">
-                                          {details.map((detail, index) => (
+                                          {details.map((detail) => (
                                             <span
-                                              key={index}
+                                              key={`${detail.type}-${detail.value}`}
                                               className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300"
                                             >
-                                              {detail}
+                                              {detail.value}
                                             </span>
                                           ))}
                                         </div>
@@ -427,7 +435,7 @@ export default function Profile() {
 
             {/* My Agistments */}
             {isAgistor && (
-              <Disclosure defaultOpen={false}>
+              <Disclosure defaultOpen={true}>
                 {({ open }) => (
                   <div className="bg-white rounded-lg shadow-sm">
                     <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
@@ -455,12 +463,6 @@ export default function Profile() {
 
           {/* Bio Modal */}
           <Bio isOpen={isBioOpen} onClose={handleCloseBio} />
-
-          {/* Saved Searches Modal */}
-          <SavedSearchesModal
-            isOpen={isSavedSearchesOpen}
-            onClose={() => setIsSavedSearchesOpen(false)}
-          />
 
           {/* Save Search Modal */}
           <SaveSearchModal

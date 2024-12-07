@@ -34,12 +34,12 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
 
   useEffect(() => {
     if (user) {
-      const favorites = user.publicMetadata.favorites as { agistmentId: string }[] || [];
+      const favorites = (user.publicMetadata as { favorites?: { agistmentId: string }[] }).favorites || [];
       setIsFavorited(favorites.some((fav) => fav.agistmentId === agistmentId) || false);
     }
-  }, [user?.publicMetadata.favorites, agistmentId]);
+  }, [user?.publicMetadata, agistmentId]);
 
-  const isMyAgistment = user?.publicMetadata.myAgistments?.includes(agistmentId) || false;
+  const isMyAgistment = (user?.publicMetadata as { myAgistments?: string[] }).myAgistments?.includes(agistmentId) || false;
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -73,7 +73,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
 
     try {
       setIsUpdatingFavorite(true);
-      const currentFavorites = user?.publicMetadata.favorites as { agistmentId: string }[] || [];
+      const currentFavorites = (user?.publicMetadata as { favorites?: { agistmentId: string }[] }).favorites || [];
       
       let newFavorites;
       if (isFavorited) {
@@ -83,8 +83,7 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
       }
 
       await user?.update({
-        publicMetadata: {
-          ...user.publicMetadata,
+        unsafeMetadata: {
           favorites: newFavorites
         }
       });

@@ -4,7 +4,7 @@ import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDa
 import { SuburbSearch } from './SuburbSearch/SuburbSearch';
 import { ProfilePhoto } from './Profile/ProfilePhoto';
 import { profileService } from '../services/profile.service';
-import { Profile, UpdateProfileRequest } from '../types/profile';
+import { Profile } from '../types/profile';
 import { Modal } from './shared/Modal';
 import toast from 'react-hot-toast';
 
@@ -45,10 +45,9 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
           suburb: profileData.suburb || '',
           postcode: profileData.postcode || '',
           geohash: profileData.geohash || '',
-          suburbId: profileData.suburbId || '',
           region: profileData.region || '',
           state: profileData.state || '',
-          showProfileInEnquiry: profileData.showProfileInEnquiry || false
+          showProfileInEnquiry: profileData.showProfileInEnquiry ?? false
         };
 
         setFormData(newFormData);
@@ -116,7 +115,6 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
         state: formData.state,
         postcode: formData.postcode,
         geohash: formData.geohash,
-        suburbId: formData.suburbId,
         region: formData.region,
         showProfileInEnquiry: formData.showProfileInEnquiry
       });
@@ -148,8 +146,6 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
       postcode: '',
       region: '',
       state: '',
-      suburbId: '',
-      geohash: ''
     }));
   };
 
@@ -166,7 +162,6 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
       suburb: '',
       postcode: '',
       geohash: '',
-      suburbId: '',
       region: '',
       state: '',
       showProfileInEnquiry: false
@@ -197,11 +192,9 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             <input
               type="checkbox"
               checked={formData.showProfileInEnquiry}
-              onChange={(e) => !clearFields && setFormData(prev => ({ ...prev, showProfileInEnquiry: e.target.checked }))}
-              disabled={clearFields}
-              className={`sr-only peer ${clearFields ? 'cursor-not-allowed' : ''}`}
+              onChange={(e) => !clearFields && setFormData(prev => ({ ...prev, showProfileInEnquiry: e.target.checked }))}              aria-label="Share my bio with agistors"
             />
-            <div className={`w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-offset-2 peer-focus:ring-primary-300 rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+            <div className={`sr-only peer ${clearFields ? 'cursor-not-allowed' : ''}`}></div>
             <span className={`ml-3 text-sm font-medium text-neutral-700 ${clearFields ? 'opacity-50 cursor-not-allowed' : ''}`}>Share my bio with agistors</span>
           </label>
           <p className="text-sm text-neutral-500 ml-[3.5rem]">
@@ -413,7 +406,6 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
                     suburb: suburb.suburb,
                     state: suburb.state,
                     postcode: suburb.postcode,
-                    suburbId: suburb.id,
                     region: suburb.region || '',
                     geohash: suburb.geohash || ''
                   }));

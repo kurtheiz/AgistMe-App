@@ -1,16 +1,13 @@
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { useClerk, useUser } from '@clerk/clerk-react';
-import { useAuthToken } from '../hooks/useAuthToken';
-import { useEffect, useState } from 'react';
+import { useUser } from '@clerk/clerk-react';
+import { useState } from 'react';
 import { useAgistor } from '../hooks/useAgistor';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
-  const { openSignIn } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { isLoaded: authLoaded } = useAuthToken();
   const isAgistor = useAgistor();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -18,10 +15,7 @@ export const Header = () => {
     if (isSignedIn) {
       navigate('/profile', { replace: true });
     } else {
-      openSignIn({
-        afterSignInUrl: location.pathname,
-        afterSignUpUrl: location.pathname,
-      });
+      navigate('/signin', { replace: true });
     }
   };
 

@@ -68,7 +68,7 @@ export function Agistments() {
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
   const [searchTitle, setSearchTitle] = useState('Search Properties');
-  const [refreshSavedSearches, setRefreshSavedSearches] = useState(0);
+  const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
   const loadMore = async () => {
@@ -382,7 +382,7 @@ export function Agistments() {
           initialSearchHash={searchHash}
           forceReset={forceResetSearch}
           title={searchTitle}
-          refreshSavedSearches={refreshSavedSearches}
+          refreshSavedSearches={shouldRefreshSavedSearches}
         />
 
         {isSaveSearchModalOpen && (
@@ -406,7 +406,7 @@ export function Agistments() {
                 const updatedSearches = [...response.savedSearches, newSavedSearch];
                 await profileService.updateSavedSearches(updatedSearches);
                 setIsSaveSearchModalOpen(false);
-                setRefreshSavedSearches(prev => prev + 1);
+                setShouldRefreshSavedSearches(true);
                 toast.success('Search saved successfully');
               } catch (error) {
                 console.error('Failed to save search:', error);

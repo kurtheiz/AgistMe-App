@@ -46,7 +46,7 @@ export function SearchModal({
   const [searchParams] = useSearchParams();
   const searchHash = searchParams.get('q');
   const [isUpdating, setIsUpdating] = useState(false);
-  const { user, isSignedIn } = useUser();
+  const { user } = useUser();
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [searchCriteria, setSearchCriteria] = useState<SearchRequest>({
     suburbs: [],
@@ -76,10 +76,10 @@ export function SearchModal({
       }
     };
 
-    if (isSignedIn) {
+    if (user) {
       loadSavedSearches();
     }
-  }, [isSignedIn, refreshSavedSearches]);
+  }, [user, refreshSavedSearches]);
 
   useEffect(() => {
     if (forceReset && isOpen) {
@@ -247,7 +247,7 @@ export function SearchModal({
             <Menu.Button
               className="w-full flex items-center justify-between gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
               onClick={() => {
-                if (!isSignedIn) {
+                if (!user) {
                   toast.error('Please sign in to save searches');
                   return;
                 }
@@ -257,7 +257,7 @@ export function SearchModal({
               <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
             </Menu.Button>
 
-            {isSignedIn && (
+            {user && (
               <Menu.Items className="absolute left-0 z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div className="py-1">
                   {savedSearches.map((savedSearch) => (
@@ -285,7 +285,7 @@ export function SearchModal({
               </Menu.Items>
             )}
           </Menu>
-          {isSignedIn && (
+          {user && (
             <p className="mt-1 text-xs text-gray-500 text-center">
               Visit your <Link to="/profile" className="text-primary-600 hover:text-primary-700">profile</Link> to manage saved searches
             </p>

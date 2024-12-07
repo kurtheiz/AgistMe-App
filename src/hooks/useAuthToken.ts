@@ -9,71 +9,76 @@ export interface AuthState {
   role: Roles | null;
   isLoaded: boolean;
   isSignedIn: boolean;
+  isValidating: boolean;
   setAuthToken: (token: string | null) => void;
 }
 
+// Helper function to parse JWT token
+const parseJwt = (token: string) => {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch (e) {
+    return {};
+  }
+};
+
 export const useAuthToken = (): AuthState => {
-  const { getToken, isLoaded, isSignedIn, sessionClaims } = useAuth();
+  const { getToken, isSignedIn, isLoaded } = useAuth();
   const tokenUpdateInProgress = useRef(false);
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<Roles | null>(null);
+  const [isValidating, setIsValidating] = useState<boolean>(false);
 
   // Helper functions for token management
   const setAuthToken = (token: string | null) => {
     if (token) {
       localStorage.setItem(TOKEN_KEY, token);
-      setToken(token);
     } else {
       localStorage.removeItem(TOKEN_KEY);
-      setToken(null);
     }
-  };
-
-  const getAuthToken = (): string | null => {
-    return localStorage.getItem(TOKEN_KEY);
+    setToken(token);
   };
 
   useEffect(() => {
     const updateToken = async () => {
-      if (!isLoaded || tokenUpdateInProgress.current) return;
+      // Skip if already updating token
+      if (tokenUpdateInProgress.current) {
+        return;
+      }
 
       try {
         tokenUpdateInProgress.current = true;
+        setIsValidating(true);
 
         // If not signed in, clear token and role
         if (!isSignedIn) {
-          setAuthToken(null);
+          setToken(null);
           setRole(null);
           return;
         }
 
-        // Get new token only if we don't have one
-        const currentToken = getAuthToken();
-        if (!currentToken) {
-          const newToken = await getToken({ template: "AgistMe" });
-          if (newToken) {
-            setAuthToken(newToken);
-          }
-        } else {
-          setToken(currentToken);
-        }
+        // Get token from Clerk
+        const token = await getToken();
+        setToken(token);
 
-        // Update role from session claims
-        const userRole = sessionClaims?.metadata?.role as Roles | undefined;
+        // Get role from token claims
+        const userRole = token ? parseJwt(token).role : null;
         setRole(userRole || null);
       } finally {
         tokenUpdateInProgress.current = false;
+        setIsValidating(false);
       }
     };
 
     updateToken();
-  }, [isLoaded, isSignedIn, getToken, sessionClaims]);
+  }, [isSignedIn, isLoaded, getToken]);
 
   return {
     token,
     role,
-    isLoaded,
-    isSignedIn,
+    isLoaded: isLoaded || false,
+    isSignedIn: isSignedIn || false,
+    isValidating,
     setAuthToken
   };
 };
