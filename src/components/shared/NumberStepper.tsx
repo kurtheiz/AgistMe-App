@@ -44,10 +44,10 @@ export default function NumberStepper({
     // Start accelerating after holding
     let holdTime = 0;
     intervalRef.current = setInterval(() => {
-      holdTime += 100;
+      holdTime += 250;
       
       // Increase speed based on hold duration
-      if (holdTime > 1000) {
+      if (holdTime > 1500) {
         setSpeed(prev => Math.min(prev + 1, 10));
       }
       
@@ -55,7 +55,7 @@ export default function NumberStepper({
       if (nextValue >= min && nextValue <= max) {
         onChange(nextValue);
       }
-    }, 100);
+    }, 250);
     
     longPressRef.current = true;
   }, [step, speed, min, max, onChange, disabled]);

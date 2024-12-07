@@ -548,8 +548,6 @@ export function SearchModal({
       size="md"
       slideFrom="right"
       isUpdating={isUpdating}
-      actionIconType="SEARCH"
-      onAction={handleSearch}
     >
       {modalContent}
     </Modal>

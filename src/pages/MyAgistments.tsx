@@ -72,6 +72,7 @@ export function MyAgistments() {
                 agistments={agistments} 
                 title={`${agistments.length} Agistment${agistments.length !== 1 ? 's' : ''}`}
                 matchType="EXACT"
+                onEdit={(agistment) => navigate(`/agistments/${agistment.id}/edit`)}
               />
             </div>
           )}

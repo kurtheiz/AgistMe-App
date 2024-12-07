@@ -135,10 +135,9 @@ export function ViewAgistmentDetail() {
                           url: window.location.href
                         }).catch(console.error);
                       }}
-                      className="flex items-center gap-2 text-sm hover:text-primary-600 transition-colors"
+                      className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
                     >
                       <Share2 className="w-5 h-5" />
-                      <span>Share</span>
                     </button>
                   </>
                 )}

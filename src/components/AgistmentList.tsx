@@ -11,6 +11,7 @@ interface AgistmentListProps {
   isLoading?: boolean;
   matchType?: 'EXACT' | 'ADJACENT';
   title?: string;
+  onEdit?: (agistment: AgistmentSearchResponse) => void;
 }
 
 export default function AgistmentList({ 
@@ -20,7 +21,8 @@ export default function AgistmentList({
   hasMore = false,
   isLoading = false,
   matchType = 'EXACT',
-  title
+  title,
+  onEdit
 }: AgistmentListProps) {
   const [internalList, setInternalList] = useState<AgistmentSearchResponse[]>([]);
   
@@ -52,6 +54,7 @@ export default function AgistmentList({
           <Fragment key={agistment.id}>
             <PropertyCard 
               agistment={agistment}
+              onEdit={onEdit ? () => onEdit(agistment) : undefined}
             />
             {adverts.length > 0 && (index === internalList.length - 1 || index % 4 === 3) && (
               <div className="col-span-1 md:col-span-2 flex flex-col items-center">

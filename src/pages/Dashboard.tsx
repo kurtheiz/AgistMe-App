@@ -59,7 +59,10 @@ export const Dashboard = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg p-6 shadow">
+            <div 
+              className="bg-white rounded-lg p-6 shadow cursor-pointer hover:bg-neutral-50 transition-colors"
+              onClick={() => navigate('/agistments/my')}
+            >
               <div className="flex items-center">
                 <List className="h-8 w-8 text-primary-600" />
                 <div className="ml-4">

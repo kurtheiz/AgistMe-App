@@ -86,18 +86,6 @@ export default function PropertyCard({
           </div>
         )}
 
-        {/* Edit Button */}
-        {onEdit && (
-          <div className="absolute top-2 left-2 z-20">
-            <button 
-              onClick={onEdit}
-              className="p-1 rounded-full hover:bg-neutral-100"
-            >
-              <Pencil className="w-5 h-5 text-neutral-600" />
-            </button>
-          </div>
-        )}
-
         {/* Property Name Header */}
         <div className="title-header relative">
           <div className="flex justify-between items-start relative z-10 py-2">
@@ -284,21 +272,36 @@ export default function PropertyCard({
         {/* Footer */}
         <div className="px-4 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
           <div className="flex justify-between items-center">
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleFavorite();
-              }}
-              className="flex items-center gap-1 text-sm hover:text-primary-600 transition-colors"
-              disabled={isLoading}
-            >
-              <Heart
-                className={`w-5 h-5 ${
-                  isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'
-                }`}
-              />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Favorite Button */}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleFavorite();
+                }}
+                disabled={isLoading}
+                className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+              >
+                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
+              </button>
+
+              {/* Edit Button */}
+              {onEdit && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                  className="button-primary"
+                  title="Edit property"
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span>Edit</span>
+                </button>
+              )}
+            </div>
             <div className="text-xs sm:text-sm">
               Last updated: {formatRelativeDate(agistment.modifiedAt)}
             </div>

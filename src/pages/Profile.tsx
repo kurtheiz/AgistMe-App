@@ -239,14 +239,6 @@ export default function Profile() {
                                   onClick={() => !isInactive && navigate(`/agistments/${favourite.id}`)}
                                 >
                                   <div className="flex items-start">
-                                    <button
-                                      onClick={(e) => handleDeleteFavorite(favourite.id, e)}
-                                      className="flex-shrink-0 p-3 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
-                                    >
-                                      <Trash2 
-                                        className="w-5 h-5 text-neutral-400 hover:text-red-500 transition-colors"
-                                      />
-                                    </button>
                                     <div className="flex-grow px-4 pb-4">
                                       <div className="space-y-1">
                                         <div className="flex items-center gap-1.5">
@@ -260,6 +252,14 @@ export default function Profile() {
                                         <p className="text-sm text-neutral-500">{favourite.location.suburb}, {favourite.location.state}</p>
                                       </div>
                                     </div>
+                                    <button
+                                      onClick={(e) => handleDeleteFavorite(favourite.id, e)}
+                                      className="flex-shrink-0 p-3 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                                    >
+                                      <Trash2 
+                                        className="w-5 h-5 text-neutral-400 hover:text-red-500 transition-colors"
+                                      />
+                                    </button>
                                   </div>
                                 </div>
                               );
@@ -335,12 +335,6 @@ export default function Profile() {
                                   }}
                                 >
                                   <div className="flex items-center">
-                                    <button
-                                      onClick={(e) => handleDeleteSearch(search.id, e)}
-                                      className="flex-shrink-0 p-3 -m-4 mr-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
-                                    >
-                                      <Trash2 className="w-4 h-4 text-neutral-400 hover:text-red-500" />
-                                    </button>
                                     <div className="flex-grow">
                                       <div>
                                         <h3 className="font-medium">{search.name}</h3>
@@ -354,6 +348,12 @@ export default function Profile() {
                                         )}
                                       </div>
                                     </div>
+                                    <button
+                                      onClick={(e) => handleDeleteSearch(search.id, e)}
+                                      className="flex-shrink-0 p-3 -m-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                                    >
+                                      <Trash2 className="w-5 h-5 text-neutral-400 hover:text-red-500" />
+                                    </button>
                                   </div>
                                 </div>
                               );

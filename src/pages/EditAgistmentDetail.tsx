@@ -71,17 +71,14 @@ function EditAgistmentDetail() {
     if (!agistment) return;
 
     try {
-      const updatedVisibility = {
-        visibility: {
-          ...agistment.visibility,
-          hidden: !agistment.visibility.hidden
-        }
+      const updatedStatus = {
+        status: agistment.status === 'HIDDEN' ? 'PUBLISHED' : 'HIDDEN'
       };
       
-      await handleAgistmentUpdate(updatedVisibility);
+      await handleAgistmentUpdate(updatedStatus);
     } catch (error) {
-      console.error('Error updating agistment visibility:', error);
-      toast.error('Failed to update visibility');
+      console.error('Error updating agistment status:', error);
+      toast.error('Failed to update status');
     }
   };
 
@@ -210,13 +207,13 @@ function EditAgistmentDetail() {
                 onClick={handleVisibilityToggle}
                 disabled={isUpdating}
                 title={
-                  agistment?.visibility.hidden
+                  agistment?.status === 'HIDDEN'
                   ? "Hidden - This agistment will not appear in search results"
-                  : "Visible - This agistment will appear in search results"
+                  : "Published - This agistment will appear in search results"
                 }
                 className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {agistment?.visibility.hidden ? 'Make Visible' : 'Make Hidden'}
+                {agistment?.status === 'HIDDEN' ? 'Publish' : 'Hide'}
                 {isUpdating && (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                 )}
@@ -281,6 +278,8 @@ function EditAgistmentDetail() {
                 propertyLocation={agistment?.propertyLocation}
                 contactDetails={agistment?.contact}
                 propertyDescription={agistment?.propertyDescription}
+                isEditable={true}
+                onEdit={() => setIsHeaderModalOpen(true)}
               />
             </div>
 
