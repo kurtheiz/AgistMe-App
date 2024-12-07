@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useUser } from "@clerk/clerk-react";
-import { AgistmentList } from '../components/AgistmentList';
+import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';

@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
 import { AgistmentSearchResponse } from '../types/search';
 import PropertyCard from './PropertyCard';
-import { useAuth } from '@clerk/clerk-react';
 import { Advert } from '../services/advert.service';
 
 interface AgistmentListProps {
@@ -14,7 +13,7 @@ interface AgistmentListProps {
   title?: string;
 }
 
-export function AgistmentList({ 
+export default function AgistmentList({ 
   agistments = [], 
   adverts = [],
   onLoadMore, 
@@ -24,8 +23,7 @@ export function AgistmentList({
   title
 }: AgistmentListProps) {
   const [internalList, setInternalList] = useState<AgistmentSearchResponse[]>([]);
-  const { isSignedIn } = useAuth();
-
+  
   useEffect(() => {
     if (Array.isArray(agistments) && agistments.length > 0) {
       setInternalList(prev => {
@@ -54,7 +52,6 @@ export function AgistmentList({
           <Fragment key={agistment.id}>
             <PropertyCard 
               agistment={agistment}
-              isSignedIn={isSignedIn}
             />
             {adverts.length > 0 && (index === internalList.length - 1 || index % 4 === 3) && (
               <div className="col-span-1 md:col-span-2 flex flex-col items-center">

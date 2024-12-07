@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AgistmentList } from '../components/AgistmentList';
+import AgistmentList from '../components/AgistmentList';
 import { AgistmentSearchResponse } from '../types/search';
 import { useAuth } from '@clerk/clerk-react';
 import { agistmentService } from '../services/agistment.service';

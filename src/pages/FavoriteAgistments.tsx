@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentSearchResponse, MatchType } from '../types/search';
 import { PageToolbar } from '../components/PageToolbar';
-import { AgistmentList } from '../components/AgistmentList';
+import AgistmentList from '../components/AgistmentList';
 import { ArrowLeft } from 'lucide-react';
 import { scrollManager } from '../utils/scrollManager';
 import { useAuth } from '@clerk/clerk-react';
