@@ -140,4 +140,5 @@ export interface AgistmentResponse {
   socialMedia: SocialMediaLink[];
   status: 'PUBLISHED' | 'DRAFT' | 'DELETED';
   urgentAvailability: boolean;
+  isFavourite: boolean;
 }

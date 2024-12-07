@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AgistmentSearchResponse } from '../types/search';
 import PropertyCard from './PropertyCard';
+import { useAuth } from '@clerk/clerk-react';
 
 interface AgistmentListProps {
   agistments: AgistmentSearchResponse[];
@@ -21,6 +22,7 @@ export function AgistmentList({
 }: AgistmentListProps) {
   // Keep internal state of the growing list
   const [internalList, setInternalList] = useState<AgistmentSearchResponse[]>([]);
+  const { isSignedIn } = useAuth();
 
   // Update internal list when new agistments arrive
   useEffect(() => {
@@ -45,7 +47,11 @@ export function AgistmentList({
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {Array.isArray(internalList) && internalList.map((agistment) => (
-          <PropertyCard key={agistment.id} agistment={agistment} />
+          <PropertyCard 
+            key={agistment.id} 
+            agistment={agistment} 
+            isSignedIn={isSignedIn}
+          />
         ))}
       </div>
       {(!Array.isArray(internalList) || internalList.length === 0) && (

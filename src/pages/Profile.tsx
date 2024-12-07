@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { LogOut, ChevronDown, Bell, BellOff, Pencil } from 'lucide-react';
+import { LogOut, ChevronDown, Bell, BellOff, Pencil, Heart } from 'lucide-react';
 import { useAgistor } from '../hooks/useAgistor';
 import { Disclosure } from '@headlessui/react';
 import Bio from '../components/Bio';
@@ -25,6 +25,42 @@ export default function Profile() {
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
   const [favourites, setFavourites] = useState<Favourite[]>([]);
   const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
+  const [favorites, setFavorites] = useState<Record<string, { isFavorite: boolean, isLoading: boolean }>>({});
+
+  const toggleFavorite = async (agistmentId: string) => {
+    setFavorites(prev => ({
+      ...prev,
+      [agistmentId]: { ...prev[agistmentId], isLoading: true }
+    }));
+
+    try {
+      const isFavorite = favorites[agistmentId]?.isFavorite ?? true; 
+      await profileService.toggleFavorite(agistmentId, isFavorite); 
+      
+      setFavorites(prev => ({
+        ...prev,
+        [agistmentId]: { isFavorite: !isFavorite, isLoading: false }
+      }));
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Failed to update favorite status');
+      
+      setFavorites(prev => ({
+        ...prev,
+        [agistmentId]: { ...prev[agistmentId], isLoading: false }
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (favourites) {
+      const initialFavorites = favourites.reduce((acc, fav) => ({
+        ...acc,
+        [fav.id]: { isFavorite: true, isLoading: false }
+      }), {});
+      setFavorites(initialFavorites);
+    }
+  }, [favourites]);
 
   const formatLastUpdate = (date: string) => {
     if (!date) return '';
@@ -82,8 +118,8 @@ export default function Profile() {
       
       setIsLoadingFavourites(true);
       try {
-        const response = await profileService.getFavourites();
-        setFavourites(response.favourites);
+        const response = await profileService.getFavourites({ d: true });
+        setFavourites(Array.isArray(response) ? response : response.favourites);
       } catch (error) {
         console.error('Error loading favourites:', error);
         toast.error('Failed to load favourites');
@@ -215,7 +251,9 @@ export default function Profile() {
                 <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
                     <span className="font-medium">
-                      {favourites.length === 0
+                      {isLoadingFavourites 
+                        ? 'Loading Favourites...'
+                        : !favourites || favourites.length === 0
                         ? 'No Favourites'
                         : favourites.length === 1
                         ? '1 Favourite'
@@ -231,56 +269,67 @@ export default function Profile() {
                     <div className="space-y-4">
                       {isLoadingFavourites ? (
                         <div className="text-neutral-600">Loading favourites...</div>
-                      ) : favourites.length === 0 ? (
+                      ) : !favourites || favourites.length === 0 ? (
                         <div className="text-neutral-600">No favourites yet</div>
                       ) : (
                         <div className="space-y-4">
                           {favourites.map((favourite) => {
                             const isInactive = favourite.status === 'HIDDEN' || favourite.status === 'REMOVED';
-                            const statusText = favourite.status;
                             return (
                               <div 
                                 key={favourite.id} 
-                                className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm relative overflow-hidden
-                                  ${isInactive 
-                                    ? 'opacity-60' 
-                                    : 'cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors'
-                                  }`}
+                                className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden relative
+                                  ${isInactive ? 'opacity-75' : 'cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50'} 
+                                  transition-colors`}
                                 onClick={() => !isInactive && navigate(`/agistments/${favourite.id}`)}
                               >
+                                {/* Watermark for hidden/removed status */}
                                 {isInactive && (
-                                  <div className="absolute inset-0 flex items-center justify-center rotate-[-35deg] z-10">
-                                    <span className="text-red-500/50 dark:text-red-500/60 text-2xl font-bold whitespace-nowrap">
-                                      {statusText}
+                                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <span className="text-4xl font-bold text-neutral-900/20 rotate-[-30deg] uppercase">
+                                      {favourite.status}
                                     </span>
                                   </div>
                                 )}
-                                <div className="p-4 relative z-0">
-                                  <div className="flex flex-col space-y-2">
-                                    <div className="flex items-center gap-2">
-                                      {favourite.photo && (
-                                        <img 
-                                          src={favourite.photo} 
-                                          alt={favourite.name}
-                                          className={`w-16 h-16 object-cover rounded-lg ${isInactive ? 'grayscale' : ''}`}
-                                        />
-                                      )}
-                                      <div className="flex flex-col">
-                                        <span className="font-medium">{favourite.name}</span>
-                                        {favourite.location && (
-                                          <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                                            {favourite.location}
-                                          </span>
-                                        )}
+                                <div className={`flex relative ${isInactive ? 'pointer-events-none' : ''}`}>
+                                  {favourite.photo && (
+                                    <div className="w-24 h-24 flex-shrink-0">
+                                      <img 
+                                        src={favourite.photo} 
+                                        alt={favourite.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="p-4 flex-grow">
+                                    <div className="flex justify-between items-start">
+                                      <div>
+                                        <button
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            toggleFavorite(favourite.id);
+                                          }}
+                                          className="flex items-center gap-1 text-sm hover:text-primary-600 transition-colors pointer-events-auto"
+                                          disabled={favorites[favourite.id]?.isLoading}
+                                        >
+                                          <Heart
+                                            className={`w-5 h-5 ${
+                                              favorites[favourite.id]?.isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'
+                                            } ${isInactive ? '' : ''}`}
+                                          />
+                                        </button>
+                                        <h3 className="font-medium text-neutral-900 dark:text-white">
+                                          {favourite.name}
+                                        </h3>
+                                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                                          {favourite.location.suburb}, {favourite.location.state}
+                                        </p>
                                       </div>
                                     </div>
-                                    <div className="flex items-center justify-between text-xs">
-                                      {favourite.lastUpdate && (
-                                        <span className="text-neutral-500 dark:text-neutral-400">
-                                          Last updated: {formatLastUpdate(favourite.lastUpdate)}
-                                        </span>
-                                      )}
-                                    </div>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-2">
+                                      Last updated: {formatLastUpdate(favourite.lastUpdate)}
+                                    </p>
                                   </div>
                                 </div>
                               </div>

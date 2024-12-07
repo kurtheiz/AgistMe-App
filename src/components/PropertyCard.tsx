@@ -14,14 +14,16 @@ import { AgistmentResponse } from '../types/agistment';
 import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
-import { ShareFavoriteButtons } from './shared/ShareFavoriteButtons';
+import { useFavorite } from '../hooks/useFavorite';
 
 interface PropertyCardProps {
   agistment: AgistmentResponse;
   onClick?: () => void;
   onEdit?: () => void;
+  onDelete?: () => void;
   onToggleVisibility?: () => Promise<void>;
   isUpdatingVisibility?: boolean;
+  isSignedIn: boolean;
 }
 
 export default function PropertyCard({ 
@@ -29,9 +31,11 @@ export default function PropertyCard({
   onClick, 
   onEdit, 
   onToggleVisibility, 
-  isUpdatingVisibility 
+  isUpdatingVisibility,
+  isSignedIn
 }: PropertyCardProps) {
   const navigate = useNavigate();
+  const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
   
   // If agistment is not loaded yet, show loading state
   if (!agistment || !agistment.basicInfo) {
@@ -220,15 +224,6 @@ export default function PropertyCard({
 
             {/* Price Range */}
             <div className="text-right flex flex-col justify-start h-[72px]">
-              <div className="text-sm text-neutral-500 mb-1">
-                {(() => {
-                  const careTypes = [];
-                  if (agistment.care.selfCare.available) careTypes.push('Self');
-                  if (agistment.care.partCare.available) careTypes.push('Part');
-                  if (agistment.care.fullCare.available) careTypes.push('Full');
-                  return careTypes.length > 0 ? careTypes.join('/') : 'No Care';
-                })()}
-              </div>
               <div className="font-bold text-lg text-neutral-900">
                 {(() => {
                   const minPrice = Math.min(
@@ -273,29 +268,15 @@ export default function PropertyCard({
               { key: 'hotWash', label: 'Hot Wash', icon: HotWashIcon, available: agistment.facilities.hotWash.available },
               { key: 'stables', label: 'Stables', icon: StableIcon, available: agistment.facilities.stables.available },
               { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.facilities.tieUp.available },
-              { 
-                key: 'care', 
-                label: (() => {
-                  const careTypes = [];
-                  if (agistment.care.selfCare.available) careTypes.push('Self');
-                  if (agistment.care.partCare.available) careTypes.push('Part');
-                  if (agistment.care.fullCare.available) careTypes.push('Full');
-                  return careTypes.length > 0 ? careTypes.join('/') : 'No Care';
-                })(),
-                icon: Heart,
-                available: agistment.care.selfCare.available || agistment.care.partCare.available || agistment.care.fullCare.available
-              }
             ].map(({ key, label, icon: Icon, available }) => (
               <div key={key} className="flex items-center gap-2 text-neutral-600">
                 {Icon && <Icon className="w-5 h-5" />}
                 <span className="text-sm flex items-center gap-1">
                   {label}
-                  {key !== 'care' && (
-                    available ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <X className="w-4 h-4 text-red-600" />
-                    )
+                  {available ? (
+                    <Check className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <X className="w-4 h-4 text-red-600" />
                   )}
                 </span>
               </div>
@@ -306,11 +287,21 @@ export default function PropertyCard({
         {/* Footer */}
         <div className="px-2 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
           <div className="flex justify-between items-center">
-            <ShareFavoriteButtons 
-              agistmentId={agistment.id}
-              shareDescription={`Check out ${agistment.basicInfo.name} on AgistMe`}
-              hideShare={true}
-            />
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleFavorite();
+              }}
+              className="flex items-center gap-1 text-sm hover:text-primary-600 transition-colors"
+              disabled={isLoading}
+            >
+              <Heart
+                className={`w-5 h-5 ${
+                  isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'
+                }`}
+              />
+            </button>
             <div className="text-xs sm:text-sm">
               Last updated: {formatRelativeDate(agistment.modifiedAt)}
             </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Heart, Share2 } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentHeader } from '../components/Agistment/AgistmentHeader';
@@ -12,14 +12,17 @@ import { AgistmentFacilities } from '../components/Agistment/AgistmentFacilities
 import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptions';
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentPhotosView } from '../components/Agistment/AgistmentPhotosView';
-import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
+import { useFavorite } from '../hooks/useFavorite';
+import { useAuth } from '@clerk/clerk-react';
 
 export function ViewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
   const [agistment, setAgistment] = useState<AgistmentResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isFavorite, isLoading: isFavoriteLoading, toggleFavorite } = useFavorite(agistment!);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -32,7 +35,6 @@ export function ViewAgistmentDetail() {
       try {
         setLoading(true);
         const data = await agistmentService.getAgistment(id);
-        console.log('Loaded agistment:', data);
         setAgistment(data);
       } catch (err) {
         console.error('Error loading agistment:', err);
@@ -117,16 +119,30 @@ export function ViewAgistmentDetail() {
 
             {/* Header Section */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="mb-4">
+              <div className="mb-4 flex gap-4">
                 {agistment && (
-                  <ShareFavoriteButtons 
-                    agistmentId={agistment.id}
-                    shareDescription={agistment.propertyDescription?.description || ''}
-                    hideShare={false}
-                    onFavorite={() => {
-                      console.log('Favorite toggled for:', agistment.id);
-                    }}
-                  />
+                  <>
+                    <button
+                      onClick={toggleFavorite}
+                      className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+                      disabled={isFavoriteLoading || !agistment}
+                    >
+                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
+                    </button>
+                    <button 
+                      onClick={() => {
+                        navigator.share({
+                          title: agistment.basicInfo.name,
+                          text: agistment.propertyDescription?.description || '',
+                          url: window.location.href
+                        }).catch(console.error);
+                      }}
+                      className="flex items-center gap-2 text-sm hover:text-primary-600 transition-colors"
+                    >
+                      <Share2 className="w-5 h-5" />
+                      <span>Share</span>
+                    </button>
+                  </>
                 )}
               </div>
               <AgistmentHeader

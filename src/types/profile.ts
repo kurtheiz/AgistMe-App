@@ -1,10 +1,12 @@
+import { Location } from './agistment';
+
 export interface Favourite {
     id: string;
     name: string;
     lastUpdate: string;
     status: string;
-    location: string;
-    photo?: string;
+    location: Location;
+    photo: string | null;
 }
 
 export interface Horse {

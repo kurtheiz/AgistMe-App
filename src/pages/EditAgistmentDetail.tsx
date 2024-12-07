@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
-import { ChevronLeft, Pencil } from 'lucide-react';
+import { ChevronLeft, Pencil, Heart, Share2 } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
@@ -20,7 +20,6 @@ import { AgistmentHeaderModal } from '../components/Agistment/AgistmentHeaderMod
 import { AgistmentPaddocksModal } from '../components/Agistment/AgistmentPaddocksModal';
 import { AgistmentRidingFacilitiesModal } from '../components/Agistment/AgistmentRidingFacilitiesModal';
 import { AgistmentFacilitiesModal } from '../components/Agistment/AgistmentFacilitiesModal';
-import { ShareFavoriteButtons } from '../components/shared/ShareFavoriteButtons';
 
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -247,20 +246,35 @@ function EditAgistmentDetail() {
 
             {/* Header Section */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="mb-4 flex justify-between items-center">
-                <button
-                  onClick={() => setIsHeaderModalOpen(true)}
-                  className="button-toolbar"
-                  title="Edit header information"
-                >
-                  <Pencil className="w-4 h-4" />
-                  <span>Edit</span>
-                </button>
-                <ShareFavoriteButtons 
-                  agistmentId={agistment?.id || ''}
-                  shareDescription={`Check out this property on AgistMe: ${agistment?.basicInfo?.name || ''}`}
-                  hideEdit={true}
-                />
+              <div className="mb-4 flex gap-4">
+                {agistment && (
+                  <>
+                    <button 
+                      onClick={() => {
+                        console.log('Favorite toggled for:', agistment.id);
+                      }}
+                      className="flex items-center gap-2 text-sm hover:text-primary-600 transition-colors"
+                    >
+                      <Heart 
+                        className={`w-5 h-5 ${agistment.isFavourite ? 'fill-primary-600 text-primary-600' : ''}`}
+                      />
+                      <span>Favorite</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        navigator.share({
+                          title: agistment.basicInfo.name,
+                          text: agistment.propertyDescription?.description || '',
+                          url: window.location.href
+                        }).catch(console.error);
+                      }}
+                      className="flex items-center gap-2 text-sm hover:text-primary-600 transition-colors"
+                    >
+                      <Share2 className="w-5 h-5" />
+                      <span>Share</span>
+                    </button>
+                  </>
+                )}
               </div>
               <AgistmentHeader
                 basicInfo={agistment?.basicInfo}

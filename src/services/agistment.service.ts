@@ -21,10 +21,40 @@ class AgistmentService {
     this.api = createApi(API_BASE_URL);
   }
 
+  private async waitForAuth() {
+    // Wait for Clerk to be available
+    while (!window.Clerk) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    // Wait for session to be initialized
+    await window.Clerk.load();
+  }
+
+  private async getAuthHeaders() {
+    try {
+      await this.waitForAuth();
+      const session = await window.Clerk?.session;
+      if (session) {
+        const token = await session.getToken({ template: 'AgistMe' });
+        if (token) {
+          return {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          };
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to get auth token:', error);
+    }
+    return {};
+  }
+
   async searchAgistments(searchHash: string, nextToken?: string): Promise<SearchResponse> {
     try {
       const url = `v1/agistments?q=${encodeURIComponent(searchHash)}${nextToken ? `&n=${nextToken}` : ''}`;
-      const response = await this.api.get<SearchResponse>(url);
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get<SearchResponse>(url, authHeaders);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to search agistments:', error);
@@ -35,7 +65,8 @@ class AgistmentService {
   async getAgistment(id: string): Promise<AgistmentResponse> {
     try {
       const url = `v1/agistments/${encodeURIComponent(id)}`;
-      const response = await this.api.get<AgistmentResponse>(url);
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get<AgistmentResponse>(url, authHeaders);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get agistment:', error);
@@ -45,7 +76,8 @@ class AgistmentService {
 
   async updateAgistment(id: string, agistment: Partial<AgistmentResponse>): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.put<AgistmentResponse>(`v1/protected/agistments/${id}`, agistment);
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.put<AgistmentResponse>(`v1/protected/agistments/${id}`, agistment, authHeaders);
       return response.data;
     } catch (error: unknown) {
       console.error(`Failed to update agistment ${id}:`, error);
@@ -55,7 +87,8 @@ class AgistmentService {
 
   async deleteAgistment(id: string): Promise<void> {
     try {
-      await this.api.delete(`v1/protected/agistments/${id}`);
+      const authHeaders = await this.getAuthHeaders();
+      await this.api.delete(`v1/protected/agistments/${id}`, authHeaders);
     } catch (error: unknown) {
       console.error(`Failed to delete agistment ${id}:`, error);
       throw error;
@@ -64,11 +97,18 @@ class AgistmentService {
 
   async createFromText(text: string): Promise<AgistmentResponse> {
     try {
-      const response = await this.api.post<AgistmentResponse>('v1/protected/agistments/from-text', text, {
-        headers: {
-          'Content-Type': 'text/plain',
-        },
-      });
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.post<AgistmentResponse>(
+        'v1/protected/agistments/from-text',
+        text,
+        {
+          ...authHeaders,
+          headers: {
+            ...authHeaders.headers,
+            'Content-Type': 'text/plain',
+          },
+        }
+      );
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to create agistment from text:', error);
@@ -79,7 +119,8 @@ class AgistmentService {
   async getMyAgistments(): Promise<SearchResponse> {
     try {
       const url = 'v1/protected/agistments/my';
-      const response = await this.api.get<SearchResponse>(url);
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get<SearchResponse>(url, authHeaders);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get my agistments:', error);
@@ -89,7 +130,8 @@ class AgistmentService {
 
   async getFeaturedAgistments(): Promise<SearchResponse> {
     try {
-      const response = await this.api.get<SearchResponse>('v1/protected/agistments/featured');
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get<SearchResponse>('v1/agistments/featured', authHeaders);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get featured agistments:', error);
@@ -99,9 +141,8 @@ class AgistmentService {
 
   async getFavoriteAgistments(): Promise<SearchResponse> {
     try {
-      console.log('Calling getFavoriteAgistments API');
-      const response = await this.api.get<SearchResponse>('v1/protected/agistments/favourites');
-      console.log('API Response:', response);
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get<SearchResponse>('v1/protected/agistments/favourites', authHeaders);
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get favorite agistments:', error);
@@ -119,10 +160,9 @@ class AgistmentService {
         image_type: 'agistment'
       };
       
-      console.log('Requesting presigned URL for agistment photo...');
-      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', presignedRequest);
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', presignedRequest, authHeaders);
       const presignedData = response.data[0];
-      console.log('Received presigned URL data:', presignedData);
 
       // Create form data for S3 upload
       const formData = new FormData();
@@ -131,7 +171,6 @@ class AgistmentService {
       });
       formData.append('file', file);
 
-      console.log('Uploading to S3...');
       // Upload to S3
       const uploadResponse = await fetch(presignedData.url, {
         method: 'POST',

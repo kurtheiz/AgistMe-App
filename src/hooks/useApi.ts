@@ -84,48 +84,22 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
   instance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
       try {
-        // Check if this is a protected route
-        const isProtectedEndpoint = config.url?.includes('/v1/protected');
-
-        if (isProtectedEndpoint) {
-          const session = await window.Clerk?.session;
-          if (!session) {
-            console.warn('No Clerk session available for protected request');
-            return Promise.reject(new Error('Authentication required'));
-          }
-
+        const session = await window.Clerk?.session;
+        if (session) {
           const token = await session.getToken({ template: 'AgistMe' });
           if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
-          } else {
-            console.warn('No AgistMe JWT token available for protected request to:', config.url);
-            return Promise.reject(new Error('Authentication required'));
-          }
-        } else {
-          // For non-protected routes, try to add auth if available
-          try {
-            const session = await window.Clerk?.session;
-            if (session) {
-              const token = await session.getToken({ template: 'AgistMe' });
-              if (token && config.headers) {
-                config.headers.Authorization = `Bearer ${token}`;
-              }
-            }
-          } catch (error) {
-            // Continue without auth for non-protected routes
-            console.warn('Failed to get optional auth token:', error);
           }
         }
 
         onRequestStart?.();
         return config;
       } catch (error) {
-        console.error('Error in request interceptor:', error);
-        return Promise.reject(error);
+        console.warn('Error getting auth token:', error);
+        return config;
       }
     },
     (error) => {
-      console.error('Request interceptor error:', error);
       onRequestEnd?.();
       return Promise.reject(error);
     }
