@@ -325,11 +325,9 @@ export function SearchModal({
                   Radius
                 </label>
                 <span className="text-lg font-semibold text-neutral-900">
-                  {!searchCriteria.suburbs.some((suburb: Suburb) => suburb.locationType === LocationType.SUBURB) 
-                    ? 'Any' 
-                    : searchCriteria.radius === 0 
-                      ? 'Exact' 
-                      : `${searchCriteria.radius}km`}
+                  {searchCriteria.radius === 0 
+                    ? 'Exact'
+                    : `${searchCriteria.radius}km`}
                 </span>
               </div>
               <input
