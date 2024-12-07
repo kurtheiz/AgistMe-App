@@ -4,6 +4,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Captions from "yet-another-react-lightbox/plugins/captions";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import "yet-another-react-lightbox/plugins/captions.css";
 import { Photo } from '../../types/agistment';
@@ -100,7 +101,7 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
         close={() => setIsLightboxOpen(false)}
         index={currentImageIndex}
         slides={galleryImages}
-        plugins={[Thumbnails, Captions]}
+        plugins={[Thumbnails, Captions, Zoom]}
         thumbnails={{
           position: "bottom",
           width: 120,
@@ -114,6 +115,17 @@ export const AgistmentPhotosView = ({ photos = [] }: Props) => {
         captions={{
           descriptionTextAlign: "center",
           showToggle: false
+        }}
+        zoom={{
+          maxZoomPixelRatio: 3,
+          zoomInMultiplier: 2,
+          doubleTapDelay: 300,
+          doubleClickDelay: 300,
+          doubleClickMaxStops: 2,
+          keyboardMoveDistance: 50,
+          wheelZoomDistanceFactor: 100,
+          pinchZoomDistanceFactor: 100,
+          scrollToZoom: true
         }}
         styles={{
           captionsTitle: { 

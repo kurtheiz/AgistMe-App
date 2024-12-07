@@ -18,6 +18,8 @@ import { Dashboard } from './pages/Dashboard';
 import EditAgistmentDetail from './pages/EditAgistmentDetail';
 import { FavoriteAgistments } from './pages/FavoriteAgistments';
 import { MyAgistments } from './pages/MyAgistments';
+import { SignInPage } from './pages/SignInPage';
+import { SignUpPage } from './pages/SignUpPage';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -29,6 +31,8 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Layout />} errorElement={<ErrorPage />}>
       <Route path="/" element={<Home />} />
+      <Route path="/sign-in" element={<SignInPage />} />
+      <Route path="/sign-up" element={<SignUpPage />} />
       <Route path="/about" element={<About />} />
       <Route path="agistments">
         <Route index element={<Agistments />} />
