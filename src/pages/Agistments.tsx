@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { useProfile } from '../context/ProfileContext';
+import { useUser } from "@clerk/clerk-react";
 import { AgistmentList } from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
@@ -11,6 +11,7 @@ import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
 import { scrollManager } from '../utils/scrollManager';
 import { agistmentService } from '../services/agistment.service';
+import { profileService } from '../services/profile.service';
 
 const decodeSearchHash = (hash: string): SearchRequest => {
   try {
@@ -59,7 +60,7 @@ const decodeSearchHash = (hash: string): SearchRequest => {
 export function Agistments() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { profile, updateProfileData } = useProfile();
+  const { user } = useUser();
   const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
@@ -67,6 +68,7 @@ export function Agistments() {
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
   const [searchTitle, setSearchTitle] = useState('Search Properties');
+  const [refreshSavedSearches, setRefreshSavedSearches] = useState(0);
   const searchHash = searchParams.get('q') || '';
 
   const loadMore = async () => {
@@ -261,7 +263,7 @@ export function Agistments() {
             <button
               type="button"
               onClick={() => {
-                if (!profile) {
+                if (!user) {
                   toast.error('Please sign in to save searches');
                 } else {
                   setIsSaveSearchModalOpen(true);
@@ -380,6 +382,7 @@ export function Agistments() {
           initialSearchHash={searchHash}
           forceReset={forceResetSearch}
           title={searchTitle}
+          refreshSavedSearches={refreshSavedSearches}
         />
 
         {isSaveSearchModalOpen && (
@@ -388,7 +391,7 @@ export function Agistments() {
             onClose={() => setIsSaveSearchModalOpen(false)}
             searchCriteria={currentCriteria}
             onSave={async (name, enableNotifications) => {
-              if (!profile || !searchHash) return;
+              if (!user || !searchHash) return;
 
               const newSavedSearch = {
                 id: crypto.randomUUID(),
@@ -398,14 +401,12 @@ export function Agistments() {
                 enableNotifications
               };
 
-              const updatedProfile = {
-                ...profile,
-                savedSearches: [...(profile.savedSearches || []), newSavedSearch]
-              };
-
               try {
-                await updateProfileData(updatedProfile);
+                const response = await profileService.getSavedSearches();
+                const updatedSearches = [...response.savedSearches, newSavedSearch];
+                await profileService.updateSavedSearches(updatedSearches);
                 setIsSaveSearchModalOpen(false);
+                setRefreshSavedSearches(prev => prev + 1);
                 toast.success('Search saved successfully');
               } catch (error) {
                 console.error('Failed to save search:', error);

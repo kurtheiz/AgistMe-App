@@ -1,18 +1,28 @@
-export interface Horse {
-  id: string;
-  name: string;
-  breed: string;
-  gender: string;
-  description?: string;
-  colour?: string;
-  size?: number;
-  yearOfBirth?: number;
-  photo?: string;
+export interface Favourite {
+    id: string;
+    name: string;
+    lastUpdate: string;
+    status: string;
+    location: string;
+    photo?: string;
 }
 
-export interface FavoriteItem {
-    agistmentId: string;
-    lastUpdate: string;
+export interface Horse {
+    id: string;
+    name: string;
+    age?: number;
+    breed?: string;
+    description?: string;
+    discipline?: string;
+    height?: number;
+    lastUpdate?: string;
+    photo?: string;
+    sex?: string;
+    temperament?: string;
+    gender?: string;
+    colour?: string;
+    size?: string;
+    yearOfBirth?: number;
 }
 
 export interface SavedSearch {
@@ -20,50 +30,55 @@ export interface SavedSearch {
     name: string;
     searchHash: string;
     lastUpdate: string;
+    enableNotifications: boolean;
 }
 
-export interface Profile {
+export interface ProfileResponse {
     id: string;
-    firstName: string;
-    lastName: string;
+    address?: string;
     email: string;
-    mobile: string;
-    profilePhoto: string;
-    address: string;
-    postcode: string;
-    suburb: string;
-    state: string;
-    region: string;
-    suburbId: string;
-    geohash: string;
-    dateOfBirth: string;
-    comments: string;
+    firstName?: string;
+    lastName?: string;
+    geohash?: string;
+    dateOfBirth?: string;
+    mobile?: string;
+    postcode?: string;
+    profilePhoto?: string;
+    region?: string;
+    state?: string;
+    suburb?: string;
+    lastUpdate?: string;
+    comments?: string;
     shareId: string;
     showProfileInEnquiry: boolean;
-    availability?: string;
-    lastUpdate: string;
-    horses: Horse[];
-    favourites: FavoriteItem[];
-    savedSearches: SavedSearch[];
-    agistor: boolean;
-    myAgistments: string[];
 }
 
-export interface UpdateProfileRequest {
-  firstName?: string;
-  lastName?: string;
-  comments?: string;
-  profilePhoto?: string;
-  mobile?: string;
-  dateOfBirth?: string;
-  address?: string;
-  suburb?: string;
-  state?: string;
-  postcode?: string;
-  geohash?: string;
-  suburbId?: string;
-  region?: string;
-  showProfileInEnquiry?: boolean;
-  agistor?: boolean;
-  favourites?: FavoriteItem[];
+export interface Profile extends ProfileResponse {}
+
+export interface ProfileUpdateRequest {
+    address?: string;
+    firstName?: string;
+    lastName?: string;
+    geohash?: string;
+    dateOfBirth?: string;
+    mobile?: string;
+    postcode?: string;
+    profilePhoto?: string;
+    region?: string;
+    state?: string;
+    suburb?: string;
+    comments?: string;
+    showProfileInEnquiry: boolean;
+}
+
+export interface SavedSearchesResponse {
+    savedSearches: SavedSearch[];
+}
+
+export interface HorsesResponse {
+    horses: Horse[];
+}
+
+export interface FavouritesResponse {
+    favourites: Favourite[];
 }

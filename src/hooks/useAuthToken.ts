@@ -1,19 +1,31 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useEffect, useRef, useState } from 'react';
+import { Roles } from '../types/globals';
 
 const TOKEN_KEY = 'auth_token';
 
-export const useAuthToken = () => {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+export interface AuthState {
+  token: string | null;
+  role: Roles | null;
+  isLoaded: boolean;
+  isSignedIn: boolean;
+  setAuthToken: (token: string | null) => void;
+}
+
+export const useAuthToken = (): AuthState => {
+  const { getToken, isLoaded, isSignedIn, sessionClaims } = useAuth();
   const tokenUpdateInProgress = useRef(false);
   const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<Roles | null>(null);
 
   // Helper functions for token management
   const setAuthToken = (token: string | null) => {
     if (token) {
       localStorage.setItem(TOKEN_KEY, token);
+      setToken(token);
     } else {
       localStorage.removeItem(TOKEN_KEY);
+      setToken(null);
     }
   };
 
@@ -28,10 +40,10 @@ export const useAuthToken = () => {
       try {
         tokenUpdateInProgress.current = true;
 
-        // If not signed in, clear token
+        // If not signed in, clear token and role
         if (!isSignedIn) {
           setAuthToken(null);
-          setToken(null);
+          setRole(null);
           return;
         }
 
@@ -41,18 +53,27 @@ export const useAuthToken = () => {
           const newToken = await getToken({ template: "AgistMe" });
           if (newToken) {
             setAuthToken(newToken);
-            setToken(newToken);
           }
         } else {
           setToken(currentToken);
         }
+
+        // Update role from session claims
+        const userRole = sessionClaims?.metadata?.role as Roles | undefined;
+        setRole(userRole || null);
       } finally {
         tokenUpdateInProgress.current = false;
       }
     };
 
     updateToken();
-  }, [getToken, isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, getToken, sessionClaims]);
 
-  return { token, setAuthToken };
+  return {
+    token,
+    role,
+    isLoaded,
+    isSignedIn,
+    setAuthToken
+  };
 };

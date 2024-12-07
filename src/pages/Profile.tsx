@@ -1,22 +1,104 @@
-import { useAuth, useClerk } from '@clerk/clerk-react';
+import { useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import Bio from '../components/Bio';
-import { useProfile } from '../context/ProfileContext';
 import { useState, useEffect } from 'react';
-import { LogOut } from 'lucide-react';
+import { LogOut, ChevronDown, Bell, BellOff, Pencil } from 'lucide-react';
+import { useAgistor } from '../hooks/useAgistor';
+import { SavedSearchesModal } from '../components/Search/SavedSearchesModal';
+import { SaveSearchModal } from '../components/Search/SaveSearchModal';
+import { Disclosure } from '@headlessui/react';
+import Bio from '../components/Bio';
+import { toast } from 'react-hot-toast';
+import { profileService } from '../services/profile.service';
+import { SavedSearch } from '../types/profile';
+import { decodeSearchHash } from '../utils/searchUtils';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
   const { signOut } = useClerk();
+  const { user } = useUser();
   const navigate = useNavigate();
+  const clerk = useClerk();
+  const { isAgistor } = useAgistor();
   const [isBioOpen, setIsBioOpen] = useState(false);
-  const { profile, error, clearProfile } = useProfile();
+  const [isSavedSearchesOpen, setIsSavedSearchesOpen] = useState(false);
+  const [showProfileInEnquiry, setShowProfileInEnquiry] = useState(false);
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingSearch, setEditingSearch] = useState<SavedSearch | null>(null);
+  const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
+  const [favourites, setFavourites] = useState<Favourite[]>([]);
+  const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
+
+  const formatLastUpdate = (date: string) => {
+    if (!date) return '';
+    
+    const now = new Date();
+    const updateDate = new Date(date);
+
+    // Check if date is valid
+    if (isNaN(updateDate.getTime())) return '';
+    
+    const diffInHours = Math.floor((now.getTime() - updateDate.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 24) {
+      return diffInHours === 0 
+        ? 'Less than an hour ago'
+        : `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    }
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) {
+      return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+    }
+    
+    return updateDate.toLocaleDateString();
+  };
 
   useEffect(() => {
     if (!isSignedIn && isLoaded) {
       navigate('/');
     }
   }, [isSignedIn, isLoaded, navigate]);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      setIsLoading(true);
+      try {
+        const profile = await profileService.getProfile();
+        setShowProfileInEnquiry(profile.showProfileInEnquiry);
+        const searches = await profileService.getSavedSearches();
+        setSavedSearches(searches.savedSearches);
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        toast.error('Failed to load profile');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user) {
+      loadProfile();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const loadFavourites = async () => {
+      if (!isSignedIn) return;
+      
+      setIsLoadingFavourites(true);
+      try {
+        const response = await profileService.getFavourites();
+        setFavourites(response.favourites);
+      } catch (error) {
+        console.error('Error loading favourites:', error);
+        toast.error('Failed to load favourites');
+      } finally {
+        setIsLoadingFavourites(false);
+      }
+    };
+
+    loadFavourites();
+  }, [isSignedIn]);
 
   if (!isLoaded) {
     return (
@@ -31,17 +113,8 @@ export default function Profile() {
     return null;
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="text-red-500">Error loading profile: {error}</div>
-      </div>
-    );
-  }
-
   const handleSignOut = async () => {
     try {
-      clearProfile();
       await signOut();
       navigate('/');
     } catch (error) {
@@ -57,6 +130,29 @@ export default function Profile() {
     setIsBioOpen(false);
   };
 
+  const handleEditSearch = async (name: string, enableNotifications: boolean) => {
+    if (!editingSearch) return;
+    
+    try {
+      const updatedSearches = savedSearches.map(search => {
+        if (search.id === editingSearch.id) {
+          return {
+            ...search,
+            name,
+            enableNotifications
+          };
+        }
+        return search;
+      });
+      await profileService.updateSavedSearches(updatedSearches);
+      setSavedSearches(updatedSearches);
+      toast.success('Search updated');
+    } catch (error) {
+      console.error('Failed to update search:', error);
+      toast.error('Failed to update search');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -64,94 +160,321 @@ export default function Profile() {
           <h1 className="text-2xl font-bold text-gray-900 flex items-center">My Profile</h1>
         </div>
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-            {/* Profile Card */}
-            <div 
-              onClick={handleOpenBio}
-              className="bg-white rounded-lg shadow-sm p-6 flex flex-col cursor-pointer hover:shadow-md transition-shadow"
-            >
-              <div className="flex flex-col space-y-4">
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-neutral-900">My Bio</h2>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${profile?.showProfileInEnquiry ? 'bg-green-500' : 'bg-red-500'}`} />
-                    <span className="text-sm text-neutral-700">
-                      Bio sharing {profile?.showProfileInEnquiry ? 'enabled' : 'disabled'}
+          <div className="space-y-4">
+            {/* Bio */}
+            <Disclosure defaultOpen={false}>
+              {({ open }) => (
+                <div className="bg-white rounded-lg shadow-sm">
+                  <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
+                    <h2 className="text-lg font-medium">My Bio</h2>
+                    <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
+                  </Disclosure.Button>
+                  <Disclosure.Panel className="px-6 pb-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Bio sharing</label>
+                        <p className="text-neutral-600">
+                          Bio sharing {showProfileInEnquiry ? 'enabled' : 'disabled'}
+                        </p>
+                      </div>
+                      <button
+                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                        onClick={handleOpenBio}
+                      >
+                        Edit Bio
+                      </button>
+                    </div>
+                  </Disclosure.Panel>
+                </div>
+              )}
+            </Disclosure>
+
+            {/* My Horses */}
+            <Disclosure defaultOpen={false}>
+              {({ open }) => (
+                <div className="bg-white rounded-lg shadow-sm">
+                  <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
+                    <h2 className="text-lg font-medium">My Horses</h2>
+                    <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
+                  </Disclosure.Button>
+                  <Disclosure.Panel className="px-6 pb-6">
+                    <div className="space-y-4">
+                      <p className="text-neutral-600">
+                        View and manage your horses
+                      </p>
+                      <button
+                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                        onClick={() => navigate('/horses')}
+                      >
+                        View Horses
+                      </button>
+                    </div>
+                  </Disclosure.Panel>
+                </div>
+              )}
+            </Disclosure>
+
+            {/* Favourites */}
+            <Disclosure defaultOpen={false}>
+              {({ open }) => (
+                <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
+                  <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
+                    <span className="font-medium">
+                      {favourites.length === 0
+                        ? 'No Favourites'
+                        : favourites.length === 1
+                        ? '1 Favourite'
+                        : `${favourites.length} Favourites`}
                     </span>
+                    <ChevronDown
+                      className={`${
+                        open ? 'transform rotate-180' : ''
+                      } w-5 h-5 text-neutral-500`}
+                    />
+                  </Disclosure.Button>
+                  <Disclosure.Panel className="px-4 pb-4">
+                    <div className="space-y-4">
+                      {isLoadingFavourites ? (
+                        <div className="text-neutral-600">Loading favourites...</div>
+                      ) : favourites.length === 0 ? (
+                        <div className="text-neutral-600">No favourites yet</div>
+                      ) : (
+                        <div className="space-y-4">
+                          {favourites.map((favourite) => {
+                            const isInactive = favourite.status === 'HIDDEN' || favourite.status === 'REMOVED';
+                            const statusText = favourite.status;
+                            return (
+                              <div 
+                                key={favourite.id} 
+                                className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm relative overflow-hidden
+                                  ${isInactive 
+                                    ? 'opacity-60' 
+                                    : 'cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors'
+                                  }`}
+                                onClick={() => !isInactive && navigate(`/agistments/${favourite.id}`)}
+                              >
+                                {isInactive && (
+                                  <div className="absolute inset-0 flex items-center justify-center rotate-[-35deg] z-10">
+                                    <span className="text-red-500/50 dark:text-red-500/60 text-2xl font-bold whitespace-nowrap">
+                                      {statusText}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="p-4 relative z-0">
+                                  <div className="flex flex-col space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      {favourite.photo && (
+                                        <img 
+                                          src={favourite.photo} 
+                                          alt={favourite.name}
+                                          className={`w-16 h-16 object-cover rounded-lg ${isInactive ? 'grayscale' : ''}`}
+                                        />
+                                      )}
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">{favourite.name}</span>
+                                        {favourite.location && (
+                                          <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                                            {favourite.location}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs">
+                                      {favourite.lastUpdate && (
+                                        <span className="text-neutral-500 dark:text-neutral-400">
+                                          Last updated: {formatLastUpdate(favourite.lastUpdate)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </Disclosure.Panel>
+                </div>
+              )}
+            </Disclosure>
+
+            {/* Saved Searches */}
+            <Disclosure defaultOpen={false}>
+              {({ open }) => (
+                <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
+                  <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
+                    <span className="font-medium">
+                      {savedSearches.length === 0
+                        ? 'No Saved Searches'
+                        : savedSearches.length === 1
+                        ? '1 Saved Search'
+                        : `${savedSearches.length} Saved Searches`}
+                    </span>
+                    <ChevronDown
+                      className={`${
+                        open ? 'transform rotate-180' : ''
+                      } w-5 h-5 text-neutral-500`}
+                    />
+                  </Disclosure.Button>
+                  <Disclosure.Panel className="px-6 pb-6">
+                    <div className="space-y-4">
+                      {isLoading ? (
+                        <div className="text-neutral-600">Loading saved searches...</div>
+                      ) : savedSearches.length === 0 ? (
+                        <div className="text-neutral-600">No saved searches yet</div>
+                      ) : (
+                        <div className="space-y-4">
+                          {savedSearches.map((search) => {
+                            const decodedSearch = decodeSearchHash(search.searchHash);
+                            const locationName = decodedSearch.suburbs[0]?.suburb || 'Any location';
+                            const radius = decodedSearch.radius > 0 ? ` within ${decodedSearch.radius}km` : '';
+                            
+                            // Format additional details
+                            const details = [];
+                            if (decodedSearch.spaces > 0) details.push(`${decodedSearch.spaces} spaces`);
+                            if (decodedSearch.maxPrice > 0) details.push(`$${decodedSearch.maxPrice}/week`);
+                            if (decodedSearch.paddockTypes.length > 0) {
+                              details.push(...decodedSearch.paddockTypes.map(type => 
+                                type.charAt(0).toUpperCase() + type.slice(1)
+                              ));
+                            }
+                            if (decodedSearch.hasArena) details.push('Arena');
+                            if (decodedSearch.hasRoundYard) details.push('Round Yard');
+                            if (decodedSearch.facilities?.length > 0) {
+                              details.push(...decodedSearch.facilities.map(facility => {
+                                switch (facility) {
+                                  case 'feedRoom': return 'Feed Room';
+                                  case 'tackRoom': return 'Tack Room';
+                                  case 'floatParking': return 'Float Parking';
+                                  case 'hotWash': return 'Hot Wash';
+                                  case 'stables': return 'Stables';
+                                  case 'tieUp': return 'Tie Up';
+                                  default: return facility;
+                                }
+                              }));
+                            }
+
+                            return (
+                              <div key={search.id} className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
+                                <div className="p-4">
+                                  <div className="flex flex-col space-y-2">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className="font-medium">{search.name}</span>
+                                      <button
+                                        onClick={() => {
+                                          setEditingSearch(search);
+                                          setShowSaveSearchModal(true);
+                                        }}
+                                        className="button-toolbar"
+                                        title="Edit saved search"
+                                      >
+                                        <Pencil className="w-4 h-4" />
+                                        <span>Edit</span>
+                                      </button>
+                                    </div>
+                                    <div className="flex flex-col space-y-1">
+                                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                                        {locationName}{radius}
+                                      </div>
+                                      {details.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5">
+                                          {details.map((detail, index) => (
+                                            <span
+                                              key={index}
+                                              className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300"
+                                            >
+                                              {detail}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      )}
+                                      <div className="flex flex-col space-y-1 mt-2">
+                                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                                          Last updated: {formatLastUpdate(search.lastUpdate)}
+                                        </div>
+                                        <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full w-fit
+                                          ${search.enableNotifications 
+                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                          }`}>
+                                          {search.enableNotifications ? (
+                                            <>
+                                              <Bell className="h-3.5 w-3.5" />
+                                              <span>Notifications on</span>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <BellOff className="h-3.5 w-3.5" />
+                                              <span>Notifications off</span>
+                                            </>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </Disclosure.Panel>
+                </div>
+              )}
+            </Disclosure>
+
+            {/* My Agistments */}
+            {isAgistor && (
+              <Disclosure defaultOpen={false}>
+                {({ open }) => (
+                  <div className="bg-white rounded-lg shadow-sm">
+                    <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
+                      <h2 className="text-lg font-medium">My Agistments</h2>
+                      <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
+                    </Disclosure.Button>
+                    <Disclosure.Panel className="px-6 pb-6">
+                      <div className="space-y-4">
+                        <p className="text-neutral-600">
+                          View and manage your agistment listings
+                        </p>
+                        <button
+                          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                          onClick={() => navigate('/agistments/my')}
+                        >
+                          View Agistments
+                        </button>
+                      </div>
+                    </Disclosure.Panel>
                   </div>
-                  <p className="text-sm text-neutral-600 mt-2">
-                    Update your personal contact information and address details here, as well as set your bio privacy
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* My Horses Card */}
-            <div 
-              onClick={() => navigate('/horses')}
-              className="bg-white rounded-lg shadow-sm p-6 flex flex-col cursor-pointer hover:shadow-md transition-shadow"
-            >
-              <div className="flex flex-col space-y-4">
-                <div className="flex flex-col space-y-2">
-                  <h2 className="text-xl font-semibold text-neutral-900">My Horses</h2>
-                  <p className="text-sm text-neutral-600">
-                    View and manage your horses
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Favourites Card */}
-            <div 
-              onClick={() => navigate('/agistments/favourites')}
-              className="bg-white rounded-lg shadow-sm p-6 flex flex-col cursor-pointer hover:shadow-md transition-shadow"
-            >
-              <div className="flex flex-col h-full">
-                <h2 className="text-xl font-semibold text-neutral-900 mb-6">Favourites</h2>
-
-                <div className="flex-1 flex flex-col items-left justify-left text-left">
-                  <p className="text-sm text-neutral-600">
-                    Manage your favourited agistment properties as well as notifications for updates
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Searches Card */}
-            <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
-              <div className="flex flex-col space-y-4">
-                <h2 className="text-xl font-semibold text-neutral-900">Searches</h2>
-
-                <div className="flex flex-col items-left justify-left text-left">
-                  <p className="text-sm text-neutral-600">
-                    Manage your saved searches and notification preferences
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* My Agistments Card - Only shown if user is an agistor */}
-            {profile?.agistor && (
-              <div 
-                onClick={() => navigate('/agistments/my')}
-                className="bg-white rounded-lg shadow-sm p-6 flex flex-col cursor-pointer hover:shadow-md transition-shadow"
-              >
-                <div className="flex flex-col space-y-4">
-                  <div className="flex flex-col space-y-2">
-                    <h2 className="text-xl font-semibold text-neutral-900">My Agistments</h2>
-                    <p className="text-sm text-neutral-600">
-                      View and manage your agistment listings
-                    </p>
-                  </div>
-                </div>
-              </div>
+                )}
+              </Disclosure>
             )}
-
-            {/* Bio Modal */}
-            <Bio isOpen={isBioOpen} onClose={handleCloseBio} />
           </div>
+
+          {/* Bio Modal */}
+          <Bio isOpen={isBioOpen} onClose={handleCloseBio} />
+
+          {/* Saved Searches Modal */}
+          <SavedSearchesModal
+            isOpen={isSavedSearchesOpen}
+            onClose={() => setIsSavedSearchesOpen(false)}
+          />
+
+          {/* Save Search Modal */}
+          <SaveSearchModal
+            isOpen={showSaveSearchModal}
+            onClose={() => {
+              setShowSaveSearchModal(false);
+              setEditingSearch(null);
+            }}
+            searchCriteria={editingSearch ? decodeSearchHash(editingSearch.searchHash) : null}
+            onSave={handleEditSearch}
+            initialName={editingSearch?.name}
+            initialNotifications={editingSearch?.enableNotifications}
+          />
+
           {/* Sign Out Button */}
           <button
             onClick={handleSignOut}

@@ -4,21 +4,18 @@ import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
-import { useProfile } from '../context/ProfileContext';
 import { useListingTypeStore } from '../stores/listingType.store';
 
 const CreateAgistment: React.FC = () => {
   const navigate = useNavigate();
   const { selectedType } = useListingTypeStore();
-  const { isLoaded } = useUser();
+  const { isLoaded, user } = useUser();
   const [text, setText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasClickedCreateFromText, setHasClickedCreateFromText] = useState(false);
-  const { profile, loading: profileLoading } = useProfile();
-  const [useProfileData] = useState(true);
 
-  // Wait for both Clerk and profile to be loaded
-  if (!isLoaded || profileLoading) {
+  // Wait for Clerk to be loaded
+  if (!isLoaded) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white"></div>
@@ -26,16 +23,16 @@ const CreateAgistment: React.FC = () => {
     );
   }
 
-  // Check if profile has any relevant data
-  const hasProfileData = profile && (
-    profile.email ||
-    profile.firstName ||
-    profile.lastName ||
-    profile.mobile ||
-    profile.address ||
-    profile.suburb ||
-    profile.state ||
-    profile.postcode
+  // Check if user has any relevant data
+  const hasUserData = user && (
+    user.emailAddresses?.[0]?.emailAddress ||
+    user.firstName ||
+    user.lastName ||
+    user.publicMetadata?.mobile ||
+    user.publicMetadata?.address ||
+    user.publicMetadata?.suburb ||
+    user.publicMetadata?.state ||
+    user.publicMetadata?.postcode
   );
 
   const placeholderText = `Horse agistment available in beautiful Samford Valley on our 10 acre property. We have 4 private paddocks available with access to a large sand arena, secure tack room and feed shed. Property has excellent facilities including float parking and a round yard.
@@ -43,6 +40,8 @@ const CreateAgistment: React.FC = () => {
 Agistment is $100 per week which includes quality pasture, daily water checks and hay supplementation in winter. All agistees have full use of facilities and will be joining a great community of like-minded horse owners. Available from March 1st.`;
 
   const createEmptyAgistment = (tempId: string): AgistmentResponse => {
+    const primaryEmail = user?.emailAddresses?.find(email => email.id === user.primaryEmailAddressId);
+    
     return {
       id: tempId,
       GSI1PK: '',
@@ -55,27 +54,31 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
         name: '',
         propertySize: 0
       },
-      propertyLocation: {
-        location: useProfileData && hasProfileData ? {
-          address: profile?.address || '',
-          postcode: profile?.postcode || '',
-          region: profile?.region || '',
-          state: profile?.state || '',
-          suburb: profile?.suburb || ''
-        } : {
+      propertyLocation: hasUserData ? {
+        location: {
+          address: user?.publicMetadata?.address as string || '',
+          postcode: user?.publicMetadata?.postcode as string || '',
+          region: user?.publicMetadata?.region as string || '',
+          state: user?.publicMetadata?.state as string || '',
+          suburb: user?.publicMetadata?.suburb as string || ''
+        }
+      } : {
+        location: {
           address: '',
-          suburb: '',
-          state: '',
           postcode: '',
-          region: ''
+          region: '',
+          state: '',
+          suburb: ''
         }
       },
-      contact: {
-        contactDetails: useProfileData && hasProfileData ? {
-          name: `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim(),
-          email: profile?.email || '',
-          number: profile?.mobile || ''
-        } : {
+      contact: hasUserData ? {
+        contactDetails: {
+          name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+          email: primaryEmail?.emailAddress || '',
+          number: user?.publicMetadata?.mobile as string || ''
+        }
+      } : {
+        contactDetails: {
           name: '',
           email: '',
           number: ''
@@ -148,28 +151,30 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       // Call the API to create from text
       const result = await agistmentService.createFromText(text);
       
-      // Add profile information to the result
-      const agistmentWithProfile: Partial<AgistmentResponse> = {
+      // Add user information to the result
+      const agistmentWithUser: Partial<AgistmentResponse> = {
         ...result,
         listing: { listingType: selectedType.listingType },
-        contact: {
-          contactDetails: useProfileData ? {
-            name: `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim(),
-            email: profile?.email || '',
-            number: profile?.mobile || ''
-          } : {
+        contact: hasUserData ? {
+          contactDetails: {
+            name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+            email: user?.emailAddresses?.[0]?.emailAddress || '',
+            number: user?.publicMetadata?.mobile as string || ''
+          }
+        } : {
+          contactDetails: {
             name: '',
             email: '',
             number: ''
           }
         },
-        propertyLocation: useProfileData ? {
+        propertyLocation: hasUserData ? {
           location: {
-            address: profile?.address || result.propertyLocation?.location?.address || '',
-            postcode: profile?.postcode || result.propertyLocation?.location?.postcode || '',
-            region: profile?.region || result.propertyLocation?.location?.region || '',
-            state: profile?.state || result.propertyLocation?.location?.state || '',
-            suburb: profile?.suburb || result.propertyLocation?.location?.suburb || ''
+            address: user?.publicMetadata?.address as string || result.propertyLocation?.location?.address || '',
+            postcode: user?.publicMetadata?.postcode as string || result.propertyLocation?.location?.postcode || '',
+            region: user?.publicMetadata?.region as string || result.propertyLocation?.location?.region || '',
+            state: user?.publicMetadata?.state as string || result.propertyLocation?.location?.state || '',
+            suburb: user?.publicMetadata?.suburb as string || result.propertyLocation?.location?.suburb || ''
           }
         } : {
           location: {
@@ -183,7 +188,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       };
       
       // Save the agistment
-      const savedAgistment = await agistmentService.updateAgistment(tempId, agistmentWithProfile);
+      const savedAgistment = await agistmentService.updateAgistment(tempId, agistmentWithUser);
       
       // Navigate to edit page
       navigate(`/agistments/${savedAgistment.id}/edit`);
@@ -255,7 +260,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
               </div>
               <div className="text-sm text-neutral-500 dark:text-neutral-400">
                 Automatically fill in your contact details and address from your profile, if the data exists
-                {!hasProfileData && (
+                {!hasUserData && (
                   <span className="block mt-1 text-neutral-400 dark:text-neutral-500">
                     No profile data available. Please update your profile first.
                   </span>

@@ -1,5 +1,14 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
-import { Profile, UpdateProfileRequest } from '../types/profile';
+import { 
+  ProfileResponse, 
+  ProfileUpdateRequest, 
+  SavedSearchesResponse, 
+  HorsesResponse, 
+  FavouritesResponse,
+  SavedSearch,
+  Horse,
+  Favourite
+} from '../types/profile';
 
 interface PresignedUrlRequest {
   filenames: string[];
@@ -40,10 +49,10 @@ class ProfileService {
     throw lastError;
   }
 
-  async getProfile(): Promise<Profile> {
+  async getProfile(): Promise<ProfileResponse> {
     return this.retryOperation(async () => {
       try {
-        const response = await this.api.get<Profile>('/v1/protected/profile');
+        const response = await this.api.get<ProfileResponse>('v1/protected/profile');
         return response.data;
       } catch (error: any) {
         console.error('Error fetching profile:', error);
@@ -52,13 +61,103 @@ class ProfileService {
     });
   }
 
-  async updateProfile(profileData: UpdateProfileRequest): Promise<Profile> {
+  async getSharedProfile(shareId: string): Promise<ProfileResponse> {
     return this.retryOperation(async () => {
       try {
-        const response = await this.api.put<Profile>('/v1/protected/profile', profileData);
+        const response = await this.api.get<ProfileResponse>(`v1/protected/profile/shared/${shareId}`);
+        return response.data;
+      } catch (error: any) {
+        console.error('Error fetching shared profile:', error);
+        throw error;
+      }
+    });
+  }
+
+  async updateProfile(profileData: ProfileUpdateRequest): Promise<ProfileResponse> {
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.put<ProfileResponse>('v1/protected/profile', profileData);
         return response.data;
       } catch (error) {
         console.error('Failed to update profile:', error);
+        throw error;
+      }
+    });
+  }
+
+  async getSavedSearches(): Promise<SavedSearchesResponse> {
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.get<SavedSearchesResponse>('v1/protected/profile/savedsearches');
+        return response.data;
+      } catch (error) {
+        console.error('Failed to get saved searches:', error);
+        throw error;
+      }
+    });
+  }
+
+  async updateSavedSearches(savedSearches: SavedSearch[]): Promise<SavedSearchesResponse> {
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.put<SavedSearchesResponse>('v1/protected/profile/savedsearches', {
+          savedSearches
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Failed to update saved searches:', error);
+        throw error;
+      }
+    });
+  }
+
+  async getHorses(): Promise<HorsesResponse> {
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.get<HorsesResponse>('v1/protected/profile/horses');
+        return response.data;
+      } catch (error) {
+        console.error('Failed to get horses:', error);
+        throw error;
+      }
+    });
+  }
+
+  async updateHorses(horses: Horse[]): Promise<HorsesResponse> {
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.put<HorsesResponse>('v1/protected/profile/horses', {
+          horses
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Failed to update horses:', error);
+        throw error;
+      }
+    });
+  }
+
+  async getFavourites(): Promise<FavouritesResponse> {
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.get<FavouritesResponse>('v1/protected/profile/favourites');
+        return response.data;
+      } catch (error) {
+        console.error('Failed to get favourites:', error);
+        throw error;
+      }
+    });
+  }
+
+  async updateFavourites(favourites: Favourite[]): Promise<FavouritesResponse> {
+    return this.retryOperation(async () => {
+      try {
+        const response = await this.api.put<FavouritesResponse>('v1/protected/profile/favourites', {
+          favourites
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Failed to update favourites:', error);
         throw error;
       }
     });
@@ -74,7 +173,7 @@ class ProfileService {
       };
       
       console.log('Requesting presigned URL...');
-      const response = await this.api.post<PresignedUrlResponse[]>('/v1/presigned-urls', presignedRequest);
+      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', presignedRequest);
       const presignedData = response.data[0];
       console.log('Received presigned URL data:', presignedData);
 
@@ -97,8 +196,6 @@ class ProfileService {
       }
 
       console.log('Upload successful');
-      // Return the publicUrl from the presigned URL response
-      console.log('Public URL:', presignedData.publicUrl);
       return presignedData.publicUrl;
     } catch (error) {
       console.error('Failed to upload profile photo:', error);
@@ -116,7 +213,7 @@ class ProfileService {
       };
       
       console.log('Requesting presigned URL for horse photo...');
-      const response = await this.api.post<PresignedUrlResponse[]>('/v1/presigned-urls', presignedRequest);
+      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', presignedRequest);
       const presignedData = response.data[0];
       console.log('Received presigned URL data:', presignedData);
 
@@ -142,34 +239,6 @@ class ProfileService {
       return presignedData.publicUrl;
     } catch (error) {
       console.error('Failed to upload horse photo:', error);
-      throw error;
-    }
-  }
-
-  async updateHorsePhoto(horseName: string, photoUrl: string): Promise<Profile> {
-    try {
-      // Get current profile first
-      const currentProfile = await this.getProfile();
-      
-      // Update the specific horse's photo
-      const updatedHorses = (currentProfile.horses || []).map(horse => 
-        horse.name === horseName 
-          ? { ...horse, photo: photoUrl }
-          : horse
-      );
-
-      // Update the entire profile
-      const updateData = {
-        ...currentProfile,
-        horses: updatedHorses
-      };
-      
-      // Remove fields that shouldn't be sent in update
-      const { id, email, lastUpdate, ...profileUpdateData } = updateData;
-      
-      return await this.updateProfile(profileUpdateData);
-    } catch (error) {
-      console.error('Failed to update horse photo:', error);
       throw error;
     }
   }

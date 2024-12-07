@@ -95,7 +95,7 @@ export function SuburbSearch({
     <div className={`relative ${className}`}>
       <div className={`flex flex-wrap gap-1.5 p-2 border-2 rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 ${multiple ? 'h-[72px] overflow-y-auto' : 'h-10'} suburb-chips-container ${disabled ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}>
         <div className="flex flex-wrap gap-1.5 w-full">
-          {multiple && selectedSuburbs.map((location) => (
+          {multiple && selectedSuburbs?.map((location) => (
             <div
               key={location.id}
               className="inline-flex items-center gap-1 px-2 h-7 text-sm bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 rounded-md"

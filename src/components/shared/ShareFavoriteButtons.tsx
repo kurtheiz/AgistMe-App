@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Share2, Star, Pencil } from 'lucide-react';
-import { useProfile } from '../../context/ProfileContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useUser, useAuth } from '@clerk/clerk-react';
 
 interface ShareFavoriteButtonsProps {
   agistmentId: string;
@@ -26,16 +26,20 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
   hideShare = false,
   hideEdit = false,
 }) => {
-  const { profile, updateProfileData, loading } = useProfile();
+  const { isLoaded, user } = useUser();
+  const { isSignedIn } = useAuth();
   const navigate = useNavigate();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
 
   useEffect(() => {
-    setIsFavorited(profile?.favourites?.some((fav) => fav.agistmentId === agistmentId) || false);
-  }, [profile?.favourites, agistmentId]);
+    if (user) {
+      const favorites = user.publicMetadata.favorites as { agistmentId: string }[] || [];
+      setIsFavorited(favorites.some((fav) => fav.agistmentId === agistmentId) || false);
+    }
+  }, [user?.publicMetadata.favorites, agistmentId]);
 
-  const isMyAgistment = profile?.myAgistments?.includes(agistmentId) || false;
+  const isMyAgistment = user?.publicMetadata.myAgistments?.includes(agistmentId) || false;
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -51,68 +55,46 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
         console.error('Error sharing:', error);
       }
     } else {
-      // Fallback for browsers that don't support the Web Share API
-      // Copy to clipboard instead
-      const shareUrl = `${window.location.origin}/agistments/${agistmentId}`;
-      await navigator.clipboard.writeText(shareUrl);
-      toast.success('Link copied to clipboard!');
+      const url = `${window.location.origin}/agistments/${agistmentId}`;
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied to clipboard');
+      onShare?.();
     }
   };
 
   const handleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('1. Favorite clicked with agistmentId:', agistmentId);
-    console.log('Current profile:', profile);
-
-    if (!profile) {
+    if (!isSignedIn) {
       toast.error('Please sign in to favorite properties');
       return;
     }
 
-    if (isUpdatingFavorite) {
-      console.log('Already updating favorite, skipping');
-      return;
-    }
-
-    setIsUpdatingFavorite(true);
+    if (isUpdatingFavorite) return;
 
     try {
-      const newState = !isFavorited;
-      console.log('2. Current favorite state:', isFavorited);
-      console.log('3. New favorite state will be:', newState);
-
-      const favoriteItem = { agistmentId, lastUpdate: new Date().toISOString() };
-      console.log('4. Created favorite item:', favoriteItem);
+      setIsUpdatingFavorite(true);
+      const currentFavorites = user?.publicMetadata.favorites as { agistmentId: string }[] || [];
       
-      // Create a new profile object with updated favorites
-      const updatedProfile = {
-        ...profile,
-        favourites: newState
-          ? [...(profile.favourites || []), favoriteItem]
-          : (profile.favourites || []).filter(fav => fav.agistmentId !== agistmentId)
-      };
-      console.log('5. Updated profile object:', updatedProfile);
+      let newFavorites;
+      if (isFavorited) {
+        newFavorites = currentFavorites.filter(fav => fav.agistmentId !== agistmentId);
+      } else {
+        newFavorites = [...currentFavorites, { agistmentId }];
+      }
 
-      // Remove fields that shouldn't be sent in update
-      const { id, email, lastUpdate, ...updateData } = updatedProfile;
-      console.log('6. Data to be sent to API:', updateData);
-      
-      // Update profile using context with all fields
-      console.log('7. Calling updateProfileData...');
-      await updateProfileData(updateData);
-      console.log('8. Profile update successful');
-
-      // Only update UI after successful API call
-      setIsFavorited(newState);
-      toast.success(newState ? 'Added to favorites' : 'Removed from favorites');
-      onFavorite?.();
-    } catch (error) {
-      console.error('Error updating favorites:', error, {
-        agistmentId,
-        profile,
-        isFavorited
+      await user?.update({
+        publicMetadata: {
+          ...user.publicMetadata,
+          favorites: newFavorites
+        }
       });
-      toast.error('Failed to update favorites. Please try again.');
+
+      setIsFavorited(!isFavorited);
+      onFavorite?.();
+      toast.success(isFavorited ? 'Removed from favorites' : 'Added to favorites');
+    } catch (error) {
+      console.error('Error updating favorites:', error);
+      toast.error('Failed to update favorites');
     } finally {
       setIsUpdatingFavorite(false);
     }
@@ -120,40 +102,41 @@ export const ShareFavoriteButtons: React.FC<ShareFavoriteButtonsProps> = ({
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onEdit) {
-      onEdit();
-    } else {
-      navigate(`/agistments/${agistmentId}/edit`);
-    }
+    navigate(`/agistments/${agistmentId}/edit`);
+    onEdit?.();
   };
 
+  if (!isLoaded) {
+    return null;
+  }
+
   return (
-    <div className={`flex items-center gap-2 ${hideShare ? 'justify-start' : ''}`}>
-      <button
-        onClick={handleFavorite}
-        disabled={loading || isUpdatingFavorite}
-        className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100"
-      >
-        <Star
-          className={`w-5 h-5 ${isFavorited ? 'fill-yellow-400 text-yellow-400' : ''}`}
-        />
-      </button>
+    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
       {!hideShare && (
         <button
           onClick={handleShare}
-          className="p-2 rounded-full text-neutral-500 hover:bg-neutral-100"
+          className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          title="Share"
         >
           <Share2 className="w-5 h-5" />
         </button>
       )}
+      <button
+        onClick={handleFavorite}
+        className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+      >
+        <Star
+          className={`w-5 h-5 ${isFavorited ? 'fill-yellow-400 stroke-yellow-400' : ''}`}
+        />
+      </button>
       {!hideEdit && isMyAgistment && (
         <button
           onClick={handleEdit}
-          className="button-toolbar"
+          className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800"
           title="Edit"
         >
-          <Pencil className="w-4 h-4" />
-          <span>Edit</span>
+          <Pencil className="w-5 h-5" />
         </button>
       )}
     </div>

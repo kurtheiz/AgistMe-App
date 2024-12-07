@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDateOfBirth } from '../utils/inputValidation';
 import { SuburbSearch } from './SuburbSearch/SuburbSearch';
-import { useProfile } from '../context/ProfileContext';
 import { ProfilePhoto } from './Profile/ProfilePhoto';
 import { profileService } from '../services/profile.service';
 import { Profile, UpdateProfileRequest } from '../types/profile';
@@ -18,48 +17,52 @@ interface BioModalProps {
 export default function Bio({ isOpen = false, onClose = () => { }, clearFields = false }: BioModalProps) {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
-  const { profile, loading, error, refreshProfile, updateProfileData, clearProfile } = useProfile();
   const [saving, setSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [originalData, setOriginalData] = useState<Partial<Profile>>({});
   const [formData, setFormData] = useState<Partial<Profile>>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Initialize form data only when profile changes or clearFields is toggled
+  // Initialize form data from profile service
   useEffect(() => {
-    if (!profile) return;
+    const loadProfile = async () => {
+      if (!isSignedIn) return;
+      
+      try {
+        setLoading(true);
+        const profileData = await profileService.getProfile();
+        const newFormData: Partial<Profile> = clearFields ? {
+          showProfileInEnquiry: false
+        } : {
+          firstName: profileData.firstName || '',
+          lastName: profileData.lastName || '',
+          comments: profileData.comments || '',
+          profilePhoto: profileData.profilePhoto || '',
+          mobile: profileData.mobile || '',
+          dateOfBirth: profileData.dateOfBirth || '',
+          address: profileData.address || '',
+          suburb: profileData.suburb || '',
+          postcode: profileData.postcode || '',
+          geohash: profileData.geohash || '',
+          suburbId: profileData.suburbId || '',
+          region: profileData.region || '',
+          state: profileData.state || '',
+          showProfileInEnquiry: profileData.showProfileInEnquiry || false
+        };
 
-    const newFormData = clearFields ? {
-      id: profile.id,
-      email: profile.email,
-      shareId: profile.shareId,
-      showProfileInEnquiry: false,
-      lastUpdate: new Date().toISOString()
-    } : {
-      firstName: profile.firstName || '',
-      lastName: profile.lastName || '',
-      comments: profile.comments !== null ? profile.comments : '',
-      profilePhoto: profile.profilePhoto || '',
-      mobile: profile.mobile || '',
-      dateOfBirth: profile.dateOfBirth || '',
-      address: profile.address || '',
-      suburb: profile.suburb || '',
-      postcode: profile.postcode || '',
-      geohash: profile.geohash || '',
-      suburbId: profile.suburbId || '',
-      region: profile.region || '',
-      state: profile.state || '',
-      showProfileInEnquiry: profile.showProfileInEnquiry || false
+        setFormData(newFormData);
+        setOriginalData(newFormData);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        setError('Failed to load profile data');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setFormData(newFormData);
-    setOriginalData(newFormData);
-  }, [profile, clearFields]);
-
-  useEffect(() => {
-    if (!isSignedIn && isLoaded) {
-      clearProfile();
-    }
-  }, [isSignedIn, isLoaded, clearProfile]);
+    loadProfile();
+  }, [isSignedIn, clearFields]);
 
   // Track if there are any changes to save
   const hasChanges = useMemo(() => {
@@ -70,13 +73,12 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
     });
   }, [formData, originalData]);
 
-  // Only refresh profile if we're signed in and don't have a profile yet
   useEffect(() => {
-    const shouldRefresh = isLoaded && isSignedIn && !profile && !loading && !error;
-    if (shouldRefresh && isOpen) {
-      refreshProfile();
+    if (!isSignedIn && isLoaded) {
+      setLoading(true);
+      setError(null);
     }
-  }, [isLoaded, isSignedIn, profile, loading, error, refreshProfile, isOpen]);
+  }, [isSignedIn, isLoaded]);
 
   const handleClose = () => {
     setFormData(originalData); // Reset form data to original state
@@ -91,7 +93,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
     return <div className="text-red-500">Error loading profile: {error}</div>;
   }
 
-  if (!profile) {
+  if (!user) {
     return <div>No profile data available</div>;
   }
 
@@ -101,8 +103,8 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
     try {
       setSaving(true);
 
-      // Ensure we include the agistor status in the update if it exists
-      const updateData: UpdateProfileRequest = {
+      // Update profile using profile service
+      await profileService.updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
         comments: formData.comments,
@@ -116,17 +118,15 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
         geohash: formData.geohash,
         suburbId: formData.suburbId,
         region: formData.region,
-        showProfileInEnquiry: formData.showProfileInEnquiry,
-        // Include agistor status if it exists in the profile
-        ...(profile?.agistor !== undefined && { agistor: profile.agistor })
-      };
+        showProfileInEnquiry: formData.showProfileInEnquiry
+      });
 
-      await updateProfileData(updateData);
-      await refreshProfile(); // Refresh to ensure we have the latest data
+      setOriginalData(formData);
+      toast.success('Profile updated successfully');
       onClose();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile. Please try again.');
+      toast.error('Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -155,7 +155,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
 
   const handleClearBio = () => {
     setFormData({
-      ...profile,
+      ...user.publicMetadata,
       firstName: '',
       lastName: '',
       comments: '',
@@ -265,8 +265,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             <button
               type="button"
               className="input-delete-button"
-              onClick={() => setFormData(prev => ({ ...prev, firstName: '' }))}
-              aria-label="Clear first name"
+              onClick={() => setFormData(prev => ({ ...prev, firstName: '' }))}              aria-label="Clear first name"
             >
               ✕
             </button>
@@ -290,8 +289,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             <button
               type="button"
               className="input-delete-button"
-              onClick={() => setFormData(prev => ({ ...prev, lastName: '' }))}
-              aria-label="Clear last name"
+              onClick={() => setFormData(prev => ({ ...prev, lastName: '' }))}              aria-label="Clear last name"
             >
               ✕
             </button>
@@ -319,8 +317,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             <button
               type="button"
               className="input-delete-button"
-              onClick={() => setFormData(prev => ({ ...prev, dateOfBirth: '' }))}
-              aria-label="Clear date of birth"
+              onClick={() => setFormData(prev => ({ ...prev, dateOfBirth: '' }))}              aria-label="Clear date of birth"
             >
               ✕
             </button>
@@ -349,8 +346,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
             <button
               type="button"
               className="input-delete-button"
-              onClick={() => setFormData(prev => ({ ...prev, mobile: '' }))}
-              aria-label="Clear mobile number"
+              onClick={() => setFormData(prev => ({ ...prev, mobile: '' }))}              aria-label="Clear mobile number"
             >
               ✕
             </button>
@@ -397,8 +393,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
               <button
                 type="button"
                 className="input-delete-button"
-                onClick={() => setFormData(prev => ({ ...prev, address: '' }))}
-                aria-label="Clear address"
+                onClick={() => setFormData(prev => ({ ...prev, address: '' }))}                aria-label="Clear address"
               >
                 ✕
               </button>

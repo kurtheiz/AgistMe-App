@@ -15,8 +15,11 @@ import {
 import NumberStepper from '../shared/NumberStepper';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { useProfile } from '../../context/ProfileContext';
 import toast from 'react-hot-toast';
+import { useUser } from '@clerk/clerk-react';
+import { SavedSearch } from '../../types/profile';
+import { profileService } from '../../services/profile.service';
+import { decodeSearchHash } from '../../utils/searchUtils';
 
 const initialFacilities: FacilityKey[] = [];
 
@@ -28,14 +31,23 @@ interface SearchModalProps {
   onFilterCountChange?: (count: number) => void;
   forceReset?: boolean;
   title?: string;
+  refreshSavedSearches?: boolean;
 }
 
-export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forceReset, title = 'Search' }: SearchModalProps) {
+export function SearchModal({ 
+  isOpen, 
+  onClose, 
+  onSearch, 
+  initialSearchHash, 
+  forceReset, 
+  title = 'Search',
+  refreshSavedSearches 
+}: SearchModalProps) {
   const [searchParams] = useSearchParams();
   const searchHash = searchParams.get('q');
   const [isUpdating, setIsUpdating] = useState(false);
-  const { profile } = useProfile();
-
+  const { user, isSignedIn } = useUser();
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [searchCriteria, setSearchCriteria] = useState<SearchRequest>({
     suburbs: [],
     radius: 0,
@@ -47,45 +59,27 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
     facilities: initialFacilities,
     careTypes: []
   });
+  const [selectedSearchName, setSelectedSearchName] = useState<string>('');
 
-  const decodeSearchHash = (hash: string): SearchRequest => {
-    try {
-      const decodedSearch = JSON.parse(atob(hash));
-      console.log(decodedSearch);
-      return {
-        suburbs: decodedSearch.s?.map((s: any) => ({
-          id: s.i,
-          suburb: s.n,
-          postcode: s.p,
-          state: s.t,
-          region: s.r,
-          geohash: s.g,
-          locationType: s.l
-        })) || [],
-        radius: decodedSearch.r || 0,
-        paddockTypes: decodedSearch.pt || [],
-        spaces: decodedSearch.sp || 0,
-        maxPrice: decodedSearch.mp || 0,
-        hasArena: decodedSearch.a || false,
-        hasRoundYard: decodedSearch.ry || false,
-        facilities: decodedSearch.f || initialFacilities,
-        careTypes: decodedSearch.ct || []
-      };
-    } catch (error) {
-      console.error('Error decoding search hash:', error);
-      return {
-        suburbs: [],
-        radius: 0,
-        paddockTypes: [],
-        spaces: 0,
-        maxPrice: 0,
-        hasArena: false,
-        hasRoundYard: false,
-        facilities: initialFacilities,
-        careTypes: []
-      };
+  useEffect(() => {
+    const loadSavedSearches = async () => {
+      try {
+        const response = await profileService.getSavedSearches();
+        // Sort by lastUpdate, most recent first
+        const sortedSearches = response.savedSearches.sort((a, b) => 
+          new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime()
+        );
+        setSavedSearches(sortedSearches);
+      } catch (error) {
+        console.error('Error loading saved searches:', error);
+        toast.error('Failed to load saved searches');
+      }
+    };
+
+    if (isSignedIn) {
+      loadSavedSearches();
     }
-  };
+  }, [isSignedIn, refreshSavedSearches]);
 
   useEffect(() => {
     if (forceReset && isOpen) {
@@ -124,6 +118,37 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
       }
     }
   }, [initialSearchHash, searchHash, isOpen, forceReset]);
+
+  useEffect(() => {
+    const matchingSavedSearch = savedSearches.find(search => {
+      const decodedSearch = decodeSearchHash(search.searchHash);
+      return (
+        JSON.stringify({
+          suburbs: decodedSearch.suburbs.map(s => s.id).sort(),
+          radius: decodedSearch.radius,
+          paddockTypes: decodedSearch.paddockTypes.sort(),
+          spaces: decodedSearch.spaces,
+          maxPrice: decodedSearch.maxPrice,
+          hasArena: decodedSearch.hasArena,
+          hasRoundYard: decodedSearch.hasRoundYard,
+          facilities: decodedSearch.facilities.sort(),
+          careTypes: decodedSearch.careTypes.sort()
+        }) === JSON.stringify({
+          suburbs: searchCriteria.suburbs.map(s => s.id).sort(),
+          radius: searchCriteria.radius,
+          paddockTypes: searchCriteria.paddockTypes.sort(),
+          spaces: searchCriteria.spaces,
+          maxPrice: searchCriteria.maxPrice,
+          hasArena: searchCriteria.hasArena,
+          hasRoundYard: searchCriteria.hasRoundYard,
+          facilities: searchCriteria.facilities.sort(),
+          careTypes: searchCriteria.careTypes.sort()
+        })
+      );
+    });
+
+    setSelectedSearchName(matchingSavedSearch ? matchingSavedSearch.name : '');
+  }, [searchCriteria, savedSearches]);
 
   const togglePaddockType = (type: PaddockType) => {
     setSearchCriteria((prev: SearchRequest) => ({
@@ -219,58 +244,48 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
         {/* Saved Searches Dropdown */}
         <div className="w-full">
           <Menu as="div" className="relative inline-block text-left w-full">
-            {() => (
-              <>
-                <Menu.Button 
-                  className="inline-flex w-full justify-between rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                  onClick={() => {
-                    if (!profile) {
-                      toast.error('Please sign in to use saved searches');
-                    }
-                  }}
-                >
-                  {profile?.savedSearches?.find(search => decodeSearchHash(search.searchHash).suburbs.every(s => 
-                    searchCriteria.suburbs.some(cs => cs.id === s.id)) && 
-                    decodeSearchHash(search.searchHash).radius === searchCriteria.radius &&
-                    decodeSearchHash(search.searchHash).paddockTypes.every(pt => searchCriteria.paddockTypes.includes(pt)) &&
-                    decodeSearchHash(search.searchHash).spaces === searchCriteria.spaces &&
-                    decodeSearchHash(search.searchHash).maxPrice === searchCriteria.maxPrice &&
-                    decodeSearchHash(search.searchHash).hasArena === searchCriteria.hasArena &&
-                    decodeSearchHash(search.searchHash).hasRoundYard === searchCriteria.hasRoundYard &&
-                    decodeSearchHash(search.searchHash).facilities.every(f => searchCriteria.facilities.includes(f)) &&
-                    decodeSearchHash(search.searchHash).careTypes.every(ct => searchCriteria.careTypes.includes(ct)))?.name || 'Load Saved Search'}
-                  <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-                </Menu.Button>
-                {profile && (
-                  <Menu.Items className="absolute left-0 z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div className="py-1">
-                      {profile?.savedSearches?.map((savedSearch) => (
-                        <Menu.Item key={savedSearch.id}>
-                          {({ active }) => (
-                            <button
-                              onClick={() => {
-                                const decodedCriteria = decodeSearchHash(savedSearch.searchHash);
-                                setSearchCriteria(decodedCriteria);
-                              }}
-                              className={`${
-                                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
-                              } block px-4 py-2 text-sm w-full text-left`}
-                            >
-                              {savedSearch.name}
-                            </button>
-                          )}
-                        </Menu.Item>
-                      ))}
-                      {(!profile?.savedSearches || profile.savedSearches.length === 0) && (
-                        <div className="px-4 py-2 text-sm text-gray-500">No saved searches</div>
+            <Menu.Button
+              className="w-full flex items-center justify-between gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              onClick={() => {
+                if (!isSignedIn) {
+                  toast.error('Please sign in to save searches');
+                  return;
+                }
+              }}
+            >
+              {selectedSearchName || 'Saved Searches'}
+              <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+            </Menu.Button>
+
+            {isSignedIn && (
+              <Menu.Items className="absolute left-0 z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <div className="py-1">
+                  {savedSearches.map((savedSearch) => (
+                    <Menu.Item key={savedSearch.id}>
+                      {({ active }) => (
+                        <button
+                          onClick={() => {
+                            const decodedSearch = decodeSearchHash(savedSearch.searchHash);
+                            setSearchCriteria(decodedSearch);
+                            setSelectedSearchName(savedSearch.name);
+                          }}
+                          className={`${
+                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                          } block w-full px-4 py-2 text-left text-sm`}
+                        >
+                          {savedSearch.name}
+                        </button>
                       )}
-                    </div>
-                  </Menu.Items>
-                )}
-              </>
+                    </Menu.Item>
+                  ))}
+                  {(!savedSearches || savedSearches.length === 0) && (
+                    <div className="px-4 py-2 text-sm text-gray-500">No saved searches</div>
+                  )}
+                </div>
+              </Menu.Items>
             )}
           </Menu>
-          {profile && (
+          {isSignedIn && (
             <p className="mt-1 text-xs text-gray-500 text-center">
               Visit your <Link to="/profile" className="text-primary-600 hover:text-primary-700">profile</Link> to manage saved searches
             </p>
@@ -528,6 +543,21 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
           </div>
         </div>
       </div>
+
+      {/* Search Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-neutral-200">
+        <button
+          type="submit"
+          disabled={searchCriteria.suburbs.length === 0 || isUpdating}
+          className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors
+            ${searchCriteria.suburbs.length === 0 || isUpdating
+              ? 'bg-neutral-300 cursor-not-allowed'
+              : 'bg-primary-600 hover:bg-primary-700'
+            }`}
+        >
+          {isUpdating ? 'Searching...' : 'Search'}
+        </button>
+      </div>
     </form>
   );
 
@@ -536,11 +566,12 @@ export function SearchModal({ isOpen, onClose, onSearch, initialSearchHash, forc
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      size="lg"
+      showCloseButton
+      size="md"
+      slideFrom="right"
+      isUpdating={isUpdating}
       actionIconType="SEARCH"
       onAction={handleSearch}
-      disableAction={searchCriteria.suburbs.length === 0}
-      isUpdating={isUpdating}
     >
       {modalContent}
     </Modal>

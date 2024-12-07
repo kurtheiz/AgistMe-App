@@ -1,68 +1,21 @@
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { useClerk, useUser, useAuth } from '@clerk/clerk-react';
+import { useClerk, useUser } from '@clerk/clerk-react';
 import { useAuthToken } from '../hooks/useAuthToken';
-import { useProfile } from '../context/ProfileContext';
 import { useEffect, useState } from 'react';
+import { useAgistor } from '../hooks/useAgistor';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
   const { openSignIn } = useClerk();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  useAuthToken();
-  const { profile, refreshProfile, loading: profileLoading, clearProfile } = useProfile();
-  const [wasAgistor, setWasAgistor] = useState(false);
+  const { isLoaded: authLoaded } = useAuthToken();
+  const isAgistor = useAgistor();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Track agistor status
-  useEffect(() => {
-    if (profile?.agistor) {
-      setWasAgistor(true);
-    }
-  }, [profile?.agistor]);
-
-  // Handle profile loading based on auth state
-  useEffect(() => {
-    const loadProfile = async () => {
-      if (isLoaded && isSignedIn && !profile && !profileLoading) {
-        try {
-          const token = await getToken();
-          if (token) {
-            await refreshProfile();
-          }
-        } catch (error) {
-          console.error('Error loading profile:', error);
-        }
-      }
-    };
-
-    if (isLoaded && isSignedIn && !profile && !profileLoading) {
-      loadProfile();
-    }
-  }, [isLoaded, isSignedIn]);
-
-  // Clear profile on sign out
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      clearProfile();
-    }
-  }, [isLoaded, isSignedIn, clearProfile]);
-
-  const handleAvatarClick = async () => {
+  const handleAvatarClick = () => {
     if (isSignedIn) {
-      // If we don't have a profile yet, load it before navigating
-      if (!profile && !profileLoading) {
-        try {
-          const token = await getToken();
-          if (token) {
-            await refreshProfile();
-          }
-        } catch (error) {
-          console.error('Error loading profile:', error);
-        }
-      }
       navigate('/profile', { replace: true });
     } else {
       openSignIn({
@@ -113,19 +66,21 @@ export const Header = () => {
                 >
                   Agistments
                 </Link>
-                <Link 
-                  to="/listagistment" 
-                  className="text-base sm:text text-gray-600 hover:text-primary-600"
-                >
-                  List Agistment
-                </Link>
-                {isSignedIn && (wasAgistor || (profile?.agistor && !profileLoading)) && (
-                  <Link 
-                    to="/dashboard"
-                    className="text-base sm:text text-gray-600 hover:text-primary-600"
-                  >
-                    Dashboard
-                  </Link>
+                {isSignedIn && isAgistor && (
+                  <>
+                    <Link 
+                      to="/listagistment" 
+                      className="text-base sm:text text-gray-600 hover:text-primary-600"
+                    >
+                      List Agistment
+                    </Link>
+                    <Link 
+                      to="/dashboard"
+                      className="text-base sm:text text-gray-600 hover:text-primary-600"
+                    >
+                      Dashboard
+                    </Link>
+                  </>
                 )}
               </nav>
             </div>
@@ -195,21 +150,23 @@ export const Header = () => {
           >
             Agistments
           </Link>
-          <Link 
-            to="/listagistment" 
-            className="text-base text-gray-600 hover:text-primary-600 py-2"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            List Agistment
-          </Link>
-          {isSignedIn && (wasAgistor || (profile?.agistor && !profileLoading)) && (
-            <Link 
-              to="/dashboard"
-              className="text-base text-gray-600 hover:text-primary-600 py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Dashboard
-            </Link>
+          {isSignedIn && isAgistor && (
+            <>
+              <Link 
+                to="/listagistment" 
+                className="text-base text-gray-600 hover:text-primary-600 py-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                List Agistment
+              </Link>
+              <Link 
+                to="/dashboard"
+                className="text-base text-gray-600 hover:text-primary-600 py-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+            </>
           )}
         </nav>
       </div>

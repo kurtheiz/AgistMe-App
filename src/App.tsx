@@ -7,7 +7,6 @@ import { ErrorPage } from './components/ErrorPage';
 import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './pages/Profile';
-import { ProfileProvider } from './context/ProfileContext';
 import { Agistments } from './pages/Agistments';
 import { ViewAgistmentDetail } from './pages/ViewAgistmentDetail';
 import { Toaster } from 'react-hot-toast';
@@ -19,7 +18,6 @@ import { Dashboard } from './pages/Dashboard';
 import EditAgistmentDetail from './pages/EditAgistmentDetail';
 import { FavoriteAgistments } from './pages/FavoriteAgistments';
 import { MyAgistments } from './pages/MyAgistments';
-import { AuthProfileManager } from './components/AuthProfileManager';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -34,11 +32,18 @@ const router = createBrowserRouter(
       <Route path="/about" element={<About />} />
       <Route path="agistments">
         <Route index element={<Agistments />} />
-        <Route path="create" element={<CreateAgistment />} />
+        <Route 
+          path="create" 
+          element={
+            <ProtectedRoute requireAgistor={true}>
+              <CreateAgistment />
+            </ProtectedRoute>
+          } 
+        />
         <Route 
           path=":id/edit" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAgistor={true}>
               <EditAgistmentDetail />
             </ProtectedRoute>
           } 
@@ -55,17 +60,24 @@ const router = createBrowserRouter(
         <Route 
           path="my" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAgistor={true}>
               <MyAgistments />
             </ProtectedRoute>
           }
         />
       </Route>
-      <Route path="/listagistment" element={<ListAgistment />} />
+      <Route 
+        path="/listagistment" 
+        element={
+          <ProtectedRoute requireAgistor={true}>
+            <ListAgistment />
+          </ProtectedRoute>
+        } 
+      />
       <Route 
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requireAgistor={true}>
             <Dashboard />
           </ProtectedRoute>
         } 
@@ -127,11 +139,8 @@ function App() {
       <ErrorBoundary>
         <ClerkProvider publishableKey={clerkPubKey}>
           <AuthInitializer />
-          <ProfileProvider>
-            <AuthProfileManager />
-            <RouterProvider router={router} />
-            <Toaster position="top-center" />
-          </ProfileProvider>
+          <RouterProvider router={router} />
+          <Toaster position="top-center" />
         </ClerkProvider>
       </ErrorBoundary>
     </div>

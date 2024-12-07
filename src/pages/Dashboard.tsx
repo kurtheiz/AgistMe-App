@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProfile } from '../context/ProfileContext';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
 import { List, BarChart, Users } from 'lucide-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const { profile, loading: profileLoading } = useProfile();
+  const { isLoaded: isAuthLoaded } = useAuth();
+  const { user } = useUser();
   const [agistments, setAgistments] = useState<AgistmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,19 +25,19 @@ export const Dashboard = () => {
       }
     };
 
-    if (!profileLoading) {
+    if (isAuthLoaded) {
       fetchAgistments();
     }
-  }, [profileLoading]);
+  }, [isAuthLoaded]);
 
   // Redirect if not an agistor
   useEffect(() => {
-    if (!profileLoading && profile && !profile.agistor) {
+    if (isAuthLoaded && user && user.publicMetadata?.role !== 'agistor') {
       navigate('/');
     }
-  }, [profile, profileLoading, navigate]);
+  }, [user, isAuthLoaded, navigate]);
 
-  if (loading || profileLoading) {
+  if (loading || !isAuthLoaded) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>

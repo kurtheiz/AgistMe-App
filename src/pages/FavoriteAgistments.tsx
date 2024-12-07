@@ -4,21 +4,21 @@ import { agistmentService } from '../services/agistment.service';
 import { AgistmentSearchResponse, MatchType } from '../types/search';
 import { PageToolbar } from '../components/PageToolbar';
 import { AgistmentList } from '../components/AgistmentList';
-import { useProfile } from '../context/ProfileContext';
 import { ArrowLeft } from 'lucide-react';
 import { scrollManager } from '../utils/scrollManager';
+import { useAuth } from '@clerk/clerk-react';
 
 export function FavoriteAgistments() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { profile, loading: isProfileLoading } = useProfile();
+  const { isLoaded: isAuthLoaded, userId } = useAuth();
   const [agistments, setAgistments] = useState<AgistmentSearchResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFavorites = async () => {
-      if (!profile) return;
+      if (!userId) return;
       
       try {
         setIsLoading(true);
@@ -42,10 +42,10 @@ export function FavoriteAgistments() {
       }
     };
 
-    if (!isProfileLoading) {
+    if (isAuthLoaded) {
       fetchFavorites();
     }
-  }, [profile, isProfileLoading]);
+  }, [userId, isAuthLoaded]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,7 +83,7 @@ export function FavoriteAgistments() {
   }, [location.key, isLoading, agistments.length]);
 
   // Show loading state while profile is loading
-  if (isProfileLoading) {
+  if (!isAuthLoaded) {
     return (
       <div className="min-h-screen bg-neutral-50">
         <PageToolbar
@@ -116,7 +116,7 @@ export function FavoriteAgistments() {
   }
 
   // Show login prompt if not logged in
-  if (!profile) {
+  if (!userId) {
     return (
       <div className="min-h-screen bg-neutral-50">
         <PageToolbar

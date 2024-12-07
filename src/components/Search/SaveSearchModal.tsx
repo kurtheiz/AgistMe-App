@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
 import { SearchRequest } from '../../types/search';
 
@@ -7,12 +7,28 @@ interface SaveSearchModalProps {
   onClose: () => void;
   searchCriteria: SearchRequest | null;
   onSave: (name: string, enableNotifications: boolean) => void;
+  initialName?: string;
+  initialNotifications?: boolean;
 }
 
-export function SaveSearchModal({ isOpen, onClose, searchCriteria, onSave }: SaveSearchModalProps) {
-  const [name, setName] = useState('');
-  const [enableNotifications, setEnableNotifications] = useState(false);
+export function SaveSearchModal({ 
+  isOpen, 
+  onClose, 
+  searchCriteria, 
+  onSave,
+  initialName = '',
+  initialNotifications = false 
+}: SaveSearchModalProps) {
+  const [name, setName] = useState(initialName);
+  const [enableNotifications, setEnableNotifications] = useState(initialNotifications);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setName(initialName);
+      setEnableNotifications(initialNotifications);
+    }
+  }, [isOpen, initialName, initialNotifications]);
 
   const handleSave = () => {
     if (!name.trim() || !searchCriteria) return;
