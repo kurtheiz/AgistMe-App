@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 import { scrollManager } from '../utils/scrollManager';
 import { agistmentService } from '../services/agistment.service';
 import { profileService } from '../services/profile.service';
+import { advertService, Advert } from '../services/advert.service';
 
 const decodeSearchHash = (hash: string): SearchRequest => {
   try {
@@ -62,6 +63,7 @@ export function Agistments() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useUser();
   const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
+  const [adverts, setAdverts] = useState<Advert[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
@@ -70,6 +72,15 @@ export function Agistments() {
   const [searchTitle, setSearchTitle] = useState('Search Properties');
   const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
+
+  const fetchAdverts = async () => {
+    try {
+      const advertsData = await advertService.getAdverts();
+      setAdverts(advertsData);
+    } catch (error) {
+      console.error('Error fetching adverts:', error);
+    }
+  };
 
   const loadMore = async () => {
     if (!searchResponse?.nextToken) return;
@@ -97,35 +108,34 @@ export function Agistments() {
     
     if (searchHash) {
       const decodedCriteria = decodeSearchHash(searchHash);
-      console.log('Decoded search criteria:', decodedCriteria); // Debug log
       setCurrentCriteria(decodedCriteria);
-      setIsFetching(true);
 
-      // Remove any trailing slashes from the search hash
-      const cleanSearchHash = searchHash.replace(/\/$/, '');
+      const fetchData = async () => {
+        setIsFetching(true);
+        try {
+          const [searchResult, advertsData] = await Promise.all([
+            agistmentService.searchAgistments(searchHash),
+            advertService.getAdverts()
+          ]);
 
-      agistmentService.searchAgistments(cleanSearchHash)
-        .then(response => {
-          if (response) {
-            setSearchResponse(response);
-          } else {
-            console.error('Invalid response format:', response);
-            setSearchResponse(null);
+          if (searchResult) {
+            setSearchResponse(searchResult);
           }
-        })
-        .catch(error => {
-          console.error('Error fetching agistments:', error);
-          setSearchResponse(null);
-        })
-        .finally(() => {
+          setAdverts(advertsData);
+        } catch (error) {
+          console.error('Search error:', error);
+          toast.error('Failed to perform search. Please try again.');
+        } finally {
           setIsFetching(false);
-        });
+        }
+      };
+
+      fetchData();
     } else {
-      // No search hash, clear results
       setSearchResponse(null);
-      setCurrentCriteria(null);
+      fetchAdverts();
     }
-  }, [searchParams]);
+  }, [searchParams, forceResetSearch]);
 
   useEffect(() => {
     if (searchParams.get('openSearch') === 'true') {
@@ -292,6 +302,7 @@ export function Agistments() {
                   <div className="text-left">
                     <AgistmentList
                       agistments={searchResponse.results.filter(item => item.matchType === 'EXACT')}
+                      adverts={adverts}
                       hasMore={hasMore}
                       onLoadMore={loadMore}
                       isLoading={isFetching}
@@ -310,6 +321,7 @@ export function Agistments() {
                     <div className="text-left">
                       <AgistmentList
                         agistments={searchResponse.results.filter(item => item.matchType === 'ADJACENT')}
+                        adverts={adverts}
                         hasMore={hasMore}
                         onLoadMore={loadMore}
                         isLoading={isFetching}

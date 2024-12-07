@@ -31,7 +31,8 @@ export default function PropertyCard({
   onClick, 
   onEdit, 
   onToggleVisibility, 
-  isUpdatingVisibility
+  isUpdatingVisibility,
+  isSignedIn
 }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
