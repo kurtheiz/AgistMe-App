@@ -1,10 +1,11 @@
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import { useState } from 'react';
 import { useAgistor } from '../hooks/useAgistor';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
+  const { openSignIn } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -15,7 +16,11 @@ export const Header = () => {
     if (isSignedIn) {
       navigate('/profile', { replace: true });
     } else {
-      navigate('/signin', { replace: true });
+      openSignIn({
+        redirectUrl: location.pathname,
+        afterSignInUrl: location.pathname,
+        afterSignUpUrl: location.pathname
+      });
     }
   };
 
