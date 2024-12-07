@@ -116,7 +116,7 @@ export default function Bio({ isOpen = false, onClose = () => { }, clearFields =
         postcode: formData.postcode,
         geohash: formData.geohash,
         region: formData.region,
-        showProfileInEnquiry: formData.showProfileInEnquiry
+        showProfileInEnquiry: formData.showProfileInEnquiry ?? false
       });
 
       setOriginalData(formData);
