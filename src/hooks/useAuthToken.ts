@@ -62,8 +62,13 @@ export const useAuthToken = (): AuthState => {
         setToken(token);
 
         // Get role from token claims
-        const userRole = token ? parseJwt(token).role : null;
-        setRole(userRole || null);
+        if (token) {
+          const claims = parseJwt(token);
+          const userRole = claims?.metadata?.role;
+          setRole(userRole || null);
+        } else {
+          setRole(null);
+        }
       } finally {
         tokenUpdateInProgress.current = false;
         setIsValidating(false);

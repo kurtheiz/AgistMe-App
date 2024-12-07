@@ -103,15 +103,15 @@ export default function PropertyCard({
         {/* Property Name Header */}
         <div className="title-header relative">
           <div className="flex justify-between items-start relative z-10 py-2">
-            <div className="flex items-center gap-2">
-              <h2 className="title-text truncate px-2">{agistment.basicInfo.name}</h2>
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <h2 className="title-text truncate px-2 min-w-0 flex-1">{agistment.basicInfo.name}</h2>
               {agistment.listing.listingType === 'PROFESSIONAL' && (
-                <span className="bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                <span className="bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0">
                   PRO
                 </span>
               )}
             </div>
-            <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md">
+            <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md flex-shrink-0">
               {agistment.basicInfo.propertySize} acres
             </div>
           </div>
@@ -143,13 +143,13 @@ export default function PropertyCard({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-neutral-800 hover:text-neutral-700 transition-colors"
+              className="text-neutral-800 hover:text-neutral-700 transition-colors flex-shrink-0"
               title="Open in Google Maps"
             >
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-neutral-800">
+            <div className="flex justify-between items-center min-w-0">
+              <div className="text-sm text-neutral-800 truncate">
                 {agistment.propertyLocation.location.address}, {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.region}, {agistment.propertyLocation.location.state}
               </div>
             </div>
@@ -284,7 +284,7 @@ export default function PropertyCard({
         </div>
 
         {/* Footer */}
-        <div className="px-2 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
+        <div className="px-4 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
           <div className="flex justify-between items-center">
             <button
               onClick={(e) => {

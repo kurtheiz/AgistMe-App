@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { ProgressBar } from './ProgressBar';
-import { useAuthToken } from '../hooks/useAuthToken';
+import { useUser } from '@clerk/clerk-react';
+import { useAgistor } from '../hooks/useAgistor';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,7 +9,8 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requireAgistor = false }: ProtectedRouteProps) => {
-  const { isLoaded, isSignedIn, role } = useAuthToken();
+  const { isLoaded, isSignedIn } = useUser();
+  const isAgistor = useAgistor();
   const location = useLocation();
 
   // Show progress bar while checking authentication
@@ -23,7 +25,7 @@ export const ProtectedRoute = ({ children, requireAgistor = false }: ProtectedRo
   }
 
   // If route requires agistor role and user is not an agistor, redirect to home
-  if (requireAgistor && role !== 'agistor') {
+  if (requireAgistor && !isAgistor) {
     return <Navigate to="/" replace state={{ from: location }} />;
   }
 

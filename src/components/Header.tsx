@@ -63,21 +63,19 @@ export const Header = () => {
                 >
                   Agistments
                 </Link>
+                <Link 
+                  to="/listagistment" 
+                  className="text-base sm:text text-gray-600 hover:text-primary-600"
+                >
+                  List Agistment
+                </Link>
                 {isSignedIn && isAgistor && (
-                  <>
-                    <Link 
-                      to="/listagistment" 
-                      className="text-base sm:text text-gray-600 hover:text-primary-600"
-                    >
-                      List Agistment
-                    </Link>
-                    <Link 
-                      to="/dashboard"
-                      className="text-base sm:text text-gray-600 hover:text-primary-600"
-                    >
-                      Dashboard
-                    </Link>
-                  </>
+                  <Link 
+                    to="/dashboard"
+                    className="text-base sm:text text-gray-600 hover:text-primary-600"
+                  >
+                    Dashboard
+                  </Link>
                 )}
               </nav>
             </div>
@@ -153,23 +151,21 @@ export const Header = () => {
           >
             Agistments
           </Link>
+          <Link 
+            to="/listagistment" 
+            className="text-base text-gray-600 hover:text-primary-600 py-2"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            List Agistment
+          </Link>
           {isSignedIn && isAgistor && (
-            <>
-              <Link 
-                to="/listagistment" 
-                className="text-base text-gray-600 hover:text-primary-600 py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                List Agistment
-              </Link>
-              <Link 
-                to="/dashboard"
-                className="text-base text-gray-600 hover:text-primary-600 py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-            </>
+            <Link 
+              to="/dashboard"
+              className="text-base text-gray-600 hover:text-primary-600 py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
           )}
         </nav>
       </div>

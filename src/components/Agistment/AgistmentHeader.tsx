@@ -1,7 +1,7 @@
 import { Mail, Phone } from 'lucide-react';
 import { AgistmentContact, AgistmentBasicInfo, AgistmentPropertyLocation, AgistmentDescription } from '../../types/agistment';
 import { getGoogleMapsUrl } from '../../utils/location';
-import { useState } from 'react';
+import { ExpandableText } from '../shared/ExpandableText';
 
 interface Props {
   basicInfo?: AgistmentBasicInfo;
@@ -16,10 +16,6 @@ export const AgistmentHeader = ({
   contactDetails,
   propertyDescription
 }: Props) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  
-  const shouldShowLoadMore = propertyDescription?.description && propertyDescription.description.split('\n').length > 4;
-
   return (
     <>
       {/* Basic Info Section */}
@@ -96,32 +92,17 @@ export const AgistmentHeader = ({
       </div>
       
       {/* Property Description Section */}
-      <div className="mt-6">
-        {propertyDescription?.description && (
-          <div>
-            <div className="relative">
-              <div 
-                className={`text-neutral-600 dark:text-neutral-300 whitespace-pre-wrap ${
-                  !isExpanded ? 'line-clamp-4' : ''
-                }`}
-              >
-                {propertyDescription.description}
-              </div>
-              {!isExpanded && shouldShowLoadMore && (
-                <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white dark:from-neutral-800 to-transparent" />
-              )}
-            </div>
-            {shouldShowLoadMore && (
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="mt-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
-              >
-                {isExpanded ? 'Show Less' : 'Show More'}
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+      {propertyDescription?.description && (
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold mb-2">Property Description</h3>
+          <ExpandableText 
+            text={propertyDescription.description}
+            className="text-neutral-600 dark:text-neutral-300"
+            mobileThreshold={200}
+            desktopThreshold={400}
+          />
+        </div>
+      )}
       
     </>
   );

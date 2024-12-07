@@ -1,13 +1,13 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { LogOut, ChevronDown, Bell, Heart, CircleUser, CircleDollarSign, BookmarkPlus, Building, Trash2 } from 'lucide-react';
-import { useAgistor } from '../hooks/useAgistor';
+import { LogOut, ChevronDown, Bell, Heart, CircleUser, CircleDollarSign, BookmarkPlus, Trash2 } from 'lucide-react';
 import { Disclosure } from '@headlessui/react';
 import Bio from '../components/Bio';
+import { BioView } from '../components/BioView';
 import { toast } from 'react-hot-toast';
 import { profileService } from '../services/profile.service';
-import { SavedSearch } from '../types/profile';
+import { SavedSearch, Profile as ProfileType } from '../types/profile';
 import { Favourite } from '../types/profile';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { decodeSearchHash } from '../utils/searchUtils';
@@ -16,15 +16,14 @@ export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
   const { signOut } = useAuth();
   const navigate = useNavigate();
-  const isAgistor = useAgistor();
   const [isBioOpen, setIsBioOpen] = useState(false);
-  const [showProfileInEnquiry, setShowProfileInEnquiry] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [editingSearch, setEditingSearch] = useState<SavedSearch | null>(null);
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
   const [favourites, setFavourites] = useState<Favourite[]>([]);
   const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
+  const [profile, setProfile] = useState<ProfileType | null>(null);
 
   const handleDeleteFavorite = async (favoriteId: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,23 +45,22 @@ export default function Profile() {
     }
   }, [isSignedIn, isLoaded, navigate]);
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      setIsLoading(true);
-      try {
-        const profile = await profileService.getProfile();
-        setShowProfileInEnquiry(profile.showProfileInEnquiry);
-        const searches = await profileService.getSavedSearches();
-        setSavedSearches(searches.savedSearches);
-      } catch (error) {
-        console.error('Failed to load profile:', error);
-        toast.error('Failed to load profile');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const profileData = await profileService.getProfile();
+      setProfile(profileData);
+      const searches = await profileService.getSavedSearches();
+      setSavedSearches(searches.savedSearches);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast.error('Failed to load profile data');
+    }
+    setIsLoading(false);
+  };
 
-    loadProfile();
+  useEffect(() => {
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -159,10 +157,10 @@ export default function Profile() {
         <div className="space-y-6">
           <div className="space-y-4">
             {/* Bio */}
-            <Disclosure>
+            <Disclosure >
               {({ open }) => (
                 <div className="bg-white rounded-lg shadow-sm">
-                  <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
+                  <Disclosure.Button className="w-full px-4 py-4 text-left flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <CircleUser className="w-5 h-5 text-neutral-500" />
                       <h2 className="text-lg font-medium">My Bio</h2>
@@ -170,20 +168,19 @@ export default function Profile() {
                     <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
                   </Disclosure.Button>
                   <Disclosure.Panel className="px-6 pb-6">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Bio sharing</label>
-                        <p className="text-neutral-600">
-                          Bio sharing {showProfileInEnquiry ? 'enabled' : 'disabled'}
-                        </p>
-                      </div>
-                      <button
-                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-                        onClick={handleOpenBio}
-                      >
-                        Edit Bio
-                      </button>
-                    </div>
+                    {profile && (
+                      <>
+                        <BioView profile={profile} />
+                        <div className="mt-6 flex justify-center">
+                          <button
+                            className="button-toolbar"
+                            onClick={handleOpenBio}
+                          >
+                            <span>Edit Bio</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </Disclosure.Panel>
                 </div>
               )}
@@ -193,7 +190,7 @@ export default function Profile() {
             <Disclosure>
               {({ open }) => (
                 <div className="bg-white rounded-lg shadow-sm">
-                  <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
+                  <Disclosure.Button className="w-full px-4 py-4 text-left flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <CircleDollarSign className="w-5 h-5 text-neutral-500" />
                       <h2 className="text-lg font-medium">My Horses</h2>
@@ -221,18 +218,16 @@ export default function Profile() {
             <Disclosure>
               {({ open }) => (
                 <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
-                  <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
+                  <Disclosure.Button className="w-full px-4 py-4 text-left flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <Heart className="w-5 h-5 text-neutral-500" />
-                      <span className="font-medium">My Favourites</span>
+                      <span className="text-lg font-medium">My Favourites</span>
                     </div>
                     <ChevronDown
-                      className={`${
-                        open ? 'transform rotate-180' : ''
-                      } w-5 h-5 text-neutral-500`}
+                      className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''} text-neutral-500`}
                     />
                   </Disclosure.Button>
-                  <Disclosure.Panel className="px-4 pb-4">
+                  <Disclosure.Panel className="px-6 pb-6">
                     <div className="space-y-4">
                       {isLoadingFavourites ? (
                         <div className="text-neutral-600">Loading favourites...</div>
@@ -250,14 +245,6 @@ export default function Profile() {
                                   transition-colors`}
                                 onClick={() => !isInactive && navigate(`/agistments/${favourite.id}`)}
                               >
-                                {/* Watermark for hidden/removed status */}
-                                {isInactive && (
-                                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                    <span className="text-4xl font-bold text-neutral-900/20 rotate-[-30deg] uppercase">
-                                      {favourite.status}
-                                    </span>
-                                  </div>
-                                )}
                                 <div className="flex items-start">
                                   <button
                                     onClick={(e) => handleDeleteFavorite(favourite.id, e)}
@@ -268,13 +255,16 @@ export default function Profile() {
                                     />
                                   </button>
                                   <div className="flex-grow px-4 pb-4">
-                                    <div className="space-y-0.5">
-                                      <h3 className="font-medium text-neutral-900 dark:text-white">
-                                        {favourite.name}
-                                      </h3>
-                                      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                        {favourite.location.suburb}, {favourite.location.state}
-                                      </p>
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <h3 className="text-base font-medium text-neutral-900">{favourite.name}</h3>
+                                        {(favourite.status === 'HIDDEN' || favourite.status === 'REMOVED') && (
+                                          <span className="chip-unavailable">
+                                            {favourite.status === 'HIDDEN' ? 'Hidden' : 'Removed'}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-sm text-neutral-500">{favourite.location.suburb}, {favourite.location.state}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -293,18 +283,16 @@ export default function Profile() {
             <Disclosure>
               {({ open }) => (
                 <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
-                  <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
+                  <Disclosure.Button className="w-full px-4 py-4 text-left flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <BookmarkPlus className="w-5 h-5 text-neutral-500" />
-                      <span className="font-medium">Saved Searches</span>
+                      <span className="text-lg font-medium">Saved Searches</span>
                     </div>
                     <ChevronDown
-                      className={`${
-                        open ? 'transform rotate-180' : ''
-                      } w-5 h-5 text-neutral-500`}
+                      className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''} text-neutral-500`}
                     />
                   </Disclosure.Button>
-                  <Disclosure.Panel className="px-4 pb-4">
+                  <Disclosure.Panel className="px-6 pb-6">
                     <div className="space-y-4">
                       {isLoading ? (
                         <div className="text-neutral-600">Loading saved searches...</div>
@@ -383,35 +371,14 @@ export default function Profile() {
               )}
             </Disclosure>
 
-            {/* My Agistments */}
-            {isAgistor && (
-              <Disclosure>
-                {({ open }) => (
-                  <div className="bg-white rounded-lg shadow-sm">
-                    <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <Building className="w-5 h-5 text-neutral-500" />
-                        <h2 className="text-lg font-medium">My Agistments</h2>
-                      </div>
-                      <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
-                    </Disclosure.Button>
-                    <Disclosure.Panel className="px-6 pb-6">
-                      <div className="space-y-4">
-                        <p className="text-neutral-600">
-                          View and manage your agistment listings
-                        </p>
-                        <button
-                          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-                          onClick={() => navigate('/agistments/my')}
-                        >
-                          View Agistments
-                        </button>
-                      </div>
-                    </Disclosure.Panel>
-                  </div>
-                )}
-              </Disclosure>
-            )}
+            {/* Sign Out Button */}
+            <button
+              onClick={handleSignOut}
+              className="w-full sm:w-auto sm:mx-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:py-3 text-base sm:text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg shadow-sm hover:shadow-md transition-all"
+            >
+              <LogOut className="h-5 w-5 sm:h-4 sm:w-4" />
+              Sign Out
+            </button>
           </div>
 
           {/* Bio Modal */}
@@ -430,15 +397,6 @@ export default function Profile() {
             initialNotifications={editingSearch?.enableNotifications || false}
             title="Saved Search"
           />
-
-          {/* Sign Out Button */}
-          <button
-            onClick={handleSignOut}
-            className="w-full sm:w-auto sm:mx-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:py-3 text-base sm:text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg shadow-sm hover:shadow-md transition-all"
-          >
-            <LogOut className="h-5 w-5 sm:h-4 sm:w-4" />
-            Sign Out
-          </button>
         </div>
       </div>
     </div>
