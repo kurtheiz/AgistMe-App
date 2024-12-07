@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { LogOut, ChevronDown, Bell, BellOff, Pencil, Heart, CircleUser, CircleDollarSign, BookmarkPlus, Search, Building, Trash2 } from 'lucide-react';
+import { LogOut, ChevronDown, Bell, Heart, CircleUser, CircleDollarSign, BookmarkPlus, Building, Trash2 } from 'lucide-react';
 import { useAgistor } from '../hooks/useAgistor';
 import { Disclosure } from '@headlessui/react';
 import Bio from '../components/Bio';
@@ -25,32 +25,6 @@ export default function Profile() {
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
   const [favourites, setFavourites] = useState<Favourite[]>([]);
   const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
-  const [favorites, setFavorites] = useState<Record<string, { isFavorite: boolean, isLoading: boolean }>>({});
-
-  const toggleFavorite = async (agistmentId: string) => {
-    setFavorites(prev => ({
-      ...prev,
-      [agistmentId]: { ...prev[agistmentId], isLoading: true }
-    }));
-
-    try {
-      const isFavorite = favorites[agistmentId]?.isFavorite ?? true; 
-      await profileService.toggleFavorite(agistmentId, isFavorite); 
-      
-      setFavorites(prev => ({
-        ...prev,
-        [agistmentId]: { isFavorite: !isFavorite, isLoading: false }
-      }));
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      toast.error('Failed to update favorite status');
-      
-      setFavorites(prev => ({
-        ...prev,
-        [agistmentId]: { ...prev[agistmentId], isLoading: false }
-      }));
-    }
-  };
 
   const handleDeleteFavorite = async (favoriteId: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -64,41 +38,6 @@ export default function Profile() {
       console.error('Failed to delete favorite:', error);
       toast.error('Failed to remove favorite');
     }
-  };
-
-  useEffect(() => {
-    if (favourites) {
-      const initialFavorites = favourites.reduce((acc, fav) => ({
-        ...acc,
-        [fav.id]: { isFavorite: true, isLoading: false }
-      }), {});
-      setFavorites(initialFavorites);
-    }
-  }, [favourites]);
-
-  const formatLastUpdate = (date: string) => {
-    if (!date) return '';
-    
-    const now = new Date();
-    const updateDate = new Date(date);
-
-    // Check if date is valid
-    if (isNaN(updateDate.getTime())) return '';
-    
-    const diffInHours = Math.floor((now.getTime() - updateDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 24) {
-      return diffInHours === 0 
-        ? 'Less than an hour ago'
-        : `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
-    }
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) {
-      return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
-    }
-    
-    return updateDate.toLocaleDateString();
   };
 
   useEffect(() => {
@@ -158,19 +97,6 @@ export default function Profile() {
     }
   };
 
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
-      </div>
-    );
-  }
-
-  if (!isSignedIn) {
-    navigate('/');
-    return null;
-  }
-
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -210,6 +136,19 @@ export default function Profile() {
       toast.error('Failed to update search');
     }
   };
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    navigate('/');
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -388,7 +327,7 @@ export default function Profile() {
                                 locationDisplay = `${location.region}, ${location.state}`;
                               }
                               
-                              if (searchCriteria.radius > 0) {
+                              if (searchCriteria.radius && searchCriteria.radius > 0) {
                                 locationDisplay += ` within ${searchCriteria.radius}km`;
                               }
                             }
