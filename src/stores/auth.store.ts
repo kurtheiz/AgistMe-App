@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Session } from '@clerk/clerk-react';
 
 interface User {
   id: string;
@@ -47,43 +46,17 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (loading) => set({ isLoading: loading }),
       refreshToken: async () => {
         try {
-          const session = await window.Clerk?.session as Session | null;
-          if (!session) {
-            get().clearAuth();
-            return null;
-          }
-          const token: string | null = await session.getToken({ template: 'AgistMe' }) || null;
-          get().setApiToken(token);
-          return token;
+          return null;
         } catch (error) {
           console.error('Failed to refresh token:', error);
-          get().clearAuth();
           return null;
         }
       },
       initializeAuth: async () => {
-        const { setApiToken, clearAuth, setLoading } = get();
+        const { clearAuth, setLoading } = get();
         try {
-          const session = await window.Clerk?.session as Session | null;
-          if (!session) {
-            clearAuth();
-            return;
-          }
-          
-          // Listen for session changes
-          window.Clerk?.addListener((session: Session | null) => {
-            if (!session) {
-              clearAuth();
-              return;
-            }
-            // Refresh token when session changes
-            session.getToken({ template: 'AgistMe' }).then((token: string | null) => {
-              setApiToken(token);
-            });
-          });
-
-          const token: string | null = await session.getToken({ template: 'AgistMe' }) || null;
-          setApiToken(token);
+          setLoading(true);
+          clearAuth();
         } catch (error) {
           console.error('Failed to initialize auth:', error);
           clearAuth();
