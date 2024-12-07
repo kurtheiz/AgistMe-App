@@ -17,7 +17,6 @@ export default function Profile() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [isBioOpen, setIsBioOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [editingSearch, setEditingSearch] = useState<SavedSearch | null>(null);
@@ -25,18 +24,20 @@ export default function Profile() {
   const [favourites, setFavourites] = useState<Favourite[]>([]);
   const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
-  const [isSavedSearchesOpen, setIsSavedSearchesOpen] = useState(false);
   const [isBioOpenState, setIsBioOpenState] = useState(false);
-  const [isFavouritesOpen, setIsFavouritesOpen] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('section') === 'saved-searches') {
-      setIsSavedSearchesOpen(true);
       // Scroll to the saved searches section
       setTimeout(() => {
         const element = document.getElementById('saved-searches-section');
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
+          // Find and click the disclosure button
+          const button = element.querySelector('button');
+          if (button) {
+            button.click();
+          }
         }
       }, 100);
     }
@@ -61,23 +62,6 @@ export default function Profile() {
       navigate('/');
     }
   }, [isSignedIn, isLoaded, navigate]);
-
-  useEffect(() => {
-    if (searchParams.get('section') === 'saved-searches') {
-      // Scroll to the saved searches section
-      setTimeout(() => {
-        const element = document.getElementById('saved-searches-section');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-          // Find and click the disclosure button
-          const button = element.querySelector('button');
-          if (button) {
-            button.click();
-          }
-        }
-      }, 100);
-    }
-  }, [searchParams]);
 
   const fetchData = async () => {
     setIsLoading(true);

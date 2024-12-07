@@ -13,16 +13,15 @@ import { scrollManager } from '../utils/scrollManager';
 import { agistmentService } from '../services/agistment.service';
 import { profileService } from '../services/profile.service';
 import { advertService, Advert } from '../services/advert.service';
+import { useSearchStore } from '../stores/search.store';
 
 const decodeSearchHash = (hash: string): SearchRequest => {
   try {
     const decodedSearch = JSON.parse(atob(hash));
-    
-    // Convert old format to new format if necessary
     if (decodedSearch.s && Array.isArray(decodedSearch.s)) {
       return {
         suburbs: decodedSearch.s.map((s: any) => ({
-          id: s.i?.replace(/['"]/g, ''), // Remove any quotes or apostrophes
+          id: s.i?.replace(/['"]/g, ''),
           suburb: s.n,
           postcode: s.p,
           state: s.t,
@@ -40,7 +39,6 @@ const decodeSearchHash = (hash: string): SearchRequest => {
         careTypes: decodedSearch.ct || []
       };
     }
-    
     return decodedSearch;
   } catch (error) {
     console.error('Error decoding search hash:', error);
@@ -65,7 +63,7 @@ export function Agistments() {
   const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
   const [adverts, setAdverts] = useState<Advert[]>([]);
   const [isFetching, setIsFetching] = useState(false);
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(() => searchParams.get('openSearch') === 'true');
+  const { isSearchModalOpen, setIsSearchModalOpen } = useSearchStore();
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
@@ -84,11 +82,9 @@ export function Agistments() {
 
   const loadMore = async () => {
     if (!searchResponse?.nextToken) return;
-    
     setIsFetching(true);
     try {
       const response = await agistmentService.searchAgistments(searchHash, searchResponse.nextToken);
-      
       if (response) {
         setSearchResponse({
           ...response,
@@ -105,11 +101,9 @@ export function Agistments() {
 
   useEffect(() => {
     const searchHash = searchParams.get('q');
-    
     if (searchHash) {
       const decodedCriteria = decodeSearchHash(searchHash);
       setCurrentCriteria(decodedCriteria);
-
       const fetchData = async () => {
         setIsFetching(true);
         try {
@@ -117,7 +111,6 @@ export function Agistments() {
             agistmentService.searchAgistments(searchHash),
             advertService.getAdverts()
           ]);
-
           if (searchResult) {
             setSearchResponse(searchResult);
           }
@@ -129,7 +122,6 @@ export function Agistments() {
           setIsFetching(false);
         }
       };
-
       fetchData();
     } else {
       setSearchResponse(null);
@@ -140,12 +132,12 @@ export function Agistments() {
   useEffect(() => {
     if (searchParams.get('openSearch') === 'true') {
       setIsSearchModalOpen(true);
-      // Remove the openSearch parameter to prevent reopening
+      // Remove the openSearch parameter
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('openSearch');
-      setSearchParams(newParams.toString());
+      setSearchParams(newParams, { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams, setIsSearchModalOpen]);
 
   useEffect(() => {
     if (!isSearchModalOpen) {
@@ -161,33 +153,27 @@ export function Agistments() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Only save position if we're not in a loading state
       if (location.key && !isFetching) {
         scrollManager.savePosition(location.key);
       }
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [location.key, isFetching]);
 
   useEffect(() => {
-    // Function to handle scroll restoration
     const restoreScroll = () => {
       if (!isFetching && location.key) {
         const savedPosition = scrollManager.getPosition(location.key);
         if (savedPosition !== undefined) {
-          // Use setTimeout to ensure DOM is fully rendered
           setTimeout(() => {
             window.scrollTo(0, savedPosition);
           }, 0);
         } else {
-          // Fresh navigation - scroll to top
           window.scrollTo(0, 0);
         }
       }
     };
-
     restoreScroll();
   }, [location.key, isFetching]);
 
@@ -215,43 +201,27 @@ export function Agistments() {
 
   const getLocationTitle = (suburbs: any[]) => {
     if (!suburbs || suburbs.length === 0) return '';
-    
     if (suburbs.length === 1) {
       const loc = suburbs[0];
-      // Handle old format (s array with i, n, p, t properties)
       if ('n' in loc && 'p' in loc && 't' in loc) {
-        // If it's a state-only search
         if (loc.i.split('#').length === 2) {
           return loc.n;
         }
-        // If suburb is provided, show suburb, postcode, state
         if (loc.n && loc.p) return `${loc.n}, ${loc.p}, ${loc.t}`;
-        // If region is provided, show region, state
         if (loc.r) return `${loc.r}, ${loc.t}`;
-        // If only state, show state
         return loc.t;
       }
-      
-      // Handle new format (suburbs array with suburb, postcode, state properties)
-      // If it's a state-only search
       if (loc.id.split('#').length === 2) {
         return loc.suburb;
       }
-      // If suburb is provided, show suburb, postcode, state
       if (loc.suburb && loc.postcode) return `${loc.suburb}, ${loc.postcode}, ${loc.state}`;
-      // If region is provided, show region, state
       if (loc.region) return `${loc.region}, ${loc.state}`;
-      // If only state, show state
       return loc.state;
     }
-
-    // Multiple locations - show first location and indicate others
     const firstLoc = suburbs[0];
-    // Handle old format
     if ('n' in firstLoc && 'p' in firstLoc && 't' in firstLoc) {
       return `${firstLoc.n}, ${firstLoc.p}, ${firstLoc.t} and other locations`;
     }
-    // Handle new format
     return `${firstLoc.suburb}, ${firstLoc.postcode}, ${firstLoc.state} and other locations`;
   };
 
@@ -259,6 +229,7 @@ export function Agistments() {
 
   return (
     <>
+
       <PageToolbar>
         <div className="flex items-center gap-2 w-full">
           <button
@@ -297,6 +268,7 @@ export function Agistments() {
           <div className="pb-8 pt-4 md:px-4 text-gray-500">
             {searchResponse && (
               <>
+
                 {/* Exact Matches Section */}
                 {searchResponse.results.some(item => item.matchType === 'EXACT') && (
                   <div className="text-left">
@@ -315,9 +287,11 @@ export function Agistments() {
                 {/* Properties Nearby Section */}
                 {searchResponse.results.some(item => item.matchType === 'ADJACENT') && (
                   <>
+
                     {searchResponse.results.some(item => item.matchType === 'EXACT') && (
                       <div className="my-8 border-t border-neutral-200" />
                     )}
+
                     <div className="text-left">
                       <AgistmentList
                         agistments={searchResponse.results.filter(item => item.matchType === 'ADJACENT')}
@@ -331,11 +305,8 @@ export function Agistments() {
                     </div>
                   </>
                 )}
-
-                
               </>
             )}
-
             {(!searchResponse || searchResponse.results.length === 0) && searchHash && (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
@@ -353,7 +324,6 @@ export function Agistments() {
                 </button>
               </div>
             )}
-
             {!searchHash && (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
                 <div className="mb-3 md:mb-8 text-neutral-400">
@@ -375,7 +345,6 @@ export function Agistments() {
             )}
           </div>
         )}
-
         {hasMore && !isFetching && (
           <div className="mt-8 flex justify-center">
             <button
@@ -386,7 +355,6 @@ export function Agistments() {
             </button>
           </div>
         )}
-
         <SearchModal
           isOpen={isSearchModalOpen}
           onClose={() => setIsSearchModalOpen(false)}
@@ -396,7 +364,6 @@ export function Agistments() {
           title={searchTitle}
           refreshSavedSearches={shouldRefreshSavedSearches}
         />
-
         {isSaveSearchModalOpen && (
           <SaveSearchModal
             isOpen={isSaveSearchModalOpen}
@@ -404,7 +371,6 @@ export function Agistments() {
             searchCriteria={currentCriteria}
             onSave={async (name, enableNotifications) => {
               if (!user || !searchHash) return;
-
               const newSavedSearch = {
                 id: crypto.randomUUID(),
                 name: name,
@@ -412,7 +378,6 @@ export function Agistments() {
                 lastUpdate: new Date().toISOString(),
                 enableNotifications
               };
-
               try {
                 const response = await profileService.getSavedSearches();
                 const updatedSearches = [...response.savedSearches, newSavedSearch];

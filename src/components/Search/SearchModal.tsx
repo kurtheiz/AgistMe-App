@@ -14,7 +14,7 @@ import {
 } from '../Icons';
 import NumberStepper from '../shared/NumberStepper';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { ChevronDownIcon, EllipsisVerticalIcon } from '@heroicons/react/20/solid';
+import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
 import { BookmarkIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
@@ -49,7 +49,6 @@ export function SearchModal({
   const [isUpdating, setIsUpdating] = useState(false);
   const { user } = useUser();
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
-  const [selectedSearchName, setSelectedSearchName] = useState<string>('');
   const [searchCriteria, setSearchCriteria] = useState<SearchRequest>({
     suburbs: [],
     radius: 0,
@@ -119,37 +118,6 @@ export function SearchModal({
       }
     }
   }, [initialSearchHash, searchHash, isOpen, forceReset]);
-
-  useEffect(() => {
-    const matchingSavedSearch = savedSearches.find(search => {
-      const decodedSearch = decodeSearchHash(search.searchHash);
-      return (
-        JSON.stringify({
-          suburbs: decodedSearch.suburbs.map(s => s.id).sort(),
-          radius: decodedSearch.radius,
-          paddockTypes: decodedSearch.paddockTypes.sort(),
-          spaces: decodedSearch.spaces,
-          maxPrice: decodedSearch.maxPrice,
-          hasArena: decodedSearch.hasArena,
-          hasRoundYard: decodedSearch.hasRoundYard,
-          facilities: decodedSearch.facilities.sort(),
-          careTypes: decodedSearch.careTypes.sort()
-        }) === JSON.stringify({
-          suburbs: searchCriteria.suburbs.map(s => s.id).sort(),
-          radius: searchCriteria.radius,
-          paddockTypes: searchCriteria.paddockTypes.sort(),
-          spaces: searchCriteria.spaces,
-          maxPrice: searchCriteria.maxPrice,
-          hasArena: searchCriteria.hasArena,
-          hasRoundYard: searchCriteria.hasRoundYard,
-          facilities: searchCriteria.facilities.sort(),
-          careTypes: searchCriteria.careTypes.sort()
-        })
-      );
-    });
-
-    setSelectedSearchName(matchingSavedSearch ? matchingSavedSearch.name : '');
-  }, [searchCriteria, savedSearches]);
 
   const togglePaddockType = (type: PaddockType) => {
     setSearchCriteria((prev: SearchRequest) => ({
@@ -295,7 +263,6 @@ export function SearchModal({
                               onClick={() => {
                                 const decodedSearch = decodeSearchHash(savedSearch.searchHash);
                                 setSearchCriteria(decodedSearch);
-                                setSelectedSearchName(savedSearch.name);
                               }}
                               className={`${
                                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'

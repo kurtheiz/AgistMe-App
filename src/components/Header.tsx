@@ -3,6 +3,8 @@ import { useUser, useClerk } from '@clerk/clerk-react';
 import { useState, useEffect } from 'react';
 import { useAgistor } from '../hooks/useAgistor';
 import { useAuthStore } from '../stores/auth.store';
+import { useSearchStore } from '../stores/search.store';
+import { Search } from 'lucide-react';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -13,6 +15,7 @@ export const Header = () => {
   const { isAgistor, isLoading: isAgistorLoading } = useAgistor();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { setUser, clearAuth } = useAuthStore();
+  const { setIsSearchModalOpen } = useSearchStore();
 
   useEffect(() => {
     if (isSignedIn && user) {
@@ -106,26 +109,35 @@ export const Header = () => {
             </div>
 
             {/* Right side */}
-            <div className="flex items-center space-x-5 z-50">
-              {isLoaded ? (
-                isSignedIn ? (
-                  <button
-                    onClick={handleAvatarClick}
-                    className="flex items-center justify-center"
-                    aria-label="Go to profile"
-                  >
+            <div className="flex items-center space-x-4">
+              {/* Search Icon */}
+              <button
+                onClick={() => {
+                  if (location.pathname === '/agistments') {
+                    // Just open the search modal directly
+                    setIsSearchModalOpen(true);
+                  } else {
+                    // Navigate to agistments and set openSearch parameter
+                    navigate('/agistments?openSearch=true');
+                  }
+                }}
+                className="p-2 rounded-full hover:bg-neutral-100 text-neutral-600 hover:text-primary-600 transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+              {/* Avatar */}
+              <button
+                onClick={handleAvatarClick}
+                className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
+              >
+                {isLoaded ? (
+                  isSignedIn ? (
                     <img 
                       src={user.imageUrl} 
                       alt={user.fullName || 'User avatar'} 
                       className="h-8 w-8 rounded-full"
                     />
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleAvatarClick}
-                    className="flex items-center justify-center"
-                    aria-label="Sign In"
-                  >
+                  ) : (
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
                       fill="none" 
@@ -140,9 +152,9 @@ export const Header = () => {
                         d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                  </button>
-                )
-              ) : null}
+                  )
+                ) : null}
+              </button>
             </div>
           </div>
         </div>
