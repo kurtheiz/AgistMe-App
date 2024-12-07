@@ -18,7 +18,6 @@ import EditAgistmentDetail from './pages/EditAgistmentDetail';
 import { FavoriteAgistments } from './pages/FavoriteAgistments';
 import { MyAgistments } from './pages/MyAgistments';
 import { useAuthStore } from './stores/auth.store';
-import { Spinner } from './components/ui/spinner';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

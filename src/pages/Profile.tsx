@@ -1,7 +1,7 @@
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { LogOut, ChevronDown, Bell, Heart, CircleUser, CircleDollarSign, BookmarkPlus, Trash2 } from 'lucide-react';
+import { LogOut, ChevronDown, Bell, Heart, CircleUser, BookmarkPlus, Trash2 } from 'lucide-react';
 import { Disclosure } from '@headlessui/react';
 import Bio from '../components/Bio';
 import { BioView } from '../components/BioView';
@@ -11,12 +11,10 @@ import { SavedSearch, Profile as ProfileType } from '../types/profile';
 import { Favourite } from '../types/profile';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { decodeSearchHash } from '../utils/searchUtils';
-import { getInitials } from '../utils/userUtils';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
   const { signOut } = useAuth();
-  const { user } = useUser();
   const navigate = useNavigate();
   const [isBioOpen, setIsBioOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);

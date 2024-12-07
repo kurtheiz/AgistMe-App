@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { Session } from '@clerk/clerk-react';
 
 interface User {
   id: string;
@@ -15,6 +16,9 @@ interface User {
     unsafeMetadata?: Record<string, any>;
     [key: string]: any;
   };
+  publicMetadata?: Record<string, any>;
+  privateMetadata?: Record<string, any>;
+  unsafeMetadata?: Record<string, any>;
 }
 
 interface AuthState {
@@ -27,6 +31,7 @@ interface AuthState {
   isLoading: boolean;
   setLoading: (loading: boolean) => void;
   initializeAuth: () => Promise<void>;
+  refreshToken: () => Promise<string | null>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -40,16 +45,45 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user, isAuthenticated: true }),
       clearAuth: () => set({ apiToken: null, user: null, isAuthenticated: false }),
       setLoading: (loading) => set({ isLoading: loading }),
+      refreshToken: async () => {
+        try {
+          const session = await window.Clerk?.session as Session | null;
+          if (!session) {
+            get().clearAuth();
+            return null;
+          }
+          const token: string | null = await session.getToken({ template: 'AgistMe' }) || null;
+          get().setApiToken(token);
+          return token;
+        } catch (error) {
+          console.error('Failed to refresh token:', error);
+          get().clearAuth();
+          return null;
+        }
+      },
       initializeAuth: async () => {
         const { setApiToken, clearAuth, setLoading } = get();
         try {
-          const session = await window.Clerk?.session;
+          const session = await window.Clerk?.session as Session | null;
           if (!session) {
             clearAuth();
             return;
           }
-          const token = await session.getToken({ template: 'AgistMe' });
-          setApiToken(token || null);
+          
+          // Listen for session changes
+          window.Clerk?.addListener((session: Session | null) => {
+            if (!session) {
+              clearAuth();
+              return;
+            }
+            // Refresh token when session changes
+            session.getToken({ template: 'AgistMe' }).then((token: string | null) => {
+              setApiToken(token);
+            });
+          });
+
+          const token: string | null = await session.getToken({ template: 'AgistMe' }) || null;
+          setApiToken(token);
         } catch (error) {
           console.error('Failed to initialize auth:', error);
           clearAuth();

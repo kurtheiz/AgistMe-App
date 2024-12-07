@@ -26,7 +26,6 @@ export const Header = () => {
         metadata: {
           ...user.publicMetadata,
           publicMetadata: user.publicMetadata,
-          privateMetadata: user.privateMetadata,
           unsafeMetadata: user.unsafeMetadata,
         },
       });
