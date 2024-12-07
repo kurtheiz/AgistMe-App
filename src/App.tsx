@@ -4,13 +4,12 @@ import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
 import { ErrorPage } from './components/ErrorPage';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './pages/Profile';
 import { Agistments } from './pages/Agistments';
 import { ViewAgistmentDetail } from './pages/ViewAgistmentDetail';
 import { Toaster } from 'react-hot-toast';
-import { useAuthToken } from './hooks/useAuthToken';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import ListAgistment from './pages/ListAgistment';
 import { CreateAgistment } from './pages/CreateAgistment';
@@ -18,6 +17,8 @@ import { Dashboard } from './pages/Dashboard';
 import EditAgistmentDetail from './pages/EditAgistmentDetail';
 import { FavoriteAgistments } from './pages/FavoriteAgistments';
 import { MyAgistments } from './pages/MyAgistments';
+import { useAuthStore } from './stores/auth.store';
+import { Spinner } from './components/ui/spinner';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -92,34 +93,31 @@ const router = createBrowserRouter(
 );
 
 // Component to handle auth initialization
-const AuthInitializer = () => {
-  const { getToken } = useAuth();
-  const { setAuthToken } = useAuthToken();
+const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isLoaded: isClerkLoaded, isSignedIn } = useAuth();
+  const { isLoading, initializeAuth } = useAuthStore();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const setupAuth = async () => {
-      try {
-        // Always get a fresh token
-        const token = await getToken();
-        if (token) {
-          // Update both localStorage and OpenAPI configuration
-          localStorage.setItem('auth_token', token);
-          // Update OpenAPI configuration
-          setAuthToken(token);
-        }
-      } catch (error) {
-        console.error('Error setting up auth:', error);
-      }
+    const init = async () => {
+      if (!isClerkLoaded) return;
+      
+      await initializeAuth();
+      setIsInitialized(true);
     };
-    
-    setupAuth();
 
-    // Set up token refresh interval (every 55 minutes)
-    const refreshInterval = setInterval(setupAuth, 55 * 60 * 1000);
-    return () => clearInterval(refreshInterval);
-  }, [getToken, setAuthToken]);
+    init();
+  }, [isClerkLoaded, isSignedIn, initializeAuth]);
 
-  return null;
+  if (!isInitialized || isLoading || !isClerkLoaded) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 };
 
 function App() {
@@ -127,9 +125,10 @@ function App() {
     <div className="min-h-screen bg-neutral-50">
       <ErrorBoundary>
         <ClerkProvider publishableKey={clerkPubKey}>
-          <AuthInitializer />
-          <RouterProvider router={router} />
-          <Toaster position="top-center" />
+          <AuthInitializer>
+            <RouterProvider router={router} />
+            <Toaster position="top-center" />
+          </AuthInitializer>
         </ClerkProvider>
       </ErrorBoundary>
     </div>

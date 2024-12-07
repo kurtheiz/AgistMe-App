@@ -23,9 +23,19 @@ class AgistmentService {
 
   private async waitForAuth() {
     // Wait for Clerk to be available
-    while (!window.Clerk) {
+    let attempts = 0;
+    const maxAttempts = 20; // 1 second total wait time
+    
+    while (!window.Clerk && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 50));
+      attempts++;
     }
+    
+    if (!window.Clerk) {
+      console.warn('Clerk not available after waiting');
+      return;
+    }
+    
     // Wait for session to be initialized
     await window.Clerk.load();
   }
@@ -34,20 +44,23 @@ class AgistmentService {
     try {
       await this.waitForAuth();
       const session = await window.Clerk?.session;
-      if (session) {
-        const token = await session.getToken({ template: 'AgistMe' });
-        if (token) {
-          return {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-        }
+      if (!session) {
+        // Return empty headers for non-authenticated requests
+        return {};
       }
+      const token = await session.getToken({ template: 'AgistMe' });
+      if (token) {
+        return {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        };
+      }
+      return {};
     } catch (error) {
       console.warn('Failed to get auth token:', error);
+      return {};
     }
-    return {};
   }
 
   async searchAgistments(searchHash: string, nextToken?: string): Promise<SearchResponse> {

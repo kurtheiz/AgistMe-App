@@ -1,7 +1,8 @@
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useUser, useClerk } from '@clerk/clerk-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAgistor } from '../hooks/useAgistor';
+import { useAuthStore } from '../stores/auth.store';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -9,8 +10,30 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const isAgistor = useAgistor();
+  const { isAgistor, isLoading: isAgistorLoading } = useAgistor();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { setUser, clearAuth } = useAuthStore();
+
+  useEffect(() => {
+    if (isSignedIn && user) {
+      setUser({
+        id: user.id,
+        email: user.primaryEmailAddress?.emailAddress || '',
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        imageUrl: user.imageUrl,
+        role: user.publicMetadata?.role as string,
+        metadata: {
+          ...user.publicMetadata,
+          publicMetadata: user.publicMetadata,
+          privateMetadata: user.privateMetadata,
+          unsafeMetadata: user.unsafeMetadata,
+        },
+      });
+    } else if (!isSignedIn) {
+      clearAuth();
+    }
+  }, [isSignedIn, user, setUser, clearAuth]);
 
   const handleAvatarClick = () => {
     if (isSignedIn) {
@@ -25,6 +48,9 @@ export const Header = () => {
   // Get the current search hash if it exists
   const searchHash = searchParams.get('q');
   const agistmentsPath = searchHash ? `/agistments?q=${searchHash}` : '/agistments';
+
+  // Don't show agistor-specific items while loading
+  const showAgistorItems = isAgistor && !isAgistorLoading;
 
   return (
     <>
@@ -69,7 +95,7 @@ export const Header = () => {
                 >
                   List Agistment
                 </Link>
-                {isSignedIn && isAgistor && (
+                {showAgistorItems && (
                   <Link 
                     to="/dashboard"
                     className="text-base sm:text text-gray-600 hover:text-primary-600"
@@ -158,7 +184,7 @@ export const Header = () => {
           >
             List Agistment
           </Link>
-          {isSignedIn && isAgistor && (
+          {showAgistorItems && (
             <Link 
               to="/dashboard"
               className="text-base text-gray-600 hover:text-primary-600 py-2"

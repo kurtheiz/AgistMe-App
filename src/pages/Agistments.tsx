@@ -22,7 +22,7 @@ const decodeSearchHash = (hash: string): SearchRequest => {
     if (decodedSearch.s && Array.isArray(decodedSearch.s)) {
       return {
         suburbs: decodedSearch.s.map((s: any) => ({
-          id: s.i,
+          id: s.i?.replace(/['"]/g, ''), // Remove any quotes or apostrophes
           suburb: s.n,
           postcode: s.p,
           state: s.t,

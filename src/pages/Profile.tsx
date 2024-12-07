@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { LogOut, ChevronDown, Bell, Heart, CircleUser, CircleDollarSign, BookmarkPlus, Trash2 } from 'lucide-react';
@@ -11,10 +11,12 @@ import { SavedSearch, Profile as ProfileType } from '../types/profile';
 import { Favourite } from '../types/profile';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { decodeSearchHash } from '../utils/searchUtils';
+import { getInitials } from '../utils/userUtils';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
   const { signOut } = useAuth();
+  const { user } = useUser();
   const navigate = useNavigate();
   const [isBioOpen, setIsBioOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
@@ -181,34 +183,6 @@ export default function Profile() {
                         </div>
                       </>
                     )}
-                  </Disclosure.Panel>
-                </div>
-              )}
-            </Disclosure>
-
-            {/* My Horses */}
-            <Disclosure>
-              {({ open }) => (
-                <div className="bg-white rounded-lg shadow-sm">
-                  <Disclosure.Button className="w-full px-4 py-4 text-left flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <CircleDollarSign className="w-5 h-5 text-neutral-500" />
-                      <h2 className="text-lg font-medium">My Horses</h2>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
-                  </Disclosure.Button>
-                  <Disclosure.Panel className="px-6 pb-6">
-                    <div className="space-y-4">
-                      <p className="text-neutral-600">
-                        View and manage your horses
-                      </p>
-                      <button
-                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-                        onClick={() => navigate('/horses')}
-                      >
-                        View Horses
-                      </button>
-                    </div>
                   </Disclosure.Panel>
                 </div>
               )}

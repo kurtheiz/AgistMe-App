@@ -1,20 +1,27 @@
 import { useUser } from '@clerk/clerk-react';
 
-export const useAgistor = () => {
-  const { user, isLoaded } = useUser();
+interface AgistorHookResult {
+  isAgistor: boolean;
+  isLoading: boolean;
+}
+
+export const useAgistor = (): AgistorHookResult => {
+  const { user, isLoaded: isUserLoaded } = useUser();
   
-  // Return false if not loaded or no user
-  if (!isLoaded || !user) {
-    console.log('useAgistor: Not loaded or no user', { isLoaded, user: !!user });
-    return false;
+  // Return loading state if user is not loaded
+  if (!isUserLoaded) {
+    return { isAgistor: false, isLoading: true };
   }
 
-  console.log('useAgistor: User metadata:', {
-    publicMetadata: user.publicMetadata,
-    role: user.publicMetadata?.role,
-    isAgistor: user.publicMetadata?.role === 'agistor'
-  });
+  // Return not loading and not agistor if no user
+  if (!user) {
+    return { isAgistor: false, isLoading: false };
+  }
 
-  // Check if user has agistor role in public metadata
-  return user.publicMetadata?.role === 'agistor';
+  const isAgistor = user.publicMetadata?.role === 'agistor';
+  
+  return {
+    isAgistor,
+    isLoading: false
+  };
 };

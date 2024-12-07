@@ -1,23 +1,35 @@
 import React from 'react';
 import { Profile } from '../types/profile';
 import { MapPin, Mail, Phone, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { differenceInYears } from 'date-fns';
 import { ExpandableText } from './shared/ExpandableText';
+import { getInitials } from '../utils/userUtils';
 
 interface BioViewProps {
   profile: Profile;
 }
 
 export const BioView: React.FC<BioViewProps> = ({ profile }) => {
+  const getAge = (dateOfBirth: string) => {
+    const birthDate = new Date(dateOfBirth);
+    return differenceInYears(new Date(), birthDate);
+  };
+
   return (
     <div className="space-y-6">
       {/* Profile Photo and Name */}
       <div className="flex items-center space-x-4">
-        <img
-          src={profile.profilePhoto}
-          alt={`${profile.firstName} ${profile.lastName}`}
-          className="w-20 h-20 rounded-full object-cover"
-        />
+        {profile.profilePhoto ? (
+          <img
+            src={profile.profilePhoto}
+            alt={`${profile.firstName} ${profile.lastName}`}
+            className="w-20 h-20 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-600 text-xl font-medium">
+            {getInitials(profile.firstName, profile.lastName)}
+          </div>
+        )}
         <div>
           <h3 className="text-xl font-semibold">
             {profile.firstName} {profile.lastName}
@@ -30,7 +42,9 @@ export const BioView: React.FC<BioViewProps> = ({ profile }) => {
       <div className="space-y-3">
         <div className="flex items-center space-x-3 text-neutral-600">
           <Phone className="w-5 h-5 text-neutral-400" />
-          <span>{profile.mobile}</span>
+          <span className={!profile.mobile ? "text-neutral-500" : ""}>
+            {profile.mobile || "Not Specified"}
+          </span>
         </div>
         <div className="flex items-center space-x-3 text-neutral-600">
           <Mail className="w-5 h-5 text-neutral-400" />
@@ -38,7 +52,7 @@ export const BioView: React.FC<BioViewProps> = ({ profile }) => {
         </div>
         <div className="flex items-center space-x-3 text-neutral-600">
           <Calendar className="w-5 h-5 text-neutral-400" />
-          <span>{profile.dateOfBirth ? format(new Date(profile.dateOfBirth), 'dd MMMM yyyy') : 'Not specified'}</span>
+          <span>{profile.dateOfBirth ? `${getAge(profile.dateOfBirth)} years old` : 'Not specified'}</span>
         </div>
       </div>
 
@@ -47,9 +61,23 @@ export const BioView: React.FC<BioViewProps> = ({ profile }) => {
         <div className="flex items-start space-x-3 text-neutral-600">
           <MapPin className="w-5 h-5 text-neutral-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p>{profile.address}</p>
-            <p>{profile.suburb}, {profile.state} {profile.postcode}</p>
-            <p>{profile.region}</p>
+            {!profile.address && !profile.suburb && !profile.state && !profile.postcode && !profile.region ? (
+              <p className="text-neutral-500">Not Specified</p>
+            ) : (
+              <>
+                {profile.address && <p>{profile.address}</p>}
+                {(profile.suburb || profile.state || profile.postcode) && (
+                  <p>
+                    {[
+                      profile.suburb,
+                      profile.state,
+                      profile.postcode
+                    ].filter(Boolean).join(', ')}
+                  </p>
+                )}
+                {profile.region && <p>{profile.region}</p>}
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -3,23 +3,9 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'ax
 import { useCallback, useMemo } from 'react';
 import { ApiError as BaseApiError } from '../types/api';
 import { useProgressStore } from '../stores/progress.store';
+import { useAuthStore } from '../stores/auth.store';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-
-// Token management
-const TOKEN_KEY = 'auth_token';
-
-const getStoredToken = (): string | null => {
-  return localStorage.getItem(TOKEN_KEY);
-};
-
-const setStoredToken = (token: string | null) => {
-  if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
-  }
-};
 
 // Generic API Response type that works with our generated types
 export interface ApiResponse<T> {
@@ -38,25 +24,28 @@ export interface ApiError extends BaseApiError {
 }
 
 const getTokenWithRetry = async (getToken: () => Promise<string | null>, retryCount = 3): Promise<string | null> => {
+  const { apiToken, setApiToken } = useAuthStore.getState();
+  
   for (let i = 0; i < retryCount; i++) {
     try {
-      // First try to get token from storage
-      let token = getStoredToken();
-      if (!token) {
-        // If no stored token, get a new one
-        token = await getToken();
-        if (token) {
-          setStoredToken(token);
-        }
+      // First try to get token from store
+      if (apiToken) {
+        return apiToken;
       }
-      return token;
+      
+      // If no stored token, get a new one
+      const newToken = await getToken();
+      if (newToken) {
+        setApiToken(newToken);
+      }
+      return newToken;
     } catch (error) {
       console.error(`Error getting token (attempt ${i + 1}/${retryCount}):`, error);
       if (i === retryCount - 1) {
         throw error;
       }
       // Clear stored token on error
-      setStoredToken(null);
+      setApiToken(null);
     }
   }
   return null;
@@ -122,7 +111,8 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
         try {
           console.log('Attempting to refresh token after 401');
           // Clear stored token on 401
-          setStoredToken(null);
+          const { setApiToken } = useAuthStore.getState();
+          setApiToken(null);
           const token = await getTokenWithRetry(getToken);
           
           if (token) {
