@@ -23,7 +23,7 @@ interface PropertyCardProps {
   onDelete?: () => void;
   onToggleVisibility?: () => Promise<void>;
   isUpdatingVisibility?: boolean;
-  isSignedIn: boolean;
+  isSignedIn?: boolean;
 }
 
 export default function PropertyCard({ 
@@ -31,8 +31,7 @@ export default function PropertyCard({
   onClick, 
   onEdit, 
   onToggleVisibility, 
-  isUpdatingVisibility,
-  isSignedIn
+  isUpdatingVisibility
 }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);

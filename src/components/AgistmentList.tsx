@@ -50,7 +50,7 @@ export function AgistmentList({
           <PropertyCard 
             key={agistment.id} 
             agistment={agistment} 
-            isSignedIn={isSignedIn}
+            isSignedIn={isSignedIn ?? false}
           />
         ))}
       </div>

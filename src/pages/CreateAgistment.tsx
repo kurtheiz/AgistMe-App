@@ -49,6 +49,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       status: 'DRAFT',
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
+      isFavourite: false,
       listing: { listingType: selectedType.listingType },
       basicInfo: {
         name: '',

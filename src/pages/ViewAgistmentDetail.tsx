@@ -13,12 +13,10 @@ import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptio
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentPhotosView } from '../components/Agistment/AgistmentPhotosView';
 import { useFavorite } from '../hooks/useFavorite';
-import { useAuth } from '@clerk/clerk-react';
 
 export function ViewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isSignedIn } = useAuth();
   const [agistment, setAgistment] = useState<AgistmentResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
