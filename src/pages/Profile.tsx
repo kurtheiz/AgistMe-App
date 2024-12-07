@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { LogOut, ChevronDown, Bell, BellOff, Pencil, Heart } from 'lucide-react';
+import { LogOut, ChevronDown, Bell, BellOff, Pencil, Heart, CircleUser, CircleDollarSign, BookmarkPlus, Search, Building, Trash2 } from 'lucide-react';
 import { useAgistor } from '../hooks/useAgistor';
 import { Disclosure } from '@headlessui/react';
 import Bio from '../components/Bio';
@@ -49,6 +49,20 @@ export default function Profile() {
         ...prev,
         [agistmentId]: { ...prev[agistmentId], isLoading: false }
       }));
+    }
+  };
+
+  const handleDeleteFavorite = async (favoriteId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      await profileService.deleteFavorite(favoriteId);
+      setFavourites(prev => prev.filter(fav => fav.id !== favoriteId));
+      toast.success('Favorite removed');
+    } catch (error) {
+      console.error('Failed to delete favorite:', error);
+      toast.error('Failed to remove favorite');
     }
   };
 
@@ -131,6 +145,19 @@ export default function Profile() {
     loadFavourites();
   }, [isSignedIn]);
 
+  const handleDeleteSearch = async (searchId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const updatedSearches = savedSearches.filter(search => search.id !== searchId);
+      await profileService.updateSavedSearches(updatedSearches);
+      setSavedSearches(updatedSearches);
+      toast.success('Search deleted');
+    } catch (error) {
+      console.error('Failed to delete search:', error);
+      toast.error('Failed to delete search');
+    }
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
@@ -193,11 +220,14 @@ export default function Profile() {
         <div className="space-y-6">
           <div className="space-y-4">
             {/* Bio */}
-            <Disclosure defaultOpen={true}>
+            <Disclosure>
               {({ open }) => (
                 <div className="bg-white rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
-                    <h2 className="text-lg font-medium">My Bio</h2>
+                    <div className="flex items-center gap-2">
+                      <CircleUser className="w-5 h-5 text-neutral-500" />
+                      <h2 className="text-lg font-medium">My Bio</h2>
+                    </div>
                     <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
                   </Disclosure.Button>
                   <Disclosure.Panel className="px-6 pb-6">
@@ -221,11 +251,14 @@ export default function Profile() {
             </Disclosure>
 
             {/* My Horses */}
-            <Disclosure defaultOpen={true}>
+            <Disclosure>
               {({ open }) => (
                 <div className="bg-white rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
-                    <h2 className="text-lg font-medium">My Horses</h2>
+                    <div className="flex items-center gap-2">
+                      <CircleDollarSign className="w-5 h-5 text-neutral-500" />
+                      <h2 className="text-lg font-medium">My Horses</h2>
+                    </div>
                     <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
                   </Disclosure.Button>
                   <Disclosure.Panel className="px-6 pb-6">
@@ -246,19 +279,14 @@ export default function Profile() {
             </Disclosure>
 
             {/* Favourites */}
-            <Disclosure defaultOpen={true}>
+            <Disclosure>
               {({ open }) => (
                 <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
-                    <span className="font-medium">
-                      {isLoadingFavourites 
-                        ? 'Loading Favourites...'
-                        : !favourites || favourites.length === 0
-                        ? 'No Favourites'
-                        : favourites.length === 1
-                        ? '1 Favourite'
-                        : `${favourites.length} Favourites`}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-neutral-500" />
+                      <span className="font-medium">My Favourites</span>
+                    </div>
                     <ChevronDown
                       className={`${
                         open ? 'transform rotate-180' : ''
@@ -291,45 +319,24 @@ export default function Profile() {
                                     </span>
                                   </div>
                                 )}
-                                <div className={`flex relative ${isInactive ? 'pointer-events-none' : ''}`}>
-                                  {favourite.photo && (
-                                    <div className="w-24 h-24 flex-shrink-0">
-                                      <img 
-                                        src={favourite.photo} 
-                                        alt={favourite.name}
-                                        className="w-full h-full object-cover"
-                                      />
+                                <div className="flex items-start">
+                                  <button
+                                    onClick={(e) => handleDeleteFavorite(favourite.id, e)}
+                                    className="flex-shrink-0 p-3 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                                  >
+                                    <Trash2 
+                                      className="w-5 h-5 text-neutral-400 hover:text-red-500 transition-colors"
+                                    />
+                                  </button>
+                                  <div className="flex-grow px-4 pb-4">
+                                    <div className="space-y-0.5">
+                                      <h3 className="font-medium text-neutral-900 dark:text-white">
+                                        {favourite.name}
+                                      </h3>
+                                      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                        {favourite.location.suburb}, {favourite.location.state}
+                                      </p>
                                     </div>
-                                  )}
-                                  <div className="p-4 flex-grow">
-                                    <div className="flex justify-between items-start">
-                                      <div>
-                                        <button
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            toggleFavorite(favourite.id);
-                                          }}
-                                          className="flex items-center gap-1 text-sm hover:text-primary-600 transition-colors pointer-events-auto"
-                                          disabled={favorites[favourite.id]?.isLoading}
-                                        >
-                                          <Heart
-                                            className={`w-5 h-5 ${
-                                              favorites[favourite.id]?.isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'
-                                            } ${isInactive ? '' : ''}`}
-                                          />
-                                        </button>
-                                        <h3 className="font-medium text-neutral-900 dark:text-white">
-                                          {favourite.name}
-                                        </h3>
-                                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                                          {favourite.location.suburb}, {favourite.location.state}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-2">
-                                      Last updated: {formatLastUpdate(favourite.lastUpdate)}
-                                    </p>
                                   </div>
                                 </div>
                               </div>
@@ -344,130 +351,85 @@ export default function Profile() {
             </Disclosure>
 
             {/* Saved Searches */}
-            <Disclosure defaultOpen={true}>
+            <Disclosure>
               {({ open }) => (
                 <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
                   <Disclosure.Button className="w-full px-4 py-3 text-left flex justify-between items-center">
-                    <span className="font-medium">
-                      {savedSearches.length === 0
-                        ? 'No Saved Searches'
-                        : savedSearches.length === 1
-                        ? '1 Saved Search'
-                        : `${savedSearches.length} Saved Searches`}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <BookmarkPlus className="w-5 h-5 text-neutral-500" />
+                      <span className="font-medium">Saved Searches</span>
+                    </div>
                     <ChevronDown
                       className={`${
                         open ? 'transform rotate-180' : ''
                       } w-5 h-5 text-neutral-500`}
                     />
                   </Disclosure.Button>
-                  <Disclosure.Panel className="px-6 pb-6">
+                  <Disclosure.Panel className="px-4 pb-4">
                     <div className="space-y-4">
                       {isLoading ? (
                         <div className="text-neutral-600">Loading saved searches...</div>
-                      ) : savedSearches.length === 0 ? (
+                      ) : !savedSearches || savedSearches.length === 0 ? (
                         <div className="text-neutral-600">No saved searches yet</div>
                       ) : (
                         <div className="space-y-4">
                           {savedSearches.map((search) => {
-                            const decodedSearch = decodeSearchHash(search.searchHash);
-                            if (!decodedSearch) return null;
+                            const searchCriteria = decodeSearchHash(search.searchHash);
+                            const location = searchCriteria.suburbs?.[0];
+                            let locationDisplay = 'Any location';
                             
-                            const locationName = decodedSearch.suburbs?.[0]?.suburb || 'Any location';
-                            const radius = decodedSearch.radius || 0;
-                            
-                            // Format additional details
-                            const details = [];
-                            if (decodedSearch.spaces > 0) details.push({ type: 'spaces', value: `${decodedSearch.spaces} spaces` });
-                            if (decodedSearch.maxPrice > 0) details.push({ type: 'maxPrice', value: `$${decodedSearch.maxPrice}/week` });
-
-                            if (decodedSearch.paddockTypes?.length > 0) {
-                              details.push(...decodedSearch.paddockTypes.map(type => ({
-                                type: 'paddockTypes',
-                                value: type.charAt(0).toUpperCase() + type.slice(1)
-                              })));
+                            if (location?.locationType) {
+                              const type = location.locationType.toLowerCase();
+                              if (type === 'suburb') {
+                                locationDisplay = `${location.suburb}, ${location.postcode} ${location.state}`;
+                              } else if (type === 'state') {
+                                locationDisplay = location.state;
+                              } else if (type === 'region') {
+                                locationDisplay = `${location.region}, ${location.state}`;
+                              }
+                              
+                              if (searchCriteria.radius > 0) {
+                                locationDisplay += ` within ${searchCriteria.radius}km`;
+                              }
                             }
 
-                            if (decodedSearch.hasArena) details.push({ type: 'hasArena', value: 'Arena' });
-                            if (decodedSearch.hasRoundYard) details.push({ type: 'hasRoundYard', value: 'Round Yard' });
-
-                            if (decodedSearch.facilities?.length > 0) {
-                              details.push(...decodedSearch.facilities.map(facility => {
-                                switch (facility) {
-                                  case 'feedRoom': return { type: 'facilities', value: 'Feed Room' };
-                                  case 'tackRoom': return { type: 'facilities', value: 'Tack Room' };
-                                  case 'floatParking': return { type: 'facilities', value: 'Float Parking' };
-                                  case 'hotWash': return { type: 'facilities', value: 'Hot Wash' };
-                                  case 'stables': return { type: 'facilities', value: 'Stables' };
-                                  case 'tieUp': return { type: 'facilities', value: 'Tie Up' };
-                                  default: return { type: 'facilities', value: facility };
-                                }
-                              }));
-                            }
-
-                            if (decodedSearch.careTypes?.length > 0) {
-                              details.push(...decodedSearch.careTypes.map(care => ({
-                                type: 'careTypes',
-                                value: `${care} Care`
-                              })));
-                            }
+                            const filterCount = [
+                              searchCriteria.paddockTypes?.length > 0,
+                              searchCriteria.spaces > 0,
+                              searchCriteria.maxPrice > 0,
+                              searchCriteria.hasArena,
+                              searchCriteria.hasRoundYard,
+                              searchCriteria.facilities?.length > 0,
+                              searchCriteria.careTypes?.length > 0
+                            ].filter(Boolean).length;
 
                             return (
-                              <div key={search.id} className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
-                                <div className="p-4">
-                                  <div className="flex flex-col space-y-2">
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <span className="font-medium">{search.name}</span>
-                                      <button
-                                        onClick={() => {
-                                          setEditingSearch(search);
-                                          setShowSaveSearchModal(true);
-                                        }}
-                                        className="button-toolbar"
-                                        title="Edit saved search"
-                                      >
-                                        <Pencil className="w-4 h-4" />
-                                        <span>Edit</span>
-                                      </button>
-                                    </div>
-                                    <div className="flex flex-col space-y-1">
-                                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                                        {locationName}{radius > 0 ? ` within ${radius}km` : ''}
-                                      </div>
-                                      {details.length > 0 && (
-                                        <div className="flex flex-wrap gap-1.5">
-                                          {details.map((detail) => (
-                                            <span
-                                              key={`${detail.type}-${detail.value}`}
-                                              className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300"
-                                            >
-                                              {detail.value}
-                                            </span>
-                                          ))}
-                                        </div>
+                              <div 
+                                key={search.id}
+                                className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 space-y-2 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50"
+                                onClick={() => {
+                                  setEditingSearch(search);
+                                  setShowSaveSearchModal(true);
+                                }}
+                              >
+                                <div className="flex items-center">
+                                  <button
+                                    onClick={(e) => handleDeleteSearch(search.id, e)}
+                                    className="flex-shrink-0 p-3 -m-4 mr-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4 text-neutral-400 hover:text-red-500" />
+                                  </button>
+                                  <div className="flex-grow">
+                                    <div>
+                                      <h3 className="font-medium">{search.name}</h3>
+                                      <p className="text-sm text-neutral-600">{locationDisplay}</p>
+                                      <p className="text-sm text-neutral-500">{filterCount} filter{filterCount !== 1 ? 's' : ''}</p>
+                                      {search.enableNotifications && (
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 mt-2">
+                                          <Bell className="w-3 h-3" />
+                                          Notify Me
+                                        </span>
                                       )}
-                                      <div className="flex flex-col space-y-1 mt-2">
-                                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                          Last updated: {formatLastUpdate(search.lastUpdate)}
-                                        </div>
-                                        <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full w-fit
-                                          ${search.enableNotifications 
-                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                          }`}>
-                                          {search.enableNotifications ? (
-                                            <>
-                                              <Bell className="h-3.5 w-3.5" />
-                                              <span>Notifications on</span>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <BellOff className="h-3.5 w-3.5" />
-                                              <span>Notifications off</span>
-                                            </>
-                                          )}
-                                        </div>
-                                      </div>
                                     </div>
                                   </div>
                                 </div>
@@ -484,11 +446,14 @@ export default function Profile() {
 
             {/* My Agistments */}
             {isAgistor && (
-              <Disclosure defaultOpen={true}>
+              <Disclosure>
                 {({ open }) => (
                   <div className="bg-white rounded-lg shadow-sm">
                     <Disclosure.Button className="w-full px-6 py-4 text-left flex justify-between items-center">
-                      <h2 className="text-lg font-medium">My Agistments</h2>
+                      <div className="flex items-center gap-2">
+                        <Building className="w-5 h-5 text-neutral-500" />
+                        <h2 className="text-lg font-medium">My Agistments</h2>
+                      </div>
                       <ChevronDown className={`w-5 h-5 transform transition-transform ${open ? 'rotate-180' : ''}`} />
                     </Disclosure.Button>
                     <Disclosure.Panel className="px-6 pb-6">
@@ -522,8 +487,9 @@ export default function Profile() {
             }}
             searchCriteria={editingSearch ? decodeSearchHash(editingSearch.searchHash) : null}
             onSave={handleEditSearch}
-            initialName={editingSearch?.name}
-            initialNotifications={editingSearch?.enableNotifications}
+            initialName={editingSearch?.name || ''}
+            initialNotifications={editingSearch?.enableNotifications || false}
+            title="Saved Search"
           />
 
           {/* Sign Out Button */}

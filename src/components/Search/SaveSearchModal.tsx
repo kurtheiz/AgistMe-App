@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Switch } from '@headlessui/react';
 import { Modal } from '../shared/Modal';
 import { SearchRequest } from '../../types/search';
 
@@ -9,6 +10,7 @@ interface SaveSearchModalProps {
   onSave: (name: string, enableNotifications: boolean) => void;
   initialName?: string;
   initialNotifications?: boolean;
+  title?: string;
 }
 
 export function SaveSearchModal({ 
@@ -17,21 +19,31 @@ export function SaveSearchModal({
   searchCriteria, 
   onSave,
   initialName = '',
-  initialNotifications = false 
+  initialNotifications = false,
+  title = 'Save Search'
 }: SaveSearchModalProps) {
   const [name, setName] = useState(initialName);
   const [enableNotifications, setEnableNotifications] = useState(initialNotifications);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setName(initialName);
       setEnableNotifications(initialNotifications);
+      setIsDirty(false);
     }
   }, [isOpen, initialName, initialNotifications]);
 
+  // Track form changes
+  useEffect(() => {
+    const isNameDirty = name !== initialName;
+    const isNotificationsDirty = enableNotifications !== initialNotifications;
+    setIsDirty(isNameDirty || isNotificationsDirty);
+  }, [name, enableNotifications, initialName, initialNotifications]);
+
   const handleSave = () => {
-    if (!name.trim() || !searchCriteria) return;
+    if (!name.trim() || !searchCriteria || !isDirty) return;
     
     setIsUpdating(true);
     try {
@@ -105,12 +117,12 @@ export function SaveSearchModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Save Search"
+      title={title}
       size="md"
       isUpdating={isUpdating}
       actionIconType="SAVE"
       onAction={handleSave}
-      disableAction={!name.trim() || !searchCriteria}
+      disableAction={!name.trim() || !searchCriteria || !isDirty}
     >
       <div className="space-y-6">
         <div>
@@ -147,14 +159,21 @@ export function SaveSearchModal({
         )}
 
         <div className="flex items-center">
-          <input
-            id="notifications"
-            type="checkbox"
-            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          <Switch
             checked={enableNotifications}
-            onChange={(e) => setEnableNotifications(e.target.checked)}
-          />
-          <label htmlFor="notifications" className="ml-2 block text-sm text-gray-700">
+            onChange={setEnableNotifications}
+            className={`${
+              enableNotifications ? 'bg-primary-500' : 'bg-gray-200'
+            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2`}
+          >
+            <span className="sr-only">Enable notifications</span>
+            <span
+              className={`${
+                enableNotifications ? 'translate-x-6' : 'translate-x-1'
+              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+            />
+          </Switch>
+          <label className="ml-3 text-sm text-gray-700">
             Notify me when new agistments match these criteria
           </label>
         </div>

@@ -233,6 +233,21 @@ class ProfileService {
     }
   }
 
+  async deleteFavorite(agistmentId: string): Promise<void> {
+    return this.retryOperation(async () => {
+      try {
+        const authHeaders = await this.getAuthHeaders();
+        await this.api.delete(
+          `v1/protected/profile/favourites/${agistmentId}`,
+          authHeaders
+        );
+      } catch (error) {
+        console.error('Failed to delete favorite:', error);
+        throw error;
+      }
+    });
+  }
+
   async uploadProfilePhoto(file: File): Promise<string> {
     try {
       // Get presigned URL
