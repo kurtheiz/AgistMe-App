@@ -67,7 +67,6 @@ export default function AgistmentList({
                     className="w-full h-[100px] object-contain shadow-lg"
                   />
                 </a>
-                <span className="text-xs text-gray-500 mt-1">ADVERTISEMENT</span>
               </div>
             )}
           </Fragment>
