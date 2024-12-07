@@ -72,8 +72,8 @@ function EditAgistmentDetail() {
 
     try {
       const updatedStatus = {
-        status: agistment.status === 'HIDDEN' ? 'PUBLISHED' : 'HIDDEN'
-      };
+        status: agistment.status === 'DRAFT' ? 'PUBLISHED' : 'DRAFT'
+      } as Partial<AgistmentResponse>;
       
       await handleAgistmentUpdate(updatedStatus);
     } catch (error) {
@@ -207,13 +207,13 @@ function EditAgistmentDetail() {
                 onClick={handleVisibilityToggle}
                 disabled={isUpdating}
                 title={
-                  agistment?.status === 'HIDDEN'
-                  ? "Hidden - This agistment will not appear in search results"
+                  agistment?.status === 'DRAFT'
+                  ? "Draft - This agistment will not appear in search results"
                   : "Published - This agistment will appear in search results"
                 }
                 className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {agistment?.status === 'HIDDEN' ? 'Publish' : 'Hide'}
+                {agistment?.status === 'DRAFT' ? 'Publish' : 'Hide'}
                 {isUpdating && (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                 )}

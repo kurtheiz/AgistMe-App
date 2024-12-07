@@ -5,7 +5,7 @@ import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';
-import { Search, BookmarkPlus } from 'lucide-react';
+import { BookmarkPlus } from 'lucide-react';
 import { SearchRequest, SearchResponse } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
