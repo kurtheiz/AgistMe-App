@@ -64,7 +64,7 @@ export const Header = () => {
               {/* Hamburger menu button - visible only on mobile */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 -ml-2 rounded-md text-gray-600 hover:text-primary-600 hover:bg-gray-100"
+                className="md:hidden p-2 -ml-2 rounded-md hover:bg-gray-100"
                 aria-label="Toggle menu"
               >
                 {!isMobileMenuOpen ? (
@@ -79,7 +79,7 @@ export const Header = () => {
               </button>
               <Link 
                 to="/" 
-                className="flex items-center space-x-2 sm:space-x-3 text-lg sm:text-xl font-bold text-gray-900"
+                className="flex items-center space-x-2 sm:space-x-3 text-lg sm:text-xl font-bold"
               >
                 <img src="/AgistMeLogo.svg" alt="Agist Me Logo" className="h-9 w-9 sm:h-10 sm:w-10" />
                 <span>Agist Me</span>
@@ -87,20 +87,20 @@ export const Header = () => {
               <nav className="hidden md:flex space-x-4">
                 <Link 
                   to={agistmentsPath}
-                  className="text-base sm:text text-gray-600 hover:text-primary-600"
+                  className="text-base sm:text"
                 >
                   Agistments
                 </Link>
                 <Link 
                   to="/listagistment" 
-                  className="text-base sm:text text-gray-600 hover:text-primary-600"
+                  className="text-base sm:text"
                 >
                   List Agistment
                 </Link>
                 {showAgistorItems && (
                   <Link 
                     to="/dashboard"
-                    className="text-base sm:text text-gray-600 hover:text-primary-600"
+                    className="text-base sm:text"
                   >
                     Dashboard
                   </Link>
@@ -121,7 +121,7 @@ export const Header = () => {
                     navigate('/agistments?openSearch=true');
                   }
                 }}
-                className="p-2 rounded-full hover:bg-neutral-100 text-neutral-600 hover:text-primary-600 transition-colors"
+                className="p-2 rounded-full hover:bg-neutral-100"
               >
                 <Search className="w-5 h-5" />
               </button>
@@ -144,7 +144,7 @@ export const Header = () => {
                       viewBox="0 0 24 24" 
                       strokeWidth={1.5} 
                       stroke="currentColor" 
-                      className="w-8 h-8 text-gray-600"
+                      className="w-8 h-8"
                     >
                       <path 
                         strokeLinecap="round" 
@@ -169,28 +169,28 @@ export const Header = () => {
         <nav className="flex flex-col p-4 space-y-4 border-t border-neutral-200">
           <Link 
             to="/"
-            className="text-base text-gray-600 hover:text-primary-600 py-2"
+            className="text-base py-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Home
           </Link>
           <Link 
             to="/about"
-            className="text-base text-gray-600 hover:text-primary-600 py-2"
+            className="text-base py-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             About
           </Link>
           <Link 
             to={agistmentsPath}
-            className="text-base text-gray-600 hover:text-primary-600 py-2"
+            className="text-base py-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Agistments
           </Link>
           <Link 
             to="/listagistment" 
-            className="text-base text-gray-600 hover:text-primary-600 py-2"
+            className="text-base py-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             List Agistment
@@ -198,7 +198,7 @@ export const Header = () => {
           {showAgistorItems && (
             <Link 
               to="/dashboard"
-              className="text-base text-gray-600 hover:text-primary-600 py-2"
+              className="text-base py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Dashboard

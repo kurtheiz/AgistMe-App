@@ -334,7 +334,7 @@ export default function PropertyCard({
                       setShowEditModal(true);
                     }
                   }}
-                  className="button-primary"
+                  className="button-toolbar"
                   title="Edit property"
                 >
                   <Pencil className="w-4 h-4" />

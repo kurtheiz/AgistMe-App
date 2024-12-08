@@ -9,9 +9,9 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Agist Me</h3>
             <div className="flex flex-col space-y-2">
-              <Link to="/about" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">About</Link>
-              <Link to="/agistments" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Agistments</Link>
-              <Link to="/listagistment" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">List Agistment</Link>
+              <Link to="/about" className="text-sm">About</Link>
+              <Link to="/agistments" className="text-sm">Agistments</Link>
+              <Link to="/listagistment" className="text-sm">List Agistment</Link>
             </div>
           </div>
           
@@ -19,8 +19,8 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Legal</h3>
             <div className="flex flex-col space-y-2">
-              <Link to="/privacy" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Privacy Policy</Link>
-              <Link to="/terms" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">Terms of Service</Link>
+              <Link to="/privacy" className="text-sm">Privacy Policy</Link>
+              <Link to="/terms" className="text-sm">Terms of Service</Link>
             </div>
           </div>
         </div>

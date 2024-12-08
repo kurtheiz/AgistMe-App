@@ -35,14 +35,14 @@ interface SearchModalProps {
   refreshSavedSearches?: boolean;
 }
 
-export function SearchModal({ 
-  isOpen, 
-  onClose, 
-  onSearch, 
-  initialSearchHash, 
-  forceReset, 
+export function SearchModal({
+  isOpen,
+  onClose,
+  onSearch,
+  initialSearchHash,
+  forceReset,
   title = 'Search',
-  refreshSavedSearches 
+  refreshSavedSearches
 }: SearchModalProps) {
   const [searchParams] = useSearchParams();
   const searchHash = searchParams.get('q');
@@ -66,7 +66,7 @@ export function SearchModal({
       try {
         const response = await profileService.getSavedSearches();
         // Sort by lastUpdate, most recent first
-        const sortedSearches = response.savedSearches.sort((a, b) => 
+        const sortedSearches = response.savedSearches.sort((a, b) =>
           new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime()
         );
         setSavedSearches(sortedSearches);
@@ -213,9 +213,9 @@ export function SearchModal({
         {/* Location Search with Saved Searches Menu */}
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1 flex items-center gap-2">
+            <label className="text-lg font-semibold text-neutral-900 mb-1 flex items-center gap-2">
               {searchCriteria.suburbs.length === 0 ? (
-                "Suburb, post code, region or state"
+                "Location"
               ) : (
                 `${searchCriteria.suburbs.length} ${searchCriteria.suburbs.length === 1 ? 'location' : 'locations'} selected`
               )}
@@ -378,7 +378,7 @@ export function SearchModal({
         <div className="space-y-4 sm:space-y-6">
           {/* Number of Horses */}
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">
+            <label className="block text-base font-medium text-neutral-700 mb-1">
               Number of Horses
             </label>
             <NumberStepper
@@ -394,7 +394,7 @@ export function SearchModal({
           {/* Maximum Weekly Price */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-sm font-medium text-neutral-700">
+              <label className="block text-base font-medium text-neutral-700">
                 Max price per space
               </label>
               <span className="text-lg font-semibold text-neutral-900">
@@ -422,7 +422,7 @@ export function SearchModal({
 
           {/* Paddock Types */}
           <div>
-            <h2 className="text-lg font-semibold text-neutral-900">Paddock Types</h2>
+            <h2 className="block text-base font-medium text-neutral-700 mb-1">Paddock Types</h2>
             <div className="grid grid-cols-3 gap-2">
               {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
                 <button
@@ -443,7 +443,7 @@ export function SearchModal({
 
           {/* Care Options */}
           <div>
-            <h2 className="text-lg font-semibold text-neutral-900">Care Options</h2>
+            <h2 className="block text-base font-medium text-neutral-700 mb-1">Care Options</h2>
             <div className="grid grid-cols-3 gap-2">
               {(['Self', 'Part', 'Full'] as CareType[]).map((type) => (
                 <button
@@ -464,7 +464,7 @@ export function SearchModal({
 
           {/* Riding Facilities */}
           <div>
-            <h2 className="text-lg font-semibold text-neutral-900">Riding Facilities</h2>
+            <h2 className="block text-base font-medium text-neutral-700 mb-1">Riding Facilities</h2>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -493,7 +493,7 @@ export function SearchModal({
 
           {/* Additional Facilities */}
           <div>
-            <h2 className="text-lg font-semibold text-neutral-900">Property Facilities</h2>
+            <h2 className="block text-base font-medium text-neutral-700 mb-1">Property Facilities</h2>
             <div className="grid grid-cols-2 gap-2">
               {[/* eslint-disable @typescript-eslint/naming-convention */
                 { key: 'feedRoom', icon: FeedRoomIcon, label: 'Feed Room' },

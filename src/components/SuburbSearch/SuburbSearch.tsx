@@ -120,7 +120,8 @@ export function SuburbSearch({
             value={searchTerm}
             onChange={(e) => !disabled && setSearchTerm(e.target.value)}
             disabled={disabled}
-            className={`h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500 text-ellipsis overflow-hidden whitespace-nowrap ${
+            placeholder={multiple ? "Suburb, post code, region or state" : "Enter a suburb"}
+            className={`h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-sm text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500 text-ellipsis overflow-hidden whitespace-nowrap ${
               disabled 
                 ? 'bg-neutral-100 dark:bg-neutral-800 cursor-not-allowed border-neutral-300 dark:border-neutral-600' 
                 : 'bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-600 focus:border-primary-500 focus:ring-primary-500'

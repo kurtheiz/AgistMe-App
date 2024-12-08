@@ -52,6 +52,13 @@ body {
   will-change: padding-right;
 }
 
+/* Base styles */
+@layer base {
+  a {
+    @apply text-gray-600 hover:text-primary-600 transition-colors;
+  }
+}
+
 /* Base form styles */
 @layer components {
   /* Visibility icon styles */
@@ -62,6 +69,11 @@ body {
   .visibility-icon-hidden {
     @apply text-visibility-hidden-light hover:text-visibility-hidden-hover-light transition-colors;
   }
+
+  /* Link styles */
+  /* a {
+    @apply text-[#228B22] hover:text-[#228B22] transition-colors;
+  } */
 
   .form-input {
     @apply mt-1 block w-full px-3 py-2 
