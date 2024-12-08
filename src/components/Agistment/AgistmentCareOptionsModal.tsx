@@ -22,6 +22,13 @@ interface EditForm {
   fullCare: CareForm;
 }
 
+interface ValidationErrors {
+  selfCare?: { [key: string]: string };
+  partCare?: { [key: string]: string };
+  fullCare?: { [key: string]: string };
+  general?: string;
+}
+
 interface Props {
   care: AgistmentCare;
   isOpen: boolean;
@@ -55,6 +62,7 @@ export const AgistmentCareOptionsModal = ({
   const [isSaving, setIsSaving] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   // Set initial hash when modal opens or props change
   useEffect(() => {
@@ -112,7 +120,50 @@ export const AgistmentCareOptionsModal = ({
     onClose();
   };
 
+  const validateFields = () => {
+    const newErrors: ValidationErrors = {};
+
+    // Check if at least one care option is available
+    const hasAnyCareOption = Object.values(editForm).some(care => care.available);
+    if (!hasAnyCareOption) {
+      newErrors.general = 'At least one care option must be available';
+    }
+
+    // Validate each care option
+    const validateCare = (type: keyof EditForm) => {
+      const care = editForm[type];
+      const typeErrors: { [key: string]: string } = {};
+
+      if (care.available && care.monthlyPrice < 0) {
+        typeErrors.monthlyPrice = 'Monthly price cannot be negative';
+      }
+
+      if (Object.keys(typeErrors).length > 0) {
+        newErrors[type] = typeErrors;
+      }
+    };
+
+    validateCare('selfCare');
+    validateCare('partCare');
+    validateCare('fullCare');
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Run validation whenever the form changes
+  useEffect(() => {
+    validateFields();
+  }, [editForm]);
+
   const handleUpdateAll = async () => {
+    if (!isDirty) return;
+
+    if (!validateFields()) {
+      toast.error('Please fix the validation errors before saving');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const updatedAgistment: Partial<AgistmentResponse> = {
@@ -147,6 +198,11 @@ export const AgistmentCareOptionsModal = ({
       disableAction={!isDirty}
     >
       <div className="space-y-4 max-w-2xl mx-auto">
+        {errors.general && (
+          <div className="text-sm text-red-500 text-center mb-4">
+            {errors.general}
+          </div>
+        )}
         {/* Self Care Section */}
         <div className="space-y-4">
           <div className="flex items-start space-x-4">
@@ -183,8 +239,10 @@ export const AgistmentCareOptionsModal = ({
                       setEditForm(prev => ({ ...prev, selfCare: { ...prev.selfCare, monthlyPrice: value } }));
                     }}
                     min={0}
-                    disabled={!editForm.selfCare.available}
                   />
+                  {errors.selfCare?.monthlyPrice && (
+                    <p className="mt-1 text-sm text-red-500">{errors.selfCare.monthlyPrice}</p>
+                  )}
                 </div>
                 <div className="mt-2">
                   <input
@@ -195,7 +253,6 @@ export const AgistmentCareOptionsModal = ({
                     }}
                     className="form-input form-input-compact"
                     placeholder="Add comments..."
-                    disabled={!editForm.selfCare.available}
                   />
                 </div>
               </div>
@@ -239,8 +296,10 @@ export const AgistmentCareOptionsModal = ({
                       setEditForm(prev => ({ ...prev, partCare: { ...prev.partCare, monthlyPrice: value } }));
                     }}
                     min={0}
-                    disabled={!editForm.partCare.available}
                   />
+                  {errors.partCare?.monthlyPrice && (
+                    <p className="mt-1 text-sm text-red-500">{errors.partCare.monthlyPrice}</p>
+                  )}
                 </div>
                 <div className="mt-2">
                   <input
@@ -251,7 +310,6 @@ export const AgistmentCareOptionsModal = ({
                     }}
                     className="form-input form-input-compact"
                     placeholder="Add comments..."
-                    disabled={!editForm.partCare.available}
                   />
                 </div>
               </div>
@@ -295,8 +353,10 @@ export const AgistmentCareOptionsModal = ({
                       setEditForm(prev => ({ ...prev, fullCare: { ...prev.fullCare, monthlyPrice: value } }));
                     }}
                     min={0}
-                    disabled={!editForm.fullCare.available}
                   />
+                  {errors.fullCare?.monthlyPrice && (
+                    <p className="mt-1 text-sm text-red-500">{errors.fullCare.monthlyPrice}</p>
+                  )}
                 </div>
                 <div className="mt-2">
                   <input
@@ -307,7 +367,6 @@ export const AgistmentCareOptionsModal = ({
                     }}
                     className="form-input form-input-compact"
                     placeholder="Add comments..."
-                    disabled={!editForm.fullCare.available}
                   />
                 </div>
               </div>

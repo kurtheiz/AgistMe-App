@@ -117,8 +117,13 @@ export const AgistmentHeaderModal = ({
   const validateFields = () => {
     const newErrors: { propertyName?: string; address?: string; location?: string; email?: string; mobile?: string; } = {};
     
-    if (!editForm.propertyName?.trim()) {
-      newErrors.propertyName = 'Property Name is required';
+    const trimmedName = editForm.propertyName?.trim();
+    if (!trimmedName) {
+      newErrors.propertyName = 'Agistment Name is required';
+    } else if (trimmedName.length < 3) {
+      newErrors.propertyName = 'Agistment Name must be at least 3 characters long';
+    } else if (trimmedName === 'New Agistment') {
+      newErrors.propertyName = 'Agistment Name cannot be "New Agistment"';
     }
 
     if (!editForm.address?.trim()) {
@@ -146,6 +151,10 @@ export const AgistmentHeaderModal = ({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  useEffect(() => {
+    validateFields();
+  }, [editForm]);
 
   const handleUpdateAll = async () => {
     if (!validateFields()) {
@@ -215,22 +224,24 @@ export const AgistmentHeaderModal = ({
       actionIconType="SAVE"
       onAction={handleUpdateAll}
       isUpdating={isSaving}
-      disableAction={!isDirty || Object.keys(errors).length > 0}
+      disableAction={!isDirty}
     >
       <div className="space-y-6">
         {/* Property Name */}
         <div className="section-container">
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Property Name <span className="text-red-500">*</span>
+              Agistment Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={editForm.propertyName}
               onChange={(e) => {
-                setEditForm(prev => ({ ...prev, propertyName: e.target.value }));
+                const newValue = e.target.value;
+                setEditForm(prev => ({ ...prev, propertyName: newValue }));
               }}
               className={`form-input form-input-compact ${errors.propertyName ? 'border-red-500' : ''}`}
+              placeholder="Enter agistment name (min. 3 characters)"
               required
             />
             {errors.propertyName && (

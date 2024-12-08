@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Image, Trash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
@@ -85,7 +85,6 @@ export const AgistmentPhotos = ({
   maxPhotos = 3,
   isEditable: _isEditable = true
 }: AgistmentPhotosProps) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const sensors = useSensors(
@@ -168,8 +167,20 @@ export const AgistmentPhotos = ({
                 <div key={`placeholder-${index}`} className="w-[160px] aspect-square bg-neutral-100 dark:bg-neutral-800 rounded-lg flex items-center justify-center border-2 border-dashed border-neutral-300 dark:border-neutral-600 hover:border-primary-400 dark:hover:border-primary-500 transition-colors">
                   <button
                     type="button"
-                    onClick={() => !isUploading && fileInputRef.current?.click()}
+                    onClick={() => {
+                      // Create a new file input element
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) handlePhotoUpload(file);
+                      };
+                      // Trigger the file dialog
+                      input.click();
+                    }}
                     className="flex flex-col items-center justify-center w-full h-full p-4 space-y-2"
+                    disabled={isUploading}
                   >
                     {isUploading ? (
                       <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary-600" />
@@ -180,17 +191,6 @@ export const AgistmentPhotos = ({
                       </>
                     )}
                   </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handlePhotoUpload(file);
-                      e.target.value = '';
-                    }}
-                    className="hidden"
-                  />
                 </div>
               ))}
             </div>

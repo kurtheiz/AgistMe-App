@@ -12,6 +12,12 @@ interface EditForm {
   groupPaddocks: PaddockBase;
 }
 
+interface ValidationErrors {
+  privatePaddocks?: { [key: string]: string };
+  sharedPaddocks?: { [key: string]: string };
+  groupPaddocks?: { [key: string]: string };
+}
+
 interface Props {
   agistmentId: string;
   paddocks: AgistmentResponse['paddocks'];
@@ -50,6 +56,7 @@ export const AgistmentPaddocksModal = ({
       totalPaddocks: 0
     }
   });
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const [isUpdating, setIsUpdating] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
@@ -91,6 +98,77 @@ export const AgistmentPaddocksModal = ({
     setIsDirty(currentHash !== initialHash);
   }, [editForm, initialHash]);
 
+  const validateFields = () => {
+    const newErrors: ValidationErrors = {};
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Check if at least one paddock type has paddocks
+    const hasPaddocks = Object.values(editForm).some(paddock => paddock.totalPaddocks > 0);
+    if (!hasPaddocks) {
+      newErrors.privatePaddocks = { 
+        ...newErrors.privatePaddocks,
+        general: 'At least one paddock type must have paddocks' 
+      };
+      newErrors.sharedPaddocks = { 
+        ...newErrors.sharedPaddocks,
+        general: 'At least one paddock type must have paddocks' 
+      };
+      newErrors.groupPaddocks = { 
+        ...newErrors.groupPaddocks,
+        general: 'At least one paddock type must have paddocks' 
+      };
+    }
+
+    const validatePaddock = (type: keyof EditForm) => {
+      const paddock = editForm[type];
+      const typeErrors: { [key: string]: string } = {};
+
+      if (paddock.totalPaddocks < 0) {
+        typeErrors.totalPaddocks = 'Number of paddocks cannot be negative';
+      }
+
+      if (paddock.total < 0) {
+        typeErrors.total = 'Total capacity cannot be negative';
+      }
+
+      if (paddock.available < 0) {
+        typeErrors.available = 'Available spots cannot be negative';
+      }
+
+      if (paddock.available > paddock.total) {
+        typeErrors.available = 'Available spots cannot exceed total capacity';
+      }
+
+      if (paddock.weeklyPrice < 0) {
+        typeErrors.weeklyPrice = 'Weekly price cannot be negative';
+      }
+
+      if (paddock.whenAvailable) {
+        const availableDate = new Date(paddock.whenAvailable);
+        availableDate.setHours(0, 0, 0, 0);
+        if (availableDate < today) {
+          typeErrors.whenAvailable = 'Available date cannot be in the past';
+        }
+      }
+
+      if (Object.keys(typeErrors).length > 0) {
+        newErrors[type] = typeErrors;
+      }
+    };
+
+    validatePaddock('privatePaddocks');
+    validatePaddock('sharedPaddocks');
+    validatePaddock('groupPaddocks');
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  useEffect(() => {
+    validateFields();
+  }, [editForm]);
+
   const handleClose = () => {
     const initialFormState = {
       privatePaddocks: paddocks.privatePaddocks || {
@@ -124,6 +202,15 @@ export const AgistmentPaddocksModal = ({
 
   const handleUpdatePaddocks = async () => {
     if (!isDirty) return;
+    
+    if (!validateFields()) {
+      const currentTab = tabs[selectedTab].type as keyof EditForm;
+      if (errors[currentTab]) {
+        toast.error('Please fix the validation errors before saving');
+        return;
+      }
+    }
+
     setIsUpdating(true);
     
     try {
@@ -205,6 +292,11 @@ export const AgistmentPaddocksModal = ({
             {tabs.map(({ type, title }) => (
               <TabPanel key={type} className="focus:outline-none">
                 <div className="space-y-6">
+                  {errors[type as keyof ValidationErrors]?.general && (
+                    <div className="text-sm text-red-500 text-center">
+                      {errors[type as keyof ValidationErrors]?.general}
+                    </div>
+                  )}
                   <div className="text-sm text-neutral-600 text-center mb-4">
                     <p>How many <span className="font-bold">{title}</span> paddocks do you have?</p>
                     <p>If you set it to <b>0</b>, the it will display as <span className="chip-unavailable">
@@ -222,6 +314,9 @@ export const AgistmentPaddocksModal = ({
                           min={0}
                           max={100}
                         />
+                        {errors[type as keyof ValidationErrors]?.totalPaddocks && (
+                          <p className="mt-1 text-sm text-red-500">{errors[type as keyof ValidationErrors]?.totalPaddocks}</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -241,6 +336,9 @@ export const AgistmentPaddocksModal = ({
                           max={100}
                           disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                         />
+                        {errors[type as keyof ValidationErrors]?.total && (
+                          <p className="mt-1 text-sm text-red-500">{errors[type as keyof ValidationErrors]?.total}</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -259,6 +357,9 @@ export const AgistmentPaddocksModal = ({
                         max={editForm[type as keyof EditForm].total}
                         disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />
+                      {errors[type as keyof ValidationErrors]?.available && (
+                        <p className="mt-1 text-sm text-red-500">{errors[type as keyof ValidationErrors]?.available}</p>
+                      )}
                     </div>
                   </div>
                   
@@ -276,6 +377,9 @@ export const AgistmentPaddocksModal = ({
                         min={0}
                         disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />
+                      {errors[type as keyof ValidationErrors]?.weeklyPrice && (
+                        <p className="mt-1 text-sm text-red-500">{errors[type as keyof ValidationErrors]?.weeklyPrice}</p>
+                      )}
                       <div className="text-sm text-neutral-500">
                         ≈ ${calculateMonthlyPrice(editForm[type as keyof EditForm].weeklyPrice)}/month
                       </div>
@@ -292,7 +396,9 @@ export const AgistmentPaddocksModal = ({
                     <div className="w-full max-w-xs">
                       <input
                         type="date"
-                        className="form-input block w-full text-center appearance-none"
+                        className={`form-input block w-full text-center appearance-none ${
+                          errors[type as keyof ValidationErrors]?.whenAvailable ? 'border-red-500' : ''
+                        }`}
                         style={{ WebkitAppearance: 'textfield' }}
                         value={editForm[type as keyof EditForm].whenAvailable || ''}
                         onChange={(e) => handleEditFormChange(
@@ -302,6 +408,9 @@ export const AgistmentPaddocksModal = ({
                         )}
                         disabled={editForm[type as keyof EditForm].totalPaddocks === 0}
                       />
+                      {errors[type as keyof ValidationErrors]?.whenAvailable && (
+                        <p className="mt-1 text-sm text-red-500">{errors[type as keyof ValidationErrors]?.whenAvailable}</p>
+                      )}
                     </div>
                   </div>
 

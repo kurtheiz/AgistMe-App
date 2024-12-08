@@ -16,6 +16,10 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
+import { EditConfirmationModal } from './shared/EditConfirmationModal';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { agistmentService } from '../services/agistment.service';
 
 interface PropertyCardProps {
   agistment: AgistmentResponse;
@@ -34,6 +38,7 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
+  const [showEditModal, setShowEditModal] = useState(false);
   
   // If agistment is not loaded yet, show loading state
   if (!agistment || !agistment.basicInfo) {
@@ -275,7 +280,7 @@ export default function PropertyCard({
               { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.facilities.tieUp.available },
               { 
                 key: 'careOptions', 
-                label: `Care: ${buildCareOptionsString(agistment.care)}`, 
+                label: `${buildCareOptionsString(agistment.care)} Care`, 
                 icon: null, 
                 available: true 
               },
@@ -321,7 +326,13 @@ export default function PropertyCard({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    onEdit();
+                    if (agistment.status === 'HIDDEN') {
+                      // If already hidden, go straight to edit
+                      onEdit();
+                    } else {
+                      // If not hidden, show the confirmation modal
+                      setShowEditModal(true);
+                    }
                   }}
                   className="button-primary"
                   title="Edit property"
@@ -342,6 +353,36 @@ export default function PropertyCard({
           </div>
         </div>
       </div>
+      {/* Edit Confirmation Modal */}
+      <EditConfirmationModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onConfirm={async (hideAgistment) => {
+          if (hideAgistment && agistment.status !== 'HIDDEN') {
+            try {
+              // Directly update the agistment to hidden status
+              const updatedAgistment: Partial<AgistmentResponse> = {
+                ...agistment,
+                status: 'HIDDEN'
+              };
+              await agistmentService.updateAgistment(agistment.id, updatedAgistment);
+              
+              // Notify parent component that visibility changed
+              if (onToggleVisibility) {
+                await onToggleVisibility();
+              }
+            } catch (error) {
+              console.error('Failed to hide agistment:', error);
+              toast.error('Failed to hide agistment');
+              return;
+            }
+          }
+          setShowEditModal(false);
+          onEdit?.();
+        }}
+        currentlyHidden={agistment.status === 'HIDDEN'}
+        isUpdating={isUpdatingVisibility}
+      />
     </div>
   );
 }
