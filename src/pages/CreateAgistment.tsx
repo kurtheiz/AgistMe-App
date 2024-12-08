@@ -40,7 +40,6 @@ const CreateAgistment: React.FC = () => {
 Agistment is $100 per week which includes quality pasture, daily water checks and hay supplementation in winter. All agistees have full use of facilities and will be joining a great community of like-minded horse owners. Available from March 1st.`;
 
   const createEmptyAgistment = (tempId: string): AgistmentResponse => {
-    const primaryEmail = user?.emailAddresses?.find(email => email.id === user.primaryEmailAddressId);
     
     return {
       id: tempId,
@@ -52,18 +51,10 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       isFavourite: false,
       listing: { listingType: selectedType.listingType },
       basicInfo: {
-        name: '',
+        name: 'New Agistment',
         propertySize: 0
       },
-      propertyLocation: hasUserData ? {
-        location: {
-          address: user?.publicMetadata?.address as string || '',
-          postcode: user?.publicMetadata?.postcode as string || '',
-          region: user?.publicMetadata?.region as string || '',
-          state: user?.publicMetadata?.state as string || '',
-          suburb: user?.publicMetadata?.suburb as string || ''
-        }
-      } : {
+      propertyLocation: {
         location: {
           address: '',
           postcode: '',
@@ -72,13 +63,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
           suburb: ''
         }
       },
-      contact: hasUserData ? {
-        contactDetails: {
-          name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
-          email: primaryEmail?.emailAddress || '',
-          number: user?.publicMetadata?.mobile as string || ''
-        }
-      } : {
+      contact:  {
         contactDetails: {
           name: '',
           email: '',
@@ -95,10 +80,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
         tackRoom: { available: false, comments: '' },
         tieUp: { available: false, comments: '' },
         stables: { available: false, comments: '', quantity: 0 }
-      },
-      visibility: {
-        hidden: false
-      },
+      },      
       ridingFacilities: {
         arenas: [],
         roundYards: []

@@ -115,10 +115,6 @@ export interface AgistmentCare {
   selfCare: PricedFacility & { comments: string };
 }
 
-export interface AgistmentVisibility {
-  hidden: boolean;
-}
-
 export interface AgistmentResponse {
   id: string;
   ridingFacilities: AgistmentRidingFacilities;
@@ -128,7 +124,6 @@ export interface AgistmentResponse {
   facilities: AgistmentFacilities;
   GSI1PK: string;
   geohash: string;
-  visibility: AgistmentVisibility;
   listing: AgistmentListingType;
   propertyLocation: AgistmentPropertyLocation;
   modifiedAt: string;
