@@ -47,7 +47,7 @@ export const Dashboard = () => {
 
   const stats = {
     totalAgistments: agistments?.length || 0,
-    activeAgistments: agistments?.filter(a => !a.visibility?.hidden)?.length || 0,
+    activeAgistments: agistments?.filter(a => a.status === 'PUBLISHED')?.length || 0,
     totalViews: 0
   };
 
