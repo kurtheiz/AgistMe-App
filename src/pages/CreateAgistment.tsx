@@ -46,7 +46,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
       id: tempId,
       GSI1PK: '',
       geohash: '',
-      status: 'DRAFT',
+      status: 'HIDDEN',
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
       isFavourite: false,
@@ -97,7 +97,7 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
         stables: { available: false, comments: '', quantity: 0 }
       },
       visibility: {
-        hidden: true
+        hidden: false
       },
       ridingFacilities: {
         arenas: [],

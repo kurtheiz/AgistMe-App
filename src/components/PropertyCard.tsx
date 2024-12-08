@@ -15,6 +15,7 @@ import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
+import { buildCareOptionsString } from '../utils/careOptions';
 
 interface PropertyCardProps {
   agistment: AgistmentResponse;
@@ -64,7 +65,9 @@ export default function PropertyCard({
       className="bg-white rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
       onClick={handleClick}
     >
-      <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
+      <div className={`relative bg-white border border-neutral-200 rounded-lg overflow-hidden ${
+        agistment.status === 'HIDDEN' ? 'opacity-50' : ''
+      }`}>
         {/* Visibility Toggle */}
         {onToggleVisibility && (
           <div className="absolute top-2 right-2 z-20">
@@ -77,7 +80,7 @@ export default function PropertyCard({
                   : 'hover:bg-neutral-100'
               }`}
             >
-              {agistment.visibility.hidden ? (
+              {agistment.status === 'HIDDEN' ? (
                 <X className="w-5 h-5 text-red-500" />
               ) : (
                 <Check className="w-5 h-5 text-green-500" />
@@ -211,21 +214,38 @@ export default function PropertyCard({
             <div className="text-right flex flex-col justify-start h-[72px]">
               <div className="font-bold text-lg text-neutral-900">
                 {(() => {
-                  const minPrice = Math.min(
-                    agistment.paddocks?.privatePaddocks?.weeklyPrice || Infinity,
-                    agistment.paddocks?.sharedPaddocks?.weeklyPrice || Infinity,
-                    agistment.paddocks?.groupPaddocks?.weeklyPrice || Infinity
-                  );
-                  const maxPrice = Math.max(
-                    agistment.paddocks?.privatePaddocks?.weeklyPrice || 0,
-                    agistment.paddocks?.sharedPaddocks?.weeklyPrice || 0,
-                    agistment.paddocks?.groupPaddocks?.weeklyPrice || 0
-                  );
+                  const prices = [
+                    agistment.paddocks?.privatePaddocks?.weeklyPrice,
+                    agistment.paddocks?.sharedPaddocks?.weeklyPrice,
+                    agistment.paddocks?.groupPaddocks?.weeklyPrice
+                  ].filter(price => price !== undefined && price !== null);
+
+                  // If all prices are 0 or no prices available
+                  if (prices.length === 0 || prices.every(price => price === 0)) {
+                    return 'Price on Application';
+                  }
+
+                  // Filter out 0 prices for min/max calculation
+                  const nonZeroPrices = prices.filter(price => price > 0);
+                  const minPrice = Math.min(...nonZeroPrices);
+                  const maxPrice = Math.max(...nonZeroPrices);
+
                   return minPrice === maxPrice 
                     ? `From $${formatCurrency(minPrice)}`
                     : `$${formatCurrency(minPrice)} - $${formatCurrency(maxPrice)}`;
                 })()}
-                <span className="text-sm font-normal text-neutral-500 ml-1">/week</span>
+                {(() => {
+                  const allPrices = [
+                    agistment.paddocks?.privatePaddocks?.weeklyPrice,
+                    agistment.paddocks?.sharedPaddocks?.weeklyPrice,
+                    agistment.paddocks?.groupPaddocks?.weeklyPrice
+                  ].filter(price => price !== undefined && price !== null);
+
+                  if (allPrices.length > 0 && !allPrices.every(price => price === 0)) {
+                    return <span className="text-sm font-normal text-neutral-500 ml-1">/week</span>;
+                  }
+                  return null;
+                })()}
               </div>
             </div>
           </div>
@@ -253,41 +273,50 @@ export default function PropertyCard({
               { key: 'hotWash', label: 'Hot Wash', icon: HotWashIcon, available: agistment.facilities.hotWash.available },
               { key: 'stables', label: 'Stables', icon: StableIcon, available: agistment.facilities.stables.available },
               { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.facilities.tieUp.available },
+              { 
+                key: 'careOptions', 
+                label: `Care: ${buildCareOptionsString(agistment.care)}`, 
+                icon: null, 
+                available: true 
+              },
             ].map(({ key, label, icon: Icon, available }) => (
               <div key={key} className="flex items-center gap-2 text-neutral-600">
                 {Icon && <Icon className="w-5 h-5" />}
                 <span className="text-sm flex items-center gap-1">
                   {label}
-                  {available ? (
-                    <Check className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <X className="w-4 h-4 text-red-600" />
+                  {key !== 'careOptions' && (
+                    available ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <X className="w-4 h-4 text-red-600" />
+                    )
                   )}
                 </span>
               </div>
             ))}
           </div>
         </div>
+      </div>
+      {/* Footer */}
+      <div className="px-4 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            {/* Favorite Button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleFavorite();
+              }}
+              disabled={isLoading}
+              className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+            >
+              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
+            </button>
 
-        {/* Footer */}
-        <div className="px-4 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              {/* Favorite Button */}
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleFavorite();
-                }}
-                disabled={isLoading}
-                className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
-              >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
-              </button>
-
-              {/* Edit Button */}
-              {onEdit && (
+            {/* Edit Button */}
+            {onEdit && (
+              <div className="flex items-center gap-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault();
@@ -300,11 +329,16 @@ export default function PropertyCard({
                   <Pencil className="w-4 h-4" />
                   <span>Edit</span>
                 </button>
-              )}
-            </div>
-            <div className="text-xs sm:text-sm">
-              Last updated: {formatRelativeDate(agistment.modifiedAt)}
-            </div>
+                {agistment.status === 'HIDDEN' && (
+                  <div className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-700">
+                    HIDDEN
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="text-xs sm:text-sm">
+            Last updated: {formatRelativeDate(agistment.modifiedAt)}
           </div>
         </div>
       </div>

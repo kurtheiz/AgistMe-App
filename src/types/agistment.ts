@@ -138,7 +138,7 @@ export interface AgistmentResponse {
   propertyServices: AgistmentServices;
   care: AgistmentCare;
   socialMedia: SocialMediaLink[];
-  status: 'PUBLISHED' | 'DRAFT' | 'DELETED';
+  status: 'PUBLISHED' | 'HIDDEN' | 'REMOVED';
   urgentAvailability: boolean;
   isFavourite: boolean;
 }
