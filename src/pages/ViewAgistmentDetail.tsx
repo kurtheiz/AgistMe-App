@@ -13,6 +13,7 @@ import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptio
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentPhotosView } from '../components/Agistment/AgistmentPhotosView';
 import { useFavorite } from '../hooks/useFavorite';
+import { AgistmentMap } from '../components/Map/AgistmentMap';
 
 export function ViewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -148,6 +149,16 @@ export function ViewAgistmentDetail() {
                 contactDetails={agistment.contact}
                 propertyDescription={agistment.propertyDescription}
               />
+              {agistment.propertyLocation?.location && (
+                <div className="mt-8">
+                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">Location</h2>
+                  <div className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
+                    <AgistmentMap
+                      address={`${agistment.propertyLocation.location.address}, ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}, Australia ${agistment.propertyLocation.location.postcode}`}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Paddocks and Care Options Grid */}

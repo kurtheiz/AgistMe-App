@@ -27,6 +27,9 @@ interface PropertyCardProps {
   onEdit?: () => void;
   onToggleVisibility?: () => Promise<void>;
   isUpdatingVisibility?: boolean;
+  searchCriteria?: {
+    paddockTypes?: ('private' | 'shared' | 'group')[];
+  };
 }
 
 export default function PropertyCard({ 
@@ -34,7 +37,8 @@ export default function PropertyCard({
   onClick, 
   onEdit, 
   onToggleVisibility, 
-  isUpdatingVisibility
+  isUpdatingVisibility,
+  searchCriteria
 }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
@@ -224,15 +228,22 @@ export default function PropertyCard({
             <div className="text-right flex flex-col justify-start h-[72px]">
               <div className="font-bold text-lg text-neutral-900">
                 {(() => {
+                  // Get available paddock types based on search criteria
+                  const availablePaddockTypes = searchCriteria?.paddockTypes || ['private', 'shared', 'group'];
+
+                  // Filter prices based on paddock availability and search criteria
                   const prices = [
-                    agistment.paddocks?.privatePaddocks?.weeklyPrice,
-                    agistment.paddocks?.sharedPaddocks?.weeklyPrice,
-                    agistment.paddocks?.groupPaddocks?.weeklyPrice
-                  ].filter(price => price !== undefined && price !== null);
+                    availablePaddockTypes.includes('private') && agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.privatePaddocks?.weeklyPrice : null,
+                    availablePaddockTypes.includes('shared') && agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.sharedPaddocks?.weeklyPrice : null,
+                    availablePaddockTypes.includes('group') && agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.groupPaddocks?.weeklyPrice : null
+                  ].filter((price): price is number => price !== null && price !== undefined);
 
                   // If all prices are 0 or no prices available
                   if (prices.length === 0 || prices.every(price => price === 0)) {
-                    return 'Price on Application';
+                    return 'Contact for price';
                   }
 
                   // Filter out 0 prices for min/max calculation
@@ -245,13 +256,17 @@ export default function PropertyCard({
                     : `$${formatCurrency(minPrice)} - $${formatCurrency(maxPrice)}`;
                 })()}
                 {(() => {
-                  const allPrices = [
-                    agistment.paddocks?.privatePaddocks?.weeklyPrice,
-                    agistment.paddocks?.sharedPaddocks?.weeklyPrice,
-                    agistment.paddocks?.groupPaddocks?.weeklyPrice
-                  ].filter(price => price !== undefined && price !== null);
+                  const availablePaddockTypes = searchCriteria?.paddockTypes || ['private', 'shared', 'group'];
+                  const prices = [
+                    availablePaddockTypes.includes('private') && agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.privatePaddocks?.weeklyPrice : null,
+                    availablePaddockTypes.includes('shared') && agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.sharedPaddocks?.weeklyPrice : null,
+                    availablePaddockTypes.includes('group') && agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.groupPaddocks?.weeklyPrice : null
+                  ].filter((price): price is number => price !== null && price !== undefined);
 
-                  if (allPrices.length > 0 && !allPrices.every(price => price === 0)) {
+                  if (prices.length > 0 && !prices.every(price => price === 0)) {
                     return <span className="text-sm font-normal text-neutral-500 ml-1">/week</span>;
                   }
                   return null;

@@ -1,6 +1,5 @@
 import { Mail, Phone, Pencil } from 'lucide-react';
 import { AgistmentContact, AgistmentBasicInfo, AgistmentPropertyLocation, AgistmentDescription } from '../../types/agistment';
-import { getGoogleMapsUrl } from '../../utils/location';
 import { ExpandableText } from '../shared/ExpandableText';
 
 interface Props {
@@ -48,19 +47,7 @@ export const AgistmentHeader = ({
         {propertyLocation?.location && (
           <div>
             <p className="text-neutral-900 dark:text-neutral-100">
-              <a
-                href={getGoogleMapsUrl(propertyLocation.location)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary-600"
-              >
-                {[
-                  propertyLocation.location.address,
-                  propertyLocation.location.suburb,
-                  propertyLocation.location.state,
-                  propertyLocation.location.postcode
-                ].filter(Boolean).join(', ')}
-              </a>
+              {propertyLocation.location.address}, {propertyLocation.location.suburb}, {propertyLocation.location.state} {propertyLocation.location.postcode}
             </p>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
               {basicInfo?.propertySize && basicInfo.propertySize > 0 
