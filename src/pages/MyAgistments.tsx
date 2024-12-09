@@ -4,7 +4,7 @@ import { AgistmentSearchResponse } from '../types/search';
 import { useAuth } from '@clerk/clerk-react';
 import { agistmentService } from '../services/agistment.service';
 import { PageToolbar } from '../components/PageToolbar';
-import { ArrowLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function MyAgistments() {
@@ -41,7 +41,7 @@ export function MyAgistments() {
                   onClick={() => navigate(-1)}
                   className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
                 >
-                  <ArrowLeft className="w-3 h-3" />
+                  <ChevronLeft className="w-4 h-4" />
                   <span className="font-medium text-sm sm:text-base">Back</span>
                 </button>
                 <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>

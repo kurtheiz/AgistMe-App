@@ -144,14 +144,6 @@ export const AgistmentPaddocksModal = ({
         typeErrors.weeklyPrice = 'Weekly price cannot be negative';
       }
 
-      if (paddock.whenAvailable) {
-        const availableDate = new Date(paddock.whenAvailable);
-        availableDate.setHours(0, 0, 0, 0);
-        if (availableDate < today) {
-          typeErrors.whenAvailable = 'Available date cannot be in the past';
-        }
-      }
-
       if (Object.keys(typeErrors).length > 0) {
         newErrors[type] = typeErrors;
       }

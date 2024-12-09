@@ -1,4 +1,4 @@
-export const formatAvailabilityDate = (date: Date | null): string => {
+export const formatAvailabilityDate = (date: Date | string | null): string => {
     if (!date) {
         return "Now";
     }
@@ -6,7 +6,15 @@ export const formatAvailabilityDate = (date: Date | null): string => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const availabilityDate = new Date(date);
+    let availabilityDate: Date;
+    if (typeof date === 'string') {
+        // Handle YYYY-MM-DD format
+        const [year, month, day] = date.split('-').map(num => parseInt(num, 10));
+        availabilityDate = new Date(year, month - 1, day); // month is 0-based in JS Date
+    } else {
+        availabilityDate = new Date(date);
+    }
+    
     availabilityDate.setHours(0, 0, 0, 0);
 
     if (availabilityDate <= today) {

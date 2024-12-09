@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
-import { ArrowLeft, Heart, Share2 } from 'lucide-react';
+import { ChevronLeft, Heart, Share2 } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentHeader } from '../components/Agistment/AgistmentHeader';
@@ -86,7 +86,7 @@ export function ViewAgistmentDetail() {
                     onClick={handleBackClick}
                     className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
                   >
-                    <ArrowLeft className="w-3 h-3" />
+                    <ChevronLeft className="w-4 h-4" />
                     <span className="font-medium text-sm sm:text-base">Back</span>
                   </button>
                   <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
@@ -177,9 +177,9 @@ export function ViewAgistmentDetail() {
 
             {/* Paddocks and Care Options Grid */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-start">
                 {/* Paddocks Section */}
-                <div>
+                <div className="lg:sticky lg:top-[120px]">
                   <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Paddock Management
                   </h2>

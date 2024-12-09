@@ -43,7 +43,18 @@ export default function PropertyCard({
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
   const [showEditModal, setShowEditModal] = useState(false);
-  
+
+  const isDateInFuture = (date: string | null | undefined) => {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+    
+    return compareDate > today;
+  };
+
   // If agistment is not loaded yet, show loading state
   if (!agistment || !agistment.basicInfo) {
     return (
@@ -148,11 +159,11 @@ export default function PropertyCard({
             </a>
             <div className="flex flex-col min-w-0">
               <div className="text-sm text-neutral-800 truncate">
-                {agistment.propertyLocation.location.address}, {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.region}, {agistment.propertyLocation.location.state}
+                <span className="font-semibold">{agistment.propertyLocation.location.address}</span>, <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
               </div>
               {agistment.matchType === 'ADJACENT' && agistment.distance !== undefined && (
                 <div className="text-xs text-neutral-500 mt-1">
-                  {agistment.distance.toFixed(1)}km away{agistment.distanceFrom ? ` from ${agistment.distanceFrom}` : ''}
+                  <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span> is <span className="font-semibold">{agistment.distance.toFixed(1)}km</span> away from <span className="font-semibold">{agistment.distanceFrom}</span>
                 </div>
               )}
             </div>
@@ -172,7 +183,7 @@ export default function PropertyCard({
                   <span className={`text-xl sm:text-2xl font-bold ${
                     agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.privatePaddocks?.available > 0
-                        ? agistment.paddocks?.privatePaddocks?.whenAvailable && new Date(agistment.paddocks?.privatePaddocks?.whenAvailable) > new Date()
+                        ? agistment.paddocks?.privatePaddocks?.whenAvailable && isDateInFuture(agistment.paddocks?.privatePaddocks?.whenAvailable)
                           ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
                           : 'bg-primary-100 text-primary-700 px-3 py-1.5'
                         : 'bg-red-100 text-red-600 px-3 py-1.5'
@@ -190,7 +201,7 @@ export default function PropertyCard({
                   <span className={`text-xl sm:text-2xl font-bold ${
                     agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.sharedPaddocks?.available > 0
-                        ? agistment.paddocks?.sharedPaddocks?.whenAvailable && new Date(agistment.paddocks?.sharedPaddocks?.whenAvailable) > new Date()
+                        ? agistment.paddocks?.sharedPaddocks?.whenAvailable && isDateInFuture(agistment.paddocks?.sharedPaddocks?.whenAvailable)
                           ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
                           : 'bg-primary-100 text-primary-700 px-3 py-1.5'
                         : 'bg-red-100 text-red-600 px-3 py-1.5'
@@ -208,7 +219,7 @@ export default function PropertyCard({
                   <span className={`text-xl sm:text-2xl font-bold ${
                     agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.groupPaddocks?.available > 0
-                        ? agistment.paddocks?.groupPaddocks?.whenAvailable && new Date(agistment.paddocks?.groupPaddocks?.whenAvailable) > new Date()
+                        ? agistment.paddocks?.groupPaddocks?.whenAvailable && isDateInFuture(agistment.paddocks?.groupPaddocks?.whenAvailable)
                           ? 'bg-amber-100 text-amber-700 px-3 py-1.5'
                           : 'bg-primary-100 text-primary-700 px-3 py-1.5'
                         : 'bg-red-100 text-red-600 px-3 py-1.5'

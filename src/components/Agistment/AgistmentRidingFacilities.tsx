@@ -27,7 +27,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
           <div className="space-y-3">
             
             {ridingFacilities.arenas && ridingFacilities.arenas.length > 0 ? (
-              <div className={`grid ${ridingFacilities.arenas.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-8 sm:gap-4 items-end`}>
+              <div className={`grid ${ridingFacilities.arenas.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-8 sm:gap-4 items-start`}>
                 {ridingFacilities.arenas.map((arena: Arena, index: number) => (
                   <div key={index}>
                     <div className="space-y-3 flex flex-col items-center">
@@ -71,7 +71,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
           </div>
           <div className="space-y-3">
             {ridingFacilities.roundYards && ridingFacilities.roundYards.length > 0 ? (
-              <div className={`grid ${ridingFacilities.roundYards.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-8 sm:gap-4 items-end`}>
+              <div className={`grid ${ridingFacilities.roundYards.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-8 sm:gap-4 items-start`}>
                 {ridingFacilities.roundYards.map((yard: RoundYard, index: number) => (
                   <div key={index}>
                     <div className="space-y-3 flex flex-col items-center">

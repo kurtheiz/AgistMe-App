@@ -14,28 +14,21 @@ const calculateMonthlyPrice = (weeklyPrice: number) => {
 
 const formatAvailabilityDate = (whenAvailable: Date | string | undefined | null) => {
   if (!whenAvailable) {
-    return <span className="font-bold">now</span>;
+    return <span className="font-bold">Now</span>;
   }
 
   const availabilityDate = typeof whenAvailable === 'string' ? parseISO(whenAvailable) : whenAvailable;
-  const now = new Date();
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  // Reset hours to compare just the dates
-  now.setHours(0, 0, 0, 0);
-  tomorrow.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
   const compareDate = new Date(availabilityDate);
   compareDate.setHours(0, 0, 0, 0);
 
-  // If date is today or in the past, show "now"
-  if (compareDate.getTime() <= now.getTime()) {
-    return <span className="font-bold">now</span>;
-  } else if (compareDate.getTime() === tomorrow.getTime()) {
-    return <span className="font-bold">tomorrow</span>;
-  } else {
-    return <span className="font-bold">on {format(availabilityDate, 'EEEE, d MMMM yyyy')}</span>;
+  if (compareDate <= today) {
+    return <span className="font-bold">Now</span>;
   }
+
+  return <span className="font-bold">on {format(availabilityDate, 'd MMM yyyy')}</span>;
 };
 
 const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
@@ -49,6 +42,17 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
     availabilityDate.setHours(0, 0, 0, 0);
   }
 
+  const isDateInFuture = (date: string | null | undefined) => {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+    
+    return compareDate > today;
+  };
+
   return (
     <div>
       <div className="space-y-3">
@@ -61,19 +65,19 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
             {paddock.available > 0 ? (
               <div>
                 <div className={`inline-flex items-center gap-2 ${
-                  paddock.whenAvailable && new Date(paddock.whenAvailable) > new Date()
+                  paddock.whenAvailable && isDateInFuture(paddock.whenAvailable) 
                     ? 'bg-amber-50'
                     : 'bg-primary-50'
                 } rounded-lg px-3 py-2`}>
                   <div className={`font-bold ${
-                    paddock.whenAvailable && new Date(paddock.whenAvailable) > new Date()
+                    paddock.whenAvailable && isDateInFuture(paddock.whenAvailable) 
                       ? 'text-amber-600'
                       : 'text-primary-600'
                   }`}>
                     {paddock.available} {paddock.available === 1 ? 'spot' : 'spots'}
                   </div>
                   <div className={
-                    paddock.whenAvailable && new Date(paddock.whenAvailable) > new Date()
+                    paddock.whenAvailable && isDateInFuture(paddock.whenAvailable) 
                       ? 'text-amber-600'
                       : 'text-primary-700'
                   }>
@@ -121,7 +125,7 @@ export const AgistmentPaddocks = ({
 }: AgistmentPaddocksProps) => {
   return (
     <div>
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-4 items-start">
         {/* Private Paddocks */}
         <div>
           <div className="flex items-center gap-2 mb-3">
