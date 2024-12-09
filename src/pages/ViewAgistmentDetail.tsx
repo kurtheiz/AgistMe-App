@@ -112,7 +112,7 @@ export function ViewAgistmentDetail() {
       <div className="sticky top-14 z-40 w-full bg-white dark:bg-neutral-900 shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-2 flex justify-center">
           <button
-            onClick={() => window.location.href = `mailto:${agistment.contact?.email}?subject=Enquiry about ${agistment.basicInfo.name}`}
+            onClick={() => window.location.href = `mailto:${agistment.contact?.contactDetails.email}?subject=Enquiry about ${agistment.basicInfo.name}`}
             className="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
           >
             Enquire Now

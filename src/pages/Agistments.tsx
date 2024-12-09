@@ -199,32 +199,6 @@ export function Agistments() {
     }
   };
 
-  const getLocationTitle = (suburbs: any[]) => {
-    if (!suburbs || suburbs.length === 0) return '';
-    if (suburbs.length === 1) {
-      const loc = suburbs[0];
-      if ('n' in loc && 'p' in loc && 't' in loc) {
-        if (loc.i.split('#').length === 2) {
-          return loc.n;
-        }
-        if (loc.n && loc.p) return `${loc.n}, ${loc.p}, ${loc.t}`;
-        if (loc.r) return `${loc.r}, ${loc.t}`;
-        return loc.t;
-      }
-      if (loc.id.split('#').length === 2) {
-        return loc.suburb;
-      }
-      if (loc.suburb && loc.postcode) return `${loc.suburb}, ${loc.postcode}, ${loc.state}`;
-      if (loc.region) return `${loc.region}, ${loc.state}`;
-      return loc.state;
-    }
-    const firstLoc = suburbs[0];
-    if ('n' in firstLoc && 'p' in firstLoc && 't' in firstLoc) {
-      return `${firstLoc.n}, ${firstLoc.p}, ${firstLoc.t} and other locations`;
-    }
-    return `${firstLoc.suburb}, ${firstLoc.postcode}, ${firstLoc.state} and other locations`;
-  };
-
   const hasMore = searchResponse?.nextToken !== null && searchResponse?.nextToken !== undefined;
 
   return (
