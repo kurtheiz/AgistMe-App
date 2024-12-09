@@ -1,8 +1,8 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { LogOut, ChevronDown, Bell, Heart, CircleUser, Bookmark, Trash2 } from 'lucide-react';
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
+import { useState, useEffect, useRef } from 'react';
+import { LogOut, ChevronDown, Bell, Heart, CircleUser, Bookmark, Trash2, MoreVertical, Pencil } from 'lucide-react';
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
 import Bio from '../components/Bio';
 import { BioView } from '../components/BioView';
 import { toast } from 'react-hot-toast';
@@ -233,33 +233,94 @@ export default function Profile() {
                               return (
                                 <div 
                                   key={favourite.id} 
-                                  className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden relative
-                                    ${isInactive ? 'opacity-75' : 'cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50'} 
-                                    transition-colors`}
+                                  className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 space-y-2 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50"
                                   onClick={() => !isInactive && navigate(`/agistments/${favourite.id}`)}
                                 >
-                                  <div className="flex items-start">
-                                    <div className="flex-grow px-4 pb-4">
-                                      <div className="space-y-1">
-                                        <div className="flex items-center gap-1.5">
-                                          <h3 className="text-base font-medium text-neutral-900">{favourite.name}</h3>
-                                          {(favourite.status === 'HIDDEN' || favourite.status === 'REMOVED') && (
-                                            <span className="chip-unavailable">
-                                              {favourite.status === 'HIDDEN' ? 'Hidden' : 'Removed'}
-                                            </span>
-                                          )}
-                                        </div>
-                                        <p className="text-sm text-neutral-500">{favourite.location.suburb}, {favourite.location.state}</p>
+                                  <div className="flex items-center">
+                                    <div className="flex-grow">
+                                      <div>
+                                        <h3 className="font-medium">{favourite.name}</h3>
+                                        <p className="text-sm text-neutral-600">{favourite.location.suburb}, {favourite.location.state}</p>
+                                        {(favourite.status === 'HIDDEN' || favourite.status === 'REMOVED') && (
+                                          <span className="chip-unavailable mt-2">
+                                            {favourite.status === 'HIDDEN' ? 'Hidden' : 'Removed'}
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
-                                    <button
-                                      onClick={(e) => handleDeleteFavorite(favourite.id, e)}
-                                      className="flex-shrink-0 p-3 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
-                                    >
-                                      <Trash2 
-                                        className="w-5 h-5 text-neutral-400 hover:text-red-500 transition-colors"
-                                      />
-                                    </button>
+                                    <Menu as="div" className="relative">
+                                      {({ open }) => {
+                                        const buttonRef = useRef<HTMLButtonElement>(null);
+                                        const [showAbove, setShowAbove] = useState(false);
+
+                                        useEffect(() => {
+                                          if (open && buttonRef.current) {
+                                            const buttonRect = buttonRef.current.getBoundingClientRect();
+                                            const windowHeight = window.innerHeight;
+                                            const spaceBelow = windowHeight - buttonRect.bottom;
+                                            setShowAbove(spaceBelow < 200); // Menu height + buffer
+                                          }
+                                        }, [open]);
+
+                                        return (
+                                          <>
+                                            <Menu.Button 
+                                              ref={buttonRef}
+                                              className="p-3 -m-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              <MoreVertical className="w-5 h-5 text-neutral-400" />
+                                            </Menu.Button>
+                                            <Transition
+                                              show={open}
+                                              enter="transition ease-out duration-100"
+                                              enterFrom="transform opacity-0 scale-95"
+                                              enterTo="transform opacity-100 scale-100"
+                                              leave="transition ease-in duration-75"
+                                              leaveFrom="transform opacity-100 scale-100"
+                                              leaveTo="transform opacity-0 scale-95"
+                                            >
+                                              <Menu.Items 
+                                                className={`absolute ${showAbove ? 'bottom-full mb-1' : 'top-full mt-1'} right-0 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]`}
+                                              >
+                                                <Menu.Item>
+                                                  {({ active }) => (
+                                                    <button
+                                                      className={`${
+                                                        active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
+                                                      } group flex items-center w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200`}
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // Handle edit
+                                                      }}
+                                                    >
+                                                      <Pencil className="w-4 h-4 mr-3 text-neutral-400" />
+                                                      Edit
+                                                    </button>
+                                                  )}
+                                                </Menu.Item>
+                                                <Menu.Item>
+                                                  {({ active }) => (
+                                                    <button
+                                                      className={`${
+                                                        active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
+                                                      } group flex items-center w-full px-4 py-2 text-sm text-red-600`}
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteFavorite(favourite.id, e);
+                                                      }}
+                                                    >
+                                                      <Trash2 className="w-4 h-4 mr-3" />
+                                                      Delete
+                                                    </button>
+                                                  )}
+                                                </Menu.Item>
+                                              </Menu.Items>
+                                            </Transition>
+                                          </>
+                                        );
+                                      }}
+                                    </Menu>
                                   </div>
                                 </div>
                               );
@@ -329,10 +390,7 @@ export default function Profile() {
                                 <div 
                                   key={search.id}
                                   className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 space-y-2 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50"
-                                  onClick={() => {
-                                    setEditingSearch(search);
-                                    setShowSaveSearchModal(true);
-                                  }}
+                                  onClick={() => navigate(`/agistments?q=${search.searchHash}`)}
                                 >
                                   <div className="flex items-center">
                                     <div className="flex-grow">
@@ -348,12 +406,80 @@ export default function Profile() {
                                         )}
                                       </div>
                                     </div>
-                                    <button
-                                      onClick={(e) => handleDeleteSearch(search.id, e)}
-                                      className="flex-shrink-0 p-3 -m-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
-                                    >
-                                      <Trash2 className="w-5 h-5 text-neutral-400 hover:text-red-500" />
-                                    </button>
+                                    <Menu as="div" className="relative">
+                                      {({ open }) => {
+                                        const buttonRef = useRef<HTMLButtonElement>(null);
+                                        const [showAbove, setShowAbove] = useState(false);
+
+                                        useEffect(() => {
+                                          if (open && buttonRef.current) {
+                                            const buttonRect = buttonRef.current.getBoundingClientRect();
+                                            const windowHeight = window.innerHeight;
+                                            const spaceBelow = windowHeight - buttonRect.bottom;
+                                            setShowAbove(spaceBelow < 200); // Menu height + buffer
+                                          }
+                                        }, [open]);
+
+                                        return (
+                                          <>
+                                            <Menu.Button 
+                                              ref={buttonRef}
+                                              className="p-3 -m-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              <MoreVertical className="w-5 h-5 text-neutral-400" />
+                                            </Menu.Button>
+                                            <Transition
+                                              show={open}
+                                              enter="transition ease-out duration-100"
+                                              enterFrom="transform opacity-0 scale-95"
+                                              enterTo="transform opacity-100 scale-100"
+                                              leave="transition ease-in duration-75"
+                                              leaveFrom="transform opacity-100 scale-100"
+                                              leaveTo="transform opacity-0 scale-95"
+                                            >
+                                              <Menu.Items 
+                                                className={`absolute ${showAbove ? 'bottom-full mb-1' : 'top-full mt-1'} right-0 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]`}
+                                              >
+                                                <Menu.Item>
+                                                  {({ active }) => (
+                                                    <button
+                                                      className={`${
+                                                        active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
+                                                      } group flex items-center w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200`}
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditingSearch(search);
+                                                        setShowSaveSearchModal(true);
+                                                      }}
+                                                    >
+                                                      <Pencil className="w-4 h-4 mr-3 text-neutral-400" />
+                                                      Edit
+                                                    </button>
+                                                  )}
+                                                </Menu.Item>
+                                                <Menu.Item>
+                                                  {({ active }) => (
+                                                    <button
+                                                      className={`${
+                                                        active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
+                                                      } group flex items-center w-full px-4 py-2 text-sm text-red-600`}
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteSearch(search.id, e);
+                                                      }}
+                                                    >
+                                                      <Trash2 className="w-4 h-4 mr-3" />
+                                                      Delete
+                                                    </button>
+                                                  )}
+                                                </Menu.Item>
+                                              </Menu.Items>
+                                            </Transition>
+                                          </>
+                                        );
+                                      }}
+                                    </Menu>
                                   </div>
                                 </div>
                               );
