@@ -142,10 +142,15 @@ export default function PropertyCard({
             >
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
-            <div className="flex justify-between items-center min-w-0">
+            <div className="flex flex-col min-w-0">
               <div className="text-sm text-neutral-800 truncate">
                 {agistment.propertyLocation.location.address}, {agistment.propertyLocation.location.suburb}, {agistment.propertyLocation.location.region}, {agistment.propertyLocation.location.state}
               </div>
+              {agistment.matchType === 'ADJACENT' && agistment.distance !== undefined && (
+                <div className="text-xs text-neutral-500 mt-1">
+                  {agistment.distance.toFixed(1)}km away{agistment.distanceFrom ? ` from ${agistment.distanceFrom}` : ''}
+                </div>
+              )}
             </div>
           </div>
         )}

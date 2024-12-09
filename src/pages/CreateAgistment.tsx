@@ -39,88 +39,12 @@ const CreateAgistment: React.FC = () => {
 
 Agistment is $100 per week which includes quality pasture, daily water checks and hay supplementation in winter. All agistees have full use of facilities and will be joining a great community of like-minded horse owners. Available from March 1st.`;
 
-  const createEmptyAgistment = (tempId: string): AgistmentResponse => {
-    
+  const createEmptyAgistment = async (tempId: string): Promise<AgistmentResponse> => {
+    const emptyAgistment = await agistmentService.getAgistment('temp_');
     return {
+      ...emptyAgistment,
       id: tempId,
-      GSI1PK: '',
-      geohash: '',
-      status: 'HIDDEN',
-      createdAt: new Date().toISOString(),
-      modifiedAt: new Date().toISOString(),
-      isFavourite: false,
-      listing: { listingType: selectedType.listingType },
-      basicInfo: {
-        name: 'New Agistment',
-        propertySize: 0
-      },
-      propertyLocation: {
-        location: {
-          address: '',
-          postcode: '',
-          region: '',
-          state: '',
-          suburb: ''
-        }
-      },
-      contact:  {
-        contactDetails: {
-          name: '',
-          email: '',
-          number: ''
-        }
-      },
-      propertyDescription: {
-        description: ''
-      },
-      facilities: {
-        feedRoom: { available: false, comments: '' },
-        floatParking: { available: false, comments: '', monthlyPrice: 0 },
-        hotWash: { available: false, comments: '' },
-        tackRoom: { available: false, comments: '' },
-        tieUp: { available: false, comments: '' },
-        stables: { available: false, comments: '', quantity: 0 }
-      },      
-      ridingFacilities: {
-        arenas: [],
-        roundYards: []
-      },
-      paddocks: {
-        groupPaddocks: {
-          available: 0,
-          comments: '',
-          total: 0,
-          weeklyPrice: 0,
-          totalPaddocks: 0
-        },
-        privatePaddocks: {
-          available: 0,
-          comments: '',
-          total: 0,
-          weeklyPrice: 0,
-          totalPaddocks: 0
-        },
-        sharedPaddocks: {
-          available: 0,
-          comments: '',
-          total: 0,
-          weeklyPrice: 0,
-          totalPaddocks: 0
-        }
-      },
-      photoGallery: {
-        photos: []
-      },
-      propertyServices: {
-        services: []
-      },
-      care: {
-        fullCare: { available: false, comments: '', monthlyPrice: 0 },
-        partCare: { available: false, comments: '', monthlyPrice: 0 },
-        selfCare: { available: false, comments: '', monthlyPrice: 0 }
-      },
-      socialMedia: [],
-      urgentAvailability: false
+      listing: { listingType: selectedType.listingType }
     };
   };
 
@@ -186,10 +110,10 @@ Agistment is $100 per week which includes quality pasture, daily water checks an
 
   const handleCreateEmpty = async () => {
     const tempId = `temp_${Date.now()}`;
-    const emptyAgistment = createEmptyAgistment(tempId);
     
     try {
-      // Save the agistment
+      // Get empty template and save it
+      const emptyAgistment = await createEmptyAgistment(tempId);
       const savedAgistment = await agistmentService.updateAgistment(tempId, emptyAgistment);
       
       // Navigate to edit page

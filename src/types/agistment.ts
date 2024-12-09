@@ -124,6 +124,8 @@ export interface AgistmentResponse {
   facilities: AgistmentFacilities;
   GSI1PK: string;
   geohash: string;
+  latitude?: number;
+  longitude?: number;
   listing: AgistmentListingType;
   propertyLocation: AgistmentPropertyLocation;
   modifiedAt: string;
@@ -136,4 +138,7 @@ export interface AgistmentResponse {
   status: 'PUBLISHED' | 'HIDDEN' | 'REMOVED';
   urgentAvailability: boolean;
   isFavourite: boolean;
+  distance?: number;
+  distanceFrom?: string;
+  matchType?: 'EXACT' | 'ADJACENT';
 }
