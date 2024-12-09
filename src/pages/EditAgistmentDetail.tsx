@@ -67,7 +67,7 @@ function EditAgistmentDetail() {
   }, [id]);
 
   const handleBackClick = () => {
-    navigate(-1);
+    navigate('/agistments/my');
   };
 
   const validateForPublish = useCallback(() => {
@@ -231,25 +231,29 @@ function EditAgistmentDetail() {
           actions={
             <div className="w-full">
               <div className="max-w-7xl mx-auto px-4">
-                <div className="flex items-center">
-                  <div
-                    onClick={handleBackClick}
-                    className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white cursor-pointer"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                    <span className="font-medium text-sm sm:text-base">Back</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div
+                      onClick={handleBackClick}
+                      className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white cursor-pointer"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                      <span className="font-medium text-sm sm:text-base">My Agistments</span>
+                    </div>
                   </div>
-                  <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
-                  <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
-                    {agistment?.propertyLocation?.location && (
-                      <>
-                        <span>{agistment.propertyLocation.location.state}</span>
-                        <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                        <span>{agistment.propertyLocation.location.region}</span>
-                        <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                        <span>{agistment.propertyLocation.location.suburb}</span>
-                      </>
-                    )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="button-toolbar"
+                      onClick={handleVisibilityToggle}
+                      disabled={isUpdating}
+                      title={
+                        agistment?.status === 'HIDDEN'
+                        ? "Hidden - This agistment will not appear in search results"
+                        : "Published - This agistment will appear in search results"
+                      }
+                    >
+                      {agistment?.status === 'HIDDEN' ? 'Publish' : 'Hide'}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -272,20 +276,6 @@ function EditAgistmentDetail() {
                     HIDDEN
                   </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <button
-                    className="button-primary"
-                    onClick={handleVisibilityToggle}
-                    disabled={isUpdating}
-                    title={
-                      agistment?.status === 'HIDDEN'
-                      ? "Hidden - This agistment will not appear in search results"
-                      : "Published - This agistment will appear in search results"
-                    }
-                  >
-                    {agistment?.status === 'HIDDEN' ? 'Publish' : 'Hide'}
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -314,30 +304,20 @@ function EditAgistmentDetail() {
                 <div className="mb-4 flex gap-4">
                   {agistment && (
                     <>
-                      <button 
-                        onClick={() => {
-                          console.log('Favorite toggled for:', agistment.id);
-                        }}
-                        className="flex items-center gap-2 text-sm hover:text-primary-600 transition-colors"
+                      <div 
+                        className="flex items-center gap-2 text-sm text-neutral-400"
                       >
                         <Heart 
-                          className={`w-5 h-5 ${agistment.isFavourite ? 'fill-primary-600 text-primary-600' : ''}`}
+                          className="w-5 h-5"
                         />
                         <span>Favorite</span>
-                      </button>
-                      <button 
-                        onClick={() => {
-                          navigator.share({
-                            title: agistment.basicInfo.name,
-                            text: agistment.propertyDescription?.description || '',
-                            url: window.location.href
-                          }).catch(console.error);
-                        }}
-                        className="flex items-center gap-2 text-sm hover:text-primary-600 transition-colors"
+                      </div>
+                      <div 
+                        className="flex items-center gap-2 text-sm text-neutral-400"
                       >
                         <Share2 className="w-5 h-5" />
                         <span>Share</span>
-                      </button>
+                      </div>
                     </>
                   )}
                 </div>

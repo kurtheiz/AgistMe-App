@@ -76,35 +76,49 @@ export function ViewAgistmentDetail() {
 
   return (
     <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
-      <PageToolbar
-        actions={
-          <div className="w-full">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="flex items-center">
-                <button
-                  onClick={handleBackClick}
-                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
-                >
-                  <ArrowLeft className="w-3 h-3" />
-                  <span className="font-medium text-sm sm:text-base">Back</span>
-                </button>
-                <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
-                <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
-                  {agistment?.propertyLocation?.location && (
-                    <>
-                      <span>{agistment.propertyLocation.location.state}</span>
-                      <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                      <span>{agistment.propertyLocation.location.region}</span>
-                      <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                      <span>{agistment.propertyLocation.location.suburb}</span>
-                    </>
-                  )}
+      <div className="sticky top-0 z-50">
+        <PageToolbar
+          actions={
+            <div className="w-full">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="flex items-center">
+                  <button
+                    onClick={handleBackClick}
+                    className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
+                  >
+                    <ArrowLeft className="w-3 h-3" />
+                    <span className="font-medium text-sm sm:text-base">Back</span>
+                  </button>
+                  <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
+                  <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
+                    {agistment?.propertyLocation?.location && (
+                      <>
+                        <span>{agistment.propertyLocation.location.state}</span>
+                        <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                        <span>{agistment.propertyLocation.location.region}</span>
+                        <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                        <span>{agistment.propertyLocation.location.suburb}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        }
-      />
+          }
+        />
+      </div>
+
+      {/* Sticky Enquire Now Button */}
+      <div className="sticky top-14 z-40 w-full bg-white dark:bg-neutral-900 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex justify-center">
+          <button
+            onClick={() => window.location.href = `mailto:${agistment.contact?.email}?subject=Enquiry about ${agistment.basicInfo.name}`}
+            className="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          >
+            Enquire Now
+          </button>
+        </div>
+      </div>
 
       <div className="w-full">
         <div className="max-w-7xl mx-auto">

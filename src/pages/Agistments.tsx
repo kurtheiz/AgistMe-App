@@ -258,45 +258,16 @@ export function Agistments() {
         ) : (
           <div className="pb-8 pt-4 md:px-4 text-gray-500">
             {searchResponse && (
-              <>
-
-                {/* Exact Matches Section */}
-                {searchResponse.results.some(item => item.matchType === 'EXACT') && (
-                  <div className="text-left">
-                    <AgistmentList
-                      agistments={searchResponse.results.filter(item => item.matchType === 'EXACT')}
-                      adverts={adverts}
-                      hasMore={hasMore}
-                      onLoadMore={loadMore}
-                      isLoading={isFetching}
-                      matchType="EXACT"
-                      title={currentCriteria ? `${searchResponse.results.filter(item => item.matchType === 'EXACT').length} Agistment${searchResponse.results.filter(item => item.matchType === 'EXACT').length === 1 ? '' : 's'} in ${getLocationTitle(currentCriteria.suburbs)}` : ''}
-                    />
-                  </div>
-                )}
-
-                {/* Properties Nearby Section */}
-                {searchResponse.results.some(item => item.matchType === 'ADJACENT') && (
-                  <>
-
-                    {searchResponse.results.some(item => item.matchType === 'EXACT') && (
-                      <div className="my-8 border-t border-neutral-200" />
-                    )}
-
-                    <div className="text-left">
-                      <AgistmentList
-                        agistments={searchResponse.results.filter(item => item.matchType === 'ADJACENT')}
-                        adverts={adverts}
-                        hasMore={hasMore}
-                        onLoadMore={loadMore}
-                        isLoading={isFetching}
-                        matchType="ADJACENT"
-                        title={currentCriteria ? `${searchResponse.results.filter(item => item.matchType === 'ADJACENT').length} Agistment${searchResponse.results.filter(item => item.matchType === 'ADJACENT').length === 1 ? '' : 's'} within ${currentCriteria.radius}km` : ''}
-                      />
-                    </div>
-                  </>
-                )}
-              </>
+              <div className="text-left">
+                <AgistmentList
+                  agistments={searchResponse.results}
+                  adverts={adverts}
+                  hasMore={hasMore}
+                  onLoadMore={loadMore}
+                  isLoading={isFetching}
+                  title={currentCriteria ? `${searchResponse.results.length} Agistment${searchResponse.results.length === 1 ? '' : 's'} found` : ''}
+                />
+              </div>
             )}
             {(!searchResponse || searchResponse.results.length === 0) && searchHash && (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
