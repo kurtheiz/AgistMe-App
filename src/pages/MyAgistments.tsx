@@ -14,6 +14,10 @@ export function MyAgistments() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
@@ -39,7 +43,7 @@ export function MyAgistments() {
               <div className="flex items-center">
                 <button
                   onClick={() => navigate(-1)}
-                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white"
+                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span className="font-medium text-sm sm:text-base">Back</span>
