@@ -290,9 +290,7 @@ export default function Profile() {
               }}
               onDelete={handleDeleteSearch}
             />
-            {savedSearches.map(savedSearch => (
-              <button key={savedSearch.id} onClick={() => handleSavedSearchEdit(savedSearch.searchHash)}>Edit Saved Search</button>
-            ))}
+
           </div>
         </div>
       </div>

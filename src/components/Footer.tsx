@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useAgistor } from '../hooks/useAgistor';
 
 export const Footer = () => {
+  const { isAgistor } = useAgistor();
+
   return (
     <footer className="border-t border-neutral-200 dark:border-neutral-700">
       <div className="max-w-7xl mx-auto pt-8 pb-4 px-4 sm:px-6 lg:px-8">
@@ -12,6 +15,9 @@ export const Footer = () => {
               <Link to="/about" className="text-sm">About</Link>
               <Link to="/agistments" className="text-sm">Agistments</Link>
               <Link to="/listagistment" className="text-sm">List Agistment</Link>
+              {isAgistor && (
+                <Link to="/dashboard" className="text-sm">Dashboard</Link>
+              )}
             </div>
           </div>
           

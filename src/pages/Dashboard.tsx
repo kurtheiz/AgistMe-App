@@ -8,6 +8,11 @@ export const Dashboard = () => {
   const { isLoaded: isAuthLoaded } = useAuth();
   const { user } = useUser();
 
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Redirect if not an agistor
   useEffect(() => {
     if (isAuthLoaded && user && user.publicMetadata?.role !== 'agistor') {
@@ -31,8 +36,8 @@ export const Dashboard = () => {
 
           {/* Dashboard Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div 
-              className="bg-white rounded-lg p-6 shadow cursor-pointer hover:bg-neutral-50 transition-colors"
+            <button 
+              className="bg-white rounded-lg p-6 shadow hover:bg-neutral-50 transition-colors text-left focus:outline-none"
               onClick={() => navigate('/agistments/my')}
             >
               <div className="flex items-center">
@@ -42,7 +47,7 @@ export const Dashboard = () => {
                   <p className="text-sm text-gray-500">Manage your property listings</p>
                 </div>
               </div>
-            </div>
+            </button>
             
             <div className="bg-white rounded-lg p-6 shadow">
               <div className="flex items-center">
