@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    Clerk: any;
+  }
+}
+
 import { useAuth } from '@clerk/clerk-react';
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { useCallback, useMemo } from 'react';

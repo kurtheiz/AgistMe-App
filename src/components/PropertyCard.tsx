@@ -9,7 +9,7 @@ import {
   StableIcon,
   TieUpIcon,
 } from './Icons';
-import { MapPin, Check, X, Pencil, Image, Heart } from 'lucide-react';
+import { Check, X, Pencil, Image, Heart } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';

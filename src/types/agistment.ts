@@ -39,6 +39,10 @@ export interface Location {
   region: string;
   state: string;
   suburb: string;
+  Municipality?: string;
+  Country?: string;
+  Label?: string;
+  Neighborhood?: string;
 }
 
 export interface Photo {

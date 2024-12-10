@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    Clerk: any;
+  }
+}
+
 import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { AgistmentResponse } from '../types/agistment';
 import { SearchResponse } from '../types/search';
