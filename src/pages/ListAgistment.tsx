@@ -1,6 +1,5 @@
 import { useUser, useClerk } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { PricingPlans } from '../components/PricingPlans';
 import { CheckCircle } from 'lucide-react';
 import { useListingTypeStore } from '../stores/listingType.store';
 
@@ -37,9 +36,6 @@ const ListAgistment = () => {
           </p>
         </div>
 
-        <div className="mb-16">
-          <PricingPlans showButtons onPlanSelect={handlePlanSelect} />
-        </div>
         
         <div className="max-w-7xl mx-auto mb-16">
           <h2 className="text-2xl font-semibold mb-8 text-center text-gray-900 dark:text-white">
@@ -94,6 +90,9 @@ const ListAgistment = () => {
         </div>
 
         
+        {/* <div className="mb-16">
+          <PricingPlans showButtons onPlanSelect={handlePlanSelect} />
+        </div> */}
       </div>
     </div>
   );

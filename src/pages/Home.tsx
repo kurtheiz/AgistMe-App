@@ -1,19 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchModal } from '../components/Search/SearchModal';
 import { Search } from 'lucide-react';
 import { SearchRequest } from '../types/search';
 
-const LAST_SEARCH_KEY = 'agistme_last_search';
-
 export const Home = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Clear search from localStorage when Home mounts
-  useEffect(() => {
-    localStorage.removeItem(LAST_SEARCH_KEY);
-  }, []);
 
   const handleSearch = (criteria: SearchRequest & { searchHash: string }) => {
     navigate(`/agistments?q=${criteria.searchHash}`);

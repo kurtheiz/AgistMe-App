@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useDebounce } from '../hooks/useDebounce';
 import { Suburb, LocationType } from '../types/suburb';
 import { suburbService } from '../services/suburb.service';
 import { X } from 'lucide-react';
@@ -24,7 +23,6 @@ export function SuburbSearch({
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<Suburb[]>([]);
   const [loading, setLoading] = useState(false);
-  const debouncedSearch = useDebounce(searchTerm, 300);
 
   const formatDisplayText = (suburb: Suburb): string => {
     if (suburb.locationType === LocationType.STATE) {
@@ -68,9 +66,11 @@ export function SuburbSearch({
     }
   }, [includeRegions, multiple]);
 
-  useEffect(() => {
-    searchLocations(debouncedSearch);
-  }, [debouncedSearch, searchLocations]);
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    searchLocations(value);
+    setSearchTerm(value);
+  };
 
   const handleSelect = (suburb: Suburb) => {
     const newLocations = multiple ? [...selectedSuburbs, suburb] : [suburb];
@@ -118,7 +118,7 @@ export function SuburbSearch({
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => !disabled && setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             disabled={disabled}
             placeholder={multiple ? "Suburb, post code, region or state" : "Enter a suburb"}
             className={`h-7 flex-1 min-w-[200px] bg-transparent focus:outline-none text-sm text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 dark:placeholder-neutral-500 text-ellipsis overflow-hidden whitespace-nowrap ${
