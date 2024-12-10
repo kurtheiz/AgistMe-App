@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useAgistor } from '../hooks/useAgistor';
 import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
-import { Search } from 'lucide-react';
+import { useNotificationsStore } from '../stores/notifications.store';
+import { Search, Bell } from 'lucide-react';
+import { profileService } from '../services/profile.service';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -16,6 +18,12 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { setUser, clearAuth } = useAuthStore();
   const { setIsSearchModalOpen } = useSearchStore();
+  const { 
+    notifications, 
+    setNotifications, 
+    isLoading: isLoadingNotifications, 
+    setIsLoading: setIsLoadingNotifications 
+  } = useNotificationsStore();
 
   useEffect(() => {
     if (isSignedIn && user) {
@@ -53,6 +61,28 @@ export const Header = () => {
 
   // Don't show agistor-specific items while loading
   const showAgistorItems = isAgistor && !isAgistorLoading;
+
+  // Add notification fetching
+  useEffect(() => {
+    const loadNotifications = async () => {
+      if (!isSignedIn) return;
+      
+      setIsLoadingNotifications(true);
+      try {
+        const response = await profileService.getNotifications();
+        setNotifications(response.notifications);
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      } finally {
+        setIsLoadingNotifications(false);
+      }
+    };
+
+    loadNotifications();
+  }, [isSignedIn, setNotifications, setIsLoadingNotifications]);
+
+  // Calculate unread notifications count
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <>
@@ -125,36 +155,43 @@ export const Header = () => {
               >
                 <Search className="w-5 h-5" />
               </button>
-              {/* Avatar */}
-              <button
-                onClick={handleAvatarClick}
-                className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
-              >
-                {isLoaded ? (
-                  isSignedIn ? (
-                    <img 
-                      src={user.imageUrl} 
-                      alt={user.fullName || 'User avatar'} 
-                      className="h-8 w-8 rounded-full"
-                    />
-                  ) : (
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      fill="none" 
-                      viewBox="0 0 24 24" 
-                      strokeWidth={1.5} 
-                      stroke="currentColor" 
-                      className="w-8 h-8"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
+              {/* Avatar with notification indicator */}
+              <div className="relative">
+                <button
+                  onClick={handleAvatarClick}
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
+                >
+                  {isLoaded ? (
+                    isSignedIn ? (
+                      <img 
+                        src={user.imageUrl} 
+                        alt={user.fullName || 'User avatar'} 
+                        className="h-8 w-8 rounded-full"
                       />
-                    </svg>
-                  )
-                ) : null}
-              </button>
+                    ) : (
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        strokeWidth={1.5} 
+                        stroke="currentColor" 
+                        className="w-8 h-8"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    )
+                  ) : null}
+                </button>
+                {isSignedIn && unreadCount > 0 && (
+                  <div className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
+                    {unreadCount}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

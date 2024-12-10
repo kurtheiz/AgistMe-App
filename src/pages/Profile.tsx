@@ -1,17 +1,18 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { LogOut, ChevronDown, Bell, Heart, CircleUser, Bookmark, Trash2, MoreVertical, Pencil, Check } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
 import Bio from '../components/Bio';
 import { BioView } from '../components/BioView';
 import { toast } from 'react-hot-toast';
 import { profileService } from '../services/profile.service';
-import { SavedSearch, Profile as ProfileType, Notification } from '../types/profile';
+import { SavedSearch, Profile as ProfileType } from '../types/profile';
 import { Favourite } from '../types/profile';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { decodeSearchHash } from '../utils/searchUtils';
 import { formatDistanceToNow } from 'date-fns';
+import { useNotificationsStore } from '../stores/notifications.store';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -26,8 +27,13 @@ export default function Profile() {
   const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [isBioOpenState, setIsBioOpenState] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
+  const { 
+    notifications, 
+    setNotifications,
+    isLoading: isLoadingNotifications,
+    setIsLoading: setIsLoadingNotifications,
+    updateNotification
+  } = useNotificationsStore();
 
   useEffect(() => {
     if (searchParams.get('section') === 'saved-searches') {
@@ -120,7 +126,7 @@ export default function Profile() {
     };
 
     loadNotifications();
-  }, [isSignedIn]);
+  }, [isSignedIn, setNotifications, setIsLoadingNotifications]);
 
   const handleDeleteSearch = async (searchId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -183,12 +189,16 @@ export default function Profile() {
 
       // Mark as read if not already read
       if (!notification.read) {
-        // Create updated notifications array with only the clicked notification marked as read
+        // Update local state through the store
+        updateNotification(notificationId, { read: true });
+        
+        // Create updated notifications array for the API
         const updatedNotifications = notifications.map(n => 
           n.id === notificationId ? { ...n, read: true } : n
         );
+        
+        // Update the server
         await profileService.updateNotifications(updatedNotifications);
-        setNotifications(updatedNotifications);
       }
 
       // Navigate based on notification type
@@ -229,11 +239,16 @@ export default function Profile() {
       const notification = notifications.find(n => n.id === notificationId);
       if (!notification) return;
 
+      // Update local state through the store
+      updateNotification(notificationId, { read: !notification.read });
+
+      // Create updated notifications array for the API
       const updatedNotifications = notifications.map(n => 
         n.id === notificationId ? { ...n, read: !n.read } : n
       );
+
+      // Update the server
       await profileService.updateNotifications(updatedNotifications);
-      setNotifications(updatedNotifications);
     } catch (error) {
       console.error('Error updating notification:', error);
       toast.error('Failed to update notification');
