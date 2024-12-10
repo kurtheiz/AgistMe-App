@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
 import { AgistmentResponse, AgistmentContact, AgistmentPropertyLocation, AgistmentBasicInfo, AgistmentDescription } from '../../types/agistment';
 import toast from 'react-hot-toast';
-import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
+import { SuburbSearch } from '../SuburbSearch';
 import { Suburb } from '../../types/suburb';
 import NumberStepper from '../shared/NumberStepper';
 

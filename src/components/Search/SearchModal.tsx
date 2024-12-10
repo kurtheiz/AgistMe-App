@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
-import { SuburbSearch } from '../SuburbSearch/SuburbSearch';
+import { SuburbSearch } from '../SuburbSearch';
 import { SearchRequest, PaddockType, CareType, FacilityKey } from '../../types/search';
 import { LocationType, Suburb } from '../../types/suburb';
 import { useSearchParams, Link } from 'react-router-dom';

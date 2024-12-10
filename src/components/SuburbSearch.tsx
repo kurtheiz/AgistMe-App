@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useDebounce } from '../../hooks/useDebounce';
-import { Suburb, LocationType } from '../../types/suburb';
-import { suburbService } from '../../services/suburb.service';
+import { useDebounce } from '../hooks/useDebounce';
+import { Suburb, LocationType } from '../types/suburb';
+import { suburbService } from '../services/suburb.service';
 import { X } from 'lucide-react';
 
 interface SuburbSearchProps {
