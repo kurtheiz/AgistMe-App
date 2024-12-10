@@ -2,7 +2,7 @@ import { Bookmark, ChevronDown, MoreVertical, Bell } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
 import { useRef, useState, useEffect } from 'react';
 import { SavedSearch } from '../../types/profile';
-import { decodeSearchHash } from '../../utils/searchUtils';
+import { decodeSearchHash } from '../../utils/searchHashUtils';
 
 interface SavedSearchesPanelProps {
   savedSearches: SavedSearch[];

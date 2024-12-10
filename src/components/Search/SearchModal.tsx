@@ -20,7 +20,7 @@ import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { SavedSearch } from '../../types/profile';
 import { profileService } from '../../services/profile.service';
-import { decodeSearchHash } from '../../utils/searchUtils';
+import { encodeSearchHash, decodeSearchHash } from '../../utils/searchHashUtils';
 
 const initialFacilities: FacilityKey[] = [];
 
@@ -176,26 +176,7 @@ export function SearchModal({
   const handleSearch = async () => {
     setIsUpdating(true);
     try {
-      const searchHash = btoa(JSON.stringify({
-        s: searchCriteria.suburbs.map(s => ({
-          i: s.id,
-          n: s.suburb,
-          p: s.postcode,
-          t: s.state,
-          r: s.region,
-          g: s.geohash,
-          l: s.locationType
-        })),
-        r: searchCriteria.radius,
-        pt: searchCriteria.paddockTypes,
-        sp: searchCriteria.spaces,
-        mp: searchCriteria.maxPrice,
-        a: searchCriteria.hasArena,
-        ry: searchCriteria.hasRoundYard,
-        f: searchCriteria.facilities,
-        ct: searchCriteria.careTypes
-      }));
-
+      const searchHash = encodeSearchHash(searchCriteria);
       // Always execute search before closing modal
       await onSearch({ ...searchCriteria, searchHash });
     } catch (error) {

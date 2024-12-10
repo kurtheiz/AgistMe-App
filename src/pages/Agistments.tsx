@@ -14,49 +14,9 @@ import { agistmentService } from '../services/agistment.service';
 import { profileService } from '../services/profile.service';
 import { advertService, Advert } from '../services/advert.service';
 import { useSearchStore } from '../stores/search.store';
+import { decodeSearchHash } from '../utils/searchHashUtils';
 
-const decodeSearchHash = (hash: string): SearchRequest => {
-  try {
-    const decodedSearch = JSON.parse(atob(hash));
-    if (decodedSearch.s && Array.isArray(decodedSearch.s)) {
-      return {
-        suburbs: decodedSearch.s.map((s: any) => ({
-          id: s.i?.replace(/['"]/g, ''),
-          suburb: s.n,
-          postcode: s.p,
-          state: s.t,
-          region: s.r,
-          geohash: s.g,
-          locationType: s.l
-        })),
-        radius: decodedSearch.r || 0,
-        paddockTypes: decodedSearch.pt || [],
-        spaces: decodedSearch.sp || 0,
-        maxPrice: decodedSearch.mp || 0,
-        hasArena: decodedSearch.a || false,
-        hasRoundYard: decodedSearch.ry || false,
-        facilities: decodedSearch.f || [],
-        careTypes: decodedSearch.ct || []
-      };
-    }
-    return decodedSearch;
-  } catch (error) {
-    console.error('Error decoding search hash:', error);
-    return {
-      suburbs: [],
-      radius: 0,
-      paddockTypes: [],
-      spaces: 0,
-      maxPrice: 0,
-      hasArena: false,
-      hasRoundYard: false,
-      facilities: [],
-      careTypes: []
-    };
-  }
-};
-
-export function Agistments() {
+const Agistments = () => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useUser();
@@ -331,4 +291,6 @@ export function Agistments() {
       </div>
     </>
   );
-}
+};
+
+export default Agistments;

@@ -1,4 +1,4 @@
-import { Location } from './agistment';
+import { Location } from './agistment.ts';
 
 export interface Favourite {
     id: string;

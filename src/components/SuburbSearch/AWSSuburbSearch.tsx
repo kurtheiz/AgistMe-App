@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Place } from '@aws-sdk/client-location';
+import { Location } from '../../types/agistment';
 import { locationService } from '../../services/location.service';
 import { Suburb, LocationType } from '../../types/suburb';
 import { Search, X } from 'lucide-react';
@@ -12,7 +12,7 @@ interface AWSSuburbSearchProps {
 
 export function AWSSuburbSearch({ selectedSuburbs, onSuburbsChange, disabled = false }: AWSSuburbSearchProps) {
   const [searchText, setSearchText] = useState('');
-  const [suggestions, setSuggestions] = useState<Place[]>([]);
+  const [suggestions, setSuggestions] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout>();
@@ -59,7 +59,7 @@ export function AWSSuburbSearch({ selectedSuburbs, onSuburbsChange, disabled = f
     }
   };
 
-  const handleSuburbSelect = (place: Place) => {
+  const handleSuburbSelect = (place: Location) => {
     if (!place.Municipality || !place.Region || !place.Country) return;
 
     const newSuburb: Suburb = {

@@ -7,7 +7,7 @@ import { ErrorPage } from './components/ErrorPage';
 import { useEffect, useState } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './pages/Profile';
-import { Agistments } from './pages/Agistments';
+import Agistments from './pages/Agistments';
 import { ViewAgistmentDetail } from './pages/ViewAgistmentDetail';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/ErrorBoundary';

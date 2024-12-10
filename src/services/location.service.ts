@@ -1,14 +1,14 @@
-import { LocationClient, SearchPlaceIndexForTextCommand, SearchPlaceIndexForTextCommandInput, Place } from "@aws-sdk/client-location";
+import { Location } from '../types/agistment';
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-providers";
 
 class LocationService {
-  private client: LocationClient;
+  private client: any;
   private readonly PLACE_INDEX = import.meta.env.VITE_AWS_PLACE_INDEX;
   private readonly REGION = import.meta.env.VITE_AWS_REGION;
   private readonly MAX_RESULTS = 50;
 
   constructor() {
-    this.client = new LocationClient({
+    this.client = new any({
       region: this.REGION,
       credentials: fromCognitoIdentityPool({
         clientConfig: { region: this.REGION },
@@ -17,7 +17,7 @@ class LocationService {
     });
   }
 
-  private formatPlace(place: Place): Place {
+  private formatPlace(place: Location): Location {
     // If we have a neighborhood, use it as the municipality
     if (place.Neighborhood && place.Municipality === 'Melbourne') {
       return {
@@ -28,7 +28,7 @@ class LocationService {
     return place;
   }
 
-  private isValidSuburb(place: Place): boolean {
+  private isValidSuburb(place: Location): boolean {
     if (!place || !place.Region || place.Country !== 'AUS') {
       return false;
     }
@@ -46,13 +46,13 @@ class LocationService {
     return Boolean(place.Municipality || place.Neighborhood);
   }
 
-  async searchSuburbs(searchText: string): Promise<Place[]> {
+  async searchSuburbs(searchText: string): Promise<Location[]> {
     if (searchText.length < 3) return [];
     
     try {
       const isNumeric = /^\d+$/.test(searchText);
 
-      const params: SearchPlaceIndexForTextCommandInput = {
+      const params = {
         IndexName: this.PLACE_INDEX,
         // For numeric searches, prefix with "Postcode"
         Text: isNumeric ? `Postcode ${searchText}` : searchText,
@@ -62,7 +62,7 @@ class LocationService {
         Language: 'en'
       };
 
-      const command = new SearchPlaceIndexForTextCommand(params);
+      const command = new any(params);
       const response = await this.client.send(command);
       
       if (!response.Results || response.Results.length === 0) {
@@ -72,7 +72,7 @@ class LocationService {
             ...params,
             Text: `${searchText} Postcode`
           };
-          const altCommand = new SearchPlaceIndexForTextCommand(altParams);
+          const altCommand = new any(altParams);
           const altResponse = await this.client.send(altCommand);
           if (altResponse.Results && altResponse.Results.length > 0) {
             response.Results = altResponse.Results;
@@ -84,7 +84,7 @@ class LocationService {
       }
 
       const validResults = response.Results
-        .map(result => result.Place as Place)
+        .map(result => result.Place as Location)
         .filter(place => this.isValidSuburb(place))
         .map(place => this.formatPlace(place));
 

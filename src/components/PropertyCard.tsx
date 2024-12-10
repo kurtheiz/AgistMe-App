@@ -11,7 +11,6 @@ import {
 } from './Icons';
 import { MapPin, Check, X, Pencil, Image, Heart } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
-import { getGoogleMapsUrl } from '../utils/location';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
@@ -147,16 +146,6 @@ export default function PropertyCard({
         {/* Location */}
         {agistment.propertyLocation.location && (
           <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 bg-white">
-            <a
-              href={getGoogleMapsUrl(agistment.propertyLocation.location)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-neutral-800 hover:text-neutral-700 transition-colors flex-shrink-0"
-              title="Open in Google Maps"
-            >
-              <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
-            </a>
             <div className="flex flex-col min-w-0">
               <div className="text-sm text-neutral-800 truncate">
                 <span className="font-semibold">{agistment.propertyLocation.location.address}</span>, <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>

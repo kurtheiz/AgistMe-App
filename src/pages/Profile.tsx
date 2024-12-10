@@ -12,6 +12,7 @@ import { NotificationsPanel } from '../components/Profile/NotificationsPanel';
 import { BioPanel } from '../components/Profile/BioPanel';
 import { FavoritesPanel } from '../components/Profile/FavoritesPanel';
 import { SavedSearchesPanel } from '../components/Profile/SavedSearchesPanel';
+import { decodeSearchHash } from '../utils/searchHashUtils';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -22,6 +23,7 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [editingSearch, setEditingSearch] = useState<SavedSearch | null>(null);
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
+  const [saveSearchCriteria, setSaveSearchCriteria] = useState<any>(null);
   const [favourites, setFavourites] = useState<Favourite[]>([]);
   const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
@@ -222,6 +224,12 @@ export default function Profile() {
     }
   };
 
+  const handleSavedSearchEdit = (searchHash: string) => {
+    const criteria = decodeSearchHash(searchHash);
+    setShowSaveSearchModal(true);
+    setSaveSearchCriteria(criteria);
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
@@ -278,10 +286,13 @@ export default function Profile() {
               onNavigate={(searchHash) => navigate(`/agistments?q=${searchHash}`)}
               onEdit={(search) => {
                 setEditingSearch(search);
-                setShowSaveSearchModal(true);
+                handleSavedSearchEdit(search.searchHash); // Call the function to open the modal with the search(true);
               }}
               onDelete={handleDeleteSearch}
             />
+            {savedSearches.map(savedSearch => (
+              <button key={savedSearch.id} onClick={() => handleSavedSearchEdit(savedSearch.searchHash)}>Edit Saved Search</button>
+            ))}
           </div>
         </div>
       </div>
@@ -291,10 +302,12 @@ export default function Profile() {
         onClose={() => {
           setShowSaveSearchModal(false);
           setEditingSearch(null);
+          setSaveSearchCriteria(null);
         }}
         onSave={handleEditSearch}
         initialName={editingSearch?.name}
         initialNotifications={editingSearch?.enableNotifications}
+        searchCriteria={saveSearchCriteria}
       />
     </div>
   );

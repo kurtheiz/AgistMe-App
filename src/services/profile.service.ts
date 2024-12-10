@@ -235,20 +235,6 @@ class ProfileService {
     }
   }
 
-  async getFavoriteStatus(agistmentId: string): Promise<boolean> {
-    try {
-      const authHeaders = await this.getAuthHeaders();
-      const response = await this.api.get<{ isFavorite: boolean }>(
-        `v1/protected/profile/favourites/${agistmentId}`,
-        authHeaders
-      );
-      return response.data.isFavorite;
-    } catch (error) {
-      console.error('Failed to get favorite status:', error);
-      return false;
-    }
-  }
-
   async deleteFavorite(agistmentId: string): Promise<void> {
     return this.retryOperation(async () => {
       try {
