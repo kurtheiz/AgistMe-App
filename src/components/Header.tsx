@@ -5,7 +5,7 @@ import { useAgistor } from '../hooks/useAgistor';
 import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
 import { useNotificationsStore } from '../stores/notifications.store';
-import { Search, Bell } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { profileService } from '../services/profile.service';
 
 export const Header = () => {
@@ -21,7 +21,6 @@ export const Header = () => {
   const { 
     notifications, 
     setNotifications, 
-    isLoading: isLoadingNotifications, 
     setIsLoading: setIsLoadingNotifications 
   } = useNotificationsStore();
 

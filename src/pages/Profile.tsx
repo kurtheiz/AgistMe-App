@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LogOut, ChevronDown, Bell, Heart, CircleUser, Bookmark, Trash2, MoreVertical, Pencil, Check } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
 import Bio from '../components/Bio';
