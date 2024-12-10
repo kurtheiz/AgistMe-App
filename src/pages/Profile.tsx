@@ -8,10 +8,10 @@ import { SavedSearch, Profile as ProfileType } from '../types/profile';
 import { Favourite } from '../types/profile';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { useNotificationsStore } from '../stores/notifications.store';
-import { NotificationsPanel } from '../components/profile/NotificationsPanel';
-import { BioPanel } from '../components/profile/BioPanel';
-import { FavoritesPanel } from '../components/profile/FavoritesPanel';
-import { SavedSearchesPanel } from '../components/profile/SavedSearchesPanel';
+import { NotificationsPanel } from '../components/Profile/NotificationsPanel';
+import { BioPanel } from '../components/Profile/BioPanel';
+import { FavoritesPanel } from '../components/Profile/FavoritesPanel';
+import { SavedSearchesPanel } from '../components/Profile/SavedSearchesPanel';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -25,7 +25,6 @@ export default function Profile() {
   const [favourites, setFavourites] = useState<Favourite[]>([]);
   const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
-  const [isBioOpenState, setIsBioOpenState] = useState(false);
   const { 
     notifications, 
     setNotifications,
@@ -119,11 +118,7 @@ export default function Profile() {
   };
 
   const handleOpenBio = () => {
-    setIsBioOpenState(true);
-  };
-
-  const handleCloseBio = () => {
-    setIsBioOpenState(false);
+    // Removed setIsBioOpenState(true);
   };
 
   const handleEditSearch = async (name: string, enableNotifications: boolean) => {
@@ -299,7 +294,7 @@ export default function Profile() {
         }}
         onSave={handleEditSearch}
         initialName={editingSearch?.name}
-        initialEnableNotifications={editingSearch?.enableNotifications}
+        initialNotifications={editingSearch?.enableNotifications}
       />
     </div>
   );

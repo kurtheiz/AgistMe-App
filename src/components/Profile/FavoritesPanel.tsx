@@ -1,4 +1,4 @@
-import { Heart, ChevronDown, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Heart, ChevronDown, MoreVertical, Trash2 } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
 import { useRef, useState, useEffect } from 'react';
 import { Favourite } from '../../types/profile';

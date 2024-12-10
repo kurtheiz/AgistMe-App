@@ -6,7 +6,7 @@ import { SearchRequest } from '../../types/search';
 interface SaveSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  searchCriteria: SearchRequest | null;
+  searchCriteria?: SearchRequest | null;
   onSave: (name: string, enableNotifications: boolean) => void;
   initialName?: string;
   initialNotifications?: boolean;
@@ -43,7 +43,7 @@ export function SaveSearchModal({
   }, [name, enableNotifications, initialName, initialNotifications]);
 
   const handleSave = () => {
-    if (!name.trim() || !searchCriteria || !isDirty) return;
+    if (!name.trim() || !isDirty) return;
     
     setIsUpdating(true);
     try {
@@ -122,7 +122,7 @@ export function SaveSearchModal({
       isUpdating={isUpdating}
       actionIconType="SAVE"
       onAction={handleSave}
-      disableAction={!name.trim() || !searchCriteria || !isDirty}
+      disableAction={!name.trim() || !isDirty}
     >
       <div className="space-y-6">
         <div>
