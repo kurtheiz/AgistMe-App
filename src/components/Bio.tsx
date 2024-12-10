@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { isValidAusMobileNumber, isValidDateOfBirth, getMaxDateOfBirth, getMinDateOfBirth } from '../utils/inputValidation';
-import { SuburbSearch } from './SuburbSearch/SuburbSearch';
+import { SuburbSearch } from './SuburbSearch';
 import { ProfilePhoto } from './Profile/ProfilePhoto';
 import { profileService } from '../services/profile.service';
 import { Profile } from '../types/profile';

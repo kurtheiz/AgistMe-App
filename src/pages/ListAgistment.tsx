@@ -1,29 +1,6 @@
-import { useUser, useClerk } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
 import { CheckCircle } from 'lucide-react';
-import { useListingTypeStore } from '../stores/listingType.store';
 
 const ListAgistment = () => {
-  const { isSignedIn } = useUser();
-  const navigate = useNavigate();
-  const { openSignIn } = useClerk();
-  const setSelectedType = useListingTypeStore(state => state.setSelectedType);
-
-  const handlePlanSelect = (planName: string) => {
-    const listingType = planName.toUpperCase() as 'PROFESSIONAL' | 'STANDARD';
-    setSelectedType(listingType);
-    
-    if (!isSignedIn) {
-      openSignIn({
-        redirectUrl: '/agistments/create',
-        afterSignInUrl: '/agistments/create',
-        afterSignUpUrl: '/agistments/create'
-      });
-    } else {
-      navigate('/agistments/create');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
       <div className="max-w-7xl mx-auto px-4 py-12">

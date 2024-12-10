@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Suburb, LocationType } from '../types/suburb';
 import { suburbService } from '../services/suburb.service';
 import { X } from 'lucide-react';
