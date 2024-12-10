@@ -84,3 +84,17 @@ export interface HorsesResponse {
 export interface FavouritesResponse {
     favourites: Favourite[];
 }
+
+export interface Notification {
+    id: string;
+    agistmentId: string | null;
+    createdAt: string;
+    message: string;
+    notificationType: 'FAVOURITE' | 'SAVEDSEARCH';
+    read: boolean;
+    searchId: string | null;
+}
+
+export interface NotificationsResponse {
+    notifications: Notification[];
+}

@@ -1,16 +1,17 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, ChevronDown, Bell, Heart, CircleUser, Bookmark, Trash2, MoreVertical, Pencil } from 'lucide-react';
+import { LogOut, ChevronDown, Bell, Heart, CircleUser, Bookmark, Trash2, MoreVertical, Pencil, Check } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
 import Bio from '../components/Bio';
 import { BioView } from '../components/BioView';
 import { toast } from 'react-hot-toast';
 import { profileService } from '../services/profile.service';
-import { SavedSearch, Profile as ProfileType } from '../types/profile';
+import { SavedSearch, Profile as ProfileType, Notification } from '../types/profile';
 import { Favourite } from '../types/profile';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { decodeSearchHash } from '../utils/searchUtils';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -25,6 +26,8 @@ export default function Profile() {
   const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [isBioOpenState, setIsBioOpenState] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('section') === 'saved-searches') {
@@ -100,6 +103,25 @@ export default function Profile() {
     loadFavourites();
   }, [isSignedIn]);
 
+  useEffect(() => {
+    const loadNotifications = async () => {
+      if (!isSignedIn) return;
+      
+      setIsLoadingNotifications(true);
+      try {
+        const response = await profileService.getNotifications();
+        setNotifications(response.notifications);
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        toast.error('Failed to load notifications');
+      } finally {
+        setIsLoadingNotifications(false);
+      }
+    };
+
+    loadNotifications();
+  }, [isSignedIn]);
+
   const handleDeleteSearch = async (searchId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -153,6 +175,71 @@ export default function Profile() {
     }
   };
 
+  const handleNotificationClick = async (notificationId: string) => {
+    try {
+      // Find the notification to mark as read
+      const notification = notifications.find(n => n.id === notificationId);
+      if (!notification) return;
+
+      // Mark as read if not already read
+      if (!notification.read) {
+        // Create updated notifications array with only the clicked notification marked as read
+        const updatedNotifications = notifications.map(n => 
+          n.id === notificationId ? { ...n, read: true } : n
+        );
+        await profileService.updateNotifications(updatedNotifications);
+        setNotifications(updatedNotifications);
+      }
+
+      // Navigate based on notification type
+      if (notification.agistmentId) {
+        navigate(`/agistments/${notification.agistmentId}`);
+      } else if (notification.searchId) {
+        // Find the saved search to get its hash
+        const savedSearch = savedSearches.find(s => s.id === notification.searchId);
+        if (savedSearch) {
+          navigate(`/agistments?q=${savedSearch.searchHash}`);
+        } else {
+          console.error('Saved search not found:', notification.searchId);
+          toast.error('Could not find saved search details');
+        }
+      }
+    } catch (error) {
+      console.error('Error handling notification:', error);
+      toast.error('Failed to update notification');
+    }
+  };
+
+  const handleDeleteNotification = async (e: React.MouseEvent, notificationId: string) => {
+    e.stopPropagation();
+    try {
+      const updatedNotifications = notifications.filter(n => n.id !== notificationId);
+      await profileService.updateNotifications(updatedNotifications);
+      setNotifications(updatedNotifications);
+      toast.success('Notification removed');
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast.error('Failed to remove notification');
+    }
+  };
+
+  const handleToggleRead = async (e: React.MouseEvent, notificationId: string) => {
+    e.stopPropagation();
+    try {
+      const notification = notifications.find(n => n.id === notificationId);
+      if (!notification) return;
+
+      const updatedNotifications = notifications.map(n => 
+        n.id === notificationId ? { ...n, read: !n.read } : n
+      );
+      await profileService.updateNotifications(updatedNotifications);
+      setNotifications(updatedNotifications);
+    } catch (error) {
+      console.error('Error updating notification:', error);
+      toast.error('Failed to update notification');
+    }
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
@@ -172,6 +259,115 @@ export default function Profile() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center">My Profile</h1>
         </div>
+
+        <Disclosure>
+          <div className="mb-6">
+            <DisclosureButton className="w-full flex justify-between items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+              <div className="flex items-center space-x-3">
+                <Bell className={`h-5 w-5 ${notifications.filter(n => !n.read).length > 0 ? 'text-red-500' : 'text-gray-500'}`} />
+                <span className="font-medium text-lg">Notifications</span>
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+                    {notifications.filter(n => !n.read).length}
+                  </span>
+                )}
+              </div>
+              <ChevronDown className="h-5 w-5 text-gray-500" />
+            </DisclosureButton>
+            <DisclosurePanel className="mt-3">
+              <div className="space-y-3 bg-white rounded-lg shadow p-4">
+                {isLoadingNotifications ? (
+                  <div className="text-center py-4">Loading notifications...</div>
+                ) : notifications.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500">No notifications</div>
+                ) : (
+                  notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`p-4 rounded-lg ${
+                        notification.read ? 'bg-gray-50' : 'bg-blue-50'
+                      } cursor-pointer hover:bg-gray-100 transition-colors border border-gray-100 relative`}
+                      onClick={() => handleNotificationClick(notification.id)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className={`text-sm text-gray-900 ${!notification.read ? 'font-semibold' : ''} pr-8`}>
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                          </p>
+                        </div>
+                        <Menu as="div" className="relative">
+                          {({ open }) => (
+                            <>
+                              <Menu.Button 
+                                className="p-2 hover:bg-gray-100 rounded-full absolute top-0 right-0 m-2"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreVertical className="w-4 h-4 text-gray-500" />
+                              </Menu.Button>
+                              <Transition
+                                show={open}
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
+                              >
+                                <Menu.Items 
+                                  className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]"
+                                >
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <button
+                                        className={`${
+                                          active ? 'bg-gray-100' : ''
+                                        } group flex items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                        onClick={(e) => handleToggleRead(e, notification.id)}
+                                      >
+                                        {notification.read ? (
+                                          <>
+                                            <Check className="w-4 h-4 mr-3 text-gray-400 rotate-180" />
+                                            Mark as Unread
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Check className="w-4 h-4 mr-3 text-gray-400" />
+                                            Mark as Read
+                                          </>
+                                        )}
+                                      </button>
+                                    )}
+                                  </Menu.Item>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <button
+                                        className={`${
+                                          active ? 'bg-gray-100' : ''
+                                        } group flex items-center w-full px-4 py-2 text-sm text-red-600`}
+                                        onClick={(e) => handleDeleteNotification(e, notification.id)}
+                                      >
+                                        <Trash2 className="w-4 h-4 mr-3" />
+                                        Delete
+                                      </button>
+                                    )}
+                                  </Menu.Item>
+                                </Menu.Items>
+                              </Transition>
+                            </>
+                          )}
+                        </Menu>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </DisclosurePanel>
+          </div>
+        </Disclosure>
+
         <div className="space-y-6">
           <div className="space-y-4">
             {/* Bio */}
@@ -188,7 +384,7 @@ export default function Profile() {
                     </DisclosureButton>
                     <DisclosurePanel className="px-6 pb-6">
                       {profile && (
-                        <>
+                        <div>
                           <BioView profile={profile} />
                           <div className="mt-4">
                             <button
@@ -198,7 +394,7 @@ export default function Profile() {
                               Edit Bio
                             </button>
                           </div>
-                        </>
+                        </div>
                       )}
                     </DisclosurePanel>
                   </div>
@@ -263,7 +459,7 @@ export default function Profile() {
                                         }, [open]);
 
                                         return (
-                                          <>
+                                          <div>
                                             <Menu.Button 
                                               ref={buttonRef}
                                               className="p-3 -m-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
@@ -317,7 +513,7 @@ export default function Profile() {
                                                 </Menu.Item>
                                               </Menu.Items>
                                             </Transition>
-                                          </>
+                                          </div>
                                         );
                                       }}
                                     </Menu>
@@ -421,7 +617,7 @@ export default function Profile() {
                                         }, [open]);
 
                                         return (
-                                          <>
+                                          <div>
                                             <Menu.Button 
                                               ref={buttonRef}
                                               className="p-3 -m-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
@@ -476,7 +672,7 @@ export default function Profile() {
                                                 </Menu.Item>
                                               </Menu.Items>
                                             </Transition>
-                                          </>
+                                          </div>
                                         );
                                       }}
                                     </Menu>

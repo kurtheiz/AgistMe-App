@@ -71,3 +71,33 @@ export const formatRelativeDate = (date: string | Date | null | undefined): stri
         });
     }
 };
+
+export const formatNotificationDate = (date: string | Date | null | undefined): string => {
+    if (!date) {
+        return '';
+    }
+
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const now = new Date();
+    
+    const diffTime = now.getTime() - dateObj.getTime();
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffMinutes < 60) {
+        return diffMinutes <= 1 ? 'Just now' : `${diffMinutes} minutes ago`;
+    } else if (diffHours < 24) {
+        return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+    } else if (diffDays === 1) {
+        return 'Yesterday';
+    } else if (diffDays < 7) {
+        return `${diffDays} days ago`;
+    } else {
+        return dateObj.toLocaleDateString('en-AU', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+};

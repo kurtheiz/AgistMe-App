@@ -7,7 +7,9 @@ import {
   FavouritesResponse,
   SavedSearch,
   Horse,
-  Favourite
+  Favourite,
+  Notification,
+  NotificationsResponse
 } from '../types/profile';
 
 interface PresignedUrlRequest {
@@ -163,6 +165,20 @@ class ProfileService {
       }
     });
   }
+
+  async getNotifications(): Promise<NotificationsResponse> {
+    return this.retryOperation(async () => {
+      const response = await this.api.get<NotificationsResponse>('v1/protected/profile/notifications');
+      return response.data;
+    });
+  }
+
+  async updateNotifications(notifications: Notification[]): Promise<void> {
+    return this.retryOperation(async () => {
+      await this.api.put('v1/protected/profile/notifications', { notifications });
+    });
+  }
+
 
   private async waitForAuth() {
     // Wait for Clerk to be available
