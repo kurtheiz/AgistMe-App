@@ -20,7 +20,6 @@ export const HorseFormModal = ({
   onClose,
   horse,
   index,
-  onSave,
   onCancel,
   isUploading,
   onPhotoUpload
@@ -32,11 +31,6 @@ export const HorseFormModal = ({
       ...prev,
       [field]: value
     }));
-  };
-
-  const handleSave = () => {
-    onSave(editedHorse);
-    onClose();
   };
 
   return (
