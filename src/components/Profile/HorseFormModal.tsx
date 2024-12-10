@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { X, Check} from 'lucide-react';
 import { Horse } from '../../types/profile';
 import { HorseForm } from './HorseForm';
 
@@ -73,7 +73,7 @@ export const HorseFormModal = ({
                     onClick={onCancel}
                   >
                     <span className="sr-only">Close</span>
-                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                    <X className="h-6 w-6" aria-hidden="true" />
                   </button>
                 </div>
                 <div className="sm:flex sm:items-start">
@@ -93,8 +93,8 @@ export const HorseFormModal = ({
                       <button
                         type="button"
                         className="inline-flex w-full justify-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 sm:w-auto"
-                        onClick={handleSave}
                       >
+                        <Check className="mr-2 h-5 w-5" />
                         Save
                       </button>
                       <button

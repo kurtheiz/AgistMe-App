@@ -14,8 +14,7 @@ import {
 } from '../Icons';
 import NumberStepper from '../shared/NumberStepper';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
-import { BookmarkIcon } from 'lucide-react';
+import { MoreVertical, Bookmark } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { SavedSearch } from '../../types/profile';
@@ -227,14 +226,14 @@ export function SearchModal({
                     }
                   }}
                 >
-                  <EllipsisVerticalIcon className="h-5 w-5 text-gray-500" aria-hidden="true" />
+                  <MoreVertical className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 </MenuButton>
 
                 {user && (
                   <MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="py-1">
                       <div className="px-4 py-2 flex items-center gap-2 border-b border-gray-100">
-                        <BookmarkIcon className="h-4 w-4 text-gray-500" />
+                        <Bookmark className="h-4 w-4 text-gray-500" />
                         <span className="font-medium text-sm text-gray-900">Saved Searches</span>
                       </div>
                       {savedSearches.map((savedSearch) => (
