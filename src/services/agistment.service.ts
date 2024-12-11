@@ -93,6 +93,17 @@ class AgistmentService {
     }
   }
 
+  async getBlankAgistment(): Promise<AgistmentResponse> {
+    try {
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get<AgistmentResponse>('v1/protected/agistments/blank', authHeaders);
+      return response.data;
+    } catch (error: unknown) {
+      console.error('Failed to get blank agistment:', error);
+      throw error;
+    }
+  }
+
   async updateAgistment(id: string, agistment: Partial<AgistmentResponse>): Promise<AgistmentResponse> {
     try {
       const authHeaders = await this.getAuthHeaders();
@@ -114,11 +125,11 @@ class AgistmentService {
     }
   }
 
-  async createFromText(text: string): Promise<AgistmentResponse> {
+  async updateFromText(agistmentId: string, text: string): Promise<AgistmentResponse> {
     try {
       const authHeaders = await this.getAuthHeaders();
-      const response = await this.api.post<AgistmentResponse>(
-        'v1/protected/agistments/from-text',
+      const response = await this.api.put<AgistmentResponse>(
+        `v1/protected/agistments/${agistmentId}/from-text`,
         text,
         {
           ...authHeaders,
@@ -130,7 +141,7 @@ class AgistmentService {
       );
       return response.data;
     } catch (error: unknown) {
-      console.error('Failed to create agistment from text:', error);
+      console.error('Failed to update agistment from text:', error);
       throw error;
     }
   }

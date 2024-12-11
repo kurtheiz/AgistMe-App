@@ -1,10 +1,30 @@
 import { CheckCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { agistmentService } from '../services/agistment.service';
+import toast from 'react-hot-toast';
 
 const ListAgistment = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const handleCreateAgistment = async () => {
+    try {
+      // Get a blank agistment template
+      const blankAgistment = await agistmentService.getBlankAgistment();
+      
+      // Navigate to the edit page with the blank agistment
+      navigate(`/agistments/${blankAgistment.id}/edit`, {
+        state: { initialAgistment: blankAgistment }
+      });
+    } catch (error) {
+      console.error('Error creating agistment:', error);
+      toast.error('Failed to create agistment');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
@@ -77,7 +97,10 @@ const ListAgistment = () => {
         </div> */}
 
         <div className="text-center mt-12">
-          <button className="btn-primary">
+          <button 
+            onClick={handleCreateAgistment}
+            className="btn-primary"
+          >
             Sounds great, let's go!
           </button>
         </div>
