@@ -14,7 +14,6 @@ import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptio
 import { AgistmentCareOptionsModal } from '../components/Agistment/AgistmentCareOptionsModal';
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentServicesModal } from '../components/Agistment/AgistmentServicesModal';
-import { usePlanPhotoLimit } from '../stores/reference.store';
 import toast from 'react-hot-toast';
 import { AgistmentHeaderModal } from '../components/Agistment/AgistmentHeaderModal';
 import { AgistmentPaddocksModal } from '../components/Agistment/AgistmentPaddocksModal';
@@ -371,7 +370,7 @@ function EditAgistmentDetail() {
                   </span>
                 </div>
                 <AgistmentPhotos
-                  agistment={agistment}
+                  agistment={agistment!}
                   maxPhotos={maxPhotos}
                   onPhotosChange={handlePhotoGalleryUpdate}
                 />

@@ -146,6 +146,17 @@ class AgistmentService {
     }
   }
 
+  async createFromText(text: string): Promise<AgistmentResponse> {
+    try {
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.post<AgistmentResponse>('/agistments/create-from-text', { text }, authHeaders);
+      return response.data;
+    } catch (error: unknown) {
+      console.error('Failed to create agistment from text:', error);
+      throw error;
+    }
+  }
+
   async getMyAgistments(): Promise<SearchResponse> {
     try {
       const url = 'v1/protected/agistments/my';
