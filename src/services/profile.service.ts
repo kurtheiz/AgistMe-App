@@ -20,8 +20,8 @@ import {
 
 interface PresignedUrlRequest {
   filenames: string[];
+  image_type: 'profile' | 'agistment';
   agistment_id?: string;
-  image_type: string;
 }
 
 interface PresignedUrlResponse {
@@ -262,7 +262,7 @@ class ProfileService {
       const filename = `${Date.now()}-${file.name}`;
       const presignedRequest: PresignedUrlRequest = {
         filenames: [filename],
-        image_type: 'profile'
+        image_type: 'profile'  // Changed to 'profile' as per API requirements
       };
       
       console.log('Requesting presigned URL...');

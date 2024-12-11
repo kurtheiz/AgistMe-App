@@ -1,6 +1,5 @@
-import { Heart, ChevronDown, MoreVertical, Trash2 } from 'lucide-react';
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
-import { useRef, useState, useEffect } from 'react';
+import { Heart, ChevronDown, Trash2 } from 'lucide-react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Favourite } from '../../types/profile';
 
 interface FavoritesPanelProps {
@@ -60,63 +59,16 @@ export function FavoritesPanel({
                                 )}
                               </div>
                             </div>
-                            <Menu as="div" className="relative">
-                              {({ open }) => {
-                                const buttonRef = useRef<HTMLButtonElement>(null);
-                                const [showAbove, setShowAbove] = useState(false);
-
-                                useEffect(() => {
-                                  if (open && buttonRef.current) {
-                                    const buttonRect = buttonRef.current.getBoundingClientRect();
-                                    const windowHeight = window.innerHeight;
-                                    const spaceBelow = windowHeight - buttonRect.bottom;
-                                    setShowAbove(spaceBelow < 200); // Menu height + buffer
-                                  }
-                                }, [open]);
-
-                                return (
-                                  <div>
-                                    <Menu.Button 
-                                      ref={buttonRef}
-                                      className="p-3 -m-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <MoreVertical className="w-5 h-5 text-neutral-400" />
-                                    </Menu.Button>
-                                    <Transition
-                                      show={open}
-                                      enter="transition ease-out duration-100"
-                                      enterFrom="transform opacity-0 scale-95"
-                                      enterTo="transform opacity-100 scale-100"
-                                      leave="transition ease-in duration-75"
-                                      leaveFrom="transform opacity-100 scale-100"
-                                      leaveTo="transform opacity-0 scale-95"
-                                    >
-                                      <Menu.Items 
-                                        className={`absolute ${showAbove ? 'bottom-full mb-1' : 'top-full mt-1'} right-0 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]`}
-                                      >
-                                        <Menu.Item>
-                                          {({ active }) => (
-                                            <button
-                                              className={`${
-                                                active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
-                                              } group flex items-center w-full px-4 py-2 text-sm text-red-600`}
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                onDelete(favourite.id, e);
-                                              }}
-                                            >
-                                              <Trash2 className="w-4 h-4 mr-3" />
-                                              Delete
-                                            </button>
-                                          )}
-                                        </Menu.Item>
-                                      </Menu.Items>
-                                    </Transition>
-                                  </div>
-                                );
+                            <button
+                              className="p-3 -m-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors rounded-lg"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(favourite.id, e);
                               }}
-                            </Menu>
+                              aria-label="Delete favorite"
+                            >
+                              <Trash2 className="w-5 h-5 text-neutral-400 hover:text-red-500" />
+                            </button>
                           </div>
                         </div>
                       );

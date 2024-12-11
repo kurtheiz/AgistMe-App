@@ -127,9 +127,9 @@ body {
 
   /* Common button styles */
   .btn-primary {
-    @apply px-4 py-2 text-sm font-medium text-white 
+    @apply w-full sm:w-auto px-6 py-3 text-base sm:text-sm font-medium text-white 
            bg-primary-600 hover:bg-primary-700 
-           rounded-md focus:outline-none focus:ring-2 
+           rounded-lg sm:rounded-md focus:outline-none focus:ring-2 
            focus:ring-offset-2 focus:ring-primary-500;
   }
 
