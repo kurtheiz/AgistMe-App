@@ -78,7 +78,7 @@ function EditAgistmentDetail() {
   }, [id, initialAgistment]);
 
   const handleBackClick = () => {
-    navigate('/agistments/my');
+    navigate(-1);
   };
 
   const validateForPublish = useCallback(() => {

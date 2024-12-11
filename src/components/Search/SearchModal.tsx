@@ -81,6 +81,22 @@ export function SearchModal({
   }, [user, refreshSavedSearches]);
 
   useEffect(() => {
+    // Clear paddock types when both spaces and maxPrice are 0
+    if (searchCriteria.spaces === 0 && searchCriteria.maxPrice === 0) {
+      setSearchCriteria(prev => ({
+        ...prev,
+        paddockTypes: []
+      }));
+    } else if (searchCriteria.paddockTypes.length === 0) {
+      // Select all paddock types when either spaces or maxPrice is greater than 0
+      setSearchCriteria(prev => ({
+        ...prev,
+        paddockTypes: ['Private', 'Shared', 'Group']
+      }));
+    }
+  }, [searchCriteria.spaces, searchCriteria.maxPrice]);
+
+  useEffect(() => {
     if (forceReset && isOpen) {
       setSearchCriteria({
         suburbs: [],
@@ -119,12 +135,22 @@ export function SearchModal({
   }, [initialSearchHash, searchHash, isOpen, forceReset]);
 
   const togglePaddockType = (type: PaddockType) => {
-    setSearchCriteria((prev: SearchRequest) => ({
-      ...prev,
-      paddockTypes: prev.paddockTypes.includes(type)
-        ? prev.paddockTypes.filter(t => t !== type)
-        : [...prev.paddockTypes, type]
-    }));
+    setSearchCriteria((prev: SearchRequest) => {
+      // If spaces or price > 0, ensure at least one type remains selected
+      if (prev.spaces > 0 || prev.maxPrice > 0) {
+        // If trying to deselect and it's the only one selected, don't allow it
+        if (prev.paddockTypes.includes(type) && prev.paddockTypes.length === 1) {
+          return prev;
+        }
+      }
+      
+      return {
+        ...prev,
+        paddockTypes: prev.paddockTypes.includes(type)
+          ? prev.paddockTypes.filter(t => t !== type)
+          : [...prev.paddockTypes, type]
+      };
+    });
   };
 
   const toggleCareType = (type: CareType) => {
@@ -352,68 +378,98 @@ export function SearchModal({
           </button>
         </div>
         <div className="space-y-4 sm:space-y-6">
-          {/* Number of Horses */}
-          <div>
-            <label className="block text-base font-medium text-neutral-700 mb-1">
-              Number of Horses
-            </label>
-            <NumberStepper
-              value={searchCriteria.spaces}
-              onChange={(value) => setSearchCriteria((prev: SearchRequest) => ({ ...prev, spaces: value }))} 
-              min={0}
-              max={10}
-              disabled={searchCriteria.suburbs.length === 0}
-              formatValue={(value) => value === 0 ? 'Any' : value === 10 ? '10+' : value.toString()}
-            />
-          </div>
-
-          {/* Maximum Weekly Price */}
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-base font-medium text-neutral-700">
-                Max price per space
+          {/* Number of Horses, Max Price, and Paddock Types Group */}
+          <div className="border border-neutral-200 rounded-lg p-4 space-y-4">
+            {/* Number of Horses */}
+            <div>
+              <label className="block text-base font-medium text-neutral-700 mb-1">
+                Number of spots available
               </label>
-              <span className="text-lg font-semibold text-neutral-900">
-                {searchCriteria.maxPrice === 0 ? 'Any' : searchCriteria.maxPrice === 300 ? '$300+/week' : `$${searchCriteria.maxPrice}/week`}
-              </span>
+              <NumberStepper
+                value={searchCriteria.spaces}
+                onChange={(value) => setSearchCriteria((prev: SearchRequest) => ({ ...prev, spaces: value }))} 
+                min={0}
+                max={10}
+                disabled={searchCriteria.suburbs.length === 0}
+                formatValue={(value) => value === 0 ? 'Any' : value === 10 ? '10+' : value.toString()}
+              />
             </div>
-            <input
-              type="range"
-              min="0"
-              max="300"
-              step="10"
-              disabled={searchCriteria.suburbs.length === 0}
-              value={searchCriteria.maxPrice}
-              onChange={(e) => setSearchCriteria((prev: SearchRequest) => ({ ...prev, maxPrice: parseInt(e.target.value) }))} 
-              className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 
-                ? 'opacity-50 cursor-not-allowed' 
-                : 'cursor-pointer accent-primary-600'
-              }`}
-            />
-            <div className="flex justify-between text-xs text-neutral-500 mt-1">
-              <span>Any</span>
-              <span>$300+/week</span>
-            </div>
-          </div>
 
-          {/* Paddock Types */}
-          <div>
-            <h2 className="block text-base font-medium text-neutral-700 mb-1">Paddock Types</h2>
-            <div className="grid grid-cols-3 gap-2">
-              {(['Private', 'Shared', 'Group'] as PaddockType[]).map((type) => (
+            {/* Maximum Weekly Price */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-base font-medium text-neutral-700">
+                  Max price per space
+                </label>
+                <span className="text-lg font-semibold text-neutral-900">
+                  {searchCriteria.maxPrice === 0 ? 'Any' : searchCriteria.maxPrice === 300 ? '$300+/week' : `$${searchCriteria.maxPrice}/week`}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="300"
+                step="10"
+                disabled={searchCriteria.suburbs.length === 0}
+                value={searchCriteria.maxPrice}
+                onChange={(e) => setSearchCriteria((prev: SearchRequest) => ({ ...prev, maxPrice: parseInt(e.target.value) }))} 
+                className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'cursor-pointer accent-primary-600'
+                }`}
+              />
+              <div className="flex justify-between text-xs text-neutral-500 mt-1">
+                <span>Any</span>
+                <span>$300+/week</span>
+              </div>
+            </div>
+
+            {/* Paddock Types */}
+            <div>
+              <h2 className="block text-base font-medium text-neutral-700 mb-1">Paddock Types</h2>
+              <div className="flex items-center gap-2">
                 <button
-                  key={type}
+                  key="Private"
                   type="button"
-                  disabled={searchCriteria.suburbs.length === 0}
-                  onClick={() => togglePaddockType(type)}
-                  className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.paddockTypes.includes(type)
+                  disabled={searchCriteria.spaces === 0 && searchCriteria.maxPrice === 0}
+                  onClick={() => togglePaddockType('Private')}
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.paddockTypes.includes('Private')
                       ? 'bg-primary-600 text-white border-primary-600'
                       : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
-                    } ${searchCriteria.suburbs.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    } ${searchCriteria.spaces === 0 && searchCriteria.maxPrice === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
-                  {type}
+                  Private
                 </button>
-              ))}
+                <div className="text-center text-neutral-500 text-sm">or</div>
+                <button
+                  key="Shared"
+                  type="button"
+                  disabled={searchCriteria.spaces === 0 && searchCriteria.maxPrice === 0}
+                  onClick={() => togglePaddockType('Shared')}
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.paddockTypes.includes('Shared')
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
+                    } ${searchCriteria.spaces === 0 && searchCriteria.maxPrice === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  Shared
+                </button>
+                <div className="text-center text-neutral-500 text-sm">or</div>
+                <button
+                  key="Group"
+                  type="button"
+                  disabled={searchCriteria.spaces === 0 && searchCriteria.maxPrice === 0}
+                  onClick={() => togglePaddockType('Group')}
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${searchCriteria.paddockTypes.includes('Group')
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white text-neutral-700 border-neutral-300 hover:border-primary-600'
+                    } ${searchCriteria.spaces === 0 && searchCriteria.maxPrice === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  Group
+                </button>
+              </div>
+              <p className="text-xs text-neutral-500 mt-1">
+                At least one paddock type must be selected if number of spots or max price is greater than 0
+              </p>
             </div>
           </div>
 
@@ -503,7 +559,7 @@ export function SearchModal({
         <button
           type="submit"
           disabled={searchCriteria.suburbs.length === 0 || isUpdating}
-          className={`btn-primary !w-full ${searchCriteria.suburbs.length === 0 || isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`w-full py-2 px-4 rounded-md font-medium text-white bg-red-600 hover:bg-red-700 transition-colors ${searchCriteria.suburbs.length === 0 || isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isUpdating ? 'Searching...' : 'Search'}
         </button>

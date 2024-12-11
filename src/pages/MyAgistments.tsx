@@ -12,9 +12,23 @@ export function MyAgistments() {
   const navigate = useNavigate();
   const [agistments, setAgistments] = useState<AgistmentSearchResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const savedScrollPosition = sessionStorage.getItem('myAgistmentsScrollPosition');
+    if (savedScrollPosition) {
+      window.scrollTo(0, parseInt(savedScrollPosition));
+      sessionStorage.removeItem('myAgistmentsScrollPosition');
+    } else {
+      window.scrollTo(0, 0);
+    }
+
+    const handleScroll = () => {
+      setScrollPosition(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -76,7 +90,10 @@ export function MyAgistments() {
                 agistments={agistments} 
                 title={`${agistments.length} Agistment${agistments.length !== 1 ? 's' : ''}`}
                 matchType="EXACT"
-                onEdit={(agistment) => navigate(`/agistments/${agistment.id}/edit`)}
+                onEdit={(agistment) => {
+                  sessionStorage.setItem('myAgistmentsScrollPosition', scrollPosition.toString());
+                  navigate(`/agistments/${agistment.id}/edit`);
+                }}
               />
             </div>
           )}
