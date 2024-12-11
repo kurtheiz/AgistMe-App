@@ -286,7 +286,7 @@ function EditAgistmentDetail() {
             value={aiText}
             onChange={(e) => setAiText(e.target.value)}
             className="w-full h-64 p-4 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-            placeholder="Example: 10 acre property in Samford Valley with excellent facilities including private paddocks, sand arena, and secure tack room. Agistment includes daily feeding and health checks..."
+            placeholder="Example: 30 acre property with excellent facilities including private 6 paddocks, sand arena, and secure tack room. Agistment includes daily feeding and health checks..."
           />
           <div className="text-sm text-neutral-500 dark:text-neutral-400">
             Tip: Include details about your property size, facilities, care options, and any special features.

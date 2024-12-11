@@ -5,7 +5,7 @@ import { useAgistor } from '../hooks/useAgistor';
 import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
 import { useNotificationsStore } from '../stores/notifications.store';
-import { Search } from 'lucide-react';
+import { Search, SquareMenu } from 'lucide-react';
 import { profileService } from '../services/profile.service';
 
 export const Header = () => {
@@ -139,6 +139,15 @@ export const Header = () => {
 
             {/* Right side */}
             <div className="flex items-center space-x-4">
+              {/* Dashboard Icon (Mobile Only) */}
+              {showAgistorItems && (
+                <Link
+                  to="/dashboard"
+                  className="md:hidden"
+                >
+                  <SquareMenu className="w-6 h-6" />
+                </Link>
+              )}
               {/* Search Icon */}
               <button
                 onClick={() => {
