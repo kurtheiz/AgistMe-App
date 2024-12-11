@@ -10,6 +10,7 @@ import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { useNotificationsStore } from '../stores/notifications.store';
 import { NotificationsPanel } from '../components/Profile/NotificationsPanel';
 import { BioPanel } from '../components/Profile/BioPanel';
+import BioModal from '../components/Profile/BioModal';
 import { FavoritesPanel } from '../components/Profile/FavoritesPanel';
 import { SavedSearchesPanel } from '../components/Profile/SavedSearchesPanel';
 import { decodeSearchHash } from '../utils/searchHashUtils';
@@ -34,6 +35,7 @@ export default function Profile() {
     setIsLoading: setIsLoadingNotifications,
     updateNotification
   } = useNotificationsStore();
+  const [isBioModalOpen, setIsBioModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isSignedIn && isLoaded) {
@@ -120,7 +122,7 @@ export default function Profile() {
   };
 
   const handleOpenBio = () => {
-    // Removed setIsBioOpenState(true);
+    setIsBioModalOpen(true);
   };
 
   const handleEditSearch = async (name: string, enableNotifications: boolean) => {
@@ -230,6 +232,18 @@ export default function Profile() {
     setSaveSearchCriteria(criteria);
   };
 
+  const handleBioModalClose = async () => {
+    setIsBioModalOpen(false);
+    // Refresh profile data
+    try {
+      const profileData = await profileService.getProfile();
+      setProfile(profileData);
+    } catch (error) {
+      console.error('Error refreshing profile:', error);
+      toast.error('Failed to refresh profile data');
+    }
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
@@ -267,11 +281,15 @@ export default function Profile() {
 
         <div className="space-y-6">
           <div className="space-y-4">
-            <BioPanel
-              profile={profile}
-              onEditClick={handleOpenBio}
+            <BioPanel 
+              profile={profile} 
+              onEditClick={handleOpenBio} 
             />
-
+            <BioModal 
+              isOpen={isBioModalOpen}
+              onClose={handleBioModalClose}
+              profile={profile}
+            />
             <FavoritesPanel
               favourites={favourites}
               isLoading={isLoadingFavourites}

@@ -1,5 +1,5 @@
 import { Bookmark, ChevronDown, MoreVertical, Bell } from 'lucide-react';
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition, MenuItem } from '@headlessui/react';
 import { useRef, useState, useEffect } from 'react';
 import { SavedSearch } from '../../types/profile';
 import { decodeSearchHash } from '../../utils/searchHashUtils';
@@ -130,12 +130,12 @@ export function SavedSearchesPanel({
                                       <Menu.Items 
                                         className={`absolute ${showAbove ? 'bottom-full mb-1' : 'top-full mt-1'} right-0 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]`}
                                       >
-                                        <Menu.Item>
+                                        <MenuItem>
                                           {({ active }) => (
                                             <button
                                               className={`${
                                                 active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
-                                              } group flex items-center w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200`}
+                                              } group flex items-center w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 select-none`}
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 onEdit(search);
@@ -144,13 +144,13 @@ export function SavedSearchesPanel({
                                               Edit
                                             </button>
                                           )}
-                                        </Menu.Item>
-                                        <Menu.Item>
+                                        </MenuItem>
+                                        <MenuItem>
                                           {({ active }) => (
                                             <button
                                               className={`${
                                                 active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
-                                              } group flex items-center w-full px-4 py-2 text-sm text-red-600`}
+                                              } group flex items-center w-full px-4 py-2 text-sm text-red-600 select-none`}
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 onDelete(search.id, e);
@@ -159,7 +159,7 @@ export function SavedSearchesPanel({
                                               Delete
                                             </button>
                                           )}
-                                        </Menu.Item>
+                                        </MenuItem>
                                       </Menu.Items>
                                     </Transition>
                                   </div>

@@ -1,6 +1,11 @@
 import { CheckCircle } from 'lucide-react';
+import { useEffect } from 'react';
 
 const ListAgistment = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -70,6 +75,12 @@ const ListAgistment = () => {
         {/* <div className="mb-16">
           <PricingPlans showButtons onPlanSelect={handlePlanSelect} />
         </div> */}
+
+        <div className="text-center mt-12">
+          <button className="btn-primary">
+            Sounds great, let's go!
+          </button>
+        </div>
       </div>
     </div>
   );

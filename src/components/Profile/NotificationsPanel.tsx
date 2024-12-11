@@ -1,5 +1,5 @@
-import { Bell, ChevronDown, MoreVertical, Eye, EyeOff, Trash2 } from 'lucide-react';
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition } from '@headlessui/react';
+import { Bell, ChevronDown, MoreVertical } from 'lucide-react';
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition, MenuItem } from '@headlessui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { Notification } from '../../types/profile';
 import { useRef, useState, useEffect } from 'react';
@@ -95,47 +95,36 @@ export function NotificationsPanel({
                                   <Menu.Items 
                                     className={`absolute ${showAbove ? 'bottom-full mb-1' : 'top-full mt-1'} right-0 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]`}
                                   >
-                                    <Menu.Item>
+                                    <MenuItem>
                                       {({ active }) => (
                                         <button
                                           className={`${
                                             active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
-                                          } group flex items-center w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200`}
+                                          } group flex items-center w-full px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 select-none`}
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             onToggleRead(e, notification.id);
                                           }}
                                         >
-                                          {notification.read ? (
-                                            <>
-                                              <EyeOff className="w-4 h-4 mr-3 text-neutral-400" />
-                                              Mark as Unread
-                                            </>
-                                          ) : (
-                                            <>
-                                              <Eye className="w-4 h-4 mr-3 text-neutral-400" />
-                                              Mark as Read
-                                            </>
-                                          )}
+                                          {notification.read ? 'Mark as Unread' : 'Mark as Read'}
                                         </button>
                                       )}
-                                    </Menu.Item>
-                                    <Menu.Item>
+                                    </MenuItem>
+                                    <MenuItem>
                                       {({ active }) => (
                                         <button
                                           className={`${
                                             active ? 'bg-neutral-100 dark:bg-neutral-700' : ''
-                                          } group flex items-center w-full px-4 py-2 text-sm text-red-600`}
+                                          } group flex items-center w-full px-4 py-2 text-sm text-red-600 select-none`}
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             onDelete(e, notification.id);
                                           }}
                                         >
-                                          <Trash2 className="w-4 h-4 mr-3" />
                                           Delete
                                         </button>
                                       )}
-                                    </Menu.Item>
+                                    </MenuItem>
                                   </Menu.Items>
                                 </Transition>
                               </div>

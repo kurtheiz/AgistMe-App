@@ -1,7 +1,7 @@
-import { CircleUser, ChevronDown } from 'lucide-react';
+import { CircleUser, ChevronDown, Pencil } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { BioView } from '../BioView';
 import { Profile } from '../../types/profile';
+import { BioView } from '../BioView';
 
 interface BioPanelProps {
   profile: Profile | null;
@@ -24,13 +24,14 @@ export function BioPanel({ profile, onEditClick }: BioPanelProps) {
             <DisclosurePanel className="px-6 pb-6">
               {profile && (
                 <div>
-                  <BioView profile={profile} />
-                  <div className="mt-4">
+                  <div className="flex items-start justify-between">
+                    <BioView profile={profile} />
                     <button
                       onClick={onEditClick}
-                      className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                      className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
+                      title="Edit Bio"
                     >
-                      Edit Bio
+                      <Pencil className="w-5 h-5 text-neutral-400" />
                     </button>
                   </div>
                 </div>

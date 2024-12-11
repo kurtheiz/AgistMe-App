@@ -238,15 +238,13 @@ export function SearchModal({
                       </div>
                       {savedSearches.map((savedSearch) => (
                         <MenuItem key={savedSearch.id}>
-                          {({ active }) => (
+                          {() => (
                             <button
                               onClick={() => {
                                 const decodedSearch = decodeSearchHash(savedSearch.searchHash);
                                 setSearchCriteria(decodedSearch);
                               }}
-                              className={`${
-                                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
-                              } block w-full px-4 py-2 text-left text-sm`}
+                              className={`text-gray-700 block w-full px-4 py-2 text-left text-sm`}
                             >
                               {savedSearch.name}
                             </button>
@@ -259,12 +257,10 @@ export function SearchModal({
                       {user && (
                         <div className="border-t border-gray-100">
                           <MenuItem>
-                            {({ active }) => (
+                            {() => (
                               <Link
                                 to="/profile?section=saved-searches"
-                                className={`${
-                                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
-                                } block w-full px-4 py-2 text-left text-sm`}
+                                className={`bg-neutral-50 hover:bg-neutral-100 text-gray-700 block w-full px-4 py-2 text-left text-sm`}
                               >
                                 Manage saved searches
                               </Link>
@@ -324,7 +320,7 @@ export function SearchModal({
       </div>
 
       {/* Filters Section */}
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-6 pb-10">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-neutral-900">Filters</h2>
           <button
@@ -507,11 +503,7 @@ export function SearchModal({
         <button
           type="submit"
           disabled={searchCriteria.suburbs.length === 0 || isUpdating}
-          className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors
-            ${searchCriteria.suburbs.length === 0 || isUpdating
-              ? 'bg-neutral-300 cursor-not-allowed'
-              : 'bg-primary-600 hover:bg-primary-700'
-            }`}
+          className={`btn-primary !w-full ${searchCriteria.suburbs.length === 0 || isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isUpdating ? 'Searching...' : 'Search'}
         </button>

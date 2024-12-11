@@ -1,6 +1,6 @@
 import React from 'react';
 import { Profile } from '../types/profile';
-import { MapPin, Mail, Phone, Calendar } from 'lucide-react';
+import { MapPin, Phone, Calendar } from 'lucide-react';
 import { differenceInYears } from 'date-fns';
 import { ExpandableText } from './shared/ExpandableText';
 import { getInitials } from '../utils/userUtils';
@@ -43,16 +43,12 @@ export const BioView: React.FC<BioViewProps> = ({ profile }) => {
         <div className="flex items-center space-x-3 text-neutral-600">
           <Phone className="w-5 h-5 text-neutral-400" />
           <span className={!profile.mobile ? "text-neutral-500" : ""}>
-            {profile.mobile || "Not Specified"}
+            {profile.mobile || "-"}
           </span>
         </div>
         <div className="flex items-center space-x-3 text-neutral-600">
-          <Mail className="w-5 h-5 text-neutral-400" />
-          <span>{profile.email}</span>
-        </div>
-        <div className="flex items-center space-x-3 text-neutral-600">
           <Calendar className="w-5 h-5 text-neutral-400" />
-          <span>{profile.dateOfBirth ? `${getAge(profile.dateOfBirth)} years old` : 'Not specified'}</span>
+          <span>{profile.dateOfBirth ? `${getAge(profile.dateOfBirth)} years old` : '-'}</span>
         </div>
       </div>
 
@@ -62,7 +58,7 @@ export const BioView: React.FC<BioViewProps> = ({ profile }) => {
           <MapPin className="w-5 h-5 text-neutral-400 flex-shrink-0 mt-0.5" />
           <div>
             {!profile.address && !profile.suburb && !profile.state && !profile.postcode && !profile.region ? (
-              <p className="text-neutral-500">Not Specified</p>
+              <p className="text-neutral-500">-</p>
             ) : (
               <>
                 {profile.address && <p>{profile.address}</p>}

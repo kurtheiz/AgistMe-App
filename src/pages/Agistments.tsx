@@ -31,15 +31,6 @@ const Agistments = () => {
   const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
-  const fetchAdverts = async () => {
-    try {
-      const advertsData = await advertService.getAdverts();
-      setAdverts(advertsData);
-    } catch (error) {
-      console.error('Error fetching adverts:', error);
-    }
-  };
-
   const loadMore = async () => {
     if (!searchResponse?.nextToken) return;
     setIsFetching(true);
@@ -67,14 +58,17 @@ const Agistments = () => {
       const fetchData = async () => {
         setIsFetching(true);
         try {
-          const [searchResult, advertsData] = await Promise.all([
-            agistmentService.searchAgistments(searchHash),
-            advertService.getAdverts()
-          ]);
+          const searchResult = await agistmentService.searchAgistments(searchHash);
           if (searchResult) {
             setSearchResponse(searchResult);
+            if (searchResult.results.length > 0) {
+              // Only fetch adverts if we have search results
+              const advertsData = await advertService.getAdverts();
+              setAdverts(advertsData);
+            } else {
+              setAdverts([]);
+            }
           }
-          setAdverts(advertsData);
         } catch (error) {
           console.error('Search error:', error);
           toast.error('Failed to perform search. Please try again.');
@@ -85,7 +79,7 @@ const Agistments = () => {
       fetchData();
     } else {
       setSearchResponse(null);
-      fetchAdverts();
+      setAdverts([]); // Clear adverts when there's no search
     }
   }, [searchParams, forceResetSearch]);
 
