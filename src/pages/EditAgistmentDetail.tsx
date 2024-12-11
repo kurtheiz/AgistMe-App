@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
 import { ChevronLeft, Pencil, Heart, Share2 } from 'lucide-react';
@@ -14,19 +14,21 @@ import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptio
 import { AgistmentCareOptionsModal } from '../components/Agistment/AgistmentCareOptionsModal';
 import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentServicesModal } from '../components/Agistment/AgistmentServicesModal';
-import { usePlanPhotoLimit } from '../stores/reference.store';
 import toast from 'react-hot-toast';
 import { AgistmentHeaderModal } from '../components/Agistment/AgistmentHeaderModal';
 import { AgistmentPaddocksModal } from '../components/Agistment/AgistmentPaddocksModal';
 import { AgistmentRidingFacilitiesModal } from '../components/Agistment/AgistmentRidingFacilitiesModal';
 import { AgistmentFacilitiesModal } from '../components/Agistment/AgistmentFacilitiesModal';
 import { Dialog } from '../components/shared/Dialog';
+import { Modal } from '../components/shared/Modal';
 
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialAgistment = location.state?.initialAgistment as AgistmentResponse | undefined;
   const [agistment, setAgistment] = useState<AgistmentResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialAgistment);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
@@ -37,7 +39,9 @@ function EditAgistmentDetail() {
   const [isServicesModalOpen, setIsServicesModalOpen] = useState(false);
   const [isValidationDialogOpen, setIsValidationDialogOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const maxPhotos = usePlanPhotoLimit(agistment?.listing?.listingType || 'STANDARD');
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [aiText, setAiText] = useState('');
+  const maxPhotos = 10
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -47,6 +51,13 @@ function EditAgistmentDetail() {
   useEffect(() => {
     const loadAgistment = async () => {
       if (!id) return;
+
+      // If we have an initialAgistment and this is a temp ID, use that instead
+      if (initialAgistment && id === 'temp_') {
+        setAgistment(initialAgistment);
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
@@ -64,7 +75,7 @@ function EditAgistmentDetail() {
     };
 
     loadAgistment();
-  }, [id]);
+  }, [id, initialAgistment]);
 
   const handleBackClick = () => {
     navigate('/agistments/my');
@@ -195,6 +206,38 @@ function EditAgistmentDetail() {
     await handleAgistmentUpdate(updatedFields);
   };
 
+  const handleUseAI = () => {
+    setIsAiModalOpen(true);
+  };
+
+  const handleAiSubmit = async () => {
+    if (!agistment || !aiText.trim()) return;
+    
+    try {
+      setIsUpdating(true);
+      const aiAgistment = await agistmentService.updateFromText(agistment.id, aiText);
+      
+      // Update URL to use the new agistment ID
+      navigate(`/agistments/${aiAgistment.id}/edit`);
+      
+      // Keep the original status
+      const updatedAgistment = {
+        ...aiAgistment,
+        status: agistment.status
+      };
+      
+      await handleAgistmentUpdate(updatedAgistment);
+      toast.success('AI has populated your listing');
+      setIsAiModalOpen(false);
+      setAiText('');
+    } catch (error) {
+      console.error('Error using AI:', error);
+      toast.error('Failed to use AI. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -226,6 +269,31 @@ function EditAgistmentDetail() {
 
   return (
     <>
+      <Modal
+        isOpen={isAiModalOpen}
+        onClose={() => setIsAiModalOpen(false)}
+        title="Use AI to Create Your Listing"
+        size="wide"
+        isUpdating={isUpdating}
+        actionIconType="SAVE"
+        onAction={handleAiSubmit}
+      >
+        <div className="space-y-4">
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Paste your property description below and our AI will create a professional agistment listing for you.
+          </p>
+          <textarea
+            value={aiText}
+            onChange={(e) => setAiText(e.target.value)}
+            className="w-full h-64 p-4 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+            placeholder="Example: 10 acre property in Samford Valley with excellent facilities including private paddocks, sand arena, and secure tack room. Agistment includes daily feeding and health checks..."
+          />
+          <div className="text-sm text-neutral-500 dark:text-neutral-400">
+            Tip: Include details about your property size, facilities, care options, and any special features.
+          </div>
+        </div>
+      </Modal>
+
       <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
         <PageToolbar
           actions={
@@ -242,6 +310,15 @@ function EditAgistmentDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    {id === 'temp_' && (
+                      <button
+                        className="button-toolbar"
+                        onClick={handleUseAI}
+                        disabled={isUpdating}
+                      >
+                        Use AI
+                      </button>
+                    )}
                     <button
                       className="button-toolbar"
                       onClick={handleVisibilityToggle}
@@ -293,7 +370,7 @@ function EditAgistmentDetail() {
                   </span>
                 </div>
                 <AgistmentPhotos
-                  agistment={agistment as AgistmentResponse}
+                  agistment={agistment!}
                   maxPhotos={maxPhotos}
                   onPhotosChange={handlePhotoGalleryUpdate}
                 />

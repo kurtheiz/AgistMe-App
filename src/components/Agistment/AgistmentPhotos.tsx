@@ -78,13 +78,17 @@ const SortablePhoto = ({ photo, index, disabled, onRemove }: SortablePhotoProps)
   );
 };
 
-export const AgistmentPhotos = ({
+export function AgistmentPhotos({
   agistment,
   onPhotosChange,
   disabled = false,
   maxPhotos = 3,
   isEditable: _isEditable = true
-}: AgistmentPhotosProps) => {
+}: AgistmentPhotosProps) {
+  if (!agistment?.photoGallery?.photos) {
+    return null; 
+  }
+
   const [isUploading, setIsUploading] = useState(false);
 
   const sensors = useSensors(
