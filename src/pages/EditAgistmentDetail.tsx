@@ -41,7 +41,7 @@ function EditAgistmentDetail() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiText, setAiText] = useState('');
-  const maxPhotos = 10
+  const maxPhotos = 5
 
   // Scroll to top when component mounts
   useEffect(() => {
