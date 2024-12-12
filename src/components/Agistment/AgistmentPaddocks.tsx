@@ -127,11 +127,13 @@ export const AgistmentPaddocks = ({
     <div>
       <div className="grid grid-cols-1 gap-4 items-start">
         {/* Private Paddocks */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
+        <div className="border border-neutral-200 rounded-lg p-4 relative mt-4">
+          <div className="absolute -top-3 left-3 bg-white px-2">
             <h3 className="text-lg font-medium text-neutral-900">
               Private Paddocks
             </h3>
+          </div>
+          <div className="flex items-center gap-2 mt-2">
             {paddocks?.privatePaddocks?.totalPaddocks === 0 && (
               <div className="chip-unavailable">
                 <div>
@@ -148,14 +150,18 @@ export const AgistmentPaddocks = ({
         </div>
 
         {/* Shared Paddocks */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
+        <div className="border border-neutral-200 rounded-lg p-4 relative mt-4">
+          <div className="absolute -top-3 left-3 bg-white px-2">
             <h3 className="text-lg font-medium text-neutral-900">
               Shared Paddocks
             </h3>
+          </div>
+          <div className="flex items-center gap-2 mt-2">
             {paddocks?.sharedPaddocks?.totalPaddocks === 0 && (
               <div className="chip-unavailable">
+                <div>
                   Unavailable
+                </div>
               </div>
             )}
           </div>
@@ -167,14 +173,18 @@ export const AgistmentPaddocks = ({
         </div>
 
         {/* Group Paddocks */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
+        <div className="border border-neutral-200 rounded-lg p-4 relative mt-4">
+          <div className="absolute -top-3 left-3 bg-white px-2">
             <h3 className="text-lg font-medium text-neutral-900">
               Group Paddocks
             </h3>
+          </div>
+          <div className="flex items-center gap-2 mt-2">
             {paddocks?.groupPaddocks?.totalPaddocks === 0 && (
               <div className="chip-unavailable">
+                <div>
                   Unavailable
+                </div>
               </div>
             )}
           </div>

@@ -177,7 +177,7 @@ export function ViewAgistmentDetail() {
 
             {/* Paddocks and Care Options Grid */}
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-stretch lg:divide-x lg:divide-neutral-200 lg:dark:divide-neutral-800">
                 {/* Paddocks Section */}
                 <div className="lg:sticky lg:top-[120px]">
                   <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
@@ -189,7 +189,7 @@ export function ViewAgistmentDetail() {
                 </div>
 
                 {/* Care Options Section */}
-                <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                <div className="lg:pl-8">
                   <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Care Options
                   </h2>
@@ -204,7 +204,7 @@ export function ViewAgistmentDetail() {
             <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Riding Facilities Section */}
-                <div>
+                <div className="lg:sticky lg:top-[120px] border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200 dark:border-neutral-800">
                   <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
                     Riding Facilities
                   </h2>
