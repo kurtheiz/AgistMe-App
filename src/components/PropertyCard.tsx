@@ -19,6 +19,7 @@ import { EditConfirmationModal } from './shared/EditConfirmationModal';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { agistmentService } from '../services/agistment.service';
+import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
 
 interface PropertyCardProps {
   agistment: AgistmentResponse;
@@ -126,21 +127,8 @@ export default function PropertyCard({
         </div>
 
         {/* Photo */}
-        <div className="relative aspect-[16/9] bg-neutral-100">
-          {agistment.photoGallery.photos && agistment.photoGallery.photos.length > 0 ? (
-            <img 
-              src={agistment.photoGallery.photos[0].link} 
-              alt={`${agistment.basicInfo.name} - ${agistment.photoGallery.photos[0].comment || 'Primary photo'}`}
-              className="absolute inset-0 w-full h-full object-cover object-center"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-neutral-400 flex flex-col items-center">
-                <Image className="w-12 h-12 mb-2" />
-                <span className="text-sm">No photos</span>
-              </div>
-            </div>
-          )}
+        <div className="relative aspect-[16/9]">
+          <AgistmentPhotosView photos={agistment.photoGallery.photos} />
         </div>
 
         {/* Location */}
@@ -179,6 +167,7 @@ export default function PropertyCard({
                       : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
                     {agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ? agistment.paddocks?.privatePaddocks?.available : '-'}
+
                   </span>
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Private
@@ -197,6 +186,7 @@ export default function PropertyCard({
                       : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
                     {agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ? agistment.paddocks?.sharedPaddocks?.available : '-'}
+
                   </span>
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Shared
@@ -215,6 +205,7 @@ export default function PropertyCard({
                       : 'border-2 border-dotted border-neutral-300 text-neutral-300 px-[10px] py-[4px]'
                   } rounded-lg`}>
                     {agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 ? agistment.paddocks?.groupPaddocks?.available : '-'}
+
                   </span>
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Group
