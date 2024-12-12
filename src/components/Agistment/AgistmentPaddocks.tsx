@@ -129,7 +129,7 @@ export const AgistmentPaddocks = ({
         {/* Private Paddocks */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <h3 className="text-base font-medium text-neutral-900">
+            <h3 className="text-lg font-medium text-neutral-900">
               Private Paddocks
             </h3>
             {paddocks?.privatePaddocks?.totalPaddocks === 0 && (
@@ -150,7 +150,7 @@ export const AgistmentPaddocks = ({
         {/* Shared Paddocks */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <h3 className="text-base font-medium text-neutral-900">
+            <h3 className="text-lg font-medium text-neutral-900">
               Shared Paddocks
             </h3>
             {paddocks?.sharedPaddocks?.totalPaddocks === 0 && (
@@ -169,7 +169,7 @@ export const AgistmentPaddocks = ({
         {/* Group Paddocks */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <h3 className="text-base font-medium text-neutral-900">
+            <h3 className="text-lg font-medium text-neutral-900">
               Group Paddocks
             </h3>
             {paddocks?.groupPaddocks?.totalPaddocks === 0 && (

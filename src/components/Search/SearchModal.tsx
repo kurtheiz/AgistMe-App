@@ -326,13 +326,10 @@ export function SearchModal({
                   radius: hasSuburb ? parseInt(e.target.value) : 0 
                 }));
               }}
-              className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer 
-                ${!searchCriteria.suburbs.some((suburb: Suburb) => suburb.locationType === LocationType.SUBURB) 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : searchCriteria.suburbs.some((suburb: Suburb) => suburb.locationType === LocationType.SUBURB)
-                    ? 'accent-primary-600'
-                    : ''
-                }`}
+              style={{
+                background: `linear-gradient(to right, #4a774a 0%, #4a774a ${((searchCriteria.radius || 0) / 50) * 100}%, #e5e5e5 ${((searchCriteria.radius || 0) / 50) * 100}%, #e5e5e5 100%)`
+              }}
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-primary-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <div className="flex justify-between text-xs text-neutral-500 mt-1">
               <span>0km</span>
@@ -413,10 +410,10 @@ export function SearchModal({
                 disabled={searchCriteria.suburbs.length === 0}
                 value={searchCriteria.maxPrice}
                 onChange={(e) => setSearchCriteria((prev: SearchRequest) => ({ ...prev, maxPrice: parseInt(e.target.value) }))} 
-                className={`w-full h-2 bg-neutral-200 rounded-lg appearance-none ${searchCriteria.suburbs.length === 0 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : 'cursor-pointer accent-primary-600'
-                }`}
+                style={{
+                  background: `linear-gradient(to right, #4a774a 0%, #4a774a ${(searchCriteria.maxPrice / 300) * 100}%, #e5e5e5 ${(searchCriteria.maxPrice / 300) * 100}%, #e5e5e5 100%)`
+                }}
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-primary-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <div className="flex justify-between text-xs text-neutral-500 mt-1">
                 <span>Any</span>
