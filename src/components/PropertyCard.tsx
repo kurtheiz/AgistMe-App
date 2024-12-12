@@ -251,58 +251,52 @@ export default function PropertyCard({
             <div className="text-right flex flex-col justify-start h-[72px]">
               <div className="font-bold text-lg text-neutral-900">
                 {(() => {
-                  // 1. Filter paddock types based on search criteria
-                  const searchTypes = searchCriteria?.paddockTypes;
-                  if (!searchTypes?.length) return 'Contact for price';
+                  // Get paddock types to check - either from search criteria or all types
+                  const typesToCheck = searchCriteria?.paddockTypes?.length ? searchCriteria.paddockTypes : ['Private', 'Shared', 'Group'];
+                  
+                  // Count how many paddock types have spots available
+                  const availablePaddockCount = !searchCriteria?.paddockTypes?.length ? 
+                    (['Private', 'Shared', 'Group'] as const)
+                      .filter(type => {
+                        const paddocks = type === 'Private' ? agistment.paddocks?.privatePaddocks :
+                                       type === 'Shared' ? agistment.paddocks?.sharedPaddocks :
+                                       agistment.paddocks?.groupPaddocks;
+                        return paddocks && paddocks.totalPaddocks > 0;
+                      }).length : 0;
 
                   // Get valid prices (paddock exists, has spots, and price > 0)
-                  const validPrices = searchTypes
+                  const validPrices = typesToCheck
                     .map(type => {
                       const paddocks = type === 'Private' ? agistment.paddocks?.privatePaddocks :
                                      type === 'Shared' ? agistment.paddocks?.sharedPaddocks :
-                                     agistment.paddocks?.groupPaddocks;
+                                     type === 'Group' ? agistment.paddocks?.groupPaddocks :
+                                     null;
                       
-                      return paddocks?.totalPaddocks > 0 ? paddocks.weeklyPrice : null;
+                      return paddocks && paddocks.totalPaddocks > 0 ? paddocks.weeklyPrice : null;
                     })
                     .filter((price): price is number => price !== null && price > 0);
 
-                  // 2. If only one filtered paddock type
-                  if (searchTypes.length === 1) {
-                    return validPrices[0] ? `$${formatCurrency(validPrices[0])}/week` : 'Contact for price';
+                  // If no valid prices
+                  if (validPrices.length === 0) {
+                    return 'Contact for price';
                   }
 
-                  // 3. Multiple types with multiple prices
+                  // If search criteria exists and only one paddock type
+                  if (searchCriteria?.paddockTypes?.length === 1) {
+                    return `$${formatCurrency(validPrices[0])}/week`;
+                  }
+
+                  // Multiple valid prices
                   if (validPrices.length > 1) {
                     return `$${formatCurrency(Math.min(...validPrices))} - $${formatCurrency(Math.max(...validPrices))}/week`;
                   }
 
-                  // 4. Multiple types but only one valid price
-                  if (validPrices.length === 1) {
-                    return `From $${formatCurrency(validPrices[0])}/week`;
+                  // Only one valid price - if no search criteria and only one paddock type has spots, don't show "From"
+                  if (!searchCriteria?.paddockTypes?.length && availablePaddockCount === 1) {
+                    return `$${formatCurrency(validPrices[0])}/week`;
                   }
 
-                  // 5. No valid prices
-                  return 'Contact for price';
-                })()}
-                {(() => {
-                  const searchTypes = searchCriteria?.paddockTypes;
-                  if (!searchTypes?.length) return null;
-
-                  // Get valid prices (paddock exists, has spots, and price > 0)
-                  const validPrices = searchTypes
-                    .map(type => {
-                      const paddocks = type === 'Private' ? agistment.paddocks?.privatePaddocks :
-                                     type === 'Shared' ? agistment.paddocks?.sharedPaddocks :
-                                     agistment.paddocks?.groupPaddocks;
-                      
-                      return paddocks?.totalPaddocks > 0 ? paddocks.weeklyPrice : null;
-                    })
-                    .filter((price): price is number => price !== null && price > 0);
-
-                  if (validPrices.length > 0 && !validPrices.every(price => price === 0)) {
-                    return <span className="text-sm font-normal text-neutral-500 ml-1">/week</span>;
-                  }
-                  return null;
+                  return `From $${formatCurrency(validPrices[0])}/week`;
                 })()}
               </div>
             </div>

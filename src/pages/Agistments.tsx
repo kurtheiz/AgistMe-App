@@ -185,19 +185,17 @@ const Agistments = () => {
           </div>
         ) : (
           <div className="pb-8 pt-4 md:px-4 text-gray-500">
-            {searchResponse && (
-              <div className="text-left">
-                <AgistmentList
-                  agistments={searchResponse.results}
-                  adverts={adverts}
-                  hasMore={hasMore}
-                  onLoadMore={loadMore}
-                  isLoading={isFetching}
-                  title={currentCriteria && searchResponse.results.length > 0 ? `${searchResponse.results.length} Agistment${searchResponse.results.length === 1 ? '' : 's'} found` : ''}
-                />
-              </div>
-            )}
-            {(!searchResponse || searchResponse.results.length === 0) && searchHash && (
+            {searchResponse && searchResponse.results.length > 0 ? (
+              <AgistmentList 
+                agistments={searchResponse.results} 
+                adverts={adverts}
+                onLoadMore={loadMore}
+                hasMore={!!searchResponse.nextToken}
+                isLoading={isFetching}
+                title={searchTitle}
+                searchCriteria={currentCriteria}
+              />
+            ) : (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
                   <AnimatedSearchLogo className="w-12 h-12 md:w-48 md:h-48" />

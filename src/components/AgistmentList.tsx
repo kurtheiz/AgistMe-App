@@ -12,6 +12,9 @@ interface AgistmentListProps {
   matchType?: 'EXACT' | 'ADJACENT';
   title?: string;
   onEdit?: (agistment: AgistmentSearchResponse) => void;
+  searchCriteria?: {
+    paddockTypes?: ('Private' | 'Shared' | 'Group')[];
+  };
 }
 
 export default function AgistmentList({ 
@@ -22,7 +25,8 @@ export default function AgistmentList({
   isLoading = false,
   matchType = 'EXACT',
   title,
-  onEdit
+  onEdit,
+  searchCriteria
 }: AgistmentListProps) {
   const [internalList, setInternalList] = useState<AgistmentSearchResponse[]>([]);
   
@@ -55,6 +59,7 @@ export default function AgistmentList({
             <PropertyCard 
               agistment={agistment}
               onEdit={onEdit ? () => onEdit(agistment) : undefined}
+              searchCriteria={searchCriteria}
             />
             {adverts.length > 0 && (index === internalList.length - 1 || index % 4 === 3) && (
               <div className="col-span-1 md:col-span-2 flex flex-col items-center">
