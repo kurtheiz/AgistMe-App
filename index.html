@@ -1,20 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-neutral-50 dark:bg-neutral-800">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AgistMe App</title>
-    <script>
-      // Immediately set the theme before any content renders
-      (function() {
-        const theme = localStorage.getItem('theme') || 
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.classList.add(theme);
-      })();
-    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3773591516214642"
+     crossorigin="anonymous"></script>
   </head>
-  <body class="bg-neutral-50 dark:bg-neutral-800">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -3,15 +3,24 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import toast from 'react-hot-toast';
+import { useAuth } from '@clerk/clerk-react';
+import { useAuthFlow } from '../hooks/useAuthFlow';
 
 const ListAgistment = () => {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+  const { initiateSignIn } = useAuthFlow();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   const handleCreateAgistment = async () => {
+    if (!isSignedIn) {
+      initiateSignIn(window.location.href);
+      return;
+    }
+
     try {
       // Get a blank agistment template
       const blankAgistment = await agistmentService.getBlankAgistment();
