@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Lightbox from "yet-another-react-lightbox";
 import Inline from "yet-another-react-lightbox/plugins/inline";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import { Photo } from '../../types/agistment';
 
@@ -63,9 +64,20 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
             close={toggleOpen(false)}
             index={index}
             slides={slides}
+            plugins={[Zoom]}
             on={{ view: updateIndex }}
             animation={{ fade: 0 }}
             controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
+            zoom={{
+              maxZoomPixelRatio: 3,
+              zoomInMultiplier: 2,
+              doubleTapDelay: 300,
+              doubleClickDelay: 500,
+              doubleClickMaxStops: 2,
+              wheelZoomDistanceFactor: 100,
+              pinchZoomDistanceFactor: 100,
+              scrollToZoom: true
+            }}
           />
         </>
       ) : (

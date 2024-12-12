@@ -177,12 +177,15 @@ export default function PropertyCard({
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Private
                   </span>
-                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4">
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
                     {agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.privatePaddocks?.weeklyPrice !== undefined 
                         ? agistment.paddocks.privatePaddocks.weeklyPrice === 0 
                           ? 'Contact'
-                          : `$${formatCurrency(agistment.paddocks.privatePaddocks.weeklyPrice)}/week`
+                          : <>
+                              <span>${formatCurrency(agistment.paddocks.privatePaddocks.weeklyPrice)}</span>
+                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
+                            </>
                         : null
                       : null}
                   </span>
@@ -205,12 +208,15 @@ export default function PropertyCard({
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Shared
                   </span>
-                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4">
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
                     {agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.sharedPaddocks?.weeklyPrice !== undefined 
                         ? agistment.paddocks.sharedPaddocks.weeklyPrice === 0 
                           ? 'Contact'
-                          : `$${formatCurrency(agistment.paddocks.sharedPaddocks.weeklyPrice)}/week`
+                          : <>
+                              <span>${formatCurrency(agistment.paddocks.sharedPaddocks.weeklyPrice)}</span>
+                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
+                            </>
                         : null
                       : null}
                   </span>
@@ -233,12 +239,15 @@ export default function PropertyCard({
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Group
                   </span>
-                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4">
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
                     {agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
                       ? agistment.paddocks?.groupPaddocks?.weeklyPrice !== undefined 
                         ? agistment.paddocks.groupPaddocks.weeklyPrice === 0 
                           ? 'Contact'
-                          : `$${formatCurrency(agistment.paddocks.groupPaddocks.weeklyPrice)}/week`
+                          : <>
+                              <span>${formatCurrency(agistment.paddocks.groupPaddocks.weeklyPrice)}</span>
+                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
+                            </>
                         : null
                       : null}
                   </span>
@@ -249,7 +258,7 @@ export default function PropertyCard({
 
             {/* Price Range */}
             <div className="text-right flex flex-col justify-start h-[72px]">
-              <div className="font-bold text-lg text-neutral-900">
+              <div className="font-bold text-lg text-neutral-900 flex items-center justify-end gap-1">
                 {(() => {
                   // Get paddock types to check - either from search criteria or all types
                   const typesToCheck = searchCriteria?.paddockTypes?.length ? searchCriteria.paddockTypes : ['Private', 'Shared', 'Group'];
@@ -283,20 +292,40 @@ export default function PropertyCard({
 
                   // If search criteria exists and only one paddock type
                   if (searchCriteria?.paddockTypes?.length === 1) {
-                    return `$${formatCurrency(validPrices[0])}/week`;
+                    return (
+                      <>
+                        <span>${formatCurrency(validPrices[0])}</span>
+                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                      </>
+                    );
                   }
 
                   // Multiple valid prices
                   if (validPrices.length > 1) {
-                    return `$${formatCurrency(Math.min(...validPrices))} - $${formatCurrency(Math.max(...validPrices))}/week`;
+                    return (
+                      <>
+                        <span>${formatCurrency(Math.min(...validPrices))} - ${formatCurrency(Math.max(...validPrices))}</span>
+                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                      </>
+                    );
                   }
 
                   // Only one valid price - if no search criteria and only one paddock type has spots, don't show "From"
                   if (!searchCriteria?.paddockTypes?.length && availablePaddockCount === 1) {
-                    return `$${formatCurrency(validPrices[0])}/week`;
+                    return (
+                      <>
+                        <span>${formatCurrency(validPrices[0])}</span>
+                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                      </>
+                    );
                   }
 
-                  return `From $${formatCurrency(validPrices[0])}/week`;
+                  return (
+                    <>
+                      <span>From ${formatCurrency(validPrices[0])}</span>
+                      <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                    </>
+                  );
                 })()}
               </div>
             </div>

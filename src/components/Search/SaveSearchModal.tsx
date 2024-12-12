@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Switch } from '@headlessui/react';
 import { Modal } from '../shared/Modal';
 import { SearchRequest } from '../../types/search';
+import { SearchCriteriaDisplay } from '../shared/SearchCriteriaDisplay';
 
 interface SaveSearchModalProps {
   isOpen: boolean;
@@ -56,63 +57,6 @@ export function SaveSearchModal({
     }
   };
 
-  // Helper function to format facility name
-  const formatFacilityName = (facility: string): string => {
-    switch (facility) {
-      case 'feedRoom': return 'Feed Room';
-      case 'tackRoom': return 'Tack Room';
-      case 'floatParking': return 'Float Parking';
-      case 'hotWash': return 'Hot Wash';
-      case 'stable': return 'Stable';
-      case 'tieUp': return 'Tie Up';
-      default: return facility;
-    }
-  };
-
-  // Helper function to format criteria for display
-  const formatCriteria = () => {
-    if (!searchCriteria) return [];
-    
-    const parts = [];
-    
-    if (searchCriteria.suburbs?.length > 0) {
-      parts.push(`Location: ${searchCriteria.suburbs.map(s => s.suburb).join(', ')}`);
-      if (searchCriteria.radius) {
-        parts.push(`within ${searchCriteria.radius}km`);
-      }
-    }
-
-    if (searchCriteria.paddockTypes?.length > 0) {
-      parts.push(`Paddock Types: ${searchCriteria.paddockTypes.join(', ')}`);
-    }
-
-    if (searchCriteria.spaces > 0) {
-      parts.push(`Spaces: ${searchCriteria.spaces}`);
-    }
-
-    if (searchCriteria.maxPrice > 0) {
-      parts.push(`Max Price: $${searchCriteria.maxPrice}`);
-    }
-
-    if (searchCriteria.hasArena) {
-      parts.push('Has Arena');
-    }
-
-    if (searchCriteria.hasRoundYard) {
-      parts.push('Has Round Yard');
-    }
-
-    if (searchCriteria.facilities?.length > 0) {
-      parts.push(`Facilities: ${searchCriteria.facilities.map(formatFacilityName).join(', ')}`);
-    }
-
-    if (searchCriteria.careTypes?.length > 0) {
-      parts.push(`Care Types: ${searchCriteria.careTypes.map(type => `${type} Care`).join(', ')}`);
-    }
-
-    return parts;
-  };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -139,22 +83,10 @@ export function SaveSearchModal({
           />
         </div>
 
-        {searchCriteria ? (
+        {searchCriteria && (
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">Search Criteria</h3>
-            <div className="bg-gray-50 rounded-md p-4">
-              <ul className="space-y-2">
-                {formatCriteria().map((criterion, index) => (
-                  <li key={index} className="text-sm text-gray-600">
-                    • {criterion}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ) : (
-          <div className="text-sm text-gray-500">
-            No search criteria available
+            <SearchCriteriaDisplay searchCriteria={searchCriteria} />
           </div>
         )}
 
