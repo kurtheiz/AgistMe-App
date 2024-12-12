@@ -75,11 +75,7 @@ export default function AgistmentList({
           </Fragment>
         ))}
       </div>
-      {(!Array.isArray(internalList) || internalList.length === 0) && (
-        <div className="text-center text-gray-500">
-          No {matchType.toLowerCase()} matches found
-        </div>
-      )}
+      
       {hasMore && !isLoading && (
         <div className="text-center mt-4">
           <button

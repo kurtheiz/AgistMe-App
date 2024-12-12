@@ -193,7 +193,7 @@ const Agistments = () => {
                   hasMore={hasMore}
                   onLoadMore={loadMore}
                   isLoading={isFetching}
-                  title={currentCriteria ? `${searchResponse.results.length} Agistment${searchResponse.results.length === 1 ? '' : 's'} found` : ''}
+                  title={currentCriteria && searchResponse.results.length > 0 ? `${searchResponse.results.length} Agistment${searchResponse.results.length === 1 ? '' : 's'} found` : ''}
                 />
               </div>
             )}

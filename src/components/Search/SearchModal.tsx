@@ -88,10 +88,10 @@ export function SearchModal({
         paddockTypes: []
       }));
     } else if (searchCriteria.paddockTypes.length === 0) {
-      // Select all paddock types when either spaces or maxPrice is greater than 0
+      // Select only Private paddock type when either spaces or maxPrice is greater than 0
       setSearchCriteria(prev => ({
         ...prev,
-        paddockTypes: ['Private', 'Shared', 'Group']
+        paddockTypes: ['Private']
       }));
     }
   }, [searchCriteria.spaces, searchCriteria.maxPrice]);

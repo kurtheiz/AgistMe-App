@@ -172,6 +172,15 @@ export default function PropertyCard({
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Private
                   </span>
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4">
+                    {agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.privatePaddocks?.weeklyPrice !== undefined 
+                        ? agistment.paddocks.privatePaddocks.weeklyPrice === 0 
+                          ? 'Contact'
+                          : `$${formatCurrency(agistment.paddocks.privatePaddocks.weeklyPrice)}/week`
+                        : null
+                      : null}
+                  </span>
                 </div>
 
                 {/* Shared Paddocks */}
@@ -191,6 +200,15 @@ export default function PropertyCard({
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Shared
                   </span>
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4">
+                    {agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.sharedPaddocks?.weeklyPrice !== undefined 
+                        ? agistment.paddocks.sharedPaddocks.weeklyPrice === 0 
+                          ? 'Contact'
+                          : `$${formatCurrency(agistment.paddocks.sharedPaddocks.weeklyPrice)}/week`
+                        : null
+                      : null}
+                  </span>
                 </div>
 
                 {/* Group Paddocks */}
@@ -209,6 +227,15 @@ export default function PropertyCard({
                   </span>
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Group
+                  </span>
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4">
+                    {agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.groupPaddocks?.weeklyPrice !== undefined 
+                        ? agistment.paddocks.groupPaddocks.weeklyPrice === 0 
+                          ? 'Contact'
+                          : `$${formatCurrency(agistment.paddocks.groupPaddocks.weeklyPrice)}/week`
+                        : null
+                      : null}
                   </span>
                 </div>
               </div>
