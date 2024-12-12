@@ -28,7 +28,7 @@ interface PropertyCardProps {
   onToggleVisibility?: () => Promise<void>;
   isUpdatingVisibility?: boolean;
   searchCriteria?: {
-    paddockTypes?: ('private' | 'shared' | 'group')[];
+    paddockTypes?: ('Private' | 'Shared' | 'Group')[];
   };
 }
 
@@ -143,6 +143,11 @@ export default function PropertyCard({
                   <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span> is <span className="font-semibold">{agistment.distance.toFixed(1)}km</span> away from <span className="font-semibold">{agistment.distanceFrom}</span>
                 </div>
               )}
+              {agistment.matchType === 'EXACT' && (
+                <div className="text-xs text-neutral-500 mt-1">
+                  Exact location match
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -172,6 +177,18 @@ export default function PropertyCard({
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Private
                   </span>
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
+                    {agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.privatePaddocks?.weeklyPrice !== undefined 
+                        ? agistment.paddocks.privatePaddocks.weeklyPrice === 0 
+                          ? 'Contact'
+                          : <>
+                              <span>${formatCurrency(agistment.paddocks.privatePaddocks.weeklyPrice)}</span>
+                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
+                            </>
+                        : null
+                      : null}
+                  </span>
                 </div>
 
                 {/* Shared Paddocks */}
@@ -190,6 +207,18 @@ export default function PropertyCard({
                   </span>
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Shared
+                  </span>
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
+                    {agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.sharedPaddocks?.weeklyPrice !== undefined 
+                        ? agistment.paddocks.sharedPaddocks.weeklyPrice === 0 
+                          ? 'Contact'
+                          : <>
+                              <span>${formatCurrency(agistment.paddocks.sharedPaddocks.weeklyPrice)}</span>
+                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
+                            </>
+                        : null
+                      : null}
                   </span>
                 </div>
 
@@ -210,6 +239,18 @@ export default function PropertyCard({
                   <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
                     Group
                   </span>
+                  <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
+                    {agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
+                      ? agistment.paddocks?.groupPaddocks?.weeklyPrice !== undefined 
+                        ? agistment.paddocks.groupPaddocks.weeklyPrice === 0 
+                          ? 'Contact'
+                          : <>
+                              <span>${formatCurrency(agistment.paddocks.groupPaddocks.weeklyPrice)}</span>
+                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
+                            </>
+                        : null
+                      : null}
+                  </span>
                 </div>
               </div>
             </div>
@@ -217,50 +258,74 @@ export default function PropertyCard({
 
             {/* Price Range */}
             <div className="text-right flex flex-col justify-start h-[72px]">
-              <div className="font-bold text-lg text-neutral-900">
+              <div className="font-bold text-lg text-neutral-900 flex items-center justify-end gap-1">
                 {(() => {
-                  // Get available paddock types based on search criteria
-                  const availablePaddockTypes = searchCriteria?.paddockTypes || ['private', 'shared', 'group'];
+                  // Get paddock types to check - either from search criteria or all types
+                  const typesToCheck = searchCriteria?.paddockTypes?.length ? searchCriteria.paddockTypes : ['Private', 'Shared', 'Group'];
+                  
+                  // Count how many paddock types have spots available
+                  const availablePaddockCount = !searchCriteria?.paddockTypes?.length ? 
+                    (['Private', 'Shared', 'Group'] as const)
+                      .filter(type => {
+                        const paddocks = type === 'Private' ? agistment.paddocks?.privatePaddocks :
+                                       type === 'Shared' ? agistment.paddocks?.sharedPaddocks :
+                                       agistment.paddocks?.groupPaddocks;
+                        return paddocks && paddocks.totalPaddocks > 0;
+                      }).length : 0;
 
-                  // Filter prices based on paddock availability and search criteria
-                  const prices = [
-                    availablePaddockTypes.includes('private') && agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
-                      ? agistment.paddocks?.privatePaddocks?.weeklyPrice : null,
-                    availablePaddockTypes.includes('shared') && agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
-                      ? agistment.paddocks?.sharedPaddocks?.weeklyPrice : null,
-                    availablePaddockTypes.includes('group') && agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
-                      ? agistment.paddocks?.groupPaddocks?.weeklyPrice : null
-                  ].filter((price): price is number => price !== null && price !== undefined);
+                  // Get valid prices (paddock exists, has spots, and price > 0)
+                  const validPrices = typesToCheck
+                    .map(type => {
+                      const paddocks = type === 'Private' ? agistment.paddocks?.privatePaddocks :
+                                     type === 'Shared' ? agistment.paddocks?.sharedPaddocks :
+                                     type === 'Group' ? agistment.paddocks?.groupPaddocks :
+                                     null;
+                      
+                      return paddocks && paddocks.totalPaddocks > 0 ? paddocks.weeklyPrice : null;
+                    })
+                    .filter((price): price is number => price !== null && price > 0);
 
-                  // If all prices are 0 or no prices available
-                  if (prices.length === 0 || prices.every(price => price === 0)) {
+                  // If no valid prices
+                  if (validPrices.length === 0) {
                     return 'Contact for price';
                   }
 
-                  // Filter out 0 prices for min/max calculation
-                  const nonZeroPrices = prices.filter(price => price > 0);
-                  const minPrice = Math.min(...nonZeroPrices);
-                  const maxPrice = Math.max(...nonZeroPrices);
-
-                  return minPrice === maxPrice 
-                    ? `From $${formatCurrency(minPrice)}`
-                    : `$${formatCurrency(minPrice)} - $${formatCurrency(maxPrice)}`;
-                })()}
-                {(() => {
-                  const availablePaddockTypes = searchCriteria?.paddockTypes || ['private', 'shared', 'group'];
-                  const prices = [
-                    availablePaddockTypes.includes('private') && agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 
-                      ? agistment.paddocks?.privatePaddocks?.weeklyPrice : null,
-                    availablePaddockTypes.includes('shared') && agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 
-                      ? agistment.paddocks?.sharedPaddocks?.weeklyPrice : null,
-                    availablePaddockTypes.includes('group') && agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 
-                      ? agistment.paddocks?.groupPaddocks?.weeklyPrice : null
-                  ].filter((price): price is number => price !== null && price !== undefined);
-
-                  if (prices.length > 0 && !prices.every(price => price === 0)) {
-                    return <span className="text-sm font-normal text-neutral-500 ml-1">/week</span>;
+                  // If search criteria exists and only one paddock type
+                  if (searchCriteria?.paddockTypes?.length === 1) {
+                    return (
+                      <>
+                        <span>${formatCurrency(validPrices[0])}</span>
+                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                      </>
+                    );
                   }
-                  return null;
+
+                  // Multiple valid prices
+                  if (validPrices.length > 1) {
+                    return (
+                      <>
+                        <span>${formatCurrency(Math.min(...validPrices))} - ${formatCurrency(Math.max(...validPrices))}</span>
+                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                      </>
+                    );
+                  }
+
+                  // Only one valid price - if no search criteria and only one paddock type has spots, don't show "From"
+                  if (!searchCriteria?.paddockTypes?.length && availablePaddockCount === 1) {
+                    return (
+                      <>
+                        <span>${formatCurrency(validPrices[0])}</span>
+                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                      </>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <span>From ${formatCurrency(validPrices[0])}</span>
+                      <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                    </>
+                  );
                 })()}
               </div>
             </div>

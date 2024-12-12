@@ -20,10 +20,12 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
             </h3>
           </div>
           <div className="mt-2">
-            {ridingFacilities.arenas && ridingFacilities.arenas.length > 0 && (
-              <span className="chip-available">
-                {ridingFacilities.arenas.length} available
-              </span>
+            {(!ridingFacilities.arenas || ridingFacilities.arenas.length === 0) && (
+              <div className="chip-unavailable">
+                <div>
+                  Unavailable
+                </div>
+              </div>
             )}
             <div className="space-y-3">
               {ridingFacilities.arenas && ridingFacilities.arenas.length > 0 ? (
@@ -51,9 +53,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-neutral-500 text-sm">No arenas available</p>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -66,10 +66,12 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
             </h3>
           </div>
           <div className="mt-2">
-            {ridingFacilities.roundYards && ridingFacilities.roundYards.length > 0 && (
-              <span className="chip-available">
-                {ridingFacilities.roundYards.length} available
-              </span>
+            {(!ridingFacilities.roundYards || ridingFacilities.roundYards.length === 0) && (
+              <div className="chip-unavailable">
+                <div>
+                  Unavailable
+                </div>
+              </div>
             )}
             <div className="space-y-3">
               {ridingFacilities.roundYards && ridingFacilities.roundYards.length > 0 ? (
@@ -85,9 +87,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-neutral-500 text-sm">No round yards available</p>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

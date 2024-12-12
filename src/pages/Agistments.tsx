@@ -5,7 +5,7 @@ import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';
-import { BookmarkPlus } from 'lucide-react';
+import { BookmarkPlus, ListFilter } from 'lucide-react';
 import { SearchRequest, SearchResponse } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
@@ -15,6 +15,8 @@ import { profileService } from '../services/profile.service';
 import { advertService, Advert } from '../services/advert.service';
 import { useSearchStore } from '../stores/search.store';
 import { decodeSearchHash } from '../utils/searchHashUtils';
+import { Dropdown } from '../components/shared/Dropdown';
+import { SearchCriteriaDisplay } from '../components/shared/SearchCriteriaDisplay';
 
 const Agistments = () => {
   const location = useLocation();
@@ -27,7 +29,7 @@ const Agistments = () => {
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
-  const [searchTitle, setSearchTitle] = useState('Search Properties');
+  const [searchTitle] = useState('');
   const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
@@ -99,11 +101,6 @@ const Agistments = () => {
     }
   }, [isSearchModalOpen]);
 
-  useEffect(() => {
-    if (!isSearchModalOpen) {
-      setSearchTitle('Search Properties');
-    }
-  }, [isSearchModalOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -160,21 +157,45 @@ const Agistments = () => {
 
       <PageToolbar>
         <div className="flex items-center gap-2 w-full">
-          <button
-            type="button"
-            onClick={() => {
-              if (!user) {
-                toast.error('Please sign in to save searches');
-              } else {
-                setIsSaveSearchModalOpen(true);
+          <div className="flex-1">
+            <button
+              type="button"
+              onClick={() => {
+                if (!user) {
+                  toast.error('Please sign in to save searches');
+                } else {
+                  setIsSaveSearchModalOpen(true);
+                }
+              }}
+              disabled={!searchHash}
+              className={`inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ${!searchHash ? 'text-gray-400 ring-gray-200 cursor-not-allowed' : 'text-gray-900 ring-gray-300 hover:bg-gray-50'}`}
+            >
+              <BookmarkPlus className="h-4 w-4" />
+              <span>Save Search</span>
+            </button>
+          </div>
+
+          {currentCriteria && (
+            <Dropdown
+              align="right"
+              width="w-80"
+              trigger={
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset text-gray-900 ring-gray-300 hover:bg-gray-50"
+                >
+                  <ListFilter className="h-4 w-4" />
+                  <span>View Criteria</span>
+                </button>
               }
-            }}
-            disabled={!searchHash}
-            className={`inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ${!searchHash ? 'text-gray-400 ring-gray-200 cursor-not-allowed' : 'text-gray-900 ring-gray-300 hover:bg-gray-50'}`}
-          >
-            <BookmarkPlus className="h-4 w-4" />
-            <span>Save Search</span>
-          </button>
+              content={
+                <div className="p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Current Search Criteria</h3>
+                  <SearchCriteriaDisplay searchCriteria={currentCriteria} />
+                </div>
+              }
+            />
+          )}
         </div>
       </PageToolbar>
 
@@ -185,19 +206,22 @@ const Agistments = () => {
           </div>
         ) : (
           <div className="pb-8 pt-4 md:px-4 text-gray-500">
-            {searchResponse && (
-              <div className="text-left">
-                <AgistmentList
-                  agistments={searchResponse.results}
+            {searchResponse && searchResponse.results.length > 0 ? (
+              <>
+                <div className="text-sm text-gray-600 mb-4 px-4">
+                  {searchResponse.results.length} {searchResponse.results.length === 1 ? 'agistment' : 'agistments'} found
+                </div>
+                <AgistmentList 
+                  agistments={searchResponse.results} 
                   adverts={adverts}
-                  hasMore={hasMore}
                   onLoadMore={loadMore}
+                  hasMore={!!searchResponse.nextToken}
                   isLoading={isFetching}
-                  title={currentCriteria ? `${searchResponse.results.length} Agistment${searchResponse.results.length === 1 ? '' : 's'} found` : ''}
+                  title={searchTitle}
+                  searchCriteria={currentCriteria ? { paddockTypes: currentCriteria.paddockTypes } : undefined}
                 />
-              </div>
-            )}
-            {(!searchResponse || searchResponse.results.length === 0) && searchHash && (
+              </>
+            ) : searchHash ? (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
                   <AnimatedSearchLogo className="w-12 h-12 md:w-48 md:h-48" />
@@ -213,11 +237,10 @@ const Agistments = () => {
                   Modify Search
                 </button>
               </div>
-            )}
-            {!searchHash && (
+            ) : (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
                 <div className="mb-3 md:mb-8 text-neutral-400">
-                  <AnimatedSearchLogo className="w-2 h-2 md:w-48 md:h-48" />
+                  <AnimatedSearchLogo className="w-12 h-12 md:w-48 md:h-48" />
                 </div>
                 <h2 className="text-lg md:text-3xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">
                   Find your perfect Agistment

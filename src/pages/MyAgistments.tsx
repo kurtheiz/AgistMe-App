@@ -89,7 +89,6 @@ export function MyAgistments() {
               <AgistmentList 
                 agistments={agistments} 
                 title={`${agistments.length} Agistment${agistments.length !== 1 ? 's' : ''}`}
-                matchType="EXACT"
                 onEdit={(agistment) => {
                   sessionStorage.setItem('myAgistmentsScrollPosition', scrollPosition.toString());
                   navigate(`/agistments/${agistment.id}/edit`);

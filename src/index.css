@@ -333,3 +333,9 @@ body {
     @apply mt-3 text-sm text-neutral-600;
   }
 }
+
+/* Remove focus outline from non-interactive elements */
+*:not(button):not(input):not(select):not(textarea):not(a):not([tabindex]):not([contenteditable="true"]):focus {
+  outline: none !important;
+  box-shadow: none !important;
+}

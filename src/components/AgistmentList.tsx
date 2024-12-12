@@ -9,9 +9,11 @@ interface AgistmentListProps {
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoading?: boolean;
-  matchType?: 'EXACT' | 'ADJACENT';
   title?: string;
   onEdit?: (agistment: AgistmentSearchResponse) => void;
+  searchCriteria?: {
+    paddockTypes?: ('Private' | 'Shared' | 'Group')[];
+  };
 }
 
 export default function AgistmentList({ 
@@ -20,9 +22,9 @@ export default function AgistmentList({
   onLoadMore, 
   hasMore = false,
   isLoading = false,
-  matchType = 'EXACT',
   title,
-  onEdit
+  onEdit,
+  searchCriteria
 }: AgistmentListProps) {
   const [internalList, setInternalList] = useState<AgistmentSearchResponse[]>([]);
   
@@ -55,6 +57,7 @@ export default function AgistmentList({
             <PropertyCard 
               agistment={agistment}
               onEdit={onEdit ? () => onEdit(agistment) : undefined}
+              searchCriteria={searchCriteria}
             />
             {adverts.length > 0 && (index === internalList.length - 1 || index % 4 === 3) && (
               <div className="col-span-1 md:col-span-2 flex flex-col items-center">
@@ -75,11 +78,7 @@ export default function AgistmentList({
           </Fragment>
         ))}
       </div>
-      {(!Array.isArray(internalList) || internalList.length === 0) && (
-        <div className="text-center text-gray-500">
-          No {matchType.toLowerCase()} matches found
-        </div>
-      )}
+      
       {hasMore && !isLoading && (
         <div className="text-center mt-4">
           <button
