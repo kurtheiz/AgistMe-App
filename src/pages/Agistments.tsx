@@ -29,7 +29,7 @@ const Agistments = () => {
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
-  const [searchTitle, setSearchTitle] = useState('Search Properties');
+  const [searchTitle, setSearchTitle] = useState('');
   const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
@@ -101,11 +101,6 @@ const Agistments = () => {
     }
   }, [isSearchModalOpen]);
 
-  useEffect(() => {
-    if (!isSearchModalOpen) {
-      setSearchTitle('Search Properties');
-    }
-  }, [isSearchModalOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -212,16 +207,21 @@ const Agistments = () => {
         ) : (
           <div className="pb-8 pt-4 md:px-4 text-gray-500">
             {searchResponse && searchResponse.results.length > 0 ? (
-              <AgistmentList 
-                agistments={searchResponse.results} 
-                adverts={adverts}
-                onLoadMore={loadMore}
-                hasMore={!!searchResponse.nextToken}
-                isLoading={isFetching}
-                title={searchTitle}
-                searchCriteria={currentCriteria}
-              />
-            ) : (
+              <>
+                <div className="text-sm text-gray-600 mb-4 px-4">
+                  {searchResponse.results.length} {searchResponse.results.length === 1 ? 'agistment' : 'agistments'} found
+                </div>
+                <AgistmentList 
+                  agistments={searchResponse.results} 
+                  adverts={adverts}
+                  onLoadMore={loadMore}
+                  hasMore={!!searchResponse.nextToken}
+                  isLoading={isFetching}
+                  title={searchTitle}
+                  searchCriteria={currentCriteria}
+                />
+              </>
+            ) : searchHash ? (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
                   <AnimatedSearchLogo className="w-12 h-12 md:w-48 md:h-48" />
@@ -237,11 +237,10 @@ const Agistments = () => {
                   Modify Search
                 </button>
               </div>
-            )}
-            {!searchHash && (
+            ) : (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
                 <div className="mb-3 md:mb-8 text-neutral-400">
-                  <AnimatedSearchLogo className="w-2 h-2 md:w-48 md:h-48" />
+                  <AnimatedSearchLogo className="w-12 h-12 md:w-48 md:h-48" />
                 </div>
                 <h2 className="text-lg md:text-3xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">
                   Find your perfect Agistment
