@@ -9,7 +9,6 @@ interface AgistmentListProps {
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoading?: boolean;
-  matchType?: 'EXACT' | 'ADJACENT';
   title?: string;
   onEdit?: (agistment: AgistmentSearchResponse) => void;
   searchCriteria?: {
@@ -23,7 +22,6 @@ export default function AgistmentList({
   onLoadMore, 
   hasMore = false,
   isLoading = false,
-  matchType = 'EXACT',
   title,
   onEdit,
   searchCriteria

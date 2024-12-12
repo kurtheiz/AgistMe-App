@@ -29,7 +29,7 @@ const Agistments = () => {
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
-  const [searchTitle, setSearchTitle] = useState('');
+  const [searchTitle] = useState('');
   const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
@@ -218,7 +218,7 @@ const Agistments = () => {
                   hasMore={!!searchResponse.nextToken}
                   isLoading={isFetching}
                   title={searchTitle}
-                  searchCriteria={currentCriteria}
+                  searchCriteria={currentCriteria ? { paddockTypes: currentCriteria.paddockTypes } : undefined}
                 />
               </>
             ) : searchHash ? (
