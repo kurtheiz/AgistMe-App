@@ -243,7 +243,6 @@ function EditAgistmentDetail() {
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
-          <p className="mt-4 text-neutral-600 dark:text-neutral-400">Loading agistment details...</p>
         </div>
       </div>
     );
@@ -253,7 +252,7 @@ function EditAgistmentDetail() {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-center">
-          <p className="text-red-500 dark:text-red-400 text-lg">
+          <p className="text-red-500 text-lg">
             {error}
           </p>
           <button
@@ -279,22 +278,22 @@ function EditAgistmentDetail() {
         onAction={handleAiSubmit}
       >
         <div className="space-y-4">
-          <p className="text-neutral-600 dark:text-neutral-400">
+          <p className="text-neutral-600 ">
             Paste your property description below and our AI will create a professional agistment listing for you.
           </p>
           <textarea
             value={aiText}
             onChange={(e) => setAiText(e.target.value)}
-            className="w-full h-64 p-4 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-            placeholder="Example: 30 acre property with excellent facilities including private 6 paddocks, sand arena, and secure tack room. Agistment includes daily feeding and health checks..."
+            className="w-full h-64 p-4 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+            placeholder="Example: 10 acre property in Samford Valley with excellent facilities including private paddocks, sand arena, and secure tack room. Agistment includes daily feeding and health checks..."
           />
-          <div className="text-sm text-neutral-500 dark:text-neutral-400">
+          <div className="text-sm text-neutral-500">
             Tip: Include details about your property size, facilities, care options, and any special features.
           </div>
         </div>
       </Modal>
 
-      <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
+      <div className="min-h-screen flex flex-col relative bg-white">
         <PageToolbar
           actions={
             <div className="w-full">
@@ -303,7 +302,7 @@ function EditAgistmentDetail() {
                   <div className="flex items-center">
                     <div
                       onClick={handleBackClick}
-                      className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white cursor-pointer"
+                      className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 cursor-pointer"
                     >
                       <ChevronLeft className="h-5 w-5" />
                       <span className="font-medium text-sm sm:text-base">My Agistments</span>
@@ -339,7 +338,7 @@ function EditAgistmentDetail() {
         />
 
         {/* Edit/Create Mode Banner */}
-        <div className="w-full bg-red-600 dark:bg-red-700 py-3">
+        <div className="w-full bg-red-600 py-3">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center justify-center">
@@ -362,10 +361,10 @@ function EditAgistmentDetail() {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col space-y-8 p-4">
               {/* Photo Gallery Section */}
-              <div className="w-full border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="w-full border-b border-neutral-200 pb-8">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-neutral-700 dark:text-neutral-400">Photos</h3>
-                  <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                  <h3 className="text-lg font-medium text-neutral-700">Photos</h3>
+                  <span className="text-sm text-neutral-500">
                     {agistment?.photoGallery?.photos?.length || 0} of {maxPhotos} photos
                   </span>
                 </div>
@@ -377,7 +376,7 @@ function EditAgistmentDetail() {
               </div>
 
               {/* Header Section */}
-              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="border-b border-neutral-200 pb-8">
                 <div className="mb-4 flex gap-4">
                   {agistment && (
                     <>
@@ -409,10 +408,10 @@ function EditAgistmentDetail() {
               </div>
 
               {/* Paddocks and Care Options Grid */}
-              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="border-b border-neutral-200 pb-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Paddocks Section */}
-                  <div>
+                  <div className="border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200">
                     <div className="mb-4">
                       <button
                         onClick={() => setIsPaddocksModalOpen(true)}
@@ -423,7 +422,7 @@ function EditAgistmentDetail() {
                         <span>Edit</span>
                       </button>
                     </div>
-                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900">
                       Paddock Management
                     </h2>
                     <AgistmentPaddocks
@@ -456,7 +455,7 @@ function EditAgistmentDetail() {
                   </div>
 
                   {/* Care Options Section */}
-                  <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                  <div className="lg:border-l lg:border-neutral-200 lg:pl-8">
                     <div className="mb-4">
                       <button
                         onClick={() => setIsCareOptionsModalOpen(true)}
@@ -467,7 +466,7 @@ function EditAgistmentDetail() {
                         <span>Edit</span>
                       </button>
                     </div>
-                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 ">
                       Care Options
                     </h2>
                     <AgistmentCareOptions
@@ -478,10 +477,10 @@ function EditAgistmentDetail() {
               </div>
 
               {/* Riding Facilities and Property Facilities Grid */}
-              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="border-b border-neutral-200 pb-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Riding Facilities Section */}
-                  <div>
+                  <div className="border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200 ">
                     <div className="mb-4">
                       <button
                         onClick={() => setIsRidingFacilitiesModalOpen(true)}
@@ -492,7 +491,7 @@ function EditAgistmentDetail() {
                         <span>Edit</span>
                       </button>
                     </div>
-                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 ">
                       Riding Facilities
                     </h2>
                     <AgistmentRidingFacilities
@@ -501,7 +500,7 @@ function EditAgistmentDetail() {
                   </div>
 
                   {/* Property Facilities Section */}
-                  <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                  <div className="lg:border-l lg:border-neutral-200 lg:pl-8">
                     <div className="mb-4">
                       <button
                         onClick={() => setIsFacilitiesModalOpen(true)}
@@ -512,7 +511,7 @@ function EditAgistmentDetail() {
                         <span>Edit</span>
                       </button>
                     </div>
-                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 ">
                       Property Facilities
                     </h2>
                     <AgistmentFacilities
@@ -541,7 +540,7 @@ function EditAgistmentDetail() {
                     <span>Edit</span>
                   </button>
                 </div>
-                <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                <h2 className="text-xl font-semibold mb-6 text-neutral-900 ">
                   Services
                 </h2>
                 <AgistmentServices
