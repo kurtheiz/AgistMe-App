@@ -327,7 +327,7 @@ export function SearchModal({
                 }));
               }}
               style={{
-                background: `linear-gradient(to right, #4a774a 0%, #4a774a ${(searchCriteria.radius / 50) * 100}%, #e5e5e5 ${(searchCriteria.radius / 50) * 100}%, #e5e5e5 100%)`
+                background: `linear-gradient(to right, #4a774a 0%, #4a774a ${((searchCriteria.radius || 0) / 50) * 100}%, #e5e5e5 ${((searchCriteria.radius || 0) / 50) * 100}%, #e5e5e5 100%)`
               }}
               className="w-full h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-primary-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
             />
