@@ -93,12 +93,14 @@ export function ViewAgistmentDetail() {
                   <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap sm:max-h-[calc(100vh-16rem)] overflow-x-auto sm:overflow--scroll">
                     {agistment?.propertyLocation?.location && (
                       <>
+
                         <span>{agistment.propertyLocation.location.state}</span>
                         <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
                         <span>{agistment.propertyLocation.location.region}</span>
                         <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
                         <span>{agistment.propertyLocation.location.suburb}</span>
                       </>
+
                     )}
                   </div>
                 </div>
@@ -124,7 +126,7 @@ export function ViewAgistmentDetail() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col space-y-8 p-4">
             {/* Photo Gallery Section */}
-            <div className="w-full border-b border-neutral-200 dark:border-neutral-800 pb-8">
+            <div className="w-full max-w-7xl mx-auto border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <AgistmentPhotosView
                 photos={agistment.photoGallery?.photos || []}
               />
@@ -135,6 +137,7 @@ export function ViewAgistmentDetail() {
               <div className="mb-4 flex gap-4">
                 {agistment && (
                   <>
+
                     <button
                       onClick={toggleFavorite}
                       className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
@@ -142,7 +145,7 @@ export function ViewAgistmentDetail() {
                     >
                       <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         navigator.share({
                           title: agistment.basicInfo.name,
@@ -155,6 +158,7 @@ export function ViewAgistmentDetail() {
                       <Share2 className="w-5 h-5" />
                     </button>
                   </>
+
                 )}
               </div>
               <AgistmentHeader

@@ -39,18 +39,22 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
               view: updateIndex,
               click: toggleOpen(true),
             }}
+            inline={{
+              style: {
+                width: "100%",
+                aspectRatio: "3 / 2",
+                margin: "0 auto",
+                backgroundColor: "transparent",
+              },
+            }}
+            styles={{
+              container: { backgroundColor: "transparent", padding: 0 },
+              root: { backgroundColor: "transparent" }
+            }}
             carousel={{
               padding: 0,
               spacing: 0,
               imageFit: "cover",
-            }}
-            inline={{
-              style: {
-                width: "100%",
-                maxWidth: "900px",
-                aspectRatio: "3 / 2",
-                margin: "0 auto",
-              },
             }}
           />
 
