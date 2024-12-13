@@ -34,7 +34,7 @@ export const Home = () => {
           </p>
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-8 py-4 bg-primary-600 hover:bg-primary-700 rounded-lg text-white text-lg font-medium transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg"
+            className="flex items-center gap-2 px-8 py-4 bg-white hover:bg-gray-50 rounded-lg text-primary-600 text-lg font-medium transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg"
           >
             <Search className="h-6 w-6" />
             Search Agistments
@@ -71,7 +71,7 @@ export const Home = () => {
           <div>
             <h2 className="text-3xl font-bold mb-6 text-gray-900">For Property Owners</h2>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Showcase your facilities, manage your paddock availability, and connect with qualified horse owners. List your property details and get notified when interested agistees enquire about your property. Already posting on Facebook groups? Our AI can help you turn that text into the beginning of a listing in seconds.
+              Showcase your facilities, manage your paddock availability, and connect with qualified horse owners. List your property details and get notified when interested agistees enquire about your property. Already posting on social media? Our AI can help you turn that text into the beginning of a listing in seconds.
             </p>
             <ul className="space-y-3 mb-8">
               {['Easy property listing', 'Facility showcase', 'Availability management', 'Direct communication'].map((item) => (
