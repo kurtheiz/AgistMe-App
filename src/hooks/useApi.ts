@@ -40,6 +40,11 @@ const getTokenWithRetry = async (getToken: () => Promise<string | null>, retryCo
       }
       
       // If no stored token, get a new one
+      // Add exponential backoff delay before retry
+      if (i > 0) {
+        await new Promise(resolve => setTimeout(resolve, Math.min(1000 * Math.pow(2, i - 1), 5000)));
+      }
+      
       const newToken = await getToken();
       if (newToken) {
         setApiToken(newToken);
@@ -47,11 +52,18 @@ const getTokenWithRetry = async (getToken: () => Promise<string | null>, retryCo
       return newToken;
     } catch (error) {
       console.error(`Error getting token (attempt ${i + 1}/${retryCount}):`, error);
+      // Clear stored token on error
+      setApiToken(null);
+      
+      // If this is the last attempt, throw the error
       if (i === retryCount - 1) {
         throw error;
       }
-      // Clear stored token on error
-      setApiToken(null);
+      
+      // For network errors, wait longer before retry
+      if (error instanceof Error && error.message.includes('Failed to fetch')) {
+        await new Promise(resolve => setTimeout(resolve, Math.min(2000 * Math.pow(2, i), 10000)));
+      }
     }
   }
   return null;

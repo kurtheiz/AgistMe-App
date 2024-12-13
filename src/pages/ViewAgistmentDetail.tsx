@@ -111,18 +111,18 @@ export function ViewAgistmentDetail() {
       </div>
 
       {/* Sticky Enquire Now Button */}
-      <div className="sticky top-14 z-40 w-full bg-white dark:bg-neutral-900 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex justify-center">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-center">
           <button
             onClick={() => window.location.href = `mailto:${agistment.contact?.contactDetails.email}?subject=Enquiry about ${agistment.basicInfo.name}`}
-            className="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+            className="w-full sm:w-auto min-w-[200px] px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
           >
             Enquire Now
           </button>
         </div>
       </div>
 
-      <div className="w-full">
+      <div className="w-full pb-20">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col space-y-8 p-4">
             {/* Photo Gallery Section */}
