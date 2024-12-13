@@ -8,9 +8,10 @@ try {
     sessionSampleRate: 1,
     identityPoolId: "ap-southeast-2:d4361ad1-a845-40ea-b49a-a387b8d0ec3e",
     endpoint: "https://dataplane.rum.ap-southeast-2.amazonaws.com",
-    telemetries: ["performance","errors","http"],
+    telemetries: ["performance","errors",["http", { recordAllRequests: true }]],
     allowCookies: true,
-    enableXRay: false
+    enableXRay: false,
+    enableRumClient: true,
   };
 
   const APPLICATION_ID: string = '613264ec-c357-429d-9c27-4bd36bb34575';

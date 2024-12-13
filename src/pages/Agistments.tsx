@@ -27,7 +27,6 @@ const Agistments = () => {
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
-  const [searchTitle] = useState('');
   const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
@@ -182,7 +181,7 @@ const Agistments = () => {
         ) : (
           <div className="pb-8 pt-4 md:px-4 text-gray-500">
             {searchResponse && searchResponse.results.length > 0 ? (
-              <>
+              <div>
                 <div className="text-sm text-gray-600 mb-4 px-4">
                   {searchResponse.results.length} {searchResponse.results.length === 1 ? 'agistment' : 'agistments'} found
                 </div>
@@ -192,10 +191,9 @@ const Agistments = () => {
                   onLoadMore={loadMore}
                   hasMore={!!searchResponse.nextToken}
                   isLoading={isFetching}
-                  title={searchTitle}
                   searchCriteria={currentCriteria ? { paddockTypes: currentCriteria.paddockTypes } : undefined}
                 />
-              </>
+              </div>
             ) : searchHash ? (
               <div className="flex flex-col items-center py-3 md:py-16 px-4">
                 <div className="mb-4 md:mb-8 text-neutral-400">
@@ -249,7 +247,6 @@ const Agistments = () => {
           onSearch={handleSearch}
           initialSearchHash={searchHash}
           forceReset={forceResetSearch}
-          title={searchTitle}
           refreshSavedSearches={shouldRefreshSavedSearches}
         />
         {isSaveSearchModalOpen && (
