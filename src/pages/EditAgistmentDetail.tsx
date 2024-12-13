@@ -398,14 +398,23 @@ function EditAgistmentDetail() {
                     </>
                   )}
                 </div>
-                <AgistmentHeader
-                  basicInfo={agistment?.basicInfo}
-                  propertyLocation={agistment?.propertyLocation}
-                  contactDetails={agistment?.contact}
-                  propertyDescription={agistment?.propertyDescription}
-                  isEditable={true}
-                  onEdit={() => setIsHeaderModalOpen(true)}
-                />
+                <div>
+  <div className="flex justify-between items-center mb-4">
+    <button
+      onClick={() => setIsHeaderModalOpen(true)}
+      className="button-primary" title="Edit basic info"
+    >
+       <Pencil className="w-4 h-4" />
+       <span>Edit</span>
+    </button>
+  </div>
+  <AgistmentHeader
+    basicInfo={agistment?.basicInfo}
+    propertyLocation={agistment?.propertyLocation}
+    contactDetails={agistment?.contact}
+    propertyDescription={agistment?.propertyDescription}
+  />
+</div>
               </div>
 
               {/* Paddocks and Care Options Grid */}

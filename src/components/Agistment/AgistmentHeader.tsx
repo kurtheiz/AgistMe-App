@@ -1,4 +1,4 @@
-import { Mail, Phone, Pencil } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { AgistmentContact, AgistmentBasicInfo, AgistmentPropertyLocation, AgistmentDescription } from '../../types/agistment';
 import { ExpandableText } from '../shared/ExpandableText';
 
@@ -7,17 +7,13 @@ interface Props {
   propertyLocation?: AgistmentPropertyLocation;
   contactDetails?: AgistmentContact;
   propertyDescription?: AgistmentDescription;
-  onEdit?: () => void;
-  isEditable?: boolean;
 }
 
 export const AgistmentHeader = ({
   basicInfo,
   propertyLocation,
   contactDetails,
-  propertyDescription,
-  onEdit,
-  isEditable
+  propertyDescription
 }: Props) => {
   return (
     <>
