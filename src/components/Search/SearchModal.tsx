@@ -30,7 +30,6 @@ interface SearchModalProps {
   initialSearchHash?: string;
   onFilterCountChange?: (count: number) => void;
   forceReset?: boolean;
-  title?: string;
   refreshSavedSearches?: boolean;
 }
 
@@ -40,7 +39,6 @@ export function SearchModal({
   onSearch,
   initialSearchHash,
   forceReset,
-  title = 'Search',
   refreshSavedSearches
 }: SearchModalProps) {
   const [searchParams] = useSearchParams();
@@ -568,11 +566,11 @@ export function SearchModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={title}
-      showCloseButton
+      title="Search Agistments"
+      showCloseButton={true}
       size="md"
       slideFrom="right"
-      isUpdating={isUpdating}
+      isUpdating={false}
     >
       {modalContent}
     </Modal>
