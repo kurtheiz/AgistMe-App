@@ -32,7 +32,7 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                 <div className={`grid ${ridingFacilities.arenas.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-8 sm:gap-4 items-start`}>
                   {ridingFacilities.arenas.map((arena: Arena, index: number) => (
                     <div key={index}>
-                      <div className="grid grid-rows-[150px_auto_auto] content-start gap-2">
+                      <div className="grid grid-rows-[150px_auto_auto] content-start gap-2 justify-items-center">
                         <div className="flex items-center justify-center">
                           <ArenaDiagram length={arena.length} width={arena.width} />
                         </div>
@@ -80,11 +80,11 @@ export const AgistmentRidingFacilities: React.FC<AgistmentRidingFacilitiesProps>
                 <div className={`grid ${ridingFacilities.roundYards.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-8 sm:gap-4 items-start`}>
                   {ridingFacilities.roundYards.map((yard: RoundYard, index: number) => (
                     <div key={index}>
-                      <div className="grid grid-rows-[150px_auto_auto] content-start gap-2">
+                      <div className="grid grid-rows-[150px_auto_auto] content-start gap-2 justify-items-center">
                         <div className="flex items-center justify-center">
                           <RoundYardDiagram diameter={yard.diameter} />
                         </div>
-                        <p className="text-neutral-700 text-sm text-center max-w-xs">
+                        <p className="text-neutral-700 text-sm text-center max-w-xs text-center">
                           {yard.comments || '\u00A0'}
                         </p>
                       </div>

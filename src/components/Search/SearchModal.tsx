@@ -229,11 +229,26 @@ export function SearchModal({
                 <SuburbSearch
                   selectedSuburbs={searchCriteria.suburbs}
                   onSuburbsChange={(suburbs) => {
-                    setSearchCriteria((prev: SearchRequest) => ({ 
-                      ...prev, 
-                      suburbs,
-                      radius: 0 
-                    }));
+                    if (suburbs.length === 0) {
+                      // Reset all filters when no suburbs are selected
+                      setSearchCriteria({
+                        suburbs: [],
+                        radius: 0,
+                        paddockTypes: [],
+                        spaces: 0,
+                        maxPrice: 0,
+                        hasArena: false,
+                        hasRoundYard: false,
+                        facilities: initialFacilities,
+                        careTypes: []
+                      });
+                    } else {
+                      setSearchCriteria(prev => ({ 
+                        ...prev, 
+                        suburbs,
+                        radius: 0 
+                      }));
+                    }
                   }}
                   disabled={isUpdating}
                 />
@@ -554,7 +569,7 @@ export function SearchModal({
         <button
           type="submit"
           disabled={searchCriteria.suburbs.length === 0 || isUpdating}
-          className={`w-full py-2 px-4 rounded-md font-medium text-white bg-red-600 hover:bg-red-700 transition-colors ${searchCriteria.suburbs.length === 0 || isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`w-full py-2 px-4 rounded-md font-medium text-white bg-primary-600 hover:bg-primary-500 transition-colors ${searchCriteria.suburbs.length === 0 || isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isUpdating ? 'Searching...' : 'Search'}
         </button>
