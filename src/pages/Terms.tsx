@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { scrollManager } from '../utils/scrollManager';
 
 const Terms: React.FC = () => {
   useEffect(() => {

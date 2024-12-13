@@ -18,7 +18,8 @@ try {
   const APPLICATION_VERSION: string = '1.0.0';
   const APPLICATION_REGION: string = 'ap-southeast-2';
 
-  const awsRum: AwsRum = new AwsRum(
+  // Initialize AWS RUM
+  void new AwsRum(
     APPLICATION_ID,
     APPLICATION_VERSION,
     APPLICATION_REGION,
