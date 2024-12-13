@@ -120,9 +120,11 @@ export default function PropertyCard({
                 </span>
               )}
             </div>
-            <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md flex-shrink-0">
-              {agistment.basicInfo.propertySize} acres
-            </div>
+            {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 && (
+              <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md flex-shrink-0">
+                {agistment.basicInfo.propertySize} acres
+              </div>
+            )}
           </div>
         </div>
 
@@ -442,7 +444,7 @@ export default function PropertyCard({
                 status: 'HIDDEN'
               };
               await agistmentService.updateAgistment(agistment.id, updatedAgistment);
-              
+　　 　 　 　
               // Notify parent component that visibility changed
               if (onToggleVisibility) {
                 await onToggleVisibility();

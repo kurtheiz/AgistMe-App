@@ -36,20 +36,38 @@ export function Dropdown({
       </div>
       
       {isOpen && (
-        <div 
-          className={`
-            md:absolute fixed md:${align === 'right' ? '-right-32' : 'left-0'} mt-2 
-            left-0 right-0 md:left-auto md:right-auto
-            md:${width}
-            bg-white rounded-md shadow-lg z-50
-          `}
-          style={{ 
-            maxHeight: 'calc(100vh - 200px)',
-            overflowY: 'auto'
-          }}
-        >
-          {content}
-        </div>
+        <>
+          <div className="hidden md:block">
+            <div 
+              className={`
+                absolute mt-2
+                ${align === 'right' ? 'right-0' : 'left-0'}
+                ${width}
+                bg-white rounded-md shadow-lg z-50
+              `}
+              style={{ 
+                maxHeight: 'calc(100vh - 200px)',
+                overflowY: 'auto'
+              }}
+            >
+              {content}
+            </div>
+          </div>
+          <div className="md:hidden fixed left-0 right-0 z-50">
+            <div 
+              className="
+                bg-white shadow-lg w-full border-t
+                mx-auto px-4
+              "
+              style={{ 
+                maxHeight: 'calc(100vh - 200px)',
+                overflowY: 'auto'
+              }}
+            >
+              {content}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
