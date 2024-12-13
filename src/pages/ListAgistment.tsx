@@ -1,4 +1,5 @@
 import { CheckCircle } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
@@ -22,10 +23,7 @@ const ListAgistment = () => {
     }
 
     try {
-      // Get a blank agistment template
       const blankAgistment = await agistmentService.getBlankAgistment();
-      
-      // Navigate to the edit page with the blank agistment
       navigate(`/agistments/${blankAgistment.id}/edit`, {
         state: { initialAgistment: blankAgistment }
       });
@@ -42,75 +40,98 @@ const ListAgistment = () => {
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             List Your Property on Agist Me
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-12">
-            Turn your property into a thriving agistment business
-          </p>
         </div>
 
-        
         <div className="max-w-7xl mx-auto mb-16">
           <h2 className="text-2xl font-semibold mb-8 text-center text-gray-900 dark:text-white">
-            Why List Your Property with Agist Me?
+            Required Information for Your Listing
           </h2>
-          <div className="space-y-8">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 mt-1">
-                <CheckCircle className="w-6 h-6 text-emerald-500" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Flexible Listing Options</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Whether you have private paddocks, shared spaces, or group arrangements, our platform lets you customize your listings to match your property's unique offerings. Set your own pricing and availability to maintain complete control over your agistment business.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 mt-1">
-                <CheckCircle className="w-6 h-6 text-emerald-500" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Showcase Your Facilities</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  From premium arenas and round yards to stables and wash bays, highlight all the facilities that make your property stand out. Quality facilities attract quality clients, and our platform helps you showcase your property's best features.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 mt-1">
-                <CheckCircle className="w-6 h-6 text-emerald-500" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Flexible Care Options</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Offer the level of service that suits your business model. Whether you provide full-care services, part-care arrangements, or self-care options, you can clearly communicate your offerings to potential clients and set appropriate pricing.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 mt-1">
-                <CheckCircle className="w-6 h-6 text-emerald-500" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Additional Revenue Streams</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Maximize your property's potential by highlighting additional amenities such as feed storage, tack rooms, and float parking. These extras can set your listing apart and provide opportunities for additional income streams.
-                </p>
-              </div>
-            </div>
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 mb-8">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Minimum Requirements:</h3>
+            <ul className="space-y-3 text-gray-600 dark:text-gray-300">
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Property Name (at least 3 characters)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Property Location (suburb, state, and region)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>At least one photo of your property</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>At least one paddock type (private, shared, or group paddocks)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>At least one care option (Self Care, Part Care, or Full Care)</span>
+              </li>
+            </ul>
+          </div>
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Additional Information You Can Add:</h3>
+            <ul className="space-y-3 text-gray-600 dark:text-gray-300">
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>More Property Photos (up to 5 photos total)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Property Description</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Property Size</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Riding Facilities: Arenas (with dimensions), Round Yards (with diameter)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Property Facilities: Stables, Feed Room, Float Parking, Hot Wash, Tack Room, Tie-Up Areas</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Contact Details: Name, Email, Phone Number</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Paddock Details: Available Spaces, Pricing, Availability Dates</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Care Options: Self Care, Part Care, Full Care (with pricing and details)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Property Services: Custom Services List</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <span>Social Media Links</span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        
-        {/* <div className="mb-16">
-          <PricingPlans showButtons onPlanSelect={handlePlanSelect} />
-        </div> */}
-
-        <div className="text-center mt-12">
+        <div className="text-center">
+          <p className="text-gray-600 dark:text-gray-300 mb-4 flex items-center justify-center gap-2">
+            Pro tip: On the next page, look for 
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-neutral-200 dark:border-neutral-700">
+              <Sparkles className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
+              <span className="text-neutral-600 dark:text-neutral-400 text-sm">From text</span>
+            </span>
+            in the toolbar to create your listing from text (for example, from a social media post)!
+          </p>
           <button 
             onClick={handleCreateAgistment}
             className="btn-primary"
           >
-            Sounds great, let's go!
+            I am ready, let's go!
           </button>
         </div>
       </div>
