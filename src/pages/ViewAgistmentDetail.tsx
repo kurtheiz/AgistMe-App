@@ -149,7 +149,7 @@ export function ViewAgistmentDetail() {
                       onClick={() => {
                         navigator.share({
                           title: agistment.basicInfo.name,
-                          text: agistment.propertyDescription?.description || '',
+                          text: `${agistment.propertyLocation?.location?.suburb || ''}, ${agistment.propertyLocation?.location?.state || ''}`,
                           url: window.location.href
                         }).catch(console.error);
                       }}

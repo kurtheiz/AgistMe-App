@@ -5,7 +5,7 @@ import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';
-import { BookmarkPlus, ListFilter } from 'lucide-react';
+import { BookmarkPlus } from 'lucide-react';
 import { SearchRequest, SearchResponse } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
@@ -15,8 +15,6 @@ import { profileService } from '../services/profile.service';
 import { advertService, Advert } from '../services/advert.service';
 import { useSearchStore } from '../stores/search.store';
 import { decodeSearchHash } from '../utils/searchHashUtils';
-import { Dropdown } from '../components/shared/Dropdown';
-import { SearchCriteriaDisplay } from '../components/shared/SearchCriteriaDisplay';
 
 const Agistments = () => {
   const location = useLocation();
@@ -101,7 +99,6 @@ const Agistments = () => {
     }
   }, [isSearchModalOpen]);
 
-
   useEffect(() => {
     const handleScroll = () => {
       if (location.key && !isFetching) {
@@ -174,28 +171,6 @@ const Agistments = () => {
               <span>Save Search</span>
             </button>
           </div>
-
-          {currentCriteria && (
-            <Dropdown
-              align="right"
-              width="w-80"
-              trigger={
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset text-gray-900 ring-gray-300 hover:bg-gray-50"
-                >
-                  <ListFilter className="h-4 w-4" />
-                  <span>View Criteria</span>
-                </button>
-              }
-              content={
-                <div className="p-4">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Current Search Criteria</h3>
-                  <SearchCriteriaDisplay searchCriteria={currentCriteria} />
-                </div>
-              }
-            />
-          )}
         </div>
       </PageToolbar>
 

@@ -1,32 +1,80 @@
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
 export const About = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div className="max-w-7xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-white">
-        About AgistMe
-      </h1>
-      <div className="prose dark:prose-invert">
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-          AgistMe is a modern web application built with React and TypeScript, designed to help users manage and organize information effectively.
-        </p>
-        <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Key Features
-        </h2>
-        <ul className="list-disc pl-6 mb-6 text-gray-600 dark:text-gray-300">
-          <li>Modern, responsive design with dark mode support</li>
-          <li>Secure authentication powered by Clerk</li>
-          <li>Built with React, TypeScript, and Tailwind CSS</li>
-          <li>State management using Zustand</li>
-        </ul>
-        <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Technology Stack
-        </h2>
-        <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300">
-          <li>React with TypeScript</li>
-          <li>Tailwind CSS for styling</li>
-          <li>Clerk for authentication</li>
-          <li>Zustand for state management</li>
-          <li>React Router for navigation</li>
-        </ul>
+    <div className="bg-white">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
+          About Agist Me
+        </h1>
+        <p className="text-sm text-neutral-500 mb-8">Connecting Horse Owners with Quality Agistment</p>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900">Our Mission</h2>
+          <p className="text-gray-600 mb-4">
+            Agist Me is dedicated to simplifying the process of finding and managing horse agistment in Australia. 
+            We connect horse owners with quality agistment providers, making it easier to find the perfect home for your horse.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900">What We Offer</h2>
+          <ul className="list-disc pl-6 mb-4 text-gray-600 space-y-2">
+            <li>Comprehensive agistment listings across Australia</li>
+            <li>Easy-to-use search functionality with detailed filters</li>
+            <li>Direct communication with agistment providers</li>
+            <li>Secure platform for managing your listings and inquiries</li>
+            <li>AI-powered listing creation from text descriptions</li>
+          </ul>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900">For Horse Owners</h2>
+          <p className="text-gray-600 mb-4">
+            Find the perfect agistment for your horse with our comprehensive search features. Browse through detailed listings, 
+            save your favorites, and connect directly with property owners.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900">For Agistment Providers</h2>
+          <p className="text-gray-600 mb-4">
+            List your property and reach potential clients easily. Our platform helps you manage your listings 
+            and communicate with interested horse owners efficiently.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900">Trust & Safety</h2>
+          <p className="text-gray-600 mb-4">
+            We prioritize the safety and security of our users. Our platform includes verified user profiles, 
+            secure messaging, and comprehensive listing guidelines to ensure a trustworthy environment.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900">Legal Information</h2>
+          <p className="text-gray-600 mb-4">
+            Agist Me is operated by heizlogic. For more information about how we protect your data and your rights, 
+            please review our <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link> and{' '}
+            <Link to="/terms" className="text-blue-600 hover:underline">Terms of Use</Link>.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900">Contact Us</h2>
+          <p className="text-gray-600">
+            For inquiries about Agist Me, please contact us at{' '}
+            <a href="mailto:info@agist.me" className="text-blue-600 hover:underline">
+              info@agist.me
+            </a>
+          </p>
+        </section>
       </div>
     </div>
   );

@@ -18,6 +18,8 @@ import EditAgistmentDetail from './pages/EditAgistmentDetail';
 import { FavoriteAgistments } from './pages/FavoriteAgistments';
 import { MyAgistments } from './pages/MyAgistments';
 import { useAuthStore } from './stores/auth.store';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -30,6 +32,8 @@ const router = createBrowserRouter(
     <Route element={<Layout />} errorElement={<ErrorPage />}>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
       <Route path="/listagistment" element={<ListAgistment />} />
       <Route path="agistments">
         <Route index element={<Agistments />} />
