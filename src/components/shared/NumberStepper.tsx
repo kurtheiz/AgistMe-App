@@ -87,6 +87,36 @@ export default function NumberStepper({
     stopCounting();
   }, [stopCounting]);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState(formatValue(value));
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
+  };
+
+  const handleInputBlur = () => {
+    setIsEditing(false);
+    const newValue = parseInt(inputValue);
+    if (!isNaN(newValue) && newValue >= min && newValue <= max) {
+      onChange(newValue);
+    } else {
+      setInputValue(formatValue(value));
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleInputBlur();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setInputValue(formatValue(value));
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-2">
       {label && (
@@ -109,9 +139,25 @@ export default function NumberStepper({
         >
           <MinusIcon className="h-5 w-5" />
         </button>
-        <div className="text-3xl font-semibold text-neutral-900 min-w-[3ch] text-center">
-          {formatValue(value)}
-        </div>
+        {isEditing ? (
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
+            onKeyDown={handleInputKeyDown}
+            className="text-3xl font-semibold text-neutral-900 w-[3ch] text-center bg-transparent border-b-2 border-primary-500 focus:outline-none"
+            autoFocus
+          />
+        ) : (
+          <div 
+            className="text-3xl font-semibold text-neutral-900 w-[3ch] text-center cursor-text"
+            onClick={() => !disabled && setIsEditing(true)}
+          >
+            {formatValue(value)}
+          </div>
+        )}
         <button
           type="button"
           className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none

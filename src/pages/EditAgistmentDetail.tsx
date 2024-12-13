@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
-import { ChevronLeft, Pencil, Heart, Share2 } from 'lucide-react';
+import { ChevronLeft, Pencil, Heart, Share2, Sparkles } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
@@ -41,7 +41,7 @@ function EditAgistmentDetail() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiText, setAiText] = useState('');
-  const maxPhotos = 10
+  const maxPhotos = 5
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -96,7 +96,7 @@ function EditAgistmentDetail() {
 
     // Check for valid location
     const hasValidLocation = 
-      agistment?.propertyLocation?.location?.address &&
+      //agistment?.propertyLocation?.location?.address &&
       agistment?.propertyLocation?.location?.suburb &&
       agistment?.propertyLocation?.location?.state &&
       agistment?.propertyLocation?.location?.region;
@@ -271,25 +271,23 @@ function EditAgistmentDetail() {
       <Modal
         isOpen={isAiModalOpen}
         onClose={() => setIsAiModalOpen(false)}
-        title="Use AI to Create Your Listing"
+        title="From Text using AI"
         size="wide"
         isUpdating={isUpdating}
-        actionIconType="SAVE"
+        actionIconType="AI"
         onAction={handleAiSubmit}
       >
         <div className="space-y-4">
           <p className="text-neutral-600 ">
-            Paste your property description below and our AI will create a professional agistment listing for you.
+            Paste your property description below and our AI will create a the beginnings of a professional agistment listing for you.
           </p>
           <textarea
             value={aiText}
             onChange={(e) => setAiText(e.target.value)}
-            className="w-full h-64 p-4 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-            placeholder="Example: 10 acre property in Samford Valley with excellent facilities including private paddocks, sand arena, and secure tack room. Agistment includes daily feeding and health checks..."
+            className="w-full h-96 p-4 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+            placeholder="Paste your property description here..."
           />
-          <div className="text-sm text-neutral-500">
-            Tip: Include details about your property size, facilities, care options, and any special features.
-          </div>
+          
         </div>
       </Modal>
 
@@ -305,7 +303,7 @@ function EditAgistmentDetail() {
                       className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 cursor-pointer"
                     >
                       <ChevronLeft className="h-5 w-5" />
-                      <span className="font-medium text-sm sm:text-base">My Agistments</span>
+                      <span className="font-medium text-sm sm:text-base">Back</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -315,7 +313,10 @@ function EditAgistmentDetail() {
                         onClick={handleUseAI}
                         disabled={isUpdating}
                       >
-                        Use AI
+                        <span className="flex items-center gap-1">
+                          <Sparkles className="h-4 w-4" />
+                          From text
+                        </span>
                       </button>
                     )}
                     <button
@@ -413,9 +414,9 @@ function EditAgistmentDetail() {
                   {/* Paddocks Section */}
                   <div className="border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200">
                     <div className="mb-4">
-                      <button
+                      <button 
                         onClick={() => setIsPaddocksModalOpen(true)}
-                        className="button-toolbar"
+                        className="button-primary"
                         title="Edit paddocks"
                       >
                         <Pencil className="w-4 h-4" />
@@ -459,7 +460,7 @@ function EditAgistmentDetail() {
                     <div className="mb-4">
                       <button
                         onClick={() => setIsCareOptionsModalOpen(true)}
-                        className="button-toolbar"
+                        className="button-primary"
                         title="Edit care options"
                       >
                         <Pencil className="w-4 h-4" />
@@ -484,7 +485,7 @@ function EditAgistmentDetail() {
                     <div className="mb-4">
                       <button
                         onClick={() => setIsRidingFacilitiesModalOpen(true)}
-                        className="button-toolbar"
+                        className="button-primary"
                         title="Edit riding facilities"
                       >
                         <Pencil className="w-4 h-4" />
@@ -504,7 +505,7 @@ function EditAgistmentDetail() {
                     <div className="mb-4">
                       <button
                         onClick={() => setIsFacilitiesModalOpen(true)}
-                        className="button-toolbar"
+                        className="button-primary"
                         title="Edit facilities"
                       >
                         <Pencil className="w-4 h-4" />
@@ -533,7 +534,7 @@ function EditAgistmentDetail() {
                 <div className="mb-4">
                   <button
                     onClick={() => setIsServicesModalOpen(true)}
-                    className="button-toolbar"
+                    className="button-primary"
                     title="Edit services"
                   >
                     <Pencil className="w-4 h-4" />

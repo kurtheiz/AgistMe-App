@@ -201,6 +201,12 @@ export function AgistmentPhotos({
           </SortableContext>
         </DndContext>
       </div>
+      {!disabled && agistment.photoGallery?.photos?.length > 1 && (
+        <div className="text-sm text-neutral-500 flex items-center gap-2">
+          
+          <span>Tip: Drag and drop photos to rearrange their order</span>
+        </div>
+      )}
     </div>
   );
 };

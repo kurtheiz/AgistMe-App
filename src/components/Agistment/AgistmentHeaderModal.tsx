@@ -126,9 +126,9 @@ export const AgistmentHeaderModal = ({
       newErrors.propertyName = 'Agistment Name cannot be "New Agistment"';
     }
 
-    if (!editForm.address?.trim()) {
-      newErrors.address = 'Address is required';
-    }
+    //if (!editForm.address?.trim()) {
+    //  newErrors.address = 'Address is required';
+    //}
 
     if (!editForm.suburb || !editForm.state || !editForm.postcode || !editForm.region) {
       newErrors.location = 'Please select a suburb';
@@ -255,7 +255,7 @@ export const AgistmentHeaderModal = ({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Street Address <span className="text-red-500">*</span>
+                Street Address
               </label>
               <div className="input-wrapper">
                 <input

@@ -1,8 +1,8 @@
 import { Fragment, ReactNode, useEffect } from 'react';
 import { Dialog, Transition, TransitionChild, DialogPanel } from '@headlessui/react';
-import { X, Loader2, Search, Save } from 'lucide-react';
+import { X, Loader2, Search, Save, Sparkles } from 'lucide-react';
 
-export type ActionIconType = 'SEARCH' | 'SAVE';
+export type ActionIconType = 'SEARCH' | 'SAVE' | 'AI';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -141,6 +141,7 @@ export function Modal({
                               <>
                                 {actionIconType === 'SEARCH' && <Search className="w-6 h-6 text-primary-600" />}
                                 {actionIconType === 'SAVE' && <Save className="w-6 h-6 text-primary-600" />}
+                                {actionIconType === 'AI' && <Sparkles className="w-6 h-6 text-primary-600" />}
                               </>
                             )}
                           </button>

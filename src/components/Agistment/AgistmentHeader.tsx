@@ -23,16 +23,6 @@ export const AgistmentHeader = ({
     <>
       {/* Basic Info Section */}
       <div className="mb-4">
-        {isEditable && onEdit && (
-          <button
-            onClick={onEdit}
-            className="button-toolbar"
-            title="Edit property details"
-          >
-            <Pencil className="w-4 h-4" />
-            <span>Edit</span>
-          </button>
-        )}
       </div>
       <div className="flex justify-between items-start mb-4">
         <div className="w-full">
