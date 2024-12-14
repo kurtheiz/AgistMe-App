@@ -15,7 +15,12 @@ interface EnquiryModalProps {
   agistmentId: string;
 }
 
-interface EnquiryForm extends Omit<EnquiryRequest, 'bioShareId'> {
+interface EnquiryForm {
+  first_name: string;
+  last_name: string;
+  mobile_phone: string;
+  email: string;
+  message: string;
   includeBio: boolean;
   profileId?: string;
 }
@@ -114,7 +119,7 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
         ...(form.first_name && { first_name: form.first_name }),
         ...(form.last_name && { last_name: form.last_name }),
         ...(form.mobile_phone && { mobile_phone: form.mobile_phone }),
-        ...(form.includeBio && form.profileId && { bioShareId: form.profileId || '' })
+        ...(form.includeBio && form.profileId ? { bioShareId: form.profileId } : {})
       };
 
       await agistmentService.submitEnquiry(agistmentId, enquiryRequest);
@@ -149,7 +154,10 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
       size="md"
       isUpdating={false}
       actionIconType="SAVE"
-      onAction={(e: React.FormEvent) => handleSubmit(e)}
+      onAction={() => {
+        const event = new Event('submit') as unknown as React.FormEvent;
+        handleSubmit(event);
+      }}
       disableAction={!isFormValid}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
