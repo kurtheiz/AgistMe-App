@@ -9,7 +9,7 @@ import {
   StableIcon,
   TieUpIcon,
 } from './Icons';
-import { Check, X, Pencil, Heart } from 'lucide-react';
+import { Check, X, Pencil, HandHeart, Heart } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
@@ -350,7 +350,7 @@ export default function PropertyCard({
               { 
                 key: 'careOptions', 
                 label: buildCareOptionsString(agistment.care), 
-                icon: Heart, 
+                icon: HandHeart, 
                 available: true 
               },
             ].map(({ key, label, icon: Icon, available }) => (
