@@ -76,6 +76,9 @@ export default function PropertyCard({
     if (onClick) {
       onClick();
     } else {
+      const currentScroll = window.scrollY;
+      console.log('Saving scroll position:', currentScroll);
+      sessionStorage.setItem('scrollPosition', currentScroll.toString());
       navigate(`/agistments/${agistment.id}`);
     }
   };
@@ -436,7 +439,7 @@ export default function PropertyCard({
               };
               await agistmentService.updateAgistment(agistment.id, updatedAgistment);
 　
-　
+
               // Notify parent component that visibility changed
               if (onToggleVisibility) {
                 await onToggleVisibility();

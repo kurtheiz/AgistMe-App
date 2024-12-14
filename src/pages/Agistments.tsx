@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { useUser } from "@clerk/clerk-react";
 import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
@@ -9,21 +9,31 @@ import { BookmarkPlus } from 'lucide-react';
 import { SearchRequest, SearchResponse } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
-import { scrollManager } from '../utils/scrollManager';
 import { agistmentService } from '../services/agistment.service';
 import { profileService } from '../services/profile.service';
-import { advertService, Advert } from '../services/advert.service';
 import { useSearchStore } from '../stores/search.store';
 import { decodeSearchHash } from '../utils/searchHashUtils';
 
 const Agistments = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useUser();
-  const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
-  const [adverts, setAdverts] = useState<Advert[]>([]);
   const [isFetching, setIsFetching] = useState(false);
-  const { isSearchModalOpen, setIsSearchModalOpen } = useSearchStore();
+  const lastScrollPosition = useRef(0);
+  const isRestoringScroll = useRef(false);
+  const { 
+    isSearchModalOpen, 
+    setIsSearchModalOpen,
+    searchResponse,
+    setSearchResponse,
+    searchHash: storedSearchHash,
+    setSearchHash,
+    appendResults,
+    reset: resetSearch,
+    saveScrollPosition,
+    getScrollPosition
+  } = useSearchStore();
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
@@ -36,10 +46,7 @@ const Agistments = () => {
     try {
       const response = await agistmentService.searchAgistments(searchHash, searchResponse.nextToken);
       if (response) {
-        setSearchResponse({
-          ...response,
-          results: [...(searchResponse?.results || []), ...response.results]
-        });
+        appendResults(response);
       }
     } catch (error) {
       console.error('Load more error:', error);
@@ -50,42 +57,42 @@ const Agistments = () => {
   };
 
   useEffect(() => {
-    const searchHash = searchParams.get('q');
-    if (searchHash) {
-      const decodedCriteria = decodeSearchHash(searchHash);
-      setCurrentCriteria(decodedCriteria);
-      const fetchData = async () => {
-        setIsFetching(true);
-        try {
-          const searchResult = await agistmentService.searchAgistments(searchHash);
-          if (searchResult) {
-            setSearchResponse(searchResult);
-            if (searchResult.results.length > 0) {
-              // Only fetch adverts if we have search results
-              const advertsData = await advertService.getAdverts();
-              setAdverts(advertsData);
-            } else {
-              setAdverts([]);
-            }
-          }
-        } catch (error) {
-          console.error('Search error:', error);
-          toast.error('Failed to perform search. Please try again.');
-        } finally {
-          setIsFetching(false);
+    const fetchResults = async () => {
+      if (!searchHash) {
+        resetSearch();
+        return;
+      }
+
+      // If we already have results for this search hash, use them
+      if (storedSearchHash === searchHash && searchResponse && !forceResetSearch) {
+        const criteria = decodeSearchHash(searchHash);
+        setCurrentCriteria(criteria);
+        return;
+      }
+
+      setIsFetching(true);
+      try {
+        const response = await agistmentService.searchAgistments(searchHash);
+        if (response) {
+          setSearchResponse(response);
+          setSearchHash(searchHash);
+          const criteria = decodeSearchHash(searchHash);
+          setCurrentCriteria(criteria);
         }
-      };
-      fetchData();
-    } else {
-      setSearchResponse(null);
-      setAdverts([]); // Clear adverts when there's no search
-    }
-  }, [searchParams, forceResetSearch]);
+      } catch (error) {
+        console.error('Search error:', error);
+        toast.error('Failed to fetch results. Please try again.');
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchResults();
+  }, [searchHash, forceResetSearch, storedSearchHash, setSearchHash, setSearchResponse, resetSearch]);
 
   useEffect(() => {
     if (searchParams.get('openSearch') === 'true') {
       setIsSearchModalOpen(true);
-      // Remove the openSearch parameter
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('openSearch');
       setSearchParams(newParams, { replace: true });
@@ -101,28 +108,26 @@ const Agistments = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (location.key && !isFetching) {
-        scrollManager.savePosition(location.key);
+        saveScrollPosition(location.key, window.scrollY);
       }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.key, isFetching]);
+  }, [location.key, isFetching, saveScrollPosition]);
 
   useEffect(() => {
-    const restoreScroll = () => {
-      if (!isFetching && location.key) {
-        const savedPosition = scrollManager.getPosition(location.key);
-        if (savedPosition !== undefined) {
-          setTimeout(() => {
-            window.scrollTo(0, savedPosition);
-          }, 0);
-        } else {
-          window.scrollTo(0, 0);
+    if (!isFetching && searchResponse) {
+      setTimeout(() => {
+        const savedPosition = sessionStorage.getItem('scrollPosition');
+        console.log('Restoring scroll position:', savedPosition);
+        if (savedPosition) {
+          window.scrollTo(0, parseInt(savedPosition));
+          console.log('Restored to:', parseInt(savedPosition));
+          sessionStorage.removeItem('scrollPosition');
         }
-      }
-    };
-    restoreScroll();
-  }, [location.key, isFetching]);
+      }, 100);
+    }
+  }, [isFetching, searchResponse]);
 
   useEffect(() => {
     if (searchHash) {
@@ -130,12 +135,44 @@ const Agistments = () => {
     }
   }, [searchHash]);
 
+  // Save scroll position before unloading
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      lastScrollPosition.current = window.scrollY;
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  // Restore scroll position when returning
+  useLayoutEffect(() => {
+    if (!isFetching && searchResponse && !isRestoringScroll.current) {
+      isRestoringScroll.current = true;
+      const historyState = window.history.state;
+      if (historyState?.scrollY) {
+        window.scrollTo(0, historyState.scrollY);
+        // Clear the state after restoring
+        window.history.replaceState(null, '');
+      } else if (lastScrollPosition.current > 0) {
+        window.scrollTo(0, lastScrollPosition.current);
+      }
+    }
+  }, [searchResponse, isFetching]);
+
+  useEffect(() => {
+    return () => {
+      // Clean up when component unmounts
+      lastScrollPosition.current = window.scrollY;
+    };
+  }, []);
+
   const handleSearch = async (criteria: SearchRequest & { searchHash: string }) => {
     setIsSearchModalOpen(false);
     setIsFetching(true);
     try {
       const response = await agistmentService.searchAgistments(criteria.searchHash);
       setSearchResponse(response);
+      setSearchHash(criteria.searchHash);
       setSearchParams({ q: criteria.searchHash });
       setForceResetSearch(false);
     } catch (error) {
@@ -187,7 +224,6 @@ const Agistments = () => {
                 </div>
                 <AgistmentList 
                   agistments={searchResponse.results} 
-                  adverts={adverts}
                   onLoadMore={loadMore}
                   hasMore={!!searchResponse.nextToken}
                   isLoading={isFetching}

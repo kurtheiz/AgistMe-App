@@ -105,7 +105,7 @@ export const AgistmentRidingFacilitiesModal = ({
   const addArena = () => {
     setEditForm(prev => ({
       ...prev,
-      arenas: [...prev.arenas, { length: 20, width: 40, comments: '', features: [] }]
+      arenas: [...prev.arenas, { length: 40, width: 20, comments: '', features: [] }]
     }));
     setIsDirty(true);
   };
