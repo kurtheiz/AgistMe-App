@@ -7,6 +7,7 @@ declare global {
 import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { AgistmentResponse } from '../types/agistment';
 import { SearchResponse } from '../types/search';
+import { EnquiryRequest, EnquiryResponse } from '../types/enquiry';
 
 interface PresignedUrlRequest {
   filenames: string[];
@@ -82,15 +83,17 @@ class AgistmentService {
   }
 
   async getAgistment(id: string): Promise<AgistmentResponse> {
-    try {
-      const url = `v1/agistments/${encodeURIComponent(id)}`;
-      const authHeaders = await this.getAuthHeaders();
-      const response = await this.api.get<AgistmentResponse>(url, authHeaders);
+    return this.retryOperation(async () => {
+      const response = await this.api.get<AgistmentResponse>(`v1/agistments/${id}`);
       return response.data;
-    } catch (error: unknown) {
-      console.error('Failed to get agistment:', error);
-      throw error;
-    }
+    });
+  }
+
+  async submitEnquiry(agistmentId: string, enquiry: EnquiryRequest): Promise<EnquiryResponse> {
+    return this.retryOperation(async () => {
+      const response = await this.api.post<EnquiryResponse>(`v1/agistments/${agistmentId}/enquiry`, enquiry);
+      return response.data;
+    });
   }
 
   async getBlankAgistment(): Promise<AgistmentResponse> {
@@ -224,6 +227,15 @@ class AgistmentService {
 
       return presignedData.publicUrl;
     } catch (error) {
+      throw error;
+    }
+  }
+
+  private async retryOperation<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      console.error('Operation failed:', error);
       throw error;
     }
   }
