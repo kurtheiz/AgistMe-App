@@ -279,8 +279,7 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
                 multiple={false}
                 className="w-full"
               />
-              {selectedSuburbs.length > 0 && (
-                <div className="grid grid-cols-2 gap-4 mt-2">
+                              <div className="grid grid-cols-2 gap-4 mt-2">
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Selected Suburb
@@ -306,8 +305,8 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
                     />
                   </div>
                 </div>
-              )}
-              {selectedSuburbs.length > 0 && (
+              
+              
                 <div className="grid grid-cols-2 gap-4 mt-2">
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -334,7 +333,7 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
                     />
                   </div>
                 </div>
-              )}
+              
             </div>
           </div>
 
@@ -371,7 +370,7 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
                   />
                 </Switch>
                 <Switch.Label className="ml-3 text-sm text-neutral-700 dark:text-neutral-300">
-                  Show my profile photo in enquiries
+                  Show my profile in enquiries
                 </Switch.Label>
               </div>
             </Switch.Group>

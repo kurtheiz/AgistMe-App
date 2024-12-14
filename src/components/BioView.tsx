@@ -91,7 +91,7 @@ export const BioView: React.FC<BioViewProps> = ({ profile }) => {
       {/* Profile Sharing Settings */}
       <div className="pt-4 border-t border-neutral-200">
         <div className="flex items-center">
-          <span className="text-sm text-neutral-500">Show Profile in Enquiries</span>
+          <span className="text-sm text-neutral-500">Show my profile in enquiries</span>
           <span className="text-sm font-medium ml-4">
             {profile.showProfileInEnquiry ? 'Yes' : 'No'}
           </span>
