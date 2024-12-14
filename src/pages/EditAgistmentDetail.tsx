@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
-import { ChevronLeft, Pencil, Heart, Share2, Sparkles } from 'lucide-react';
+import { ChevronLeft, Pencil, Heart, Share2, Sparkles, Trash2 } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
@@ -21,6 +21,7 @@ import { AgistmentRidingFacilitiesModal } from '../components/Agistment/Agistmen
 import { AgistmentFacilitiesModal } from '../components/Agistment/AgistmentFacilitiesModal';
 import { Dialog } from '../components/shared/Dialog';
 import { Modal } from '../components/shared/Modal';
+import { ConfirmationModal } from '../components/shared/ConfirmationModal';
 
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -41,6 +42,7 @@ function EditAgistmentDetail() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiText, setAiText] = useState('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const maxPhotos = 5
 
   // Scroll to top when component mounts
@@ -84,7 +86,6 @@ function EditAgistmentDetail() {
   const validateForPublish = useCallback(() => {
     const errors: string[] = [];
 
-    
     // Check for at least 1 photo
     const hasOnePhoto =
       agistment?.photoGallery?.photos &&
@@ -99,7 +100,6 @@ function EditAgistmentDetail() {
     if (name.length < 3 || name === 'New Agistment') {
       errors.push('Property name must be at least 3 characters and cannot be "New Agistment"');
     }
-
 
     // Check for valid location
     const hasValidLocation = 
@@ -121,7 +121,6 @@ function EditAgistmentDetail() {
     if (!hasPaddocks) {
       errors.push('At least one paddock (private, shared, or group) must be added');
     }
-
 
     // Check that at least one care option is selected
     const hasAnyCareOption = 
@@ -220,6 +219,34 @@ function EditAgistmentDetail() {
 
   const handleUseAI = () => {
     setIsAiModalOpen(true);
+  };
+
+  const handleDeleteAgistment = () => {
+    if (isUpdating) return;
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+
+    try {
+      if (!agistment) return;
+      
+      // Create updated agistment with new status
+      const updatedAgistment: Partial<AgistmentResponse> = {
+        ...agistment,
+        status: 'REMOVED'
+      };
+      
+      await handleAgistmentUpdate(updatedAgistment);
+    } catch (error) {
+      console.error('Error updating agistment:', error);
+    } finally {
+      setIsUpdating(false);
+      setIsDeleteModalOpen(false);
+      navigate('/agistments/my');
+    }
   };
 
   const handleAiSubmit = async () => {
@@ -343,6 +370,18 @@ function EditAgistmentDetail() {
                     >
                       {agistment?.status === 'HIDDEN' ? 'Publish' : 'Hide'}
                     </button>
+                    {id != 'temp_' && (
+                      <button
+                        className="button-toolbar"
+                        onClick={handleDeleteAgistment}
+                        disabled={isUpdating}
+                      >
+                        <span className="flex text-red-600 items-center gap-1">
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -649,6 +688,13 @@ function EditAgistmentDetail() {
           isOpen={isFacilitiesModalOpen}
           onClose={() => setIsFacilitiesModalOpen(false)}
           onUpdate={handleAgistmentUpdate}
+        />
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={confirmDelete}
+          title="Delete Agistment"
+          message="Are you sure you want to delete this agistment?"
         />
       </div>
 
