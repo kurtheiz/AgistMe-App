@@ -14,6 +14,7 @@ import { AgistmentServices } from '../components/Agistment/AgistmentServices';
 import { AgistmentPhotosView } from '../components/Agistment/AgistmentPhotosView';
 import { useFavorite } from '../hooks/useFavorite';
 import { AgistmentMap } from '../components/Map/AgistmentMap';
+import { EnquiryModal } from '../components/Agistment/EnquiryModal';
 
 export function ViewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,7 @@ export function ViewAgistmentDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { isFavorite, isLoading: isFavoriteLoading, toggleFavorite } = useFavorite(agistment!);
+  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -111,18 +113,25 @@ export function ViewAgistmentDetail() {
       </div>
 
       {/* Sticky Enquire Now Button */}
-      <div className="sticky top-14 z-40 w-full bg-white dark:bg-neutral-900 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex justify-center">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-center">
           <button
-            onClick={() => window.location.href = `mailto:${agistment.contact?.contactDetails.email}?subject=Enquiry about ${agistment.basicInfo.name}`}
-            className="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+            onClick={() => setIsEnquiryModalOpen(true)}
+            className="w-full sm:w-auto min-w-[200px] px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
           >
             Enquire Now
           </button>
         </div>
       </div>
 
-      <div className="w-full">
+      <EnquiryModal
+        isOpen={isEnquiryModalOpen}
+        onClose={() => setIsEnquiryModalOpen(false)}
+        agistmentName={agistment.basicInfo.name}
+        agistmentId={id || ''}
+      />
+
+      <div className="w-full pb-20">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col space-y-8 p-4">
             {/* Photo Gallery Section */}

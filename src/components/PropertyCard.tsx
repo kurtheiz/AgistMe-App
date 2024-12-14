@@ -184,10 +184,7 @@ export default function PropertyCard({
                       ? agistment.paddocks?.privatePaddocks?.weeklyPrice !== undefined 
                         ? agistment.paddocks.privatePaddocks.weeklyPrice === 0 
                           ? 'Contact'
-                          : <>
-                              <span>${formatCurrency(agistment.paddocks.privatePaddocks.weeklyPrice)}</span>
-                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
-                            </>
+                          : <><span>${formatCurrency(agistment.paddocks.privatePaddocks.weeklyPrice)}</span><span className="font-normal text-neutral-400 -ml-[1px]">/week</span></>
                         : null
                       : null}
                   </span>
@@ -215,10 +212,7 @@ export default function PropertyCard({
                       ? agistment.paddocks?.sharedPaddocks?.weeklyPrice !== undefined 
                         ? agistment.paddocks.sharedPaddocks.weeklyPrice === 0 
                           ? 'Contact'
-                          : <>
-                              <span>${formatCurrency(agistment.paddocks.sharedPaddocks.weeklyPrice)}</span>
-                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
-                            </>
+                          : <><span>${formatCurrency(agistment.paddocks.sharedPaddocks.weeklyPrice)}</span><span className="font-normal text-neutral-400 -ml-[1px]">/week</span></>
                         : null
                       : null}
                   </span>
@@ -246,10 +240,7 @@ export default function PropertyCard({
                       ? agistment.paddocks?.groupPaddocks?.weeklyPrice !== undefined 
                         ? agistment.paddocks.groupPaddocks.weeklyPrice === 0 
                           ? 'Contact'
-                          : <>
-                              <span>${formatCurrency(agistment.paddocks.groupPaddocks.weeklyPrice)}</span>
-                              <span className="font-normal text-neutral-400 -ml-[1px]">/week</span>
-                            </>
+                          : <><span>${formatCurrency(agistment.paddocks.groupPaddocks.weeklyPrice)}</span><span className="font-normal text-neutral-400 -ml-[1px]">/week</span></>
                         : null
                       : null}
                   </span>
@@ -260,7 +251,7 @@ export default function PropertyCard({
 
             {/* Price Range */}
             <div className="text-right flex flex-col justify-start h-[72px]">
-              <div className="font-bold text-lg text-neutral-900 flex items-center justify-end gap-1">
+              <div className="font-bold text-lg text-neutral-900 flex flex-col items-end">
                 {(() => {
                   // Get paddock types to check - either from search criteria or all types
                   const typesToCheck = searchCriteria?.paddockTypes?.length ? searchCriteria.paddockTypes : ['Private', 'Shared', 'Group'];
@@ -275,21 +266,21 @@ export default function PropertyCard({
                         return paddocks && paddocks.totalPaddocks > 0;
                       }).length : 0;
 
-                  // Get valid prices (paddock exists, has spots, and price > 0)
+                  // Get valid prices
                   const validPrices = typesToCheck
                     .map(type => {
                       const paddocks = type === 'Private' ? agistment.paddocks?.privatePaddocks :
                                      type === 'Shared' ? agistment.paddocks?.sharedPaddocks :
-                                     type === 'Group' ? agistment.paddocks?.groupPaddocks :
-                                     null;
-                      
-                      return paddocks && paddocks.totalPaddocks > 0 ? paddocks.weeklyPrice : null;
+                                     agistment.paddocks?.groupPaddocks;
+                      return paddocks?.weeklyPrice;
                     })
-                    .filter((price): price is number => price !== null && price > 0);
+                    .filter((price): price is number => price !== undefined && price > 0)
+                    .sort((a, b) => a - b);
 
-                  // If no valid prices
                   if (validPrices.length === 0) {
-                    return 'Contact for price';
+                    return (
+                      <span className="font-bold text-sm text-neutral-900">Contact for price</span>
+                    );
                   }
 
                   // If search criteria exists and only one paddock type
@@ -297,7 +288,7 @@ export default function PropertyCard({
                     return (
                       <>
                         <span>${formatCurrency(validPrices[0])}</span>
-                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                        <span className="font-normal text-neutral-400 text-xs">per week</span>
                       </>
                     );
                   }
@@ -307,7 +298,7 @@ export default function PropertyCard({
                     return (
                       <>
                         <span>${formatCurrency(Math.min(...validPrices))} - ${formatCurrency(Math.max(...validPrices))}</span>
-                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                        <span className="font-normal text-neutral-400 text-xs">per week</span>
                       </>
                     );
                   }
@@ -317,7 +308,7 @@ export default function PropertyCard({
                     return (
                       <>
                         <span>${formatCurrency(validPrices[0])}</span>
-                        <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                        <span className="font-normal text-neutral-400 text-xs">per week</span>
                       </>
                     );
                   }
@@ -325,7 +316,7 @@ export default function PropertyCard({
                   return (
                     <>
                       <span>From ${formatCurrency(validPrices[0])}</span>
-                      <span className="font-normal text-neutral-400 text-base -ml-[1px]">/week</span>
+                      <span className="font-normal text-neutral-400 text-xs">per week</span>
                     </>
                   );
                 })()}
@@ -358,8 +349,8 @@ export default function PropertyCard({
               { key: 'tieUp', label: 'Tie Up', icon: TieUpIcon, available: agistment.facilities.tieUp.available },
               { 
                 key: 'careOptions', 
-                label: `${buildCareOptionsString(agistment.care)} Care`, 
-                icon: null, 
+                label: buildCareOptionsString(agistment.care), 
+                icon: Heart, 
                 available: true 
               },
             ].map(({ key, label, icon: Icon, available }) => (
@@ -444,7 +435,8 @@ export default function PropertyCard({
                 status: 'HIDDEN'
               };
               await agistmentService.updateAgistment(agistment.id, updatedAgistment);
-　　 　 　 　
+　
+　
               // Notify parent component that visibility changed
               if (onToggleVisibility) {
                 await onToggleVisibility();

@@ -21,24 +21,14 @@ export const Home = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url(/amh2-listing-cgi-2304w.jpeg)',
+            backgroundImage: 'url(/am.png)',
           }}
         />
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+        <div className="absolute inset-0" />
+        <div className="absolute inset-0 flex flex-col items-center justify-start pt-12 p-6">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white text-center max-w-3xl">
             Find the perfect home for your horse
           </h1>
-          <p className="text-lg md:text-xl text-white text-center max-w-2xl mb-8 opacity-90">
-            Connect with quality agistment properties that match your specific needs
-          </p>
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-8 py-4 bg-white hover:bg-gray-50 rounded-lg text-primary-600 text-lg font-medium transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg"
-          >
-            <Search className="h-6 w-6" />
-            Search Agistments
-          </button>
         </div>
       </div>
 

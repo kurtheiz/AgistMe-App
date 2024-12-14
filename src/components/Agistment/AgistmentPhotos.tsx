@@ -152,6 +152,11 @@ export function AgistmentPhotos({
 
   return (
     <div className="space-y-4">
+      {!disabled && agistment.photoGallery?.photos?.length > 1 && (
+        <div className="text-sm text-neutral-500 flex items-center gap-2">
+          <span>Tip: Drag and drop photos to rearrange their order</span>
+        </div>
+      )}
       <div className="max-h-[400px] overflow-y-auto">
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <SortableContext items={agistment.photoGallery?.photos?.map(p => p.link) || []} strategy={rectSortingStrategy}>

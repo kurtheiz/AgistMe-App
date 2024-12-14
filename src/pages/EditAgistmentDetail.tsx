@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
-import { ChevronLeft, Pencil, Heart, Share2 } from 'lucide-react';
+import { ChevronLeft, Pencil, Heart, Share2, Sparkles, Trash2 } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
@@ -21,6 +21,7 @@ import { AgistmentRidingFacilitiesModal } from '../components/Agistment/Agistmen
 import { AgistmentFacilitiesModal } from '../components/Agistment/AgistmentFacilitiesModal';
 import { Dialog } from '../components/shared/Dialog';
 import { Modal } from '../components/shared/Modal';
+import { ConfirmationModal } from '../components/shared/ConfirmationModal';
 
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -41,6 +42,7 @@ function EditAgistmentDetail() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiText, setAiText] = useState('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const maxPhotos = 5
 
   // Scroll to top when component mounts
@@ -84,6 +86,32 @@ function EditAgistmentDetail() {
   const validateForPublish = useCallback(() => {
     const errors: string[] = [];
 
+    // Check for at least 1 photo
+    const hasOnePhoto =
+      agistment?.photoGallery?.photos &&
+      agistment?.photoGallery?.photos?.length > 0;
+
+    if (!hasOnePhoto) {
+      errors.push('At least one photo must be added');
+    }
+
+    // Check name
+    const name = agistment?.basicInfo?.name || '';
+    if (name.length < 3 || name === 'New Agistment') {
+      errors.push('Property name must be at least 3 characters and cannot be "New Agistment"');
+    }
+
+    // Check for valid location
+    const hasValidLocation = 
+      //agistment?.propertyLocation?.location?.address &&
+      agistment?.propertyLocation?.location?.suburb &&
+      agistment?.propertyLocation?.location?.state &&
+      agistment?.propertyLocation?.location?.region;
+
+    if (!hasValidLocation) {
+      errors.push('A valid suburb must be selected');
+    }
+
     // Check for paddocks
     const hasPaddocks = 
       (agistment?.paddocks?.privatePaddocks?.totalPaddocks || 0) > 0 ||
@@ -92,23 +120,6 @@ function EditAgistmentDetail() {
     
     if (!hasPaddocks) {
       errors.push('At least one paddock (private, shared, or group) must be added');
-    }
-
-    // Check for valid location
-    const hasValidLocation = 
-      agistment?.propertyLocation?.location?.address &&
-      agistment?.propertyLocation?.location?.suburb &&
-      agistment?.propertyLocation?.location?.state &&
-      agistment?.propertyLocation?.location?.region;
-
-    if (!hasValidLocation) {
-      errors.push('A complete property location must be provided');
-    }
-
-    // Check name
-    const name = agistment?.basicInfo?.name || '';
-    if (name.length < 3 || name === 'New Agistment') {
-      errors.push('Property name must be at least 3 characters and cannot be "New Agistment"');
     }
 
     // Check that at least one care option is selected
@@ -210,6 +221,34 @@ function EditAgistmentDetail() {
     setIsAiModalOpen(true);
   };
 
+  const handleDeleteAgistment = () => {
+    if (isUpdating) return;
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+
+    try {
+      if (!agistment) return;
+      
+      // Create updated agistment with new status
+      const updatedAgistment: Partial<AgistmentResponse> = {
+        ...agistment,
+        status: 'REMOVED'
+      };
+      
+      await handleAgistmentUpdate(updatedAgistment);
+    } catch (error) {
+      console.error('Error updating agistment:', error);
+    } finally {
+      setIsUpdating(false);
+      setIsDeleteModalOpen(false);
+      navigate('/agistments/my');
+    }
+  };
+
   const handleAiSubmit = async () => {
     if (!agistment || !aiText.trim()) return;
     
@@ -271,25 +310,23 @@ function EditAgistmentDetail() {
       <Modal
         isOpen={isAiModalOpen}
         onClose={() => setIsAiModalOpen(false)}
-        title="Use AI to Create Your Listing"
+        title="From Text using AI"
         size="wide"
         isUpdating={isUpdating}
-        actionIconType="SAVE"
+        actionIconType="AI"
         onAction={handleAiSubmit}
       >
         <div className="space-y-4">
           <p className="text-neutral-600 ">
-            Paste your property description below and our AI will create a professional agistment listing for you.
+            Paste your property description below and our AI will create a the beginnings of a professional agistment listing for you.
           </p>
           <textarea
             value={aiText}
             onChange={(e) => setAiText(e.target.value)}
-            className="w-full h-64 p-4 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-            placeholder="Example: 10 acre property in Samford Valley with excellent facilities including private paddocks, sand arena, and secure tack room. Agistment includes daily feeding and health checks..."
+            className="w-full h-96 p-4 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+            placeholder="Paste your property description here..."
           />
-          <div className="text-sm text-neutral-500">
-            Tip: Include details about your property size, facilities, care options, and any special features.
-          </div>
+          
         </div>
       </Modal>
 
@@ -305,7 +342,7 @@ function EditAgistmentDetail() {
                       className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 cursor-pointer"
                     >
                       <ChevronLeft className="h-5 w-5" />
-                      <span className="font-medium text-sm sm:text-base">My Agistments</span>
+                      <span className="font-medium text-sm sm:text-base">Back</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -315,7 +352,10 @@ function EditAgistmentDetail() {
                         onClick={handleUseAI}
                         disabled={isUpdating}
                       >
-                        Use AI
+                        <span className="flex items-center gap-1">
+                          <Sparkles className="h-4 w-4" />
+                          From text
+                        </span>
                       </button>
                     )}
                     <button
@@ -330,6 +370,18 @@ function EditAgistmentDetail() {
                     >
                       {agistment?.status === 'HIDDEN' ? 'Publish' : 'Hide'}
                     </button>
+                    {id != 'temp_' && (
+                      <button
+                        className="button-toolbar"
+                        onClick={handleDeleteAgistment}
+                        disabled={isUpdating}
+                      >
+                        <span className="flex text-red-600 items-center gap-1">
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -397,14 +449,23 @@ function EditAgistmentDetail() {
                     </>
                   )}
                 </div>
-                <AgistmentHeader
-                  basicInfo={agistment?.basicInfo}
-                  propertyLocation={agistment?.propertyLocation}
-                  contactDetails={agistment?.contact}
-                  propertyDescription={agistment?.propertyDescription}
-                  isEditable={true}
-                  onEdit={() => setIsHeaderModalOpen(true)}
-                />
+                <div>
+  <div className="flex justify-between items-center mb-4">
+    <button
+      onClick={() => setIsHeaderModalOpen(true)}
+      className="button-primary" title="Edit basic info"
+    >
+       <Pencil className="w-4 h-4" />
+       <span>Edit</span>
+    </button>
+  </div>
+  <AgistmentHeader 
+    basicInfo={agistment?.basicInfo}
+    propertyLocation={agistment?.propertyLocation}
+    contactDetails={agistment?.contact}
+    propertyDescription={agistment?.propertyDescription}
+  />
+</div>
               </div>
 
               {/* Paddocks and Care Options Grid */}
@@ -413,9 +474,9 @@ function EditAgistmentDetail() {
                   {/* Paddocks Section */}
                   <div className="border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200">
                     <div className="mb-4">
-                      <button
+                      <button 
                         onClick={() => setIsPaddocksModalOpen(true)}
-                        className="button-toolbar"
+                        className="button-primary"
                         title="Edit paddocks"
                       >
                         <Pencil className="w-4 h-4" />
@@ -459,7 +520,7 @@ function EditAgistmentDetail() {
                     <div className="mb-4">
                       <button
                         onClick={() => setIsCareOptionsModalOpen(true)}
-                        className="button-toolbar"
+                        className="button-primary"
                         title="Edit care options"
                       >
                         <Pencil className="w-4 h-4" />
@@ -484,7 +545,7 @@ function EditAgistmentDetail() {
                     <div className="mb-4">
                       <button
                         onClick={() => setIsRidingFacilitiesModalOpen(true)}
-                        className="button-toolbar"
+                        className="button-primary"
                         title="Edit riding facilities"
                       >
                         <Pencil className="w-4 h-4" />
@@ -504,7 +565,7 @@ function EditAgistmentDetail() {
                     <div className="mb-4">
                       <button
                         onClick={() => setIsFacilitiesModalOpen(true)}
-                        className="button-toolbar"
+                        className="button-primary"
                         title="Edit facilities"
                       >
                         <Pencil className="w-4 h-4" />
@@ -533,7 +594,7 @@ function EditAgistmentDetail() {
                 <div className="mb-4">
                   <button
                     onClick={() => setIsServicesModalOpen(true)}
-                    className="button-toolbar"
+                    className="button-primary"
                     title="Edit services"
                   >
                     <Pencil className="w-4 h-4" />
@@ -627,6 +688,13 @@ function EditAgistmentDetail() {
           isOpen={isFacilitiesModalOpen}
           onClose={() => setIsFacilitiesModalOpen(false)}
           onUpdate={handleAgistmentUpdate}
+        />
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={confirmDelete}
+          title="Delete Agistment"
+          message="Are you sure you want to delete this agistment?"
         />
       </div>
 

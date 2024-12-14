@@ -1,4 +1,4 @@
-import { Mail, Phone, Pencil } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { AgistmentContact, AgistmentBasicInfo, AgistmentPropertyLocation, AgistmentDescription } from '../../types/agistment';
 import { ExpandableText } from '../shared/ExpandableText';
 
@@ -7,32 +7,18 @@ interface Props {
   propertyLocation?: AgistmentPropertyLocation;
   contactDetails?: AgistmentContact;
   propertyDescription?: AgistmentDescription;
-  onEdit?: () => void;
-  isEditable?: boolean;
 }
 
 export const AgistmentHeader = ({
   basicInfo,
   propertyLocation,
   contactDetails,
-  propertyDescription,
-  onEdit,
-  isEditable
+  propertyDescription
 }: Props) => {
   return (
     <>
       {/* Basic Info Section */}
       <div className="mb-4">
-        {isEditable && onEdit && (
-          <button
-            onClick={onEdit}
-            className="button-toolbar"
-            title="Edit property details"
-          >
-            <Pencil className="w-4 h-4" />
-            <span>Edit</span>
-          </button>
-        )}
       </div>
       <div className="flex justify-between items-start mb-4">
         <div className="w-full">
