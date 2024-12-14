@@ -26,22 +26,17 @@ const initialFacilities: FacilityKey[] = [];
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSearch: (criteria: SearchRequest & { searchHash: string }) => void;
-  initialSearchHash?: string;
-  onFilterCountChange?: (count: number) => void;
+  initialCriteria?: SearchRequest | null;
   forceReset?: boolean;
-  refreshSavedSearches?: boolean;
 }
 
 export function SearchModal({
   isOpen,
   onClose,
-  onSearch,
-  initialSearchHash,
-  forceReset,
-  refreshSavedSearches
+  initialCriteria,
+  forceReset
 }: SearchModalProps) {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchHash = searchParams.get('q');
   const [isUpdating, setIsUpdating] = useState(false);
   const { user } = useUser();
@@ -76,7 +71,7 @@ export function SearchModal({
     if (user) {
       loadSavedSearches();
     }
-  }, [user, refreshSavedSearches]);
+  }, [user]);
 
   useEffect(() => {
     // Clear paddock types when both spaces and maxPrice are 0
@@ -107,9 +102,8 @@ export function SearchModal({
         facilities: initialFacilities,
         careTypes: []
       });
-    } else if (initialSearchHash) {
-      const decodedCriteria = decodeSearchHash(initialSearchHash);
-      setSearchCriteria(decodedCriteria);
+    } else if (initialCriteria) {
+      setSearchCriteria(initialCriteria);
     } else if (!searchHash && isOpen) {
       setSearchCriteria({
         suburbs: [],
@@ -130,7 +124,7 @@ export function SearchModal({
         console.error('Error decoding search hash:', error);
       }
     }
-  }, [initialSearchHash, searchHash, isOpen, forceReset]);
+  }, [initialCriteria, searchHash, isOpen, forceReset]);
 
   const togglePaddockType = (type: PaddockType) => {
     setSearchCriteria((prev: SearchRequest) => {
@@ -197,21 +191,23 @@ export function SearchModal({
   };
 
   const handleSearch = async () => {
-    setIsUpdating(true);
     try {
       const searchHash = encodeSearchHash(searchCriteria);
-      // Always execute search before closing modal
-      await onSearch({ ...searchCriteria, searchHash });
+      setSearchParams({ q: searchHash });
+      onClose();
     } catch (error) {
       console.error('Error executing search:', error);
-    } finally {
-      setIsUpdating(false);
-      onClose();
+      toast.error('Failed to execute search');
     }
   };
 
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch();
+  };
+
   const modalContent = (
-    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="space-y-4 pb-12">
+    <form onSubmit={onSubmit} id="search-form" className="space-y-4 pb-12">
       {/* Location Section */}
       <div className="space-y-4 sm:space-y-6">
         {/* Location Search with Saved Searches Menu */}
