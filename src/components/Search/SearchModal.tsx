@@ -17,7 +17,6 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { MoreVertical, Bookmark } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
-import { SavedSearch } from '../../types/profile';
 import { encodeSearchHash, decodeSearchHash } from '../../utils/searchHashUtils';
 import { useSavedSearchesStore } from '../../stores/savedSearches.store';
 
@@ -28,17 +27,19 @@ interface SearchModalProps {
   onClose: () => void;
   initialCriteria?: SearchRequest | null;
   forceReset?: boolean;
+  onSearch: (criteria: SearchRequest) => void;
 }
 
 export function SearchModal({
   isOpen,
   onClose,
   initialCriteria,
-  forceReset
+  forceReset,
+  onSearch
 }: SearchModalProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchHash = searchParams.get('q');
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdating] = useState(false);
   const { user } = useUser();
   const { savedSearches } = useSavedSearchesStore();
   const [searchCriteria, setSearchCriteria] = useState<SearchRequest>({
@@ -187,12 +188,24 @@ export function SearchModal({
 
   const handleSearch = async () => {
     try {
+      // Validate that at least one suburb is selected
+      if (searchCriteria.suburbs.length === 0) {
+        toast.error('Please select at least one location');
+        return;
+      }
+
       const searchHash = encodeSearchHash(searchCriteria);
+      if (!searchHash) {
+        toast.error('Please fill in the required search criteria');
+        return;
+      }
+      
       setSearchParams({ q: searchHash });
       onClose();
+      onSearch(searchCriteria);
     } catch (error) {
       console.error('Error executing search:', error);
-      toast.error('Failed to execute search');
+      toast.error('Please check your search criteria and try again');
     }
   };
 

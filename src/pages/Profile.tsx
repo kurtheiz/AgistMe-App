@@ -15,7 +15,7 @@ import { useBioStore } from '../stores/bio.store';
 import { useFavoritesStore } from '../stores/favorites.store';
 import { useSavedSearchesStore } from '../stores/savedSearches.store';
 import { useQueryClient } from '@tanstack/react-query';
-import { encodeSearchHash } from '../utils/searchHashUtils';
+import { profileService } from '../services/profile.service';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -142,7 +142,7 @@ export default function Profile() {
   const handleDeleteNotification = async (e: React.MouseEvent, notificationId: string) => {
     e.stopPropagation();
     try {
-      // await profileService.updateNotifications(notifications.filter(n => n.id !== notificationId));
+      await profileService.updateNotifications(notifications.filter(n => n.id !== notificationId));
       toast.success('Notification removed');
     } catch (error) {
       console.error('Error deleting notification:', error);

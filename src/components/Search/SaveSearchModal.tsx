@@ -3,8 +3,6 @@ import { Switch } from '@headlessui/react';
 import { Modal } from '../shared/Modal';
 import { SearchRequest } from '../../types/search';
 import { SearchCriteriaDisplay } from '../shared/SearchCriteriaDisplay';
-import { useQueryClient } from '@tanstack/react-query';
-import { useSavedSearchesStore } from '../../stores/savedSearches.store';
 
 interface SaveSearchModalProps {
   isOpen: boolean;
@@ -21,7 +19,6 @@ export function SaveSearchModal({
   isOpen, 
   onClose, 
   searchCriteria,
-  existingId,
   initialName = '',
   initialNotifications = false,
   title = 'Save Search',
@@ -31,7 +28,6 @@ export function SaveSearchModal({
   const [enableNotifications, setEnableNotifications] = useState(initialNotifications);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (isOpen) {

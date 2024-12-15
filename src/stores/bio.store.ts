@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { profileService } from '../services/profile.service';
-import { Profile } from '../types/profile';
+import { Profile, ProfileResponse } from '../types/profile';
 import { QueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 
@@ -9,7 +9,7 @@ interface BioState {
   isLoading: boolean;
   setBio: (bio: Profile) => void;
   setIsLoading: (isLoading: boolean) => void;
-  updateBio: (bioData: Partial<Profile>, queryClient?: QueryClient) => Promise<void>;
+  updateBio: (bioData: Partial<Profile>, queryClient?: QueryClient) => Promise<ProfileResponse>;
   uploadProfilePhoto: (file: File, queryClient?: QueryClient) => Promise<string>;
 }
 
@@ -20,7 +20,10 @@ export const useBioStore = create<BioState>((set, get) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   updateBio: async (bioData: Partial<Profile>, queryClient?: QueryClient) => {
     try {
-      const updatedProfile = await profileService.updateProfile(bioData);
+      const updatedProfile = await profileService.updateProfile({
+        ...bioData,
+        showProfileInEnquiry: bioData.showProfileInEnquiry ?? false
+      });
       set({ bio: updatedProfile });
 
       if (queryClient) {

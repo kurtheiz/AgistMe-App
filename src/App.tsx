@@ -4,7 +4,7 @@ import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
 import { ErrorPage } from './components/ErrorPage';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './pages/Profile';
 import Agistments from './pages/Agistments';
@@ -149,7 +149,10 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   useEffect(() => {
     if (isLoaded && userId) {
-      setUser(userId);
+      setUser({
+        id: userId,
+        email: ''  // We'll set this as empty since we don't have it at this point
+      });
       
       // Load notifications if not in state
       if (!notifications?.length) {

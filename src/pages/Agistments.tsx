@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useUser } from "@clerk/clerk-react";
 import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
@@ -9,7 +9,6 @@ import { BookmarkPlus, RotateCw } from 'lucide-react';
 import { SearchRequest } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
-import { profileService } from '../services/profile.service';
 import { useSearchStore } from '../stores/search.store';
 import { decodeSearchHash } from '../utils/searchHashUtils';
 import { useAgistmentSearch } from '../hooks/useAgistmentSearch';
@@ -17,9 +16,7 @@ import { useSavedSearchesStore } from '../stores/savedSearches.store';
 import { useQueryClient } from '@tanstack/react-query';
 
 const Agistments = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const { user } = useUser();
   const { 
     isSearchModalOpen, 
@@ -30,7 +27,6 @@ const Agistments = () => {
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
-  const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
   const {
@@ -73,7 +69,6 @@ const Agistments = () => {
         }
       } catch (error) {
         console.error('Failed to decode search hash:', error);
-        toast.error('Failed to decode search parameters');
       }
     }
   }, [searchHash, data]);
@@ -98,7 +93,7 @@ const Agistments = () => {
         queryClient
       );
       setIsSaveSearchModalOpen(false);
-      setShouldRefreshSavedSearches(true);
+
     } catch (error) {
       console.error('Failed to save search:', error);
     }
@@ -201,6 +196,10 @@ const Agistments = () => {
         onClose={handleCloseSearchModal}
         initialCriteria={currentCriteria}
         forceReset={forceResetSearch}
+        onSearch={(criteria) => {
+          setCurrentCriteria(criteria);
+          setForceResetSearch(false);
+        }}
       />
 
       <SaveSearchModal

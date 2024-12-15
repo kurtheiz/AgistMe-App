@@ -1,6 +1,5 @@
 import { Heart, ChevronDown, Trash2 } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { Favourite } from '../../types/profile';
 import { useFavoritesStore } from '../../stores/favorites.store';
 
 interface FavoritesPanelProps {

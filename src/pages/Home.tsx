@@ -1,18 +1,12 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchModal } from '../components/Search/SearchModal';
 import { Search } from 'lucide-react';
 import { List } from 'lucide-react';
-import { SearchRequest } from '../types/search';
+import { useSearchStore } from '../stores/search.store';
 
 export const Home = () => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
-
-  const handleSearch = (criteria: SearchRequest & { searchHash: string }) => {
-    navigate(`/agistments?q=${criteria.searchHash}`);
-    setIsSearchOpen(false);
-  };
+  const { setIsSearchModalOpen, isSearchModalOpen } = useSearchStore();
 
   return (
     <div className="flex-1 relative flex flex-col items-center bg-white">
@@ -50,7 +44,10 @@ export const Home = () => {
             </ul>
             <div className="flex justify-center md:justify-start">
               <button
-                onClick={() => setIsSearchOpen(true)}
+                onClick={() => {
+                  navigate('/agistments');
+                  setIsSearchModalOpen(true);
+                }}
                 className="flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-lg text-white text-lg font-medium transition-all hover:-translate-y-0.5 active:translate-y-0"
               >
                 <Search className="h-5 w-5" />
@@ -89,9 +86,9 @@ export const Home = () => {
       </div>
 
       <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onSearch={handleSearch}
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        onSearch={() => navigate('/agistments')}
       />
     </div>
   );

@@ -6,7 +6,6 @@ import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
 import { useNotificationsStore } from '../stores/notifications.store';
 import { Search, SquareMenu } from 'lucide-react';
-import { profileService } from '../services/profile.service';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -132,8 +131,8 @@ export const Header = () => {
               {/* Search Icon */}
               <button
                 onClick={() => {
-                  navigate('/agistments');
                   setIsSearchModalOpen(true);
+                  navigate('/agistments');
                 }}
                 className="p-2 rounded-full hover:bg-neutral-100"
               >

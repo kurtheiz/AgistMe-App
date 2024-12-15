@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ReactNode } from 'react';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
@@ -15,7 +15,7 @@ const queryClient = new QueryClient({
       retry: 1,
       staleTime: 5 * 60 * 1000,
       gcTime: 30 * 60 * 1000,
-      refetchOnMount: window.performance?.getEntriesByType('navigation')?.[0]?.type === 'reload',
+      refetchOnMount: (window.performance?.getEntriesByType('navigation')?.[0] as PerformanceNavigationTiming)?.type === 'reload',
     },
   },
 });
