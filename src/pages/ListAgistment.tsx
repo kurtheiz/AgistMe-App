@@ -9,7 +9,7 @@ import { useAuthFlow } from '../hooks/useAuthFlow';
 
 const ListAgistment = () => {
   const navigate = useNavigate();
-  const { isSignedIn, user } = useAuth();
+  const { isSignedIn } = useAuth();
   const { initiateSignIn } = useAuthFlow();
 
   useEffect(() => {
