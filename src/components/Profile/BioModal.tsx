@@ -117,13 +117,11 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
         ...formData,
         showProfileInEnquiry: formData.showProfileInEnquiry ?? false
       });
-      toast.success('Profile updated successfully');
       setInitialHash(JSON.stringify(formData));
       setIsDirty(false);
       onClose();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
     } finally {
       setSaving(false);
     }
