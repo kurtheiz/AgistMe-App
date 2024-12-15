@@ -9,13 +9,14 @@ import {
   StableIcon,
   TieUpIcon,
 } from './Icons';
-import { Check, X, Pencil, HandHeart, Heart } from 'lucide-react';
+import { Check, X, Pencil, HandHeart, Heart, Trash2 } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
 import { EditConfirmationModal } from './shared/EditConfirmationModal';
+import { ConfirmationModal } from './shared/ConfirmationModal';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { agistmentService } from '../services/agistment.service';
@@ -43,6 +44,7 @@ export default function PropertyCard({
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const isDateInFuture = (date: string | null | undefined) => {
     if (!date) return false;
@@ -88,9 +90,7 @@ export default function PropertyCard({
       className="bg-white rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
       onClick={handleClick}
     >
-      <div className={`relative bg-white border border-neutral-200 rounded-lg overflow-hidden ${
-        agistment.status === 'HIDDEN' ? 'opacity-50' : ''
-      }`}>
+      <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
         {/* Visibility Toggle */}
         {onToggleVisibility && (
           <div className="absolute top-2 right-2 z-20">
@@ -134,6 +134,9 @@ export default function PropertyCard({
         {/* Photo */}
         <div className="relative aspect-[16/9]">
           <AgistmentPhotosView photos={agistment.photoGallery.photos} />
+          {agistment.status === 'HIDDEN' && (
+            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
+          )}
         </div>
 
         {/* Location */}
@@ -153,6 +156,53 @@ export default function PropertyCard({
                   Exact location match
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Edit and Delete Buttons */}
+        {onEdit && (
+          <div className="grid grid-cols-3 items-center px-5 py-3 bg-white border-b border-neutral-200">
+            <div>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (agistment.status === 'HIDDEN') {
+                    // If already hidden, go straight to edit
+                    onEdit();
+                  } else {
+                    // If not hidden, show the confirmation modal
+                    setShowEditModal(true);
+                  }
+                }}
+                className="button-toolbar"
+                title="Edit agistment"
+              >
+                <Pencil className="w-4 h-4" />
+                <span>Edit</span>
+              </button>
+            </div>
+            <div className="flex justify-center">
+              {agistment.status === 'HIDDEN' && (
+                <div className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-700">
+                  HIDDEN
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowDeleteModal(true);
+                }}
+                className="button-toolbar text-red-600 hover:bg-red-50"
+                title="Delete agistment"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete</span>
+              </button>
             </div>
           </div>
         )}
@@ -259,6 +309,7 @@ export default function PropertyCard({
                   // Get paddock types to check - either from search criteria or all types
                   const typesToCheck = searchCriteria?.paddockTypes?.length ? searchCriteria.paddockTypes : ['Private', 'Shared', 'Group'];
                   
+
                   // Count how many paddock types have spots available
                   const availablePaddockCount = !searchCriteria?.paddockTypes?.length ? 
                     (['Private', 'Shared', 'Group'] as const)
@@ -289,38 +340,30 @@ export default function PropertyCard({
                   // If search criteria exists and only one paddock type
                   if (searchCriteria?.paddockTypes?.length === 1) {
                     return (
-                      <>
-                        <span>${formatCurrency(validPrices[0])}</span>
-                        <span className="font-normal text-neutral-400 text-xs">per week</span>
-                      </>
+                      <><span>${formatCurrency(validPrices[0])}</span>
+                        <span className="font-normal text-neutral-400 text-xs">per week</span></>
                     );
                   }
 
                   // Multiple valid prices
                   if (validPrices.length > 1) {
                     return (
-                      <>
-                        <span>${formatCurrency(Math.min(...validPrices))} - ${formatCurrency(Math.max(...validPrices))}</span>
-                        <span className="font-normal text-neutral-400 text-xs">per week</span>
-                      </>
+                      <><span>${formatCurrency(Math.min(...validPrices))} - ${formatCurrency(Math.max(...validPrices))}</span>
+                        <span className="font-normal text-neutral-400 text-xs">per week</span></>
                     );
                   }
 
                   // Only one valid price - if no search criteria and only one paddock type has spots, don't show "From"
                   if (!searchCriteria?.paddockTypes?.length && availablePaddockCount === 1) {
                     return (
-                      <>
-                        <span>${formatCurrency(validPrices[0])}</span>
-                        <span className="font-normal text-neutral-400 text-xs">per week</span>
-                      </>
+                      <><span>${formatCurrency(validPrices[0])}</span>
+                        <span className="font-normal text-neutral-400 text-xs">per week</span></>
                     );
                   }
 
                   return (
-                    <>
-                      <span>From ${formatCurrency(validPrices[0])}</span>
-                      <span className="font-normal text-neutral-400 text-xs">per week</span>
-                    </>
+                    <><span>From ${formatCurrency(validPrices[0])}</span>
+                      <span className="font-normal text-neutral-400 text-xs">per week</span></>
                   );
                 })()}
               </div>
@@ -390,35 +433,6 @@ export default function PropertyCard({
             >
               <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
             </button>
-
-            {/* Edit Button */}
-            {onEdit && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (agistment.status === 'HIDDEN') {
-                      // If already hidden, go straight to edit
-                      onEdit();
-                    } else {
-                      // If not hidden, show the confirmation modal
-                      setShowEditModal(true);
-                    }
-                  }}
-                  className="button-toolbar"
-                  title="Edit property"
-                >
-                  <Pencil className="w-4 h-4" />
-                  <span>Edit</span>
-                </button>
-                {agistment.status === 'HIDDEN' && (
-                  <div className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-700">
-                    HIDDEN
-                  </div>
-                )}
-              </div>
-            )}
           </div>
           <div className="text-xs sm:text-sm">
             Last updated: {formatRelativeDate(agistment.modifiedAt)}
@@ -438,7 +452,6 @@ export default function PropertyCard({
                 status: 'HIDDEN'
               };
               await agistmentService.updateAgistment(agistment.id, updatedAgistment);
-　
 
               // Notify parent component that visibility changed
               if (onToggleVisibility) {
@@ -455,6 +468,35 @@ export default function PropertyCard({
         }}
         currentlyHidden={agistment.status === 'HIDDEN'}
         isUpdating={isUpdatingVisibility}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={async () => {
+          try {
+            // Update agistment status to REMOVED
+            const updatedAgistment: Partial<AgistmentResponse> = {
+              ...agistment,
+              status: 'REMOVED'
+            };
+            await agistmentService.updateAgistment(agistment.id, updatedAgistment);
+
+            // Notify parent component that visibility changed
+            if (onToggleVisibility) {
+              await onToggleVisibility();
+            }
+
+            setShowDeleteModal(false);
+          } catch (error) {
+            console.error('Error deleting agistment:', error);
+          }
+        }}
+        title="Delete Agistment"
+        message="Are you sure you want to delete this agistment? This action cannot be undone."
+        confirmText="Delete Agistment"
+        confirmStyle="danger"
       />
     </div>
   );

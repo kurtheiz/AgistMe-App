@@ -13,10 +13,7 @@ export const Home = () => {
       {/* Hero Section */}
       <div className="relative w-full h-[70vh] min-h-[500px]">
         <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'url(/am.png)',
-          }}
+          className="absolute inset-0 bg-cover bg-center bg-[url('/am-mobile.png')] md:bg-[url('/am.png')]"
         />
         <div className="absolute inset-0" />
         <div className="absolute inset-0 flex flex-col items-center justify-start pt-12 p-6">
@@ -69,7 +66,7 @@ export const Home = () => {
               ))}
               <li className="flex items-center gap-2 text-gray-900 font-bold min-h-[28px]">
                 <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
-                List for FREE until March 31st 2025, then only $4.95/month after
+                List for FREE until 31st March 2025, then only $4.95/month after
               </li>
             </ul>
             <div className="flex justify-center md:justify-start">

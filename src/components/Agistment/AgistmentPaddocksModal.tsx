@@ -237,7 +237,14 @@ export const AgistmentPaddocksModal = ({
         ...prev[type],
         [field]: field === 'whenAvailable' && value 
           ? value // Keep the ISO string format from the input
-          : value
+          : value,
+        ...(field === 'totalPaddocks' && value === 0 ? {
+          available: 0,
+          total: 0,
+          weeklyPrice: 0,
+          comments: '',
+          whenAvailable: null
+        } : {})
       }
     }));
     setIsDirty(true);

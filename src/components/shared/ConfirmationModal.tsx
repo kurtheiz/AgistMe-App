@@ -9,6 +9,7 @@ interface ConfirmationModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
+  confirmStyle?: string;
 }
 
 export function ConfirmationModal({
@@ -18,7 +19,8 @@ export function ConfirmationModal({
   title = 'Are you sure?',
   message,
   confirmText = 'Yes',
-  cancelText = 'No'
+  cancelText = 'No',
+  confirmStyle
 }: ConfirmationModalProps) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -54,7 +56,7 @@ export function ConfirmationModal({
                   {title}
                 </DialogTitle>
                 <div className="mt-2">
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm text-neutral-600 whitespace-pre-line">
                     {message}
                   </p>
                 </div>
@@ -69,7 +71,7 @@ export function ConfirmationModal({
                   </button>
                   <button
                     type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 transition-colors"
+                    className={`inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 transition-colors ${confirmStyle}`}
                     onClick={() => {
                       onConfirm();
                       onClose();
