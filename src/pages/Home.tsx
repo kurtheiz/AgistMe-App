@@ -35,7 +35,7 @@ export const Home = () => {
               Finding the perfect home for your horse shouldn't be a wild goose chase. Whether you're seeking private paddocks, shared arrangements, or full-care options, our smart search helps you discover properties that match your needs – from lit arenas and round yards to secure tack rooms and float parking.
             </p>
             <ul className="space-y-3 mb-8">
-              {['Search by location', 'Filter by what you need', 'Direct owner contact', 'Detailed property information', 'Get notifications to stay up to date'].map((item) => (
+              {['Search by location', 'Filter by what you need', 'Direct owner contact', 'Detailed property information', 'Save searches and add favorites', 'Get notifications on your saved searches'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-gray-700 min-h-[28px]">
                   <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
                   {item}
@@ -61,7 +61,7 @@ export const Home = () => {
               Showcase your facilities, manage your paddock availability, and connect with qualified horse owners. List your property details and get notified when interested agistees enquire about your property. Already posting on social media? Our AI can help you turn that text into the beginning of a listing in seconds.
             </p>
             <ul className="space-y-3 mb-8">
-              {['Easy property listing', 'Facility showcase', 'Availability management', 'Direct communication'].map((item) => (
+              {['Easy property listing', 'Facility showcase', 'Availability management', 'Direct communication', 'Create text for social media posts'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-gray-700 min-h-[28px]">
                   <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
                   {item}
@@ -69,7 +69,7 @@ export const Home = () => {
               ))}
               <li className="flex items-center gap-2 text-gray-900 font-bold min-h-[28px]">
                 <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
-                Create a Standard listing for FREE!
+                List for FREE until March 31st 2025, then only $4.95/month after
               </li>
             </ul>
             <div className="flex justify-center md:justify-start">
