@@ -1,4 +1,5 @@
 import { Location } from './agistment.ts';
+import { SearchRequest } from './search';
 
 export interface Favourite {
     id: string;
@@ -6,7 +7,7 @@ export interface Favourite {
     lastUpdate: string;
     status: string;
     location: Location;
-    photo: string | null;
+    photo: string;
 }
 
 export interface Horse {
@@ -30,7 +31,7 @@ export interface Horse {
 export interface SavedSearch {
     id: string;
     name: string;
-    searchHash: string;
+    searchCriteria: SearchRequest;
     lastUpdate: string;
     enableNotifications: boolean;
 }

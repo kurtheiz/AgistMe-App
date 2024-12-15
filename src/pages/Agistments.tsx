@@ -1,283 +1,213 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useUser } from "@clerk/clerk-react";
 import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';
-import { BookmarkPlus } from 'lucide-react';
-import { SearchRequest, SearchResponse } from '../types/search';
+import { BookmarkPlus, RotateCw } from 'lucide-react';
+import { SearchRequest } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
-import { scrollManager } from '../utils/scrollManager';
-import { agistmentService } from '../services/agistment.service';
-import { profileService } from '../services/profile.service';
-import { advertService, Advert } from '../services/advert.service';
 import { useSearchStore } from '../stores/search.store';
 import { decodeSearchHash } from '../utils/searchHashUtils';
+import { useAgistmentSearch } from '../hooks/useAgistmentSearch';
+import { useSavedSearchesStore } from '../stores/savedSearches.store';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Agistments = () => {
-  const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const { user } = useUser();
-  const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
-  const [adverts, setAdverts] = useState<Advert[]>([]);
-  const [isFetching, setIsFetching] = useState(false);
-  const { isSearchModalOpen, setIsSearchModalOpen } = useSearchStore();
+  const { 
+    isSearchModalOpen, 
+    setIsSearchModalOpen,
+    scrollPosition,
+    setScrollPosition
+  } = useSearchStore();
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [currentCriteria, setCurrentCriteria] = useState<SearchRequest | null>(null);
   const [forceResetSearch, setForceResetSearch] = useState(false);
-  const [shouldRefreshSavedSearches, setShouldRefreshSavedSearches] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
-  const loadMore = async () => {
-    if (!searchResponse?.nextToken) return;
-    setIsFetching(true);
-    try {
-      const response = await agistmentService.searchAgistments(searchHash, searchResponse.nextToken);
-      if (response) {
-        setSearchResponse({
-          ...response,
-          results: [...(searchResponse?.results || []), ...response.results]
-        });
-      }
-    } catch (error) {
-      console.error('Load more error:', error);
-      toast.error('Failed to load more results. Please try again.');
-    } finally {
-      setIsFetching(false);
-    }
-  };
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isLoading,
+    isError,
+    refetch
+  } = useAgistmentSearch(searchHash);
 
-  useEffect(() => {
-    const searchHash = searchParams.get('q');
-    if (searchHash) {
-      const decodedCriteria = decodeSearchHash(searchHash);
-      setCurrentCriteria(decodedCriteria);
-      const fetchData = async () => {
-        setIsFetching(true);
-        try {
-          const searchResult = await agistmentService.searchAgistments(searchHash);
-          if (searchResult) {
-            setSearchResponse(searchResult);
-            if (searchResult.results.length > 0) {
-              // Only fetch adverts if we have search results
-              const advertsData = await advertService.getAdverts();
-              setAdverts(advertsData);
-            } else {
-              setAdverts([]);
-            }
-          }
-        } catch (error) {
-          console.error('Search error:', error);
-          toast.error('Failed to perform search. Please try again.');
-        } finally {
-          setIsFetching(false);
-        }
-      };
-      fetchData();
-    } else {
-      setSearchResponse(null);
-      setAdverts([]); // Clear adverts when there's no search
-    }
-  }, [searchParams, forceResetSearch]);
+  const agistments = data?.pages.flatMap(page => page.results) ?? [];
 
-  useEffect(() => {
-    if (searchParams.get('openSearch') === 'true') {
-      setIsSearchModalOpen(true);
-      // Remove the openSearch parameter
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete('openSearch');
-      setSearchParams(newParams, { replace: true });
-    }
-  }, [searchParams, setSearchParams, setIsSearchModalOpen]);
+  const queryClient = useQueryClient();
 
+  // Save scroll position when unmounting
   useEffect(() => {
-    if (!isSearchModalOpen) {
-      setForceResetSearch(false);
-    }
-  }, [isSearchModalOpen]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (location.key && !isFetching) {
-        scrollManager.savePosition(location.key);
-      }
+    return () => {
+      setScrollPosition(window.scrollY);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.key, isFetching]);
+  }, [setScrollPosition]);
 
+  // Restore scroll position after data loads
   useEffect(() => {
-    const restoreScroll = () => {
-      if (!isFetching && location.key) {
-        const savedPosition = scrollManager.getPosition(location.key);
-        if (savedPosition !== undefined) {
-          setTimeout(() => {
-            window.scrollTo(0, savedPosition);
-          }, 0);
-        } else {
+    if (!isLoading && !isFetching && agistments.length > 0 && scrollPosition > 0) {
+      window.scrollTo(0, scrollPosition);
+    }
+  }, [isLoading, isFetching, agistments.length, scrollPosition]);
+
+  // Only scroll to top on new searches
+  useEffect(() => {
+    if (searchHash) {
+      try {
+        const criteria = decodeSearchHash(searchHash);
+        setCurrentCriteria(criteria);
+        // Only scroll to top if this is a new search, not when returning to the page
+        if (!data) {
           window.scrollTo(0, 0);
         }
+      } catch (error) {
+        console.error('Failed to decode search hash:', error);
       }
-    };
-    restoreScroll();
-  }, [location.key, isFetching]);
-
-  useEffect(() => {
-    if (searchHash) {
-      setSearchParams({ q: searchHash });
     }
-  }, [searchHash]);
+  }, [searchHash, data]);
 
-  const handleSearch = async (criteria: SearchRequest & { searchHash: string }) => {
-    setIsSearchModalOpen(false);
-    setIsFetching(true);
+  const handleSaveSearch = async () => {
+    if (!user) {
+      toast.error('Please sign in to save searches');
+      return;
+    }
+    setIsSaveSearchModalOpen(true);
+  };
+
+  const handleSaveSearchComplete = async (name: string, enableNotifications: boolean) => {
     try {
-      const response = await agistmentService.searchAgistments(criteria.searchHash);
-      setSearchResponse(response);
-      setSearchParams({ q: criteria.searchHash });
-      setForceResetSearch(false);
+      if (!currentCriteria) return;
+      
+      await useSavedSearchesStore.getState().saveSearch(
+        name,
+        currentCriteria,
+        enableNotifications,
+        undefined,
+        queryClient
+      );
+      setIsSaveSearchModalOpen(false);
+
     } catch (error) {
-      console.error('Search error:', error);
-      toast.error('Failed to perform search. Please try again.');
-    } finally {
-      setIsFetching(false);
+      console.error('Failed to save search:', error);
     }
   };
 
-  const hasMore = searchResponse?.nextToken !== null && searchResponse?.nextToken !== undefined;
+  const handleCloseSearchModal = () => {
+    setIsSearchModalOpen(false);
+    setForceResetSearch(false);
+  };
 
   return (
     <>
-
-      <PageToolbar>
-        <div className="flex items-center gap-2 w-full">
-          <div className="flex-1">
+      <PageToolbar
+        actions={
+          <div className="flex items-center gap-4">
             <button
-              type="button"
-              onClick={() => {
-                if (!user) {
-                  toast.error('Please sign in to save searches');
-                } else {
-                  setIsSaveSearchModalOpen(true);
-                }
-              }}
-              disabled={!searchHash}
-              className={`inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ${!searchHash ? 'text-gray-400 ring-gray-200 cursor-not-allowed' : 'text-gray-900 ring-gray-300 hover:bg-gray-50'}`}
+              onClick={() => refetch()}
+              disabled={!searchHash || isFetching}
+              className={`button-toolbar ${(!searchHash || isFetching) && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
             >
-              <BookmarkPlus className="h-4 w-4" />
+              <RotateCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+            <button
+              onClick={handleSaveSearch}
+              disabled={!searchHash}
+              className={`button-toolbar ${!searchHash && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+            >
+              <BookmarkPlus className="w-4 h-4" />
               <span>Save Search</span>
             </button>
           </div>
-        </div>
-      </PageToolbar>
+        }
+      />
 
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
-        {isFetching ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
-          </div>
-        ) : (
-          <div className="pb-8 pt-4 md:px-4 text-gray-500">
-            {searchResponse && searchResponse.results.length > 0 ? (
-              <div>
-                <div className="text-sm text-gray-600 mb-4 px-4">
-                  {searchResponse.results.length} {searchResponse.results.length === 1 ? 'agistment' : 'agistments'} found
-                </div>
-                <AgistmentList 
-                  agistments={searchResponse.results} 
-                  adverts={adverts}
-                  onLoadMore={loadMore}
-                  hasMore={!!searchResponse.nextToken}
-                  isLoading={isFetching}
-                  searchCriteria={currentCriteria ? { paddockTypes: currentCriteria.paddockTypes } : undefined}
-                />
+        <div>
+          {isLoading ? (
+            <div className="flex flex-col justify-center items-center h-64 space-y-4">
+              <div className="w-32 h-32 md:w-48 md:h-48">
+                <AnimatedSearchLogo className="w-full h-full" />
               </div>
-            ) : searchHash ? (
-              <div className="flex flex-col items-center py-3 md:py-16 px-4">
-                <div className="mb-4 md:mb-8 text-neutral-400">
-                  <AnimatedSearchLogo className="w-12 h-12 md:w-48 md:h-48" />
-                </div>
-                <h2 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">No Properties Found</h2>
-                <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-4 md:mb-8 max-w-md text-left leading-relaxed">
-                  We couldn't find any properties matching your criteria. Try adjusting your search parameters.
-                </p>
-                <button
-                  onClick={() => setIsSearchModalOpen(true)}
-                  className="button-primary"
-                >
-                  Modify Search
-                </button>
+              <div className="w-full max-w-xl px-4">
+                <p className="text-center text-sm text-gray-500 mt-2">Searching for agistments...</p>
               </div>
-            ) : (
-              <div className="flex flex-col items-center py-3 md:py-16 px-4">
-                <div className="mb-3 md:mb-8 text-neutral-400">
-                  <AnimatedSearchLogo className="w-12 h-12 md:w-48 md:h-48" />
+            </div>
+          ) : isError ? (
+            <div className="text-center py-12 text-gray-500">
+              Failed to load agistments. Please try again later.
+            </div>
+          ) : agistments.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="space-y-6">
+                <div className="w-32 h-32 md:w-48 md:h-48 mx-auto">
+                  <AnimatedSearchLogo className="w-full h-full" />
                 </div>
-                <h2 className="text-lg md:text-3xl font-semibold mb-2 md:mb-4 text-neutral-800 dark:text-neutral-200">
-                  Find your perfect Agistment
-                </h2>
-                <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-3 md:mb-8 max-w-lg text-left leading-relaxed">
-                  Your perfect agistment journey starts here. Search by location, facilities, and care options to find the ideal home for your horse.
-                </p>
-                <button
-                  onClick={() => setIsSearchModalOpen(true)}
-                  className="button-primary"
-                >
-                  Start Searching
-                </button>
+                <div className="text-gray-500">
+                  {!searchHash ? (
+                    <>
+                      <p>Start by searching for agistments in your area.</p>
+                      <button
+                        onClick={() => setIsSearchModalOpen(true)}
+                        className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      >
+                        Start Searching
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p>No agistments found with your current search criteria.</p>
+                      <button
+                        onClick={() => setIsSearchModalOpen(true)}
+                        className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      >
+                        Modify Search
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        )}
-        {hasMore && !isFetching && (
-          <div className="mt-8 flex justify-center">
-            <button
-              onClick={loadMore}
-              className="button-secondary"
-            >
-              Load More Results
-            </button>
-          </div>
-        )}
-        <SearchModal
-          isOpen={isSearchModalOpen}
-          onClose={() => setIsSearchModalOpen(false)}
-          onSearch={handleSearch}
-          initialSearchHash={searchHash}
-          forceReset={forceResetSearch}
-          refreshSavedSearches={shouldRefreshSavedSearches}
-        />
-        {isSaveSearchModalOpen && (
-          <SaveSearchModal
-            isOpen={isSaveSearchModalOpen}
-            onClose={() => setIsSaveSearchModalOpen(false)}
-            searchCriteria={currentCriteria}
-            onSave={async (name, enableNotifications) => {
-              if (!user || !searchHash) return;
-              const newSavedSearch = {
-                id: crypto.randomUUID(),
-                name: name,
-                searchHash,
-                lastUpdate: new Date().toISOString(),
-                enableNotifications
-              };
-              try {
-                const response = await profileService.getSavedSearches();
-                const updatedSearches = [...response.savedSearches, newSavedSearch];
-                await profileService.updateSavedSearches(updatedSearches);
-                setIsSaveSearchModalOpen(false);
-                setShouldRefreshSavedSearches(true);
-                toast.success('Search saved successfully');
-              } catch (error) {
-                console.error('Failed to save search:', error);
-                toast.error('Failed to save search');
-              }
-            }}
-          />
-        )}
+            </div>
+          ) : (
+            <div className="pb-8 pt-4 md:px-4">
+              <div className="mb-4 text-sm text-neutral-600 px-4">
+                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'} found
+              </div>
+              <AgistmentList 
+                agistments={agistments}
+                hasMore={hasNextPage}
+                isLoading={isFetching}
+                onLoadMore={() => fetchNextPage()}
+              />
+            </div>
+          )}
+        </div>
       </div>
+
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={handleCloseSearchModal}
+        initialCriteria={currentCriteria}
+        forceReset={forceResetSearch}
+        onSearch={(criteria) => {
+          setCurrentCriteria(criteria);
+          setForceResetSearch(false);
+        }}
+      />
+
+      <SaveSearchModal
+        isOpen={isSaveSearchModalOpen}
+        onClose={() => setIsSaveSearchModalOpen(false)}
+        onSave={handleSaveSearchComplete}
+        searchCriteria={currentCriteria}
+      />
     </>
   );
 };

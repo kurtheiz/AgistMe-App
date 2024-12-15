@@ -17,35 +17,31 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { MoreVertical, Bookmark } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
-import { SavedSearch } from '../../types/profile';
-import { profileService } from '../../services/profile.service';
 import { encodeSearchHash, decodeSearchHash } from '../../utils/searchHashUtils';
+import { useSavedSearchesStore } from '../../stores/savedSearches.store';
 
 const initialFacilities: FacilityKey[] = [];
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSearch: (criteria: SearchRequest & { searchHash: string }) => void;
-  initialSearchHash?: string;
-  onFilterCountChange?: (count: number) => void;
+  initialCriteria?: SearchRequest | null;
   forceReset?: boolean;
-  refreshSavedSearches?: boolean;
+  onSearch: (criteria: SearchRequest) => void;
 }
 
 export function SearchModal({
   isOpen,
   onClose,
-  onSearch,
-  initialSearchHash,
+  initialCriteria,
   forceReset,
-  refreshSavedSearches
+  onSearch
 }: SearchModalProps) {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchHash = searchParams.get('q');
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdating] = useState(false);
   const { user } = useUser();
-  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const { savedSearches } = useSavedSearchesStore();
   const [searchCriteria, setSearchCriteria] = useState<SearchRequest>({
     suburbs: [],
     radius: 0,
@@ -61,12 +57,7 @@ export function SearchModal({
   useEffect(() => {
     const loadSavedSearches = async () => {
       try {
-        const response = await profileService.getSavedSearches();
-        // Sort by lastUpdate, most recent first
-        const sortedSearches = response.savedSearches.sort((a, b) =>
-          new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime()
-        );
-        setSavedSearches(sortedSearches);
+        // No need to load saved searches from profile service, it's already handled by the Zustand store
       } catch (error) {
         console.error('Error loading saved searches:', error);
         toast.error('Failed to load saved searches');
@@ -76,7 +67,7 @@ export function SearchModal({
     if (user) {
       loadSavedSearches();
     }
-  }, [user, refreshSavedSearches]);
+  }, [user]);
 
   useEffect(() => {
     // Clear paddock types when both spaces and maxPrice are 0
@@ -107,9 +98,8 @@ export function SearchModal({
         facilities: initialFacilities,
         careTypes: []
       });
-    } else if (initialSearchHash) {
-      const decodedCriteria = decodeSearchHash(initialSearchHash);
-      setSearchCriteria(decodedCriteria);
+    } else if (initialCriteria) {
+      setSearchCriteria(initialCriteria);
     } else if (!searchHash && isOpen) {
       setSearchCriteria({
         suburbs: [],
@@ -130,7 +120,7 @@ export function SearchModal({
         console.error('Error decoding search hash:', error);
       }
     }
-  }, [initialSearchHash, searchHash, isOpen, forceReset]);
+  }, [initialCriteria, searchHash, isOpen, forceReset]);
 
   const togglePaddockType = (type: PaddockType) => {
     setSearchCriteria((prev: SearchRequest) => {
@@ -197,21 +187,35 @@ export function SearchModal({
   };
 
   const handleSearch = async () => {
-    setIsUpdating(true);
     try {
+      // Validate that at least one suburb is selected
+      if (searchCriteria.suburbs.length === 0) {
+        toast.error('Please select at least one location');
+        return;
+      }
+
       const searchHash = encodeSearchHash(searchCriteria);
-      // Always execute search before closing modal
-      await onSearch({ ...searchCriteria, searchHash });
+      if (!searchHash) {
+        toast.error('Please fill in the required search criteria');
+        return;
+      }
+      
+      setSearchParams({ q: searchHash });
+      onClose();
+      onSearch(searchCriteria);
     } catch (error) {
       console.error('Error executing search:', error);
-    } finally {
-      setIsUpdating(false);
-      onClose();
+      toast.error('Please check your search criteria and try again');
     }
   };
 
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch();
+  };
+
   const modalContent = (
-    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} id="search-form" className="space-y-4 pb-12">
+    <form onSubmit={onSubmit} id="search-form" className="space-y-4 pb-12">
       {/* Location Section */}
       <div className="space-y-4 sm:space-y-6">
         {/* Location Search with Saved Searches Menu */}
@@ -280,10 +284,9 @@ export function SearchModal({
                           {() => (
                             <button
                               onClick={() => {
-                                const decodedSearch = decodeSearchHash(savedSearch.searchHash);
-                                setSearchCriteria(decodedSearch);
+                                setSearchCriteria(savedSearch.searchCriteria);
                               }}
-                              className={`text-gray-700 block w-full px-4 py-2 text-left text-sm`}
+                              className={`text-gray-700 block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors`}
                             >
                               {savedSearch.name}
                             </button>

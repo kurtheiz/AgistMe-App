@@ -150,7 +150,7 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Enquire about ${agistmentName}`}
+      title="Send an Enquiry"
       size="md"
       isUpdating={false}
       actionIconType="SAVE"
@@ -192,6 +192,10 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
           {!isSignedIn && (
             <p className="mt-1 text-sm text-neutral-500">Sign in to share your bio</p>
           )}
+
+          <div className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mt-2 mb-4">
+            {agistmentName}
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>

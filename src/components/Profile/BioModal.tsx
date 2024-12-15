@@ -9,6 +9,7 @@ import { Modal } from '../shared/Modal';
 import toast from 'react-hot-toast';
 import { Suburb } from '../../types/suburb';
 import { Switch } from '@headlessui/react';
+import { useBioStore } from '../../stores/bio.store';
 
 interface BioModalProps {
   isOpen?: boolean;
@@ -112,17 +113,15 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
 
     try {
       setSaving(true);
-      await profileService.updateProfile({
+      await useBioStore.getState().updateBio({
         ...formData,
         showProfileInEnquiry: formData.showProfileInEnquiry ?? false
       });
-      toast.success('Profile updated successfully');
       setInitialHash(JSON.stringify(formData));
       setIsDirty(false);
       onClose();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -271,6 +270,22 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
           <div className="section-container">
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                Address
+              </label>
+              <input
+                type="text"
+                id="address"
+                value={formData.address || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                className="form-input form-input-compact"
+                placeholder="Enter your street address"
+              />
+            </div>
+          </div>
+
+          <div className="section-container">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 Location
               </label>
               <SuburbSearch
@@ -279,61 +294,59 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
                 multiple={false}
                 className="w-full"
               />
-                              <div className="grid grid-cols-2 gap-4 mt-2">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      Selected Suburb
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.suburb || ''}
-                      readOnly
-                      disabled
-                      className="form-input form-input-compact bg-neutral-50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      Region
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.region || ''}
-                      readOnly
-                      disabled
-                      className="form-input form-input-compact bg-neutral-50"
-                    />
-                  </div>
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Selected Suburb
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.suburb || ''}
+                    readOnly
+                    disabled
+                    className="form-input form-input-compact bg-neutral-50"
+                  />
                 </div>
-              
-              
-                <div className="grid grid-cols-2 gap-4 mt-2">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.state || ''}
-                      readOnly
-                      disabled
-                      className="form-input form-input-compact bg-neutral-50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      Post Code
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.postcode || ''}
-                      readOnly
-                      disabled
-                      className="form-input form-input-compact bg-neutral-50"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Region
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.region || ''}
+                    readOnly
+                    disabled
+                    className="form-input form-input-compact bg-neutral-50"
+                  />
                 </div>
-              
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    State
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.state || ''}
+                    readOnly
+                    disabled
+                    className="form-input form-input-compact bg-neutral-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Post Code
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.postcode || ''}
+                    readOnly
+                    disabled
+                    className="form-input form-input-compact bg-neutral-50"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

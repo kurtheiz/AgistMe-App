@@ -34,7 +34,7 @@ const ListAgistment = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
+    <div className="min-h-screen bg-white dark:bg-neutral-900">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -51,7 +51,7 @@ const ListAgistment = () => {
             <ul className="space-y-3 text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
-                <span>Property Name (at least 3 characters)</span>
+                <span>Property Name</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
@@ -119,13 +119,13 @@ const ListAgistment = () => {
         </div>
 
         <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-300 mb-4 flex items-center justify-center gap-2">
-            Pro tip: On the next page, look for 
+          <p className="text-gray-600 dark:text-gray-300 mb-4 flex flex-wrap items-center justify-center gap-2 px-4">
+            <span>Pro tip: On the next page, look for</span>
             <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-neutral-200 dark:border-neutral-700">
               <Sparkles className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
               <span className="text-neutral-600 dark:text-neutral-400 text-sm">From text</span>
             </span>
-            in the toolbar to create your listing from text (for example, from a social media post)!
+            <span>in the toolbar to create your listing from text (for example, from a social media post)!</span>
           </p>
           <button 
             onClick={handleCreateAgistment}

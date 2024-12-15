@@ -8,20 +8,21 @@ interface SaveSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   searchCriteria?: SearchRequest | null;
-  onSave: (name: string, enableNotifications: boolean) => void;
+  existingId?: string;
   initialName?: string;
   initialNotifications?: boolean;
   title?: string;
+  onSave: (name: string, enableNotifications: boolean) => Promise<void>;
 }
 
 export function SaveSearchModal({ 
   isOpen, 
   onClose, 
-  searchCriteria, 
-  onSave,
+  searchCriteria,
   initialName = '',
   initialNotifications = false,
-  title = 'Save Search'
+  title = 'Save Search',
+  onSave
 }: SaveSearchModalProps) {
   const [name, setName] = useState(initialName);
   const [enableNotifications, setEnableNotifications] = useState(initialNotifications);
@@ -43,17 +44,17 @@ export function SaveSearchModal({
     setIsDirty(isNameDirty || isNotificationsDirty);
   }, [name, enableNotifications, initialName, initialNotifications]);
 
-  const handleSave = () => {
-    if (!name.trim() || !isDirty) return;
+  const handleSave = async () => {
+    if (!name.trim() || !isDirty || !searchCriteria) return;
     
     setIsUpdating(true);
     try {
-      onSave(name, enableNotifications);
-      onClose();
+      await onSave(name, enableNotifications);
     } catch (error) {
       console.error('Failed to save search:', error);
     } finally {
       setIsUpdating(false);
+      onClose();
     }
   };
 
@@ -66,7 +67,7 @@ export function SaveSearchModal({
       isUpdating={isUpdating}
       actionIconType="SAVE"
       onAction={handleSave}
-      disableAction={!name.trim() || !isDirty}
+      disableAction={!name.trim() || !isDirty || !searchCriteria}
     >
       <div className="space-y-6">
         <div>
@@ -105,9 +106,7 @@ export function SaveSearchModal({
               } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
             />
           </Switch>
-          <label className="ml-3 text-sm text-gray-700">
-            Notify me when new agistments match these criteria
-          </label>
+          <span className="ml-3 text-sm text-gray-700">Enable notifications for this search</span>
         </div>
       </div>
     </Modal>

@@ -6,7 +6,6 @@ import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
 import { useNotificationsStore } from '../stores/notifications.store';
 import { Search, SquareMenu } from 'lucide-react';
-import { profileService } from '../services/profile.service';
 
 export const Header = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -20,8 +19,6 @@ export const Header = () => {
   const { setIsSearchModalOpen } = useSearchStore();
   const { 
     notifications, 
-    setNotifications, 
-    setIsLoading: setIsLoadingNotifications 
   } = useNotificationsStore();
 
   useEffect(() => {
@@ -61,24 +58,7 @@ export const Header = () => {
   // Don't show agistor-specific items while loading
   const showAgistorItems = isAgistor && !isAgistorLoading;
 
-  // Add notification fetching
-  useEffect(() => {
-    const loadNotifications = async () => {
-      if (!isSignedIn) return;
-      
-      setIsLoadingNotifications(true);
-      try {
-        const response = await profileService.getNotifications();
-        setNotifications(response.notifications);
-      } catch (error) {
-        console.error('Error loading notifications:', error);
-      } finally {
-        setIsLoadingNotifications(false);
-      }
-    };
-
-    loadNotifications();
-  }, [isSignedIn, setNotifications, setIsLoadingNotifications]);
+  // Remove notification fetching useEffect as it's now handled in App.tsx
 
   // Calculate unread notifications count
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -151,13 +131,8 @@ export const Header = () => {
               {/* Search Icon */}
               <button
                 onClick={() => {
-                  if (location.pathname === '/agistments') {
-                    // Just open the search modal directly
-                    setIsSearchModalOpen(true);
-                  } else {
-                    // Navigate to agistments and set openSearch parameter
-                    navigate('/agistments?openSearch=true');
-                  }
+                  setIsSearchModalOpen(true);
+                  navigate('/agistments');
                 }}
                 className="p-2 rounded-full hover:bg-neutral-100"
               >
