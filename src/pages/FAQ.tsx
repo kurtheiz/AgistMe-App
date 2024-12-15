@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp, ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { PageToolbar } from '../components/PageToolbar';
 
 interface FAQItem {
   question: string;
@@ -63,6 +65,11 @@ const faqs: FAQItem[] = [
 
 const FAQ: React.FC = () => {
   const [openItems, setOpenItems] = useState<number[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const toggleItem = (index: number) => {
     setOpenItems(prev => 
@@ -73,8 +80,25 @@ const FAQ: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900">
-      <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white dark:bg-neutral-900">
+      <PageToolbar
+        actions={
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="font-medium text-sm sm:text-base">Back</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      />
+      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Frequently Asked Questions

@@ -65,13 +65,13 @@ export function MyAgistments() {
                 <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
                 <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap">
                   <button
-                    onClick={() => navigate('/agistments')}
+                    onClick={() => navigate('/dashboard')}
                     className="hover:text-primary-600 dark:hover:text-primary-400"
                   >
-                    Agistments
+                    Dashboard
                   </button>
                   <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
-                  <span>My</span>
+                  <span>My Agistments</span>
                 </div>
               </div>
             </div>
@@ -85,10 +85,12 @@ export function MyAgistments() {
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
             </div>
           ) : (
-            <div className="pb-8 pt-4 md:px-4 text-gray-500">
+            <div className="pb-8 pt-4 md:px-4">
+              <div className="mb-4 text-sm text-neutral-600 px-4">
+                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'}
+              </div>
               <AgistmentList 
                 agistments={agistments} 
-                title={`${agistments.length} Agistment${agistments.length !== 1 ? 's' : ''}`}
                 onEdit={(agistment) => {
                   sessionStorage.setItem('myAgistmentsScrollPosition', scrollPosition.toString());
                   navigate(`/agistments/${agistment.id}/edit`);

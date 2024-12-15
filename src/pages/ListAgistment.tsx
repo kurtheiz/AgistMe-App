@@ -1,11 +1,13 @@
 import { CheckCircle } from 'lucide-react';
 import { Sparkles } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import toast from 'react-hot-toast';
 import { useAuth } from '@clerk/clerk-react';
 import { useAuthFlow } from '../hooks/useAuthFlow';
+import { PageToolbar } from '../components/PageToolbar';
 
 const ListAgistment = () => {
   const navigate = useNavigate();
@@ -45,6 +47,23 @@ const ListAgistment = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-900">
+      <PageToolbar
+        actions={
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="font-medium text-sm sm:text-base">Back</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      />
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">

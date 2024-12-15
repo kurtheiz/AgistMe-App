@@ -13,8 +13,7 @@ export const Home = () => {
       {/* Hero Section */}
       <div className="relative w-full h-[70vh] min-h-[500px]">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-[url('/am-mobile.png')] md:bg-[url('/am.png')]"
-        />
+          className="absolute inset-0 bg-cover bg-center bg-[url('/am-mobile.png')] md:bg-[url('/am.png')]"/>
         <div className="absolute inset-0" />
         <div className="absolute inset-0 flex flex-col items-center justify-start pt-12 p-6">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white text-center max-w-3xl">
@@ -32,7 +31,7 @@ export const Home = () => {
               Finding the perfect home for your horse shouldn't be a wild goose chase. Whether you're seeking private paddocks, shared arrangements, or full-care options, our smart search helps you discover properties that match your needs – from lit arenas and round yards to secure tack rooms and float parking.
             </p>
             <ul className="space-y-3 mb-8">
-              {['Search by location', 'Filter by what you need', 'Direct owner contact', 'Detailed property information', 'Save searches and add favorites', 'Get notifications on your saved searches'].map((item) => (
+              {['Search by location', 'Filter by what you need', 'Direct owner contact', 'Detailed property information', 'Save searches and add favourites', 'Get notifications on your saved searches'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-gray-700 min-h-[28px]">
                   <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
                   {item}

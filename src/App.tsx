@@ -1,5 +1,5 @@
 import { ClerkProvider, useAuth } from '@clerk/clerk-react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
@@ -90,14 +90,6 @@ const router = createBrowserRouter([
           {
             path: ':id',
             element: <ViewAgistmentDetail />
-          },
-          {
-            path: 'my',
-            element: (
-              <ProtectedRoute requireAgistor={true}>
-                <MyAgistments />
-              </ProtectedRoute>
-            )
           }
         ]
       },
@@ -105,9 +97,19 @@ const router = createBrowserRouter([
         path: 'dashboard',
         element: (
           <ProtectedRoute requireAgistor={true}>
-            <Dashboard />
+            <Outlet />
           </ProtectedRoute>
-        )
+        ),
+        children: [
+          {
+            index: true,
+            element: <Dashboard />
+          },
+          {
+            path: 'agistments',
+            element: <MyAgistments />
+          }
+        ]
       },
       {
         path: 'profile',
