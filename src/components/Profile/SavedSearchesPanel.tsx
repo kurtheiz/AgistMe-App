@@ -2,7 +2,7 @@ import { Bookmark, ChevronDown, MoreVertical, Bell } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition, MenuItem } from '@headlessui/react';
 import { useRef, useState, useEffect } from 'react';
 import { SavedSearch } from '../../types/profile';
-import { decodeSearchHash } from '../../utils/searchHashUtils';
+import { encodeSearchHash } from '../../utils/searchHashUtils';
 
 interface SavedSearchesPanelProps {
   savedSearches: SavedSearch[];
@@ -44,7 +44,7 @@ export function SavedSearchesPanel({
                 ) : (
                   <div className="space-y-4">
                     {savedSearches.map((search, index) => {
-                      const searchCriteria = decodeSearchHash(search.searchHash);
+                      const searchCriteria = search.searchCriteria;
                       const location = searchCriteria.suburbs?.[0];
                       let locationDisplay = 'Any location';
                       
@@ -79,7 +79,7 @@ export function SavedSearchesPanel({
                           className={`p-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors ${
                             index !== savedSearches.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-700' : ''
                           }`}
-                          onClick={() => onNavigate(search.searchHash)}
+                          onClick={() => onNavigate(encodeSearchHash(search.searchCriteria))}
                         >
                           <div className="flex items-center">
                             <div className="flex-grow">

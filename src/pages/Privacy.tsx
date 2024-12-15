@@ -9,7 +9,7 @@ const Privacy: React.FC = () => {
     <div className="bg-white">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
-        <p className="text-sm text-neutral-500 mb-8">Last Updated: December 13, 2023</p>
+        <p className="text-sm text-neutral-500 mb-8">Last Updated: December 16, 2024</p>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>

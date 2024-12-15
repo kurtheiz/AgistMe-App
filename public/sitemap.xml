@@ -12,6 +12,16 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://agistme.com/privacy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://agistme.com/terms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://agistme.com/listagistment</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -27,12 +37,5 @@
     <loc>https://agistme.com/agistments/create</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-  </url>
-
-  <!-- User Pages -->
-  <url>
-    <loc>https://agistme.com/dashboard</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
   </url>
 </urlset>

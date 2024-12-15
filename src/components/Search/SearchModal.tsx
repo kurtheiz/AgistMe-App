@@ -271,10 +271,9 @@ export function SearchModal({
                           {() => (
                             <button
                               onClick={() => {
-                                const decodedSearch = decodeSearchHash(savedSearch.searchHash);
-                                setSearchCriteria(decodedSearch);
+                                setSearchCriteria(savedSearch.searchCriteria);
                               }}
-                              className={`text-gray-700 block w-full px-4 py-2 text-left text-sm`}
+                              className={`text-gray-700 block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors`}
                             >
                               {savedSearch.name}
                             </button>

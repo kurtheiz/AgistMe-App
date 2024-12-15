@@ -10,22 +10,22 @@ interface SaveSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   searchCriteria?: SearchRequest | null;
-  searchHash: string;
   existingId?: string;
   initialName?: string;
   initialNotifications?: boolean;
   title?: string;
+  onSave: (name: string, enableNotifications: boolean) => Promise<void>;
 }
 
 export function SaveSearchModal({ 
   isOpen, 
   onClose, 
   searchCriteria,
-  searchHash,
   existingId,
   initialName = '',
   initialNotifications = false,
-  title = 'Save Search'
+  title = 'Save Search',
+  onSave
 }: SaveSearchModalProps) {
   const [name, setName] = useState(initialName);
   const [enableNotifications, setEnableNotifications] = useState(initialNotifications);
@@ -53,18 +53,12 @@ export function SaveSearchModal({
     
     setIsUpdating(true);
     try {
-      await useSavedSearchesStore.getState().saveSearch(
-        name,
-        { ...searchCriteria, searchHash },
-        enableNotifications,
-        existingId,
-        queryClient
-      );
-      onClose();
+      await onSave(name, enableNotifications);
     } catch (error) {
       console.error('Failed to save search:', error);
     } finally {
       setIsUpdating(false);
+      onClose();
     }
   };
 

@@ -5,7 +5,7 @@ import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';
-import { BookmarkPlus } from 'lucide-react';
+import { BookmarkPlus, RotateCw } from 'lucide-react';
 import { SearchRequest } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
@@ -13,6 +13,8 @@ import { profileService } from '../services/profile.service';
 import { useSearchStore } from '../stores/search.store';
 import { decodeSearchHash } from '../utils/searchHashUtils';
 import { useAgistmentSearch } from '../hooks/useAgistmentSearch';
+import { useSavedSearchesStore } from '../stores/savedSearches.store';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Agistments = () => {
   const location = useLocation();
@@ -38,9 +40,12 @@ const Agistments = () => {
     isFetching,
     isLoading,
     isError,
+    refetch
   } = useAgistmentSearch(searchHash);
 
   const agistments = data?.pages.flatMap(page => page.results) ?? [];
+
+  const queryClient = useQueryClient();
 
   // Save scroll position when unmounting
   useEffect(() => {
@@ -81,10 +86,22 @@ const Agistments = () => {
     setIsSaveSearchModalOpen(true);
   };
 
-  const handleSaveSearchComplete = () => {
-    setIsSaveSearchModalOpen(false);
-    setShouldRefreshSavedSearches(true);
-    toast.success('Search saved successfully');
+  const handleSaveSearchComplete = async (name: string, enableNotifications: boolean) => {
+    try {
+      if (!currentCriteria) return;
+      
+      await useSavedSearchesStore.getState().saveSearch(
+        name,
+        currentCriteria,
+        enableNotifications,
+        undefined,
+        queryClient
+      );
+      setIsSaveSearchModalOpen(false);
+      setShouldRefreshSavedSearches(true);
+    } catch (error) {
+      console.error('Failed to save search:', error);
+    }
   };
 
   const handleCloseSearchModal = () => {
@@ -97,6 +114,14 @@ const Agistments = () => {
       <PageToolbar
         actions={
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => refetch()}
+              disabled={!searchHash || isFetching}
+              className={`button-toolbar ${(!searchHash || isFetching) && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+            >
+              <RotateCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
             <button
               onClick={handleSaveSearch}
               disabled={!searchHash}
@@ -112,9 +137,12 @@ const Agistments = () => {
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
         <div>
           {isLoading ? (
-            <div className="flex justify-center items-center h-64">
+            <div className="flex flex-col justify-center items-center h-64 space-y-4">
               <div className="w-32 h-32 md:w-48 md:h-48">
                 <AnimatedSearchLogo className="w-full h-full" />
+              </div>
+              <div className="w-full max-w-xl px-4">
+                <p className="text-center text-sm text-gray-500 mt-2">Searching for agistments...</p>
               </div>
             </div>
           ) : isError ? (
@@ -154,7 +182,7 @@ const Agistments = () => {
             </div>
           ) : (
             <div className="pb-8 pt-4 md:px-4">
-              <div className="mb-4 text-sm text-neutral-600">
+              <div className="mb-4 text-sm text-neutral-600 px-4">
                 {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'} found
               </div>
               <AgistmentList 
@@ -179,7 +207,6 @@ const Agistments = () => {
         isOpen={isSaveSearchModalOpen}
         onClose={() => setIsSaveSearchModalOpen(false)}
         onSave={handleSaveSearchComplete}
-        searchHash={searchHash}
         searchCriteria={currentCriteria}
       />
     </>

@@ -21,15 +21,11 @@ export const useSavedSearchesStore = create<SavedSearchesState>((set, get) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   deleteSavedSearch: async (searchId: string, queryClient?: QueryClient) => {
     try {
-      // First update local state
       const currentSearches = get().savedSearches;
       const updatedSearches = currentSearches.filter(search => search.id !== searchId);
       set({ savedSearches: updatedSearches });
-
-      // Then update the backend
       await profileService.updateSavedSearches(updatedSearches);
 
-      // Update TanStack Query cache if queryClient is provided
       if (queryClient) {
         queryClient.setQueryData(['profile'], (oldData: any) => {
           if (!oldData) return oldData;
@@ -40,9 +36,8 @@ export const useSavedSearchesStore = create<SavedSearchesState>((set, get) => ({
         });
       }
 
-      toast.success('Search deleted successfully');
+      toast.success('Search deleted');
     } catch (error) {
-      // Revert local state on error
       const currentSearches = get().savedSearches;
       set({ savedSearches: currentSearches });
       toast.error('Failed to delete search');
@@ -53,47 +48,42 @@ export const useSavedSearchesStore = create<SavedSearchesState>((set, get) => ({
     try {
       const currentSearches = get().savedSearches;
       const now = new Date().toISOString();
-      const newSearch: SavedSearch = {
-        id: existingId || crypto.randomUUID(),
-        name,
-        searchHash: searchCriteria.searchHash,
-        lastUpdate: now,
-        enableNotifications
-      };
 
-      let updatedSearches: SavedSearch[];
       if (existingId) {
         // Update existing search
-        updatedSearches = currentSearches.map(search => 
-          search.id === existingId ? newSearch : search
+        const updatedSearches = currentSearches.map(search => 
+          search.id === existingId 
+            ? { ...search, name, enableNotifications, lastUpdate: now }
+            : search
         );
+        set({ savedSearches: updatedSearches });
+        await profileService.updateSavedSearches(updatedSearches);
       } else {
         // Add new search
-        updatedSearches = [...currentSearches, newSearch];
+        const newSearch: SavedSearch = {
+          id: crypto.randomUUID(),
+          name,
+          searchCriteria,
+          lastUpdate: now,
+          enableNotifications
+        };
+        const updatedSearches = [...currentSearches, newSearch];
+        set({ savedSearches: updatedSearches });
+        await profileService.updateSavedSearches(updatedSearches);
       }
 
-      // Update local state
-      set({ savedSearches: updatedSearches });
-
-      // Update backend
-      await profileService.updateSavedSearches(updatedSearches);
-
-      // Update TanStack Query cache if queryClient is provided
       if (queryClient) {
         queryClient.setQueryData(['profile'], (oldData: any) => {
           if (!oldData) return oldData;
           return {
             ...oldData,
-            savedSearches: updatedSearches
+            savedSearches: get().savedSearches
           };
         });
       }
 
       toast.success(existingId ? 'Search updated successfully' : 'Search saved successfully');
     } catch (error) {
-      // Revert local state on error
-      const currentSearches = get().savedSearches;
-      set({ savedSearches: currentSearches });
       toast.error(existingId ? 'Failed to update search' : 'Failed to save search');
       throw error;
     }

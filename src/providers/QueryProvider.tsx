@@ -13,9 +13,9 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      // Keep cache longer
       staleTime: 5 * 60 * 1000,
-      cacheTime: 30 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      refetchOnMount: window.performance?.getEntriesByType('navigation')?.[0]?.type === 'reload',
     },
   },
 });
