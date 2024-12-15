@@ -185,6 +185,16 @@ class ProfileService {
     });
   }
 
+  async deleteProfile(): Promise<void> {
+    return this.retryOperation(async () => {
+      try {
+        await this.api.delete('v1/protected/profile');
+      } catch (error) {
+        console.error('Failed to delete profile:', error);
+        throw error;
+      }
+    });
+  }
 
   private async waitForAuth() {
     // Wait for Clerk to be available

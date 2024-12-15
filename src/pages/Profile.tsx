@@ -16,6 +16,8 @@ import { useFavoritesStore } from '../stores/favorites.store';
 import { useSavedSearchesStore } from '../stores/savedSearches.store';
 import { useQueryClient } from '@tanstack/react-query';
 import { profileService } from '../services/profile.service';
+import { ConfirmationModal } from '../components/shared/ConfirmationModal';
+import { useAgistor } from '../hooks/useAgistor';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -26,6 +28,7 @@ export default function Profile() {
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
   const [saveSearchCriteria, setSaveSearchCriteria] = useState<any>(null);
   const [isBioModalOpen, setIsBioModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Use Zustand stores instead of local state
@@ -33,6 +36,7 @@ export default function Profile() {
   const { bio, isLoading: isBioLoading } = useBioStore();
   const { favorites, isLoading: isFavoritesLoading } = useFavoritesStore();
   const { savedSearches, isLoading: isSavedSearchesLoading } = useSavedSearchesStore();
+  const { isAgistor } = useAgistor();
 
   useEffect(() => {
     if (!isSignedIn && isLoaded) {
@@ -195,6 +199,18 @@ export default function Profile() {
     // }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      await profileService.deleteProfile();
+      await signOut();
+      navigate('/');
+      toast.success('Your account has been deleted');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error('Failed to delete account. Please try again.');
+    }
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
@@ -260,6 +276,14 @@ export default function Profile() {
 
           </div>
         </div>
+        <div className="flex justify-center">
+          <button
+            className="mt-8 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-medium"
+            onClick={() => setIsDeleteModalOpen(true)}
+          >
+            Delete Account
+          </button>
+        </div>
       </div>
 
       <SaveSearchModal
@@ -275,6 +299,24 @@ export default function Profile() {
         initialNotifications={editingSearch?.enableNotifications || false}
         title={editingSearch ? 'Edit Search' : 'Save Search'}
         onSave={editingSearch ? handleEditSearch : handleSaveNewSearch}
+      />
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteAccount}
+        title="Delete Account?"
+        message={`Are you sure you want to delete your account? This action cannot be undone.
+
+The following data will be permanently deleted:
+
+• All your saved searches and search notifications
+• All your favorited agistments
+${isAgistor ? '• All your listed agistments and their associated data\n' : ''}• Your profile information and preferences
+
+This action is permanent and cannot be reversed.`}
+        confirmText="Delete Account"
+        cancelText="Cancel"
       />
     </div>
   );

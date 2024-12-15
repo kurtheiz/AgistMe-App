@@ -10,11 +10,11 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ children, requireAgistor = false }: ProtectedRouteProps) => {
   const { isLoaded, isSignedIn } = useUser();
-  const isAgistor = useAgistor();
+  const { isAgistor, isLoading: isAgistorLoading } = useAgistor();
   const location = useLocation();
 
-  // Show progress bar while checking authentication
-  if (!isLoaded) {
+  // Show progress bar while checking authentication or agistor status
+  if (!isLoaded || (requireAgistor && isAgistorLoading)) {
     return <ProgressBar />;
   }
 
@@ -26,7 +26,7 @@ export const ProtectedRoute = ({ children, requireAgistor = false }: ProtectedRo
 
   // If route requires agistor role and user is not an agistor, redirect to home
   if (requireAgistor && !isAgistor) {
-    return <Navigate to="/" replace state={{ from: location }} />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

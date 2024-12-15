@@ -54,7 +54,7 @@ export function ConfirmationModal({
                   {title}
                 </DialogTitle>
                 <div className="mt-2">
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm text-neutral-600 whitespace-pre-line">
                     {message}
                   </p>
                 </div>
