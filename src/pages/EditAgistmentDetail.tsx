@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
-import { ChevronLeft, Pencil, Heart, Share2, Sparkles, Trash2 } from 'lucide-react';
+import { ChevronLeft, Pencil, Heart, Share2, Sparkles } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
@@ -21,7 +21,6 @@ import { AgistmentRidingFacilitiesModal } from '../components/Agistment/Agistmen
 import { AgistmentFacilitiesModal } from '../components/Agistment/AgistmentFacilitiesModal';
 import { Dialog } from '../components/shared/Dialog';
 import { Modal } from '../components/shared/Modal';
-import { ConfirmationModal } from '../components/shared/ConfirmationModal';
 
 function EditAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +41,6 @@ function EditAgistmentDetail() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiText, setAiText] = useState('');
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const maxPhotos = 5
 
   // Scroll to top when component mounts
@@ -221,34 +219,6 @@ function EditAgistmentDetail() {
     setIsAiModalOpen(true);
   };
 
-  const handleDeleteAgistment = () => {
-    if (isUpdating) return;
-    setIsDeleteModalOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (isUpdating) return;
-    setIsUpdating(true);
-
-    try {
-      if (!agistment) return;
-      
-      // Create updated agistment with new status
-      const updatedAgistment: Partial<AgistmentResponse> = {
-        ...agistment,
-        status: 'REMOVED'
-      };
-      
-      await handleAgistmentUpdate(updatedAgistment);
-    } catch (error) {
-      console.error('Error updating agistment:', error);
-    } finally {
-      setIsUpdating(false);
-      setIsDeleteModalOpen(false);
-      navigate('/agistments/my');
-    }
-  };
-
   const handleAiSubmit = async () => {
     if (!agistment || !aiText.trim()) return;
     
@@ -360,6 +330,22 @@ function EditAgistmentDetail() {
                     )}
                     <button
                       className="button-toolbar"
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({
+                            title: 'Agist Me',
+                            text: `Look at what i found on Agist Me. ${agistment?.basicInfo.name} located in ${agistment?.propertyLocation.location?.suburb}, ${agistment?.propertyLocation.location?.state}\n${window.location.href}`,
+                            url: window.location.href,
+                          });
+                        }
+                      }}
+                      disabled={isUpdating}
+                    >
+                      <Share2 className="w-4 h-4" />
+                      <span>Share</span>
+                    </button>
+                    <button
+                      className="button-toolbar"
                       onClick={handleVisibilityToggle}
                       disabled={isUpdating}
                       title={
@@ -370,18 +356,6 @@ function EditAgistmentDetail() {
                     >
                       {agistment?.status === 'HIDDEN' ? 'Publish' : 'Hide'}
                     </button>
-                    {id != 'temp_' && (
-                      <button
-                        className="button-toolbar"
-                        onClick={handleDeleteAgistment}
-                        disabled={isUpdating}
-                      >
-                        <span className="flex text-red-600 items-center gap-1">
-                          <Trash2 className="h-4 w-4" />
-                          Delete
-                        </span>
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -431,41 +405,33 @@ function EditAgistmentDetail() {
               <div className="border-b border-neutral-200 pb-8">
                 <div className="mb-4 flex gap-4">
                   {agistment && (
-                    <>
-                      <div 
-                        className="flex items-center gap-2 text-sm text-neutral-400"
-                      >
-                        <Heart 
-                          className="w-5 h-5"
-                        />
-                        <span>Favorite</span>
-                      </div>
-                      <div 
-                        className="flex items-center gap-2 text-sm text-neutral-400"
-                      >
-                        <Share2 className="w-5 h-5" />
-                        <span>Share</span>
-                      </div>
-                    </>
+                    <div 
+                      className="flex items-center gap-2 text-sm text-neutral-400"
+                    >
+                      <Heart 
+                        className="w-5 h-5"
+                      />
+                      <span>Favorite</span>
+                    </div>
                   )}
                 </div>
                 <div>
-  <div className="flex justify-between items-center mb-4">
-    <button
-      onClick={() => setIsHeaderModalOpen(true)}
-      className="button-primary" title="Edit basic info"
-    >
-       <Pencil className="w-4 h-4" />
-       <span>Edit</span>
-    </button>
-  </div>
-  <AgistmentHeader 
-    basicInfo={agistment?.basicInfo}
-    propertyLocation={agistment?.propertyLocation}
-    contactDetails={agistment?.contact}
-    propertyDescription={agistment?.propertyDescription}
-  />
-</div>
+                  <div className="flex justify-between items-center mb-4">
+                    <button
+                      onClick={() => setIsHeaderModalOpen(true)}
+                      className="button-primary" title="Edit basic info"
+                    >
+                       <Pencil className="w-4 h-4" />
+                       <span>Edit</span>
+                    </button>
+                  </div>
+                  <AgistmentHeader 
+                    basicInfo={agistment?.basicInfo}
+                    propertyLocation={agistment?.propertyLocation}
+                    contactDetails={agistment?.contact}
+                    propertyDescription={agistment?.propertyDescription}
+                  />
+                </div>
               </div>
 
               {/* Paddocks and Care Options Grid */}
@@ -689,40 +655,31 @@ function EditAgistmentDetail() {
           onClose={() => setIsFacilitiesModalOpen(false)}
           onUpdate={handleAgistmentUpdate}
         />
-        <ConfirmationModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={confirmDelete}
-          title="Delete Agistment"
-          message="Are you sure you want to delete this agistment?"
-        />
-      </div>
-
-      {/* Validation Dialog */}
-      <Dialog
-        isOpen={isValidationDialogOpen}
-        onClose={() => setIsValidationDialogOpen(false)}
-        title="Cannot Publish Agistment"
-      >
-        <div className="p-6">
-          <p className="text-neutral-600 mb-4">
-            Please address the following issues before publishing:
-          </p>
-          <ul className="list-disc pl-5 space-y-2 text-red-600">
-            {validationErrors.map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
-          </ul>
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={() => setIsValidationDialogOpen(false)}
-              className="button-primary"
-            >
-              Got it
-            </button>
+        <Dialog
+          isOpen={isValidationDialogOpen}
+          onClose={() => setIsValidationDialogOpen(false)}
+          title="Cannot Publish Agistment"
+        >
+          <div className="p-6">
+            <p className="text-neutral-600 mb-4">
+              Please address the following issues before publishing:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 text-red-600">
+              {validationErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setIsValidationDialogOpen(false)}
+                className="button-primary"
+              >
+                Got it
+              </button>
+            </div>
           </div>
-        </div>
-      </Dialog>
+        </Dialog>
+      </div>
     </>
   );
 }

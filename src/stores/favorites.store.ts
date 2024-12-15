@@ -49,17 +49,17 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         set((state) => ({
           favorites: [...state.favorites, favorite]
         }));
-        toast.success('Added to favorites');
+        toast.success('Added to favourites');
       } else {
         // Remove from favorites
         set((state) => ({
           favorites: state.favorites.filter(fav => fav.id !== agistmentId)
         }));
-        toast.success('Removed from favorites');
+        toast.success('Removed from favourites');
       }
     } catch (error) {
-      console.error('Failed to toggle favorite:', error);
-      toast.error(isFavorited ? 'Failed to remove favorite' : 'Failed to add favorite');
+      console.error('Failed to toggle favourite:', error);
+      toast.error(isFavorited ? 'Failed to remove favourite' : 'Failed to add favourite');
       throw error;
     }
   },

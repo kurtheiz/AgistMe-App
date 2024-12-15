@@ -63,7 +63,7 @@ export function FavoritesPanel({
                                 e.stopPropagation();
                                 onDelete(favourite.id, e);
                               }}
-                              aria-label="Delete favorite"
+                              aria-label="Delete favourite"
                             >
                               <Trash2 className="w-5 h-5 text-neutral-400 hover:text-red-500" />
                             </button>
