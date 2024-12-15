@@ -6,7 +6,7 @@ export interface Favourite {
     lastUpdate: string;
     status: string;
     location: Location;
-    photo: string | null;
+    photo: string;
 }
 
 export interface Horse {

@@ -97,15 +97,14 @@ const Agistments = () => {
       <PageToolbar
         actions={
           <div className="flex items-center gap-4">
-            {searchHash && (
-              <button
-                onClick={handleSaveSearch}
-                className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400"
-              >
-                <BookmarkPlus className="w-4 h-4" />
-                <span className="hidden sm:inline">Save Search</span>
-              </button>
-            )}
+            <button
+              onClick={handleSaveSearch}
+              disabled={!searchHash}
+              className={`button-toolbar ${!searchHash && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+            >
+              <BookmarkPlus className="w-4 h-4" />
+              <span>Save Search</span>
+            </button>
           </div>
         }
       />
@@ -114,18 +113,50 @@ const Agistments = () => {
         <div>
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
-              <AnimatedSearchLogo className="w-12 h-12" />
+              <div className="w-32 h-32 md:w-48 md:h-48">
+                <AnimatedSearchLogo className="w-full h-full" />
+              </div>
             </div>
           ) : isError ? (
             <div className="text-center py-12 text-gray-500">
               Failed to load agistments. Please try again later.
             </div>
           ) : agistments.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              No agistments found. Try adjusting your search criteria.
+            <div className="text-center py-12">
+              <div className="space-y-6">
+                <div className="w-32 h-32 md:w-48 md:h-48 mx-auto">
+                  <AnimatedSearchLogo className="w-full h-full" />
+                </div>
+                <div className="text-gray-500">
+                  {!searchHash ? (
+                    <>
+                      <p>Start by searching for agistments in your area.</p>
+                      <button
+                        onClick={() => setIsSearchModalOpen(true)}
+                        className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      >
+                        Start Searching
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p>No agistments found with your current search criteria.</p>
+                      <button
+                        onClick={() => setIsSearchModalOpen(true)}
+                        className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      >
+                        Modify Search
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           ) : (
             <div className="pb-8 pt-4 md:px-4">
+              <div className="mb-4 text-sm text-neutral-600">
+                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'} found
+              </div>
               <AgistmentList 
                 agistments={agistments}
                 hasMore={hasNextPage}

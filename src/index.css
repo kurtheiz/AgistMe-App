@@ -335,7 +335,7 @@ body {
 }
 
 /* Remove focus outline from non-interactive elements */
-*:not(button):not(input):not(select):not(textarea):not(a):not([tabindex]):not([contenteditable="true"]):focus {
+*:not(button):not(input):not(select):not(textarea):not(a):not([tabindex]):not([contenteditable="true"]):not([role="button"]):not(.cursor-pointer):focus {
   outline: none !important;
   box-shadow: none !important;
 }

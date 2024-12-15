@@ -14,28 +14,27 @@ import BioModal from '../components/Profile/BioModal';
 import { FavoritesPanel } from '../components/Profile/FavoritesPanel';
 import { SavedSearchesPanel } from '../components/Profile/SavedSearchesPanel';
 import { decodeSearchHash } from '../utils/searchHashUtils';
+import { useBioStore } from '../stores/bio.store';
+import { useFavoritesStore } from '../stores/favorites.store';
+import { useSavedSearchesStore } from '../stores/savedSearches.store';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Profile() {
   const { isSignedIn, isLoaded } = useAuth();
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [editingSearch, setEditingSearch] = useState<SavedSearch | null>(null);
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
   const [saveSearchCriteria, setSaveSearchCriteria] = useState<any>(null);
-  const [favourites, setFavourites] = useState<Favourite[]>([]);
-  const [isLoadingFavourites, setIsLoadingFavourites] = useState(false);
-  const [profile, setProfile] = useState<ProfileType | null>(null);
-  const { 
-    notifications, 
-    setNotifications,
-    isLoading: isLoadingNotifications,
-    setIsLoading: setIsLoadingNotifications,
-    updateNotification
-  } = useNotificationsStore();
   const [isBioModalOpen, setIsBioModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Use Zustand stores instead of local state
+  const { notifications, updateNotification } = useNotificationsStore();
+  const { bio, isLoading: isBioLoading } = useBioStore();
+  const { favorites, isLoading: isFavoritesLoading } = useFavoritesStore();
+  const { savedSearches, isLoading: isSavedSearchesLoading } = useSavedSearchesStore();
 
   useEffect(() => {
     if (!isSignedIn && isLoaded) {
@@ -43,72 +42,18 @@ export default function Profile() {
     }
   }, [isSignedIn, isLoaded, navigate]);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const profileData = await profileService.getProfile();
-      setProfile(profileData);
-      const searches = await profileService.getSavedSearches();
-      setSavedSearches(searches.savedSearches);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error('Failed to load profile data');
-    }
-    setIsLoading(false);
-  };
+  // Remove fetchData useEffect as data is now loaded at app initialization
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const isLoading = isBioLoading || isFavoritesLoading || isSavedSearchesLoading;
 
-  useEffect(() => {
-    const loadFavourites = async () => {
-      if (!isSignedIn) return;
-      
-      setIsLoadingFavourites(true);
-      try {
-        const response = await profileService.getFavourites({ d: true });
-        setFavourites(Array.isArray(response) ? response : response.favourites);
-      } catch (error) {
-        console.error('Error loading favourites:', error);
-        toast.error('Failed to load favourites');
-      } finally {
-        setIsLoadingFavourites(false);
-      }
-    };
-
-    loadFavourites();
-  }, [isSignedIn]);
-
-  useEffect(() => {
-    const loadNotifications = async () => {
-      if (!isSignedIn) return;
-      
-      setIsLoadingNotifications(true);
-      try {
-        const response = await profileService.getNotifications();
-        setNotifications(response.notifications);
-      } catch (error) {
-        console.error('Error loading notifications:', error);
-        toast.error('Failed to load notifications');
-      } finally {
-        setIsLoadingNotifications(false);
-      }
-    };
-
-    loadNotifications();
-  }, [isSignedIn, setNotifications, setIsLoadingNotifications]);
-
-  const handleDeleteSearch = async (searchId: string, e: React.MouseEvent) => {
+  const handleDeleteSavedSearch = async (searchId: string, e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+    
     try {
-      const updatedSearches = savedSearches.filter(search => search.id !== searchId);
-      await profileService.updateSavedSearches(updatedSearches);
-      setSavedSearches(updatedSearches);
-      toast.success('Search deleted');
+      await useSavedSearchesStore.getState().deleteSavedSearch(searchId, queryClient);
     } catch (error) {
-      console.error('Failed to delete search:', error);
-      toast.error('Failed to delete search');
+      console.error('Error in handleDeleteSavedSearch:', error);
     }
   };
 
@@ -139,8 +84,8 @@ export default function Profile() {
         }
         return search;
       });
-      await profileService.updateSavedSearches(updatedSearches);
-      setSavedSearches(updatedSearches);
+      // await profileService.updateSavedSearches(updatedSearches);
+      // setSavedSearches(updatedSearches);
       toast.success('Search updated');
     } catch (error) {
       console.error('Failed to update search:', error);
@@ -160,7 +105,7 @@ export default function Profile() {
           n.id === notificationId ? { ...n, read: true } : n
         );
         
-        await profileService.updateNotifications(updatedNotifications);
+        // await profileService.updateNotifications(updatedNotifications);
       }
 
       if (notification.agistmentId) {
@@ -184,8 +129,8 @@ export default function Profile() {
     e.stopPropagation();
     try {
       const updatedNotifications = notifications.filter(n => n.id !== notificationId);
-      await profileService.updateNotifications(updatedNotifications);
-      setNotifications(updatedNotifications);
+      // await profileService.updateNotifications(updatedNotifications);
+      // setNotifications(updatedNotifications);
       toast.success('Notification removed');
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -205,7 +150,7 @@ export default function Profile() {
         n.id === notificationId ? { ...n, read: !n.read } : n
       );
 
-      await profileService.updateNotifications(updatedNotifications);
+      // await profileService.updateNotifications(updatedNotifications);
     } catch (error) {
       console.error('Error updating notification:', error);
       toast.error('Failed to update notification');
@@ -216,13 +161,14 @@ export default function Profile() {
     e.preventDefault();
     e.stopPropagation();
     
+    const favorite = favorites.find(f => f.id === favoriteId);
+    if (!favorite) return;
+
     try {
-      await profileService.deleteFavorite(favoriteId);
-      setFavourites(prev => prev.filter(fav => fav.id !== favoriteId));
-      toast.success('Favorite removed');
+      await useFavoritesStore.getState().toggleFavorite(favoriteId, favorite, queryClient);
     } catch (error) {
-      console.error('Failed to delete favorite:', error);
-      toast.error('Failed to remove favorite');
+      // Error is already handled in the store
+      console.error('Error in handleDeleteFavorite:', error);
     }
   };
 
@@ -235,13 +181,13 @@ export default function Profile() {
   const handleBioModalClose = async () => {
     setIsBioModalOpen(false);
     // Refresh profile data
-    try {
-      const profileData = await profileService.getProfile();
-      setProfile(profileData);
-    } catch (error) {
-      console.error('Error refreshing profile:', error);
-      toast.error('Failed to refresh profile data');
-    }
+    // try {
+    //   const profileData = await profileService.getProfile();
+    //   setProfile(profileData);
+    // } catch (error) {
+    //   console.error('Error refreshing profile:', error);
+    //   toast.error('Failed to refresh profile data');
+    // }
   };
 
   if (!isLoaded) {
@@ -273,7 +219,7 @@ export default function Profile() {
 
         <NotificationsPanel
           notifications={notifications}
-          isLoading={isLoadingNotifications}
+          isLoading={isLoading}
           onNotificationClick={handleNotificationClick}
           onToggleRead={handleToggleRead}
           onDelete={handleDeleteNotification}
@@ -282,17 +228,15 @@ export default function Profile() {
         <div className="space-y-6">
           <div className="space-y-4">
             <BioPanel 
-              profile={profile} 
+              profile={bio} 
               onEditClick={handleOpenBio} 
             />
             <BioModal 
               isOpen={isBioModalOpen}
               onClose={handleBioModalClose}
-              profile={profile}
+              profile={bio}
             />
             <FavoritesPanel
-              favourites={favourites}
-              isLoading={isLoadingFavourites}
               onNavigate={(id) => navigate(`/agistments/${id}`)}
               onDelete={handleDeleteFavorite}
             />
@@ -306,7 +250,7 @@ export default function Profile() {
                 setEditingSearch(search);
                 handleSavedSearchEdit(search.searchHash); // Call the function to open the modal with the search(true);
               }}
-              onDelete={handleDeleteSearch}
+              onDelete={handleDeleteSavedSearch}
             />
 
           </div>

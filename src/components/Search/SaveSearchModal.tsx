@@ -3,12 +3,15 @@ import { Switch } from '@headlessui/react';
 import { Modal } from '../shared/Modal';
 import { SearchRequest } from '../../types/search';
 import { SearchCriteriaDisplay } from '../shared/SearchCriteriaDisplay';
+import { useQueryClient } from '@tanstack/react-query';
+import { useSavedSearchesStore } from '../../stores/savedSearches.store';
 
 interface SaveSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   searchCriteria?: SearchRequest | null;
-  onSave: (name: string, enableNotifications: boolean) => void;
+  searchHash: string;
+  existingId?: string;
   initialName?: string;
   initialNotifications?: boolean;
   title?: string;
@@ -17,8 +20,9 @@ interface SaveSearchModalProps {
 export function SaveSearchModal({ 
   isOpen, 
   onClose, 
-  searchCriteria, 
-  onSave,
+  searchCriteria,
+  searchHash,
+  existingId,
   initialName = '',
   initialNotifications = false,
   title = 'Save Search'
@@ -27,6 +31,7 @@ export function SaveSearchModal({
   const [enableNotifications, setEnableNotifications] = useState(initialNotifications);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (isOpen) {
@@ -43,12 +48,18 @@ export function SaveSearchModal({
     setIsDirty(isNameDirty || isNotificationsDirty);
   }, [name, enableNotifications, initialName, initialNotifications]);
 
-  const handleSave = () => {
-    if (!name.trim() || !isDirty) return;
+  const handleSave = async () => {
+    if (!name.trim() || !isDirty || !searchCriteria) return;
     
     setIsUpdating(true);
     try {
-      onSave(name, enableNotifications);
+      await useSavedSearchesStore.getState().saveSearch(
+        name,
+        { ...searchCriteria, searchHash },
+        enableNotifications,
+        existingId,
+        queryClient
+      );
       onClose();
     } catch (error) {
       console.error('Failed to save search:', error);
@@ -66,7 +77,7 @@ export function SaveSearchModal({
       isUpdating={isUpdating}
       actionIconType="SAVE"
       onAction={handleSave}
-      disableAction={!name.trim() || !isDirty}
+      disableAction={!name.trim() || !isDirty || !searchCriteria}
     >
       <div className="space-y-6">
         <div>
@@ -105,9 +116,7 @@ export function SaveSearchModal({
               } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
             />
           </Switch>
-          <label className="ml-3 text-sm text-gray-700">
-            Notify me when new agistments match these criteria
-          </label>
+          <span className="ml-3 text-sm text-gray-700">Enable notifications for this search</span>
         </div>
       </div>
     </Modal>

@@ -18,8 +18,8 @@ import { MoreVertical, Bookmark } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUser } from '@clerk/clerk-react';
 import { SavedSearch } from '../../types/profile';
-import { profileService } from '../../services/profile.service';
 import { encodeSearchHash, decodeSearchHash } from '../../utils/searchHashUtils';
+import { useSavedSearchesStore } from '../../stores/savedSearches.store';
 
 const initialFacilities: FacilityKey[] = [];
 
@@ -40,7 +40,7 @@ export function SearchModal({
   const searchHash = searchParams.get('q');
   const [isUpdating, setIsUpdating] = useState(false);
   const { user } = useUser();
-  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const { savedSearches } = useSavedSearchesStore();
   const [searchCriteria, setSearchCriteria] = useState<SearchRequest>({
     suburbs: [],
     radius: 0,
@@ -56,12 +56,7 @@ export function SearchModal({
   useEffect(() => {
     const loadSavedSearches = async () => {
       try {
-        const response = await profileService.getSavedSearches();
-        // Sort by lastUpdate, most recent first
-        const sortedSearches = response.savedSearches.sort((a, b) =>
-          new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime()
-        );
-        setSavedSearches(sortedSearches);
+        // No need to load saved searches from profile service, it's already handled by the Zustand store
       } catch (error) {
         console.error('Error loading saved searches:', error);
         toast.error('Failed to load saved searches');

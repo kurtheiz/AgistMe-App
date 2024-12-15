@@ -1,20 +1,19 @@
 import { Heart, ChevronDown, Trash2 } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Favourite } from '../../types/profile';
+import { useFavoritesStore } from '../../stores/favorites.store';
 
 interface FavoritesPanelProps {
-  favourites: Favourite[];
-  isLoading: boolean;
   onNavigate: (id: string) => void;
   onDelete: (favoriteId: string, e: React.MouseEvent) => void;
 }
 
 export function FavoritesPanel({
-  favourites,
-  isLoading,
   onNavigate,
   onDelete
 }: FavoritesPanelProps) {
+  const { favorites, isLoading } = useFavoritesStore();
+
   return (
     <div id="favourites-section">
       <Disclosure>
@@ -33,17 +32,17 @@ export function FavoritesPanel({
               <div className="space-y-4">
                 {isLoading ? (
                   <div className="text-neutral-600">Loading favourites...</div>
-                ) : !favourites || favourites.length === 0 ? (
+                ) : !favorites || favorites.length === 0 ? (
                   <div className="text-neutral-600">No favourites yet</div>
                 ) : (
                   <div className="space-y-4">
-                    {favourites.map((favourite, index) => {
+                    {favorites.map((favourite, index) => {
                       const isInactive = favourite.status === 'HIDDEN' || favourite.status === 'REMOVED';
                       return (
                         <div 
                           key={favourite.id} 
                           className={`p-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors ${
-                            index !== favourites.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-700' : ''
+                            index !== favorites.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-700' : ''
                           }`}
                           onClick={() => !isInactive && onNavigate(favourite.id)}
                         >

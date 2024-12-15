@@ -21,6 +21,11 @@ import { useAuthStore } from './stores/auth.store';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import { QueryProvider } from './providers/QueryProvider';
+import { useNotificationsStore } from './stores/notifications.store';
+import { useFavoritesStore } from './stores/favorites.store';
+import { useSavedSearchesStore } from './stores/savedSearches.store';
+import { useBioStore } from './stores/bio.store';
+import { profileService } from './services/profile.service'; // Assuming this is where profileService is defined
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -127,28 +132,86 @@ const router = createBrowserRouter([
 
 // Component to handle auth initialization
 const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoaded: isClerkLoaded, isSignedIn } = useAuth();
-  const { isLoading, initializeAuth } = useAuthStore();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const { isLoaded, userId } = useAuth();
+  const setUser = useAuthStore((state) => state.setUser);
+  
+  // Notifications state
+  const { notifications, setNotifications, setIsLoading: setNotificationsLoading } = useNotificationsStore();
+  
+  // Favorites state
+  const { favorites, setFavorites, setIsLoading: setFavoritesLoading } = useFavoritesStore();
+  
+  // Saved searches state
+  const { savedSearches, setSavedSearches, setIsLoading: setSavedSearchesLoading } = useSavedSearchesStore();
+  
+  // Bio state
+  const { bio, setBio, setIsLoading: setBioLoading } = useBioStore();
 
   useEffect(() => {
-    const init = async () => {
-      if (!isClerkLoaded) return;
+    if (isLoaded && userId) {
+      setUser(userId);
       
-      await initializeAuth();
-      setIsInitialized(true);
-    };
-
-    init();
-  }, [isClerkLoaded, isSignedIn, initializeAuth]);
-
-  if (!isInitialized || isLoading || !isClerkLoaded) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
-      </div>
-    );
-  }
+      // Load notifications if not in state
+      if (!notifications?.length) {
+        setNotificationsLoading(true);
+        profileService.getNotifications()
+          .then(response => {
+            setNotifications(response.notifications);
+          })
+          .catch(error => {
+            console.error('Error loading notifications:', error);
+          })
+          .finally(() => {
+            setNotificationsLoading(false);
+          });
+      }
+      
+      // Load favorites if not in state
+      if (!favorites?.length) {
+        setFavoritesLoading(true);
+        profileService.getFavourites({ d: true })
+          .then(response => {
+            setFavorites(Array.isArray(response) ? response : response.favourites);
+          })
+          .catch(error => {
+            console.error('Error loading favorites:', error);
+          })
+          .finally(() => {
+            setFavoritesLoading(false);
+          });
+      }
+      
+      // Load saved searches if not in state
+      if (!savedSearches?.length) {
+        setSavedSearchesLoading(true);
+        profileService.getSavedSearches()
+          .then(response => {
+            setSavedSearches(response.savedSearches);
+          })
+          .catch(error => {
+            console.error('Error loading saved searches:', error);
+          })
+          .finally(() => {
+            setSavedSearchesLoading(false);
+          });
+      }
+      
+      // Load bio if not in state
+      if (!bio) {
+        setBioLoading(true);
+        profileService.getProfile()
+          .then(response => {
+            setBio(response);
+          })
+          .catch(error => {
+            console.error('Error loading bio:', error);
+          })
+          .finally(() => {
+            setBioLoading(false);
+          });
+      }
+    }
+  }, [isLoaded, userId]);
 
   return <>{children}</>;
 };
