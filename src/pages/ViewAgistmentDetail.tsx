@@ -156,11 +156,13 @@ export function ViewAgistmentDetail() {
                     </button>
                     <button
                       onClick={() => {
-                        navigator.share({
-                          title: agistment.basicInfo.name,
-                          text: `${agistment.propertyLocation?.location?.suburb || ''}, ${agistment.propertyLocation?.location?.state || ''}`,
-                          url: window.location.href
-                        }).catch(console.error);
+                        if (navigator.share) {
+                          navigator.share({
+                            title: 'Agist Me',
+                            text: `Look at what I found on Agist Me.\n${agistment?.basicInfo.name} located in ${agistment?.propertyLocation.location?.suburb}, ${agistment?.propertyLocation.location?.state}`,
+                            url: window.location.href,
+                          });
+                        }
                       }}
                       className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
                     >

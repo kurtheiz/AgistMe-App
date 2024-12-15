@@ -15,7 +15,6 @@ import ListAgistment from './pages/ListAgistment';
 import { CreateAgistment } from './pages/CreateAgistment';
 import { Dashboard } from './pages/Dashboard';
 import EditAgistmentDetail from './pages/EditAgistmentDetail';
-import { FavoriteAgistments } from './pages/FavoriteAgistments';
 import { MyAgistments } from './pages/MyAgistments';
 import { useAuthStore } from './stores/auth.store';
 import Privacy from './pages/Privacy';
@@ -73,7 +72,7 @@ const router = createBrowserRouter([
           {
             path: ':id/edit',
             element: (
-              <ProtectedRoute requireAgistor={true}>
+              <ProtectedRoute>
                 <EditAgistmentDetail />
               </ProtectedRoute>
             )
@@ -81,14 +80,6 @@ const router = createBrowserRouter([
           {
             path: ':id',
             element: <ViewAgistmentDetail />
-          },
-          {
-            path: 'favourites',
-            element: (
-              <ProtectedRoute>
-                <FavoriteAgistments />
-              </ProtectedRoute>
-            )
           },
           {
             path: 'my',
