@@ -66,7 +66,7 @@ export const Home = () => {
               ))}
               <li className="flex items-center gap-2 text-gray-900 font-bold min-h-[28px]">
                 <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
-                List for FREE until 31st March 2025, then only $4.95/month after
+                List for FREE until 31st March 2025, then only $4.90/month after
               </li>
             </ul>
             <div className="flex justify-center md:justify-start">

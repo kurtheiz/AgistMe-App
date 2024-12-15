@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { List, MessageSquare, Calendar, Fence, Users, DollarSign } from 'lucide-react';
+import { List, MessageSquare, Calendar, Fence, Users, DollarSign, ClipboardList } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
+import { ListingTypeBadge } from '../components/ListingTypeBadge';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -61,14 +63,29 @@ export const Dashboard = () => {
 
             <div className="bg-white rounded-lg p-6 shadow relative">
               <div className="flex items-center opacity-50">
+                <ClipboardList className="h-8 w-8 text-purple-600" />
+                <div className="ml-4">
+                  <p className="text-lg font-medium text-gray-900">Waiting List</p>
+                  <p className="text-sm text-gray-500">Manage your property waiting list</p>
+                </div>
+              </div>
+              <div className="absolute top-2 right-2 flex flex-col items-end gap-2">
+                <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
+                <ListingTypeBadge type="professional" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg p-6 shadow relative">
+              <div className="flex items-center opacity-50">
                 <Calendar className="h-8 w-8 text-rose-600" />
                 <div className="ml-4">
                   <p className="text-lg font-medium text-gray-900">Inspections</p>
                   <p className="text-sm text-gray-500">Schedule and manage property inspections</p>
                 </div>
               </div>
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2 flex flex-col items-end gap-2">
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
+                <ListingTypeBadge type="professional" />
               </div>
             </div>
 
@@ -80,8 +97,9 @@ export const Dashboard = () => {
                   <p className="text-sm text-gray-500">Manage your paddocks and availability</p>
                 </div>
               </div>
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2 flex flex-col items-end gap-2">
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
+                <ListingTypeBadge type="premium" />
               </div>
             </div>
 
@@ -93,8 +111,9 @@ export const Dashboard = () => {
                   <p className="text-sm text-gray-500">View and manage your agistees</p>
                 </div>
               </div>
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2 flex flex-col items-end gap-2">
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
+                <ListingTypeBadge type="premium" />
               </div>
             </div>
 
@@ -106,8 +125,9 @@ export const Dashboard = () => {
                   <p className="text-sm text-gray-500">Track payments and manage invoices</p>
                 </div>
               </div>
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2 flex flex-col items-end gap-2">
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
+                <ListingTypeBadge type="premium" />
               </div>
             </div>
           </div>

@@ -19,6 +19,8 @@ import { MyAgistments } from './pages/MyAgistments';
 import { useAuthStore } from './stores/auth.store';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import FAQ from './pages/FAQ';
+import Contact from './pages/Contact';
 import { QueryProvider } from './providers/QueryProvider';
 import { useNotificationsStore } from './stores/notifications.store';
 import { useFavoritesStore } from './stores/favorites.store';
@@ -53,6 +55,14 @@ const router = createBrowserRouter([
       {
         path: 'terms',
         element: <Terms />
+      },
+      {
+        path: 'faq',
+        element: <FAQ />
+      },
+      {
+        path: 'contact',
+        element: <Contact />
       },
       {
         path: 'listagistment',
