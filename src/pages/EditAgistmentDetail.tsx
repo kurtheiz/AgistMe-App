@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentResponse } from '../types/agistment';
-import { ChevronLeft, Pencil, Heart, Share2, Sparkles } from 'lucide-react';
+import { ChevronLeft, Pencil, Heart, Sparkles } from 'lucide-react';
 import { PageToolbar } from '../components/PageToolbar';
 import '../styles/gallery.css';
 import { AgistmentPhotos } from '../components/Agistment/AgistmentPhotos';
@@ -328,22 +328,7 @@ function EditAgistmentDetail() {
                         </span>
                       </button>
                     )}
-                    <button
-                      className="button-toolbar"
-                      onClick={() => {
-                        if (navigator.share) {
-                          navigator.share({
-                            title: 'Agist Me',
-                            text: `Look at what i found on Agist Me. ${agistment?.basicInfo.name} located in ${agistment?.propertyLocation.location?.suburb}, ${agistment?.propertyLocation.location?.state}\n${window.location.href}`,
-                            url: window.location.href,
-                          });
-                        }
-                      }}
-                      disabled={isUpdating}
-                    >
-                      <Share2 className="w-4 h-4" />
-                      <span>Share</span>
-                    </button>
+                   
                     <button
                       className="button-toolbar"
                       onClick={handleVisibilityToggle}
@@ -403,18 +388,7 @@ function EditAgistmentDetail() {
 
               {/* Header Section */}
               <div className="border-b border-neutral-200 pb-8">
-                <div className="mb-4 flex gap-4">
-                  {agistment && (
-                    <div 
-                      className="flex items-center gap-2 text-sm text-neutral-400"
-                    >
-                      <Heart 
-                        className="w-5 h-5"
-                      />
-                      <span>Favorite</span>
-                    </div>
-                  )}
-                </div>
+                
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <button
