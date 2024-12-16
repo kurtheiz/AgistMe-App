@@ -8,14 +8,14 @@ import { useEffect } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Profile from './pages/Profile';
 import Agistments from './pages/Agistments';
-import { ViewAgistmentDetail } from './pages/ViewAgistmentDetail';
+import { ViewAgistmentDetail } from './pages/agistments/ViewAgistmentDetail';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import ListAgistment from './pages/ListAgistment';
 import { CreateAgistment } from './pages/CreateAgistment';
 import { Dashboard } from './pages/Dashboard';
-import EditAgistmentDetail from './pages/EditAgistmentDetail';
-import { MyAgistments } from './pages/MyAgistments';
+import EditAgistmentDetail from './pages/agistments/EditAgistmentDetail';
+import { MyAgistments } from './pages/dashboard/MyAgistments';
 import { useAuthStore } from './stores/auth.store';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
@@ -26,7 +26,8 @@ import { useNotificationsStore } from './stores/notifications.store';
 import { useFavoritesStore } from './stores/favorites.store';
 import { useSavedSearchesStore } from './stores/savedSearches.store';
 import { useBioStore } from './stores/bio.store';
-import { profileService } from './services/profile.service'; // Assuming this is where profileService is defined
+import { profileService } from './services/profile.service'; 
+import EnquiriesPage from './pages/dashboard/Enquiries';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -76,10 +77,6 @@ const router = createBrowserRouter([
             element: <Agistments />
           },
           {
-            path: 'create',
-            element: <CreateAgistment />
-          },
-          {
             path: ':id/edit',
             element: (
               <ProtectedRoute>
@@ -108,6 +105,14 @@ const router = createBrowserRouter([
           {
             path: 'agistments',
             element: <MyAgistments />
+          },
+          {
+            path: 'enquiries',
+            element: (
+              <ProtectedRoute>
+                <EnquiriesPage />
+              </ProtectedRoute>
+            )
           }
         ]
       },

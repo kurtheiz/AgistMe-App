@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import AgistmentList from '../components/AgistmentList';
-import { AgistmentSearchResponse } from '../types/search';
+import AgistmentList from '../../components/AgistmentList';
+import { AgistmentSearchResponse } from '../../types/search';
 import { useAuth } from '@clerk/clerk-react';
-import { agistmentService } from '../services/agistment.service';
-import { PageToolbar } from '../components/PageToolbar';
+import { agistmentService } from '../../services/agistment.service';
+import { PageToolbar } from '../../components/PageToolbar';
 import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -57,20 +57,20 @@ export function MyAgistments() {
               <div className="flex items-center">
                 <button
                   onClick={() => navigate(-1)}
-                  className="flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none transition-colors"
+                  className="back-button"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span className="font-medium text-sm sm:text-base">Back</span>
+                  <span className="back-button-text">Back</span>
                 </button>
-                <span className="text-neutral-300 dark:text-neutral-600 mx-2">|</span>
-                <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap">
+                <span className="breadcrumb-separator">|</span>
+                <div className="breadcrumb-container">
                   <button
                     onClick={() => navigate('/dashboard')}
-                    className="hover:text-primary-600 dark:hover:text-primary-400"
+                    className="breadcrumb-link"
                   >
                     Dashboard
                   </button>
-                  <span className="text-neutral-900 dark:text-white shrink-0">&gt;</span>
+                  <span className="breadcrumb-chevron">&gt;</span>
                   <span>My Agistments</span>
                 </div>
               </div>

@@ -11,11 +11,11 @@ export const PageToolbar = ({ actions, children, title }: PageToolbarProps) => {
     <div className="sticky top-0 z-30 w-full bg-white border-b border-neutral-200 text-neutral-900">
       <div className="max-w-7xl mx-auto px-2">
         <div className="h-14 flex items-center justify-between">
-          {title && <h1 className="text-xl font-semibold">{title}</h1>}
           <div className="flex items-center">
-            {actions}
+            {title && <h1 className="text-xl font-semibold">{title}</h1>}
             {children}
           </div>
+          {actions}
         </div>
       </div>
     </div>

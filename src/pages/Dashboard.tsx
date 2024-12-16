@@ -50,7 +50,10 @@ export const Dashboard = () => {
               </div>
             </button>
             
-            <div className="bg-white rounded-lg p-6 shadow">
+            <button 
+              className="bg-white rounded-lg p-6 shadow hover:bg-neutral-50 transition-colors text-left focus:outline-none"
+              onClick={() => navigate('/dashboard/enquiries')}
+            >
               <div className="flex items-center">
                 <MessageSquare className="h-8 w-8 text-emerald-600" />
                 <div className="ml-4">
@@ -58,7 +61,7 @@ export const Dashboard = () => {
                   <p className="text-sm text-gray-500">View and manage enquiries</p>
                 </div>
               </div>
-            </div>
+            </button>
 
             <div className="bg-white rounded-lg p-6 shadow relative">
               <div className="absolute -top-3 left-4">

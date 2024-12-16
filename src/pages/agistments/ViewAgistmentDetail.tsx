@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { agistmentService } from '../services/agistment.service';
-import { AgistmentResponse } from '../types/agistment';
+import { agistmentService } from '../../services/agistment.service';
+import { AgistmentResponse } from '../../types/agistment';
 import { ChevronLeft, Heart, Share2 } from 'lucide-react';
-import { PageToolbar } from '../components/PageToolbar';
-import '../styles/gallery.css';
-import { AgistmentHeader } from '../components/Agistment/AgistmentHeader';
-import { AgistmentPaddocks } from '../components/Agistment/AgistmentPaddocks';
-import { AgistmentRidingFacilities } from '../components/Agistment/AgistmentRidingFacilities';
-import { AgistmentFacilities } from '../components/Agistment/AgistmentFacilities';
-import { AgistmentCareOptions } from '../components/Agistment/AgistmentCareOptions';
-import { AgistmentServices } from '../components/Agistment/AgistmentServices';
-import { AgistmentPhotosView } from '../components/Agistment/AgistmentPhotosView';
-import { useFavorite } from '../hooks/useFavorite';
-import { AgistmentMap } from '../components/Map/AgistmentMap';
-import { EnquiryModal } from '../components/Agistment/EnquiryModal';
+import { PageToolbar } from '../../components/PageToolbar';
+import '../../styles/gallery.css';
+import { AgistmentHeader } from '../../components/Agistment/AgistmentHeader';
+import { AgistmentPaddocks } from '../../components/Agistment/AgistmentPaddocks';
+import { AgistmentRidingFacilities } from '../../components/Agistment/AgistmentRidingFacilities';
+import { AgistmentFacilities } from '../../components/Agistment/AgistmentFacilities';
+import { AgistmentCareOptions } from '../../components/Agistment/AgistmentCareOptions';
+import { AgistmentServices } from '../../components/Agistment/AgistmentServices';
+import { AgistmentPhotosView } from '../../components/Agistment/AgistmentPhotosView';
+import { useFavorite } from '../../hooks/useFavorite';
+import { AgistmentMap } from '../../components/Map/AgistmentMap';
+import { EnquiryModal } from '../../components/Agistment/EnquiryModal';
 
 export function ViewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();

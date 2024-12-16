@@ -108,15 +108,7 @@ const Agistments = () => {
     <>
       <PageToolbar
         actions={
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => refetch()}
-              disabled={!searchHash || isFetching}
-              className={`button-toolbar ${(!searchHash || isFetching) && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
-            >
-              <RotateCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
-            </button>
+          <div className="flex justify-between w-full">
             <button
               onClick={handleSaveSearch}
               disabled={!searchHash}
@@ -124,6 +116,14 @@ const Agistments = () => {
             >
               <BookmarkPlus className="w-4 h-4" />
               <span>Save Search</span>
+            </button>
+            <button
+              onClick={() => refetch()}
+              disabled={!searchHash || isFetching}
+              className={`button-toolbar ${(!searchHash || isFetching) && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+            >
+              <RotateCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
             </button>
           </div>
         }
