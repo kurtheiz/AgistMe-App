@@ -27,6 +27,7 @@ import { useSavedSearchesStore } from './stores/savedSearches.store';
 import { useBioStore } from './stores/bio.store';
 import { profileService } from './services/profile.service'; 
 import EnquiriesPage from './pages/dashboard/Enquiries';
+import PreviewAgistmentDetail from './pages/dashboard/PreviewAgistmentDetail';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -103,7 +104,16 @@ const router = createBrowserRouter([
           },
           {
             path: 'agistments',
-            element: <MyAgistments />
+            children: [
+              {
+                index: true,
+                element: <MyAgistments />
+              },
+              {
+                path: ':id',
+                element: <PreviewAgistmentDetail />
+              }
+            ]
           },
           {
             path: 'enquiries',

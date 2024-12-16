@@ -30,33 +30,33 @@ interface ValidationErrors {
 }
 
 interface Props {
-  care: AgistmentCare;
+  agistment: AgistmentResponse;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
+  onUpdate?: (updatedAgistment: AgistmentResponse) => void;
 }
 
 export const AgistmentCareOptionsModal = ({
-  care,
+  agistment,
   isOpen,
   onClose,
   onUpdate
 }: Props) => {
   const [editForm, setEditForm] = useState<EditForm>({
     selfCare: {
-      available: care?.selfCare?.available || false,
-      monthlyPrice: care?.selfCare?.monthlyPrice || 0,
-      comments: care?.selfCare?.comments || ''
+      available: agistment.care?.selfCare?.available || false,
+      monthlyPrice: agistment.care?.selfCare?.monthlyPrice || 0,
+      comments: agistment.care?.selfCare?.comments || ''
     },
     partCare: {
-      available: care?.partCare?.available || false,
-      monthlyPrice: care?.partCare?.monthlyPrice || 0,
-      comments: care?.partCare?.comments || ''
+      available: agistment.care?.partCare?.available || false,
+      monthlyPrice: agistment.care?.partCare?.monthlyPrice || 0,
+      comments: agistment.care?.partCare?.comments || ''
     },
     fullCare: {
-      available: care?.fullCare?.available || false,
-      monthlyPrice: care?.fullCare?.monthlyPrice || 0,
-      comments: care?.fullCare?.comments || ''
+      available: agistment.care?.fullCare?.available || false,
+      monthlyPrice: agistment.care?.fullCare?.monthlyPrice || 0,
+      comments: agistment.care?.fullCare?.comments || ''
     }
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -69,26 +69,26 @@ export const AgistmentCareOptionsModal = ({
     if (isOpen) {
       const initialFormState = {
         selfCare: {
-          available: care?.selfCare?.available || false,
-          monthlyPrice: care?.selfCare?.monthlyPrice || 0,
-          comments: care?.selfCare?.comments || ''
+          available: agistment.care?.selfCare?.available || false,
+          monthlyPrice: agistment.care?.selfCare?.monthlyPrice || 0,
+          comments: agistment.care?.selfCare?.comments || ''
         },
         partCare: {
-          available: care?.partCare?.available || false,
-          monthlyPrice: care?.partCare?.monthlyPrice || 0,
-          comments: care?.partCare?.comments || ''
+          available: agistment.care?.partCare?.available || false,
+          monthlyPrice: agistment.care?.partCare?.monthlyPrice || 0,
+          comments: agistment.care?.partCare?.comments || ''
         },
         fullCare: {
-          available: care?.fullCare?.available || false,
-          monthlyPrice: care?.fullCare?.monthlyPrice || 0,
-          comments: care?.fullCare?.comments || ''
+          available: agistment.care?.fullCare?.available || false,
+          monthlyPrice: agistment.care?.fullCare?.monthlyPrice || 0,
+          comments: agistment.care?.fullCare?.comments || ''
         }
       };
       setEditForm(initialFormState);
       setInitialHash(calculateHash(initialFormState));
       setIsDirty(false);
     }
-  }, [isOpen, care]);
+  }, [isOpen, agistment]);
 
   // Update dirty state whenever form changes
   useEffect(() => {
@@ -99,19 +99,19 @@ export const AgistmentCareOptionsModal = ({
   const handleClose = () => {
     const initialFormState = {
       selfCare: {
-        available: care?.selfCare?.available || false,
-        monthlyPrice: care?.selfCare?.monthlyPrice || 0,
-        comments: care?.selfCare?.comments || ''
+        available: agistment.care?.selfCare?.available || false,
+        monthlyPrice: agistment.care?.selfCare?.monthlyPrice || 0,
+        comments: agistment.care?.selfCare?.comments || ''
       },
       partCare: {
-        available: care?.partCare?.available || false,
-        monthlyPrice: care?.partCare?.monthlyPrice || 0,
-        comments: care?.partCare?.comments || ''
+        available: agistment.care?.partCare?.available || false,
+        monthlyPrice: agistment.care?.partCare?.monthlyPrice || 0,
+        comments: agistment.care?.partCare?.comments || ''
       },
       fullCare: {
-        available: care?.fullCare?.available || false,
-        monthlyPrice: care?.fullCare?.monthlyPrice || 0,
-        comments: care?.fullCare?.comments || ''
+        available: agistment.care?.fullCare?.available || false,
+        monthlyPrice: agistment.care?.fullCare?.monthlyPrice || 0,
+        comments: agistment.care?.fullCare?.comments || ''
       }
     };
     setEditForm(initialFormState);
@@ -156,8 +156,8 @@ export const AgistmentCareOptionsModal = ({
     validateFields();
   }, [editForm]);
 
-  const handleUpdateAll = async () => {
-    if (!isDirty) return;
+  const handleSave = async () => {
+    if (!onUpdate) return;
 
     if (!validateFields()) {
       toast.error('Please fix the validation errors before saving');
@@ -166,21 +166,19 @@ export const AgistmentCareOptionsModal = ({
 
     setIsSaving(true);
     try {
-      const updatedAgistment: Partial<AgistmentResponse> = {
+      const updatedAgistment: AgistmentResponse = {
+        ...agistment,
         care: {
           selfCare: editForm.selfCare,
           partCare: editForm.partCare,
           fullCare: editForm.fullCare
         }
       };
-
-      if (onUpdate) {
-        await onUpdate(updatedAgistment);
-      }
+      await onUpdate(updatedAgistment);
       onClose();
     } catch (error) {
-      console.error('Error updating care options:', error);
-      toast.error('Failed to update care options');
+      console.error('Error saving care options:', error);
+      toast.error('Failed to save care options');
     } finally {
       setIsSaving(false);
     }
@@ -193,7 +191,7 @@ export const AgistmentCareOptionsModal = ({
       title="Edit Care Options"
       size="lg"
       actionIconType="SAVE"
-      onAction={handleUpdateAll}
+      onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}
     >

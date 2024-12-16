@@ -14,11 +14,10 @@ const calculateHash = (obj: unknown): string => {
 };
 
 interface Props {
-  agistmentId: string;
-  ridingFacilities: AgistmentResponse['ridingFacilities'];
+  agistment: AgistmentResponse;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
+  onUpdate?: (updatedAgistment: AgistmentResponse) => void;
 }
 
 interface ArenaForm {
@@ -34,23 +33,15 @@ interface RoundYardForm {
 }
 
 export const AgistmentRidingFacilitiesModal = ({
-  ridingFacilities,
+  agistment,
   isOpen,
   onClose,
   onUpdate
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [editForm, setEditForm] = useState({
-    arenas: ridingFacilities.arenas?.map((arena: Arena) => ({
-      length: arena.length || 0,
-      width: arena.width || 0,
-      comments: arena.comments || '',
-      features: arena.features || []
-    })) || [],
-    roundYards: ridingFacilities.roundYards?.map((yard: RoundYard) => ({
-      diameter: yard.diameter || 0,
-      comments: yard.comments || ''
-    })) || []
+    arenas: [],
+    roundYards: []
   });
   const [isSaving, setIsSaving] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
@@ -58,24 +49,25 @@ export const AgistmentRidingFacilitiesModal = ({
   const [featureInputs, setFeatureInputs] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
-    if (isOpen) {
-      setEditForm({
-        arenas: ridingFacilities.arenas?.map((arena: Arena) => ({
+    if (isOpen && agistment?.ridingFacilities) {
+      const newEditForm = {
+        arenas: agistment.ridingFacilities.arenas?.map((arena: Arena) => ({
           length: arena.length || 0,
           width: arena.width || 0,
           comments: arena.comments || '',
           features: arena.features || []
         })) || [],
-        roundYards: ridingFacilities.roundYards?.map((yard: RoundYard) => ({
+        roundYards: agistment.ridingFacilities.roundYards?.map((yard: RoundYard) => ({
           diameter: yard.diameter || 0,
           comments: yard.comments || ''
         })) || []
-      });
-      setInitialHash(calculateHash(editForm));
+      };
+      setEditForm(newEditForm);
+      setInitialHash(calculateHash(newEditForm));
       setIsDirty(false);
       setSelectedTab(0);
     }
-  }, [isOpen, ridingFacilities]);
+  }, [isOpen, agistment]);
 
   useEffect(() => {
     const currentHash = calculateHash(editForm);
@@ -88,6 +80,7 @@ export const AgistmentRidingFacilitiesModal = ({
     setIsSaving(true);
     try {
       await onUpdate({
+        ...agistment,
         ridingFacilities: {
           arenas: editForm.arenas,
           roundYards: editForm.roundYards
@@ -100,7 +93,7 @@ export const AgistmentRidingFacilitiesModal = ({
     } finally {
       setIsSaving(false);
     }
-  }, [editForm, isDirty, onClose, onUpdate]);
+  }, [editForm, isDirty, onClose, onUpdate, agistment]);
 
   const addArena = () => {
     setEditForm(prev => ({

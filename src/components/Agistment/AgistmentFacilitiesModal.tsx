@@ -10,21 +10,31 @@ const calculateHash = (obj: unknown): string => {
   return JSON.stringify(obj);
 };
 
+const DEFAULT_FACILITIES: AgistmentResponse['facilities'] = {
+  feedRoom: { available: false },
+  floatParking: { available: false, totalSpots: 0 },
+  hotWash: { available: false },
+  stables: { available: false, totalStables: 0 },
+  tackRoom: { available: false },
+  tieUp: { available: false, totalTieUps: 0 }
+};
+
 interface AgistmentFacilitiesModalProps {
+  agistment: AgistmentResponse;
   isOpen: boolean;
   onClose: () => void;
-  facilities: AgistmentResponse['facilities'];
-  agistmentId: string;
-  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
+  onUpdate?: (updatedAgistment: AgistmentResponse) => void;
 }
 
 export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> = ({
+  agistment,
   isOpen,
   onClose,
-  facilities,
   onUpdate
 }) => {
-  const [editableFacilities, setEditableFacilities] = useState<AgistmentResponse['facilities']>(facilities);
+  const [editableFacilities, setEditableFacilities] = useState<AgistmentResponse['facilities']>(
+    agistment.facilities || DEFAULT_FACILITIES
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
@@ -32,11 +42,12 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
   // Set initial hash when modal opens or props change
   useEffect(() => {
     if (isOpen) {
-      setEditableFacilities(facilities);
-      setInitialHash(calculateHash(facilities));
+      const initialFacilities = agistment.facilities || DEFAULT_FACILITIES;
+      setEditableFacilities(initialFacilities);
+      setInitialHash(calculateHash(initialFacilities));
       setIsDirty(false);
     }
-  }, [isOpen, facilities]);
+  }, [isOpen, agistment]);
 
   // Update dirty state whenever form changes
   useEffect(() => {
@@ -45,24 +56,27 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
   }, [editableFacilities, initialHash]);
 
   const handleClose = () => {
-    setEditableFacilities(facilities);
-    setInitialHash(calculateHash(facilities));
+    const initialFacilities = agistment.facilities || DEFAULT_FACILITIES;
+    setEditableFacilities(initialFacilities);
+    setInitialHash(calculateHash(initialFacilities));
     setIsDirty(false);
     onClose();
   };
 
-  const handleUpdateAll = async () => {
+  const handleSave = async () => {
+    if (!onUpdate) return;
+    
     setIsSaving(true);
     try {
-      if (onUpdate) {
-        await onUpdate({
-          facilities: editableFacilities
-        });
-      }
+      const updatedAgistment: AgistmentResponse = {
+        ...agistment,
+        facilities: editableFacilities
+      };
+      await onUpdate(updatedAgistment);
       onClose();
     } catch (error) {
-      console.error('Failed to update facilities:', error);
-      toast.error('Failed to update facilities');
+      console.error('Error saving facilities:', error);
+      toast.error('Failed to save facilities');
     } finally {
       setIsSaving(false);
     }
@@ -85,7 +99,7 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
       title="Edit Facilities"
       size="md"
       actionIconType="SAVE"
-      onAction={handleUpdateAll}
+      onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}
     >
