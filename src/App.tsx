@@ -13,7 +13,6 @@ import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import ListAgistment from './pages/ListAgistment';
 import { Dashboard } from './pages/Dashboard';
-import EditAgistmentDetail from './pages/agistments/EditAgistmentDetail';
 import { MyAgistments } from './pages/dashboard/MyAgistments';
 import { useAuthStore } from './stores/auth.store';
 import Privacy from './pages/Privacy';
@@ -75,14 +74,6 @@ const router = createBrowserRouter([
           {
             index: true,
             element: <Agistments />
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <ProtectedRoute>
-                <EditAgistmentDetail />
-              </ProtectedRoute>
-            )
           },
           {
             path: ':id',

@@ -12,7 +12,6 @@ import { AgistmentFacilities } from '../../components/Agistment/AgistmentFacilit
 import { AgistmentCareOptions } from '../../components/Agistment/AgistmentCareOptions';
 import { AgistmentServices } from '../../components/Agistment/AgistmentServices';
 import { AgistmentPhotosView } from '../../components/Agistment/AgistmentPhotosView';
-import { useFavorite } from '../../hooks/useFavorite';
 import { AgistmentMap } from '../../components/Map/AgistmentMap';
 import { EnquiryModal } from '../../components/Agistment/EnquiryModal';
 
@@ -22,7 +21,6 @@ export default function PreviewAgistmentDetail() {
   const [agistment, setAgistment] = useState<AgistmentResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { isFavorite, isLoading: isFavoriteLoading, toggleFavorite } = useFavorite(agistment!);
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
 
   useEffect(() => {

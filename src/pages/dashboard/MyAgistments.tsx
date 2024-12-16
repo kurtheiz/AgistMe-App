@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, Eye, X, Check, Trash2, Search } from 'lucide-react';
+import { ChevronLeft, Eye, X, Check, Trash2} from 'lucide-react';
 import { agistmentService } from '../../services/agistment.service';
 import { PageToolbar } from '../../components/PageToolbar';
-import { AgistmentSearchResponse, AgistmentResponse } from '../../types/search';
+import { AgistmentSearchResponse } from '../../types/search';
+import { AgistmentResponse } from '../../types/agistment';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 import { AgistmentHeaderModal } from '../../components/Agistment/AgistmentHeaderModal';
 import { AgistmentPaddocksModal } from '../../components/Agistment/AgistmentPaddocksModal';
@@ -12,10 +13,9 @@ import { AgistmentRidingFacilitiesModal } from '../../components/Agistment/Agist
 import { AgistmentFacilitiesModal } from '../../components/Agistment/AgistmentFacilitiesModal';
 import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentCareOptionsModal';
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
-import { AgistmentPhotos } from '../../components/Agistment/AgistmentPhotos';
+//import { AgistmentPhotos } from '../../components/Agistment/AgistmentPhotos';
 import toast from 'react-hot-toast';
 import PropertyCard from '../../components/PropertyCard';
-import { FileEdit, Fence, CircleDot, Building2, Heart, Image } from 'lucide-react';
 
 type EditModalType = 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
 
@@ -26,7 +26,6 @@ export function MyAgistments() {
   const [isLoading, setIsLoading] = useState(true);
   const [agistmentToDelete, setAgistmentToDelete] = useState<string | null>(null);
   const [editModal, setEditModal] = useState<{ type: EditModalType; agistment: AgistmentResponse } | null>(null);
-  const [selectedAgistment, setSelectedAgistment] = useState<AgistmentSearchResponse | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -267,14 +266,14 @@ export function MyAgistments() {
         cancelText="Cancel"
       />
 
-      {editModal?.type === 'photos' && (
+      {/* {editModal?.type === 'photos' && (
         <AgistmentPhotos
           isOpen={true}
           onClose={handleModalClose}
           onSave={handleModalSave}
           agistment={editModal.agistment}
         />
-      )}
+      )} */}
 
       {editModal?.type === 'header' && (
         <AgistmentHeaderModal
