@@ -81,58 +81,6 @@ function EditAgistmentDetail() {
     navigate(-1);
   };
 
-  const validateForPublish = useCallback(() => {
-    const errors: string[] = [];
-
-    // Check for at least 1 photo
-    const hasOnePhoto =
-      agistment?.photoGallery?.photos &&
-      agistment?.photoGallery?.photos?.length > 0;
-
-    if (!hasOnePhoto) {
-      errors.push('At least one photo must be added');
-    }
-
-    // Check name
-    const name = agistment?.basicInfo?.name || '';
-    if (name.length < 3 || name === 'New Agistment') {
-      errors.push('Property name must be at least 3 characters and cannot be "New Agistment"');
-    }
-
-    // Check for valid location
-    const hasValidLocation = 
-      //agistment?.propertyLocation?.location?.address &&
-      agistment?.propertyLocation?.location?.suburb &&
-      agistment?.propertyLocation?.location?.state &&
-      agistment?.propertyLocation?.location?.region;
-
-    if (!hasValidLocation) {
-      errors.push('A valid suburb must be selected');
-    }
-
-    // Check for paddocks
-    const hasPaddocks = 
-      (agistment?.paddocks?.privatePaddocks?.totalPaddocks || 0) > 0 ||
-      (agistment?.paddocks?.sharedPaddocks?.totalPaddocks || 0) > 0 ||
-      (agistment?.paddocks?.groupPaddocks?.totalPaddocks || 0) > 0;
-    
-    if (!hasPaddocks) {
-      errors.push('At least one paddock (private, shared, or group) must be added');
-    }
-
-    // Check that at least one care option is selected
-    const hasAnyCareOption = 
-      agistment?.care?.selfCare?.available ||
-      agistment?.care?.partCare?.available ||
-      agistment?.care?.fullCare?.available;
-
-    if (!hasAnyCareOption) {
-      errors.push('At least one care option (Self, Part, or Full Care) must be selected');
-    }
-
-    return errors;
-  }, [agistment]);
-
 
   const handleAgistmentUpdate = async (updatedFields: Partial<AgistmentResponse>) => {
     if (!agistment) return;

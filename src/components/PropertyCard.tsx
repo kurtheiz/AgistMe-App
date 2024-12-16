@@ -16,7 +16,7 @@ import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
 import { ConfirmationModal } from './shared/ConfirmationModal';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
 import toast from 'react-hot-toast';
@@ -52,9 +52,55 @@ export default function PropertyCard({
     return compareDate > today;
   };
 
+  const validateForPublish = useCallback(() => {
+    const errors: string[] = [];
+
+    // Check for at least 1 photo
+    const hasOnePhoto =
+      agistment?.photoGallery?.photos &&
+      agistment?.photoGallery?.photos?.length > 0;
+
+    if (!hasOnePhoto) {
+      errors.push('At least one photo must be added');
+    }
+
+    // Check name
+    const name = agistment?.basicInfo?.name || '';
+    if (name.length < 3 || name === 'New Agistment') {
+      errors.push('Property name must be at least 3 characters and cannot be "New Agistment"');
+    }
+
+    // Check for valid location
+    const hasValidLocation = 
+      agistment?.propertyLocation?.location?.suburb &&
+      agistment?.propertyLocation?.location?.state &&
+      agistment?.propertyLocation?.location?.region;
+
+    if (!hasValidLocation) {
+      errors.push('A valid suburb must be selected');
+    }
+
+    // Check for paddocks
+    const hasPaddocks = 
+      (agistment?.paddocks?.privatePaddocks?.totalPaddocks || 0) > 0 ||
+      (agistment?.paddocks?.sharedPaddocks?.totalPaddocks || 0) > 0 ||
+      (agistment?.paddocks?.groupPaddocks?.totalPaddocks || 0) > 0;
+    
+    if (!hasPaddocks) {
+      errors.push('At least one paddock (private, shared, or group) must be added');
+    }
+
+    return errors;
+  }, [agistment]);
+
   const handleVisibilityToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    const validationErrors = validateForPublish();
+    if (validationErrors.length > 0) {
+      toast.error(validationErrors.join('\n'));
+      return;
+    }
     try {
       const updatedAgistment: Partial<AgistmentResponse> = {
         ...localAgistment,
