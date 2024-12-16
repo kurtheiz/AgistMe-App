@@ -133,37 +133,6 @@ function EditAgistmentDetail() {
     return errors;
   }, [agistment]);
 
-  const handleVisibilityToggle = async () => {
-    if (isUpdating) return;
-
-    // Only validate when trying to publish
-    if (agistment?.status === 'HIDDEN') {
-      const errors = validateForPublish();
-      if (errors.length > 0) {
-        setValidationErrors(errors);
-        setIsValidationDialogOpen(true);
-        return;
-      }
-    }
-
-    setIsUpdating(true);
-
-    try {
-      if (!agistment) return;
-      
-      // Create updated agistment with new status
-      const updatedAgistment: Partial<AgistmentResponse> = {
-        ...agistment,
-        status: agistment.status === 'HIDDEN' ? 'PUBLISHED' : 'HIDDEN'
-      };
-      
-      await handleAgistmentUpdate(updatedAgistment);
-    } catch (error) {
-      console.error('Error updating agistment:', error);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
   const handleAgistmentUpdate = async (updatedFields: Partial<AgistmentResponse>) => {
     if (!agistment) return;
@@ -329,18 +298,7 @@ function EditAgistmentDetail() {
                       </button>
                     )}
                    
-                    <button
-                      className="button-toolbar"
-                      onClick={handleVisibilityToggle}
-                      disabled={isUpdating}
-                      title={
-                        agistment?.status === 'HIDDEN'
-                        ? "Hidden - This agistment will not appear in search results"
-                        : "Published - This agistment will appear in search results"
-                      }
-                    >
-                      {agistment?.status === 'HIDDEN' ? 'Publish' : 'Hide'}
-                    </button>
+                    
                   </div>
                 </div>
               </div>

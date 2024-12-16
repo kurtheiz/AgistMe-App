@@ -9,17 +9,17 @@ import {
   StableIcon,
   TieUpIcon,
 } from './Icons';
-import { Check, X, Pencil, HandHeart, Heart, Trash2 } from 'lucide-react';
+import { Check, X,  HandHeart, Heart } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
-import { EditConfirmationModal } from './shared/EditConfirmationModal';
 import { ConfirmationModal } from './shared/ConfirmationModal';
 import { useState } from 'react';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
+import toast from 'react-hot-toast';
 
 interface PropertyCardProps {
   agistment: AgistmentResponse;
@@ -38,8 +38,8 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [localAgistment, setLocalAgistment] = useState(agistment);
 
   const isDateInFuture = (date: string | null | undefined) => {
     if (!date) return false;
@@ -50,6 +50,23 @@ export default function PropertyCard({
     compareDate.setHours(0, 0, 0, 0);
     
     return compareDate > today;
+  };
+
+  const handleVisibilityToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const updatedAgistment: Partial<AgistmentResponse> = {
+        ...localAgistment,
+        status: localAgistment.status === 'HIDDEN' ? 'PUBLISHED' : 'HIDDEN'
+      };
+      const result = await agistmentService.updateAgistment(localAgistment.id, updatedAgistment);
+      setLocalAgistment(result);
+      toast.success(`Agistment ${result.status === 'HIDDEN' ? 'hidden' : 'published'} successfully`);
+    } catch (error) {
+      console.error('Error updating agistment visibility:', error);
+      toast.error('Failed to update agistment visibility');
+    }
   };
 
   // If agistment is not loaded yet, show loading state
@@ -107,8 +124,8 @@ export default function PropertyCard({
 
         {/* Photo */}
         <div className="relative aspect-[16/9]">
-          <AgistmentPhotosView photos={agistment.photoGallery.photos} />
-          {agistment.status === 'HIDDEN' && (
+          <AgistmentPhotosView photos={localAgistment.photoGallery.photos} />
+          {localAgistment.status === 'HIDDEN' && (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
           )}
         </div>
@@ -136,42 +153,36 @@ export default function PropertyCard({
 
         {/* Edit and Delete Buttons */}
         {onEdit && (
-          <div className="grid grid-cols-3 items-center px-5 py-3 bg-white border-b border-neutral-200">
-            <div>
+          <div className="flex items-center px-5 py-3 bg-secondary-100 border border-neutral-200">
+            <div className="flex justify-start gap-4 flex-1">
               <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setShowEditModal(true);
+                  onEdit?.();
                 }}
                 className="button-toolbar"
-                title="Edit agistment"
               >
-                <Pencil className="w-4 h-4" />
-                <span>Edit</span>
+                Edit
               </button>
-            </div>
-            <div className="flex justify-center">
-              {agistment.status === 'HIDDEN' && (
-                <div className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-700">
-                  HIDDEN
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end">
+              <button
+                className="button-toolbar"
+                onClick={handleVisibilityToggle}
+              >
+                {localAgistment.status === 'HIDDEN' ? 'Publish' : 'Hide'}
+              </button>
               <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   setShowDeleteModal(true);
                 }}
-                className="button-toolbar text-red-600 hover:bg-red-50"
-                title="Delete agistment"
+                className="button-toolbar text-red-600"
               >
-                <Trash2 className="w-4 h-4" />
-                <span>Delete</span>
+                Delete
               </button>
             </div>
+            
           </div>
         )}
 
@@ -396,10 +407,17 @@ export default function PropertyCard({
                 e.stopPropagation();
                 toggleFavorite();
               }}
-              disabled={isLoading}
-              className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+              className="p-2 rounded-md hover:bg-secondary-50 transition-colors duration-200"
+              disabled={!!onEdit || isLoading}
+              title={!!onEdit ? "Can't favorite in edit mode" : (isFavorite ? 'Remove from favorites' : 'Add to favorites')}
             >
-              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
+              <Heart className={`w-5 h-5 ${
+                !!onEdit 
+                  ? 'stroke-neutral-300' 
+                  : isFavorite 
+                    ? 'fill-red-500 stroke-red-500' 
+                    : 'stroke-neutral-600'
+              }`} />
             </button>
           </div>
           <div className="text-xs sm:text-sm">
@@ -407,17 +425,6 @@ export default function PropertyCard({
           </div>
         </div>
       </div>
-      {/* Edit Confirmation Modal */}
-      <EditConfirmationModal
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        onConfirm={async () => {
-          setShowEditModal(false);
-          onEdit?.();
-        }}
-        currentlyHidden={agistment.status === 'HIDDEN'}
-      />
-
       {/* Delete Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteModal}
