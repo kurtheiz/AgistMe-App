@@ -24,18 +24,16 @@ import toast from 'react-hot-toast';
 interface PropertyCardProps {
   agistment: AgistmentResponse;
   onClick?: () => void;
-  onEdit?: () => void;
   searchCriteria?: {
     paddockTypes?: ('Private' | 'Shared' | 'Group')[];
   };
 }
 
-export default function PropertyCard({ 
+const PropertyCard = ({ 
   agistment, 
   onClick, 
-  onEdit, 
   searchCriteria
-}: PropertyCardProps) {
+}: PropertyCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -194,41 +192,6 @@ export default function PropertyCard({
                 </div>
               )}
             </div>
-          </div>
-        )}
-
-        {/* Edit and Delete Buttons */}
-        {onEdit && (
-          <div className="flex items-center px-5 py-3 bg-secondary-100 border border-neutral-200">
-            <div className="flex justify-start gap-4 flex-1">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onEdit?.();
-                }}
-                className="button-toolbar"
-              >
-                Edit
-              </button>
-              <button
-                className="button-toolbar"
-                onClick={handleVisibilityToggle}
-              >
-                {localAgistment.status === 'HIDDEN' ? 'Publish' : 'Hide'}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowDeleteModal(true);
-                }}
-                className="button-toolbar text-red-600"
-              >
-                Delete
-              </button>
-            </div>
-            
           </div>
         )}
 
@@ -454,15 +417,13 @@ export default function PropertyCard({
                 toggleFavorite();
               }}
               className="p-2 rounded-md hover:bg-secondary-50 transition-colors duration-200"
-              disabled={!!onEdit || isLoading}
-              title={!!onEdit ? "Can't favorite in edit mode" : (isFavorite ? 'Remove from favorites' : 'Add to favorites')}
+              disabled={!!isLoading}
+              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
               <Heart className={`w-5 h-5 ${
-                !!onEdit 
-                  ? 'stroke-neutral-300' 
-                  : isFavorite 
-                    ? 'fill-red-500 stroke-red-500' 
-                    : 'stroke-neutral-600'
+                isFavorite 
+                  ? 'fill-red-500 stroke-red-500' 
+                  : 'stroke-neutral-600'
               }`} />
             </button>
           </div>
@@ -471,27 +432,8 @@ export default function PropertyCard({
           </div>
         </div>
       </div>
-      {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={async () => {
-          try {
-            const updatedAgistment: Partial<AgistmentResponse> = {
-              ...agistment,
-              status: 'REMOVED' as const
-            };
-            await agistmentService.updateAgistment(agistment.id, updatedAgistment);
-            setShowDeleteModal(false);
-          } catch (error) {
-            console.error('Error deleting agistment:', error);
-          }
-        }}
-        title="Delete Agistment"
-        message="Are you sure you want to delete this agistment? This action cannot be undone."
-        confirmText="Delete Agistment"
-        confirmStyle="danger"
-      />
     </div>
   );
 }
+
+export default PropertyCard;

@@ -15,6 +15,7 @@ import { AgistmentPhotosView } from '../../components/Agistment/AgistmentPhotosV
 import { useFavorite } from '../../hooks/useFavorite';
 import { AgistmentMap } from '../../components/Map/AgistmentMap';
 import { EnquiryModal } from '../../components/Agistment/EnquiryModal';
+import PropertyCard from '../../components/PropertyCard';
 
 export default function PreviewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -134,6 +135,22 @@ export default function PreviewAgistmentDetail() {
       <div className="w-full pb-20">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col space-y-8 p-4">
+            {/* Preview Title and Property Card */}
+            <div className="w-full max-w-7xl mx-auto border-b border-neutral-200 dark:border-neutral-800 pb-8">
+              <div className="flex justify-between items-center bg-neutral-100 dark:bg-neutral-800 p-4 rounded-lg mb-4">
+                <div className="text-lg font-semibold text-neutral-900 dark:text-white">
+                  PREVIEW
+                </div>
+                <button
+                  onClick={() => navigate('/dashboard/agistments')}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  Property Card
+                </button>
+              </div>
+              <PropertyCard agistment={agistment} />
+            </div>
+
             {/* Photo Gallery Section */}
             <div className="w-full max-w-7xl mx-auto border-b border-neutral-200 dark:border-neutral-800 pb-8">
               <AgistmentPhotosView
