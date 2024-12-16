@@ -9,42 +9,38 @@ import {
   StableIcon,
   TieUpIcon,
 } from './Icons';
-import { Check, X, Pencil, HandHeart, Heart, Trash2 } from 'lucide-react';
+import { Check, X, HandHeart, Heart } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
-import { EditConfirmationModal } from './shared/EditConfirmationModal';
-import { ConfirmationModal } from './shared/ConfirmationModal';
-import { useState } from 'react';
-import toast from 'react-hot-toast';
-import { agistmentService } from '../services/agistment.service';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
 
 interface PropertyCardProps {
   agistment: AgistmentResponse;
   onClick?: () => void;
-  onEdit?: () => void;
-  onToggleVisibility?: () => Promise<void>;
-  isUpdatingVisibility?: boolean;
   searchCriteria?: {
     paddockTypes?: ('Private' | 'Shared' | 'Group')[];
   };
+  paddockTypes?: ('Private' | 'Shared' | 'Group')[];
+  noShadow?: boolean;
+  disableClick?: boolean;
+  disableFavorite?: boolean;
+  showStatus?: boolean;
 }
 
-export default function PropertyCard({ 
+const PropertyCard = ({ 
   agistment, 
   onClick, 
-  onEdit, 
-  onToggleVisibility, 
-  isUpdatingVisibility,
-  searchCriteria
-}: PropertyCardProps) {
+  searchCriteria,
+  noShadow,
+  disableClick,
+  disableFavorite,
+  showStatus
+}: PropertyCardProps) => {
   const navigate = useNavigate();
-  const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { toggleFavorite } = useFavorite(agistment);
 
   const isDateInFuture = (date: string | null | undefined) => {
     if (!date) return false;
@@ -87,31 +83,10 @@ export default function PropertyCard({
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
-      onClick={handleClick}
+      className={`bg-white rounded-lg ${noShadow ? '' : 'shadow-xl hover:shadow-2xl'} transition-shadow duration-300 ${!disableClick ? 'cursor-pointer' : ''}`}
+      onClick={!disableClick ? handleClick : undefined}
     >
       <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
-        {/* Visibility Toggle */}
-        {onToggleVisibility && (
-          <div className="absolute top-2 right-2 z-20">
-            <button 
-              onClick={onToggleVisibility}
-              disabled={isUpdatingVisibility}
-              className={`p-1 rounded-full ${
-                isUpdatingVisibility 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : 'hover:bg-neutral-100'
-              }`}
-            >
-              {agistment.status === 'HIDDEN' ? (
-                <X className="w-5 h-5 text-red-500" />
-              ) : (
-                <Check className="w-5 h-5 text-green-500" />
-              )}
-            </button>
-          </div>
-        )}
-
         {/* Property Name Header */}
         <div className="title-header relative">
           <div className="flex justify-between items-start relative z-10 py-2">
@@ -123,20 +98,26 @@ export default function PropertyCard({
                 </span>
               )}
             </div>
-            {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 && (
-              <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md flex-shrink-0">
-                {agistment.basicInfo.propertySize} acres
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Photo */}
-        <div className="relative aspect-[16/9]">
-          <AgistmentPhotosView photos={agistment.photoGallery.photos} />
-          {agistment.status === 'HIDDEN' && (
-            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
+        {/* Photo Gallery */}
+        <div className="relative">
+          {showStatus && (
+            <div className={`absolute top-0 left-0 right-0 z-10 py-1.5 text-sm font-medium text-center shadow-md backdrop-blur-sm ${
+              agistment.status === 'PUBLISHED' 
+                ? 'bg-emerald-100/90 text-emerald-700'
+                : 'bg-orange-100/90 text-orange-700'
+            }`}>
+              {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
+            </div>
           )}
+          <div className={`aspect-w-16 aspect-h-9 ${agistment.status === 'HIDDEN' ? 'filter blur-sm' : ''}`}>
+            <AgistmentPhotosView photos={agistment.photoGallery.photos} />
+            {agistment.status === 'HIDDEN' && (
+              <div className="absolute inset-0 bg-white/30" />
+            )}
+          </div>
         </div>
 
         {/* Location */}
@@ -156,53 +137,12 @@ export default function PropertyCard({
                   Exact location match
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* Edit and Delete Buttons */}
-        {onEdit && (
-          <div className="grid grid-cols-3 items-center px-5 py-3 bg-white border-b border-neutral-200">
-            <div>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (agistment.status === 'HIDDEN') {
-                    // If already hidden, go straight to edit
-                    onEdit();
-                  } else {
-                    // If not hidden, show the confirmation modal
-                    setShowEditModal(true);
-                  }
-                }}
-                className="button-toolbar"
-                title="Edit agistment"
-              >
-                <Pencil className="w-4 h-4" />
-                <span>Edit</span>
-              </button>
-            </div>
-            <div className="flex justify-center">
-              {agistment.status === 'HIDDEN' && (
-                <div className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-700">
-                  HIDDEN
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowDeleteModal(true);
-                }}
-                className="button-toolbar text-red-600 hover:bg-red-50"
-                title="Delete agistment"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Delete</span>
-              </button>
+              <div className="text-xs text-neutral-500 mt-1">
+                {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 
+                  ? <>Property is <span className="font-bold">{agistment.basicInfo.propertySize}</span> acres</>
+                  : 'Property size not specified'
+                }
+              </div>
             </div>
           </div>
         )}
@@ -424,14 +364,19 @@ export default function PropertyCard({
             {/* Favorite Button */}
             <button
               onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleFavorite();
+                if (!disableFavorite) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleFavorite();
+                }
               }}
-              disabled={isLoading}
-              className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+              className={`p-2 rounded-md transition-colors duration-200 ${
+                disableFavorite ? 'opacity-50 cursor-not-allowed' : 'hover:bg-secondary-50'
+              }`}
+              disabled={!!disableFavorite}
+              title="Add to favorites"
             >
-              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
+              <Heart className={`w-5 h-5 stroke-neutral-600`} />
             </button>
           </div>
           <div className="text-xs sm:text-sm">
@@ -439,65 +384,9 @@ export default function PropertyCard({
           </div>
         </div>
       </div>
-      {/* Edit Confirmation Modal */}
-      <EditConfirmationModal
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        onConfirm={async (hideAgistment) => {
-          if (hideAgistment && agistment.status !== 'HIDDEN') {
-            try {
-              // Directly update the agistment to hidden status
-              const updatedAgistment: Partial<AgistmentResponse> = {
-                ...agistment,
-                status: 'HIDDEN'
-              };
-              await agistmentService.updateAgistment(agistment.id, updatedAgistment);
-
-              // Notify parent component that visibility changed
-              if (onToggleVisibility) {
-                await onToggleVisibility();
-              }
-            } catch (error) {
-              console.error('Failed to hide agistment:', error);
-              toast.error('Failed to hide agistment');
-              return;
-            }
-          }
-          setShowEditModal(false);
-          onEdit?.();
-        }}
-        currentlyHidden={agistment.status === 'HIDDEN'}
-        isUpdating={isUpdatingVisibility}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={async () => {
-          try {
-            // Update agistment status to REMOVED
-            const updatedAgistment: Partial<AgistmentResponse> = {
-              ...agistment,
-              status: 'REMOVED'
-            };
-            await agistmentService.updateAgistment(agistment.id, updatedAgistment);
-
-            // Notify parent component that visibility changed
-            if (onToggleVisibility) {
-              await onToggleVisibility();
-            }
-
-            setShowDeleteModal(false);
-          } catch (error) {
-            console.error('Error deleting agistment:', error);
-          }
-        }}
-        title="Delete Agistment"
-        message="Are you sure you want to delete this agistment? This action cannot be undone."
-        confirmText="Delete Agistment"
-        confirmStyle="danger"
-      />
     </div>
   );
 }
+
+export { PropertyCard };
+export default PropertyCard;

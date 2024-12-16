@@ -9,20 +9,19 @@ const calculateHash = (obj: unknown): string => {
 };
 
 interface AgistmentServicesModalProps {
+  agistment: AgistmentResponse;
   isOpen: boolean;
   onClose: () => void;
-  services: string[];
-  agistmentId: string;
-  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
+  onUpdate?: (updatedAgistment: AgistmentResponse) => void;
 }
 
 export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
+  agistment,
   isOpen,
   onClose,
-  services = [],
   onUpdate
 }) => {
-  const [editableServices, setEditableServices] = useState<string[]>(services);
+  const [editableServices, setEditableServices] = useState<string[]>(agistment.propertyServices?.services || []);
   const [newService, setNewService] = useState('');
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -31,24 +30,18 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
   // Set initial hash when modal opens or props change
   useEffect(() => {
     if (isOpen) {
-      setInitialHash(calculateHash(services));
+      setEditableServices(agistment.propertyServices?.services || []);
+      setInitialHash(calculateHash(agistment.propertyServices?.services || []));
       setIsDirty(false);
+      setNewService('');
     }
-  }, [isOpen, services]);
+  }, [isOpen, agistment]);
 
   // Update dirty state whenever form changes
   useEffect(() => {
     const currentHash = calculateHash(editableServices);
     setIsDirty(currentHash !== initialHash);
   }, [editableServices, initialHash]);
-
-  // Reset form when modal opens or services change
-  useEffect(() => {
-    if (isOpen || services) {
-      setEditableServices(services);
-      setNewService('');
-    }
-  }, [isOpen, services]);
 
   const handleAddService = useCallback(() => {
     if (newService.trim()) {
@@ -63,24 +56,27 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
     setIsDirty(true);
   }, []);
 
-  const handleUpdateAll = useCallback(async () => {
-    if (!isDirty || !onUpdate) return;
+  const handleSave = async () => {
+    if (!onUpdate) return;
 
     setIsSaving(true);
     try {
-      await onUpdate({
+      const updatedAgistment: AgistmentResponse = {
+        ...agistment,
         propertyServices: {
+          ...agistment.propertyServices,
           services: editableServices
         }
-      });
+      };
+      await onUpdate(updatedAgistment);
       onClose();
     } catch (error) {
-      console.error('Failed to update services:', error);
-      toast.error('Failed to update services');
+      console.error('Error saving services:', error);
+      toast.error('Failed to save services');
     } finally {
       setIsSaving(false);
     }
-  }, [editableServices, isDirty, onClose, onUpdate]);
+  };
 
   return (
     <Modal
@@ -89,7 +85,7 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
       title="Edit Services"
       size="md"
       actionIconType="SAVE"
-      onAction={handleUpdateAll}
+      onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}
     >

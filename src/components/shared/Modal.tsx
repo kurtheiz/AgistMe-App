@@ -2,7 +2,7 @@ import { Fragment, ReactNode, useEffect } from 'react';
 import { Dialog, Transition, TransitionChild, DialogPanel } from '@headlessui/react';
 import { X, Loader2, Search, Save, Sparkles } from 'lucide-react';
 
-export type ActionIconType = 'SEARCH' | 'SAVE' | 'AI';
+export type ActionIconType = 'SEARCH' | 'SAVE' | 'AI' | 'CUSTOM';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -15,6 +15,7 @@ export interface ModalProps {
   slideFrom?: 'left' | 'right' | 'top' | 'bottom';
   isUpdating: boolean;
   actionIconType?: ActionIconType;
+  actionIcon?: ReactNode;
   onAction?: () => void;
   disableAction?: boolean;
   isDirty?: boolean;
@@ -40,6 +41,7 @@ export function Modal({
   slideFrom = 'right',
   isUpdating = false,
   actionIconType,
+  actionIcon,
   onAction,
   disableAction,
 }: ModalProps) {
@@ -142,6 +144,7 @@ export function Modal({
                                 {actionIconType === 'SEARCH' && <Search className="w-6 h-6 text-primary-600" />}
                                 {actionIconType === 'SAVE' && <Save className="w-6 h-6 text-primary-600" />}
                                 {actionIconType === 'AI' && <Sparkles className="w-6 h-6 text-primary-600" />}
+                                {actionIconType === 'CUSTOM' && actionIcon}
                               </>
                             )}
                           </button>

@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
-import { AgistmentResponse, AgistmentContact, AgistmentPropertyLocation, AgistmentBasicInfo, AgistmentDescription } from '../../types/agistment';
+import { AgistmentResponse } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { SuburbSearch } from '../SuburbSearch';
 import { Suburb } from '../../types/suburb';
 import NumberStepper from '../shared/NumberStepper';
 
 interface Props {
-  basicInfo?: AgistmentBasicInfo;
-  propertyLocation?: AgistmentPropertyLocation;
-  contactDetails?: AgistmentContact;
-  propertyDescription?: AgistmentDescription;
+  agistment: AgistmentResponse;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
+  onUpdate?: (updatedAgistment: AgistmentResponse) => void;
 }
 
 type EditForm = {
@@ -31,26 +28,23 @@ type EditForm = {
 }
 
 export const AgistmentHeaderModal = ({
-  basicInfo,
-  propertyLocation,
-  contactDetails,
-  propertyDescription,
+  agistment,
   isOpen,
   onClose,
   onUpdate
 }: Props) => {
   const [editForm, setEditForm] = useState<EditForm>({
-    propertyName: basicInfo?.name || '',
-    propertySize: basicInfo?.propertySize || 0,
-    address: propertyLocation?.location?.address || '',
-    suburb: propertyLocation?.location?.suburb || '',
-    state: propertyLocation?.location?.state || '',
-    postcode: propertyLocation?.location?.postcode || '',
-    region: propertyLocation?.location?.region || '',
-    contactName: contactDetails?.contactDetails?.name || '',
-    contactEmail: contactDetails?.contactDetails?.email || '',
-    contactNumber: contactDetails?.contactDetails?.number || '',
-    description: propertyDescription?.description || ''
+    propertyName: '',
+    propertySize: 0,
+    address: '',
+    suburb: '',
+    state: '',
+    postcode: '',
+    region: '',
+    contactName: '',
+    contactEmail: '',
+    contactNumber: '',
+    description: ''
   });
   const [selectedSuburbs, setSelectedSuburbs] = useState<Suburb[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -65,27 +59,44 @@ export const AgistmentHeaderModal = ({
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
+    if (isOpen && agistment) {
+      setEditForm({
+        propertyName: agistment.basicInfo?.name || '',
+        propertySize: agistment.basicInfo?.propertySize || 0,
+        address: agistment.propertyLocation?.location?.address || '',
+        suburb: agistment.propertyLocation?.location?.suburb || '',
+        state: agistment.propertyLocation?.location?.state || '',
+        postcode: agistment.propertyLocation?.location?.postcode || '',
+        region: agistment.propertyLocation?.location?.region || '',
+        contactName: agistment.contact?.contactDetails?.name || '',
+        contactEmail: agistment.contact?.contactDetails?.email || '',
+        contactNumber: agistment.contact?.contactDetails?.number || '',
+        description: agistment.propertyDescription?.description || ''
+      });
+    }
+  }, [isOpen, agistment]);
+
+  useEffect(() => {
     if (isOpen) {
       const initialFormState = {
-        propertyName: basicInfo?.name || '',
-        propertySize: basicInfo?.propertySize || 0,
-        address: propertyLocation?.location?.address || '',
-        suburb: propertyLocation?.location?.suburb || '',
-        state: propertyLocation?.location?.state || '',
-        postcode: propertyLocation?.location?.postcode || '',
-        region: propertyLocation?.location?.region || '',
-        contactName: contactDetails?.contactDetails?.name || '',
-        contactEmail: contactDetails?.contactDetails?.email || '',
-        contactNumber: contactDetails?.contactDetails?.number || '',
-        description: propertyDescription?.description || ''
+        propertyName: agistment?.basicInfo?.name || '',
+        propertySize: agistment?.basicInfo?.propertySize || 0,
+        address: agistment?.propertyLocation?.location?.address || '',
+        suburb: agistment?.propertyLocation?.location?.suburb || '',
+        state: agistment?.propertyLocation?.location?.state || '',
+        postcode: agistment?.propertyLocation?.location?.postcode || '',
+        region: agistment?.propertyLocation?.location?.region || '',
+        contactName: agistment?.contact?.contactDetails?.name || '',
+        contactEmail: agistment?.contact?.contactDetails?.email || '',
+        contactNumber: agistment?.contact?.contactDetails?.number || '',
+        description: agistment?.propertyDescription?.description || ''
       };
-      setEditForm(initialFormState);
       setInitialHash(JSON.stringify(initialFormState));
       setSelectedSuburbs([]);
       setIsDirty(false);
       setErrors({});
     }
-  }, [isOpen, basicInfo, propertyLocation, contactDetails, propertyDescription]);
+  }, [isOpen, agistment]);
 
   useEffect(() => {
     const currentHash = JSON.stringify(editForm);
@@ -94,17 +105,17 @@ export const AgistmentHeaderModal = ({
 
   const handleClose = () => {
     const initialFormState = {
-      propertyName: basicInfo?.name || '',
-      propertySize: basicInfo?.propertySize || 0,
-      address: propertyLocation?.location?.address || '',
-      suburb: propertyLocation?.location?.suburb || '',
-      state: propertyLocation?.location?.state || '',
-      postcode: propertyLocation?.location?.postcode || '',
-      region: propertyLocation?.location?.region || '',
-      contactName: contactDetails?.contactDetails?.name || '',
-      contactEmail: contactDetails?.contactDetails?.email || '',
-      contactNumber: contactDetails?.contactDetails?.number || '',
-      description: propertyDescription?.description || ''
+      propertyName: agistment.basicInfo?.name || '',
+      propertySize: agistment.basicInfo?.propertySize || 0,
+      address: agistment.propertyLocation?.location?.address || '',
+      suburb: agistment.propertyLocation?.location?.suburb || '',
+      state: agistment.propertyLocation?.location?.state || '',
+      postcode: agistment.propertyLocation?.location?.postcode || '',
+      region: agistment.propertyLocation?.location?.region || '',
+      contactName: agistment.contact?.contactDetails?.name || '',
+      contactEmail: agistment.contact?.contactDetails?.email || '',
+      contactNumber: agistment.contact?.contactDetails?.number || '',
+      description: agistment.propertyDescription?.description || ''
     };
     setEditForm(initialFormState);
     setInitialHash(JSON.stringify(initialFormState));
@@ -163,7 +174,8 @@ export const AgistmentHeaderModal = ({
 
     setIsSaving(true);
     try {
-      const updatedAgistment: Partial<AgistmentResponse> = {
+      const updatedAgistment: AgistmentResponse = {
+        ...agistment,
         basicInfo: {
           name: editForm.propertyName,
           propertySize: editForm.propertySize

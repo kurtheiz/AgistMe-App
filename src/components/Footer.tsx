@@ -21,6 +21,31 @@ export const Footer = () => {
             </div>
           </div>
           
+          {/* Support */}
+          <div>
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold leading-6 text-gray-900 dark:text-white">Support</h3>
+              <ul role="list" className="mt-6 space-y-4">
+                <li>
+                  <Link
+                    to="/faq"
+                    className="text-sm leading-6 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-500"
+                  >
+                    FAQ
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="text-sm leading-6 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-500"
+                  >
+                    Contact Us
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
           {/* Legal */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Legal</h3>

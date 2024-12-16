@@ -3,10 +3,10 @@ import { Modal } from '../shared/Modal';
 import { useAuth } from '@clerk/clerk-react';
 import { profileService } from '../../services/profile.service';
 import { agistmentService } from '../../services/agistment.service';
-import { Popover } from '@headlessui/react';
-import { Info } from 'lucide-react';
+import { Popover, Listbox } from '@headlessui/react';
+import { Info, ChevronDown, Check, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { EnquiryRequest } from '../../types/enquiry';
+import { useBioStore } from '../../stores/bio.store';
 
 interface EnquiryModalProps {
   isOpen: boolean;
@@ -23,10 +23,12 @@ interface EnquiryForm {
   message: string;
   includeBio: boolean;
   profileId?: string;
+  enquiryType: string;
 }
 
 export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: EnquiryModalProps) {
   const { isSignedIn } = useAuth();
+  const { bio } = useBioStore();
   const [form, setForm] = useState<EnquiryForm>({
     first_name: '',
     last_name: '',
@@ -34,7 +36,8 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
     email: '',
     message: '',
     includeBio: false,
-    profileId: undefined
+    profileId: undefined,
+    enquiryType: 'General'
   });
 
   const [errors, setErrors] = useState<{
@@ -113,13 +116,14 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
     }
 
     try {
-      const enquiryRequest: EnquiryRequest = {
+      const enquiryRequest = {
         email: form.email,
         message: form.message,
+        enquiry_type: form.enquiryType,
         ...(form.first_name && { first_name: form.first_name }),
         ...(form.last_name && { last_name: form.last_name }),
         ...(form.mobile_phone && { mobile_phone: form.mobile_phone }),
-        ...(form.includeBio && form.profileId ? { bioShareId: form.profileId } : {})
+        ...(form.includeBio && bio?.shareId ? { bioShareId: bio.shareId } : {})
       };
 
       await agistmentService.submitEnquiry(agistmentId, enquiryRequest);
@@ -127,7 +131,7 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
       onClose();
     } catch (error) {
       console.error('Error submitting enquiry:', error);
-      toast.error('Failed to send enquiry. Please try again.');
+      toast.error('Failed to send enquiry');
     }
   };
 
@@ -153,7 +157,8 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
       title="Send an Enquiry"
       size="md"
       isUpdating={false}
-      actionIconType="SAVE"
+      actionIconType="CUSTOM"
+      actionIcon={<Send className="w-5 h-5" />}
       onAction={() => {
         const event = new Event('submit') as unknown as React.FormEvent;
         handleSubmit(event);
@@ -180,9 +185,17 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
             </div>
             <button
               type="button"
-              onClick={() => setForm(prev => ({ ...prev, includeBio: !prev.includeBio }))}
-              disabled={!isSignedIn}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${form.includeBio ? 'bg-primary-600' : 'bg-neutral-200'} ${!isSignedIn ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => {
+                if (!isSignedIn) {
+                  console.log('Attempting to show toast...');
+                  toast.error('Please sign in to share your bio', {
+                    position: 'top-center',
+                  });
+                  return;
+                }
+                setForm(prev => ({ ...prev, includeBio: !prev.includeBio }));
+              }}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${form.includeBio ? 'bg-primary-600' : 'bg-neutral-200'} ${!isSignedIn ? 'opacity-50' : ''}`}
             >
               <span
                 className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${form.includeBio ? 'translate-x-5' : 'translate-x-0'}`}
@@ -263,6 +276,48 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
             {errors.email && (
               <p className="mt-1 text-sm text-red-500">{errors.email}</p>
             )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Enquiry Type <span className="text-red-500">*</span>
+            </label>
+            <Listbox value={form.enquiryType} onChange={(value) => setForm(prev => ({ ...prev, enquiryType: value }))}>
+              <div className="relative mt-1">
+                <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-neutral-800 py-2 pl-3 pr-10 text-left border border-neutral-300 dark:border-neutral-600 focus:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 text-sm text-neutral-900 dark:text-white form-input form-input-compact">
+                  <span className="block truncate">{form.enquiryType}</span>
+                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                    <ChevronDown className="h-5 w-5 text-neutral-400" aria-hidden="true" />
+                  </span>
+                </Listbox.Button>
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-neutral-800 py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  {['General', 'Arrange an inspection', 'Pricing' ].map((type) => (
+                    <Listbox.Option
+                      key={type}
+                      value={type}
+                      className={({ active }) =>
+                        `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                          active ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-900 dark:text-primary-100' : 'text-neutral-700 dark:text-neutral-300'
+                        }`
+                      }
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                            {type}
+                          </span>
+                          {selected && (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-600 dark:text-primary-400">
+                              <Check className="h-5 w-5" aria-hidden="true" />
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </div>
+            </Listbox>
           </div>
 
           <div>

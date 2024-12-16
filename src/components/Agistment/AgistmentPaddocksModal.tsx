@@ -19,36 +19,35 @@ interface ValidationErrors {
 }
 
 interface Props {
-  agistmentId: string;
-  paddocks: AgistmentResponse['paddocks'];
+  agistment: AgistmentResponse;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedAgistment: Partial<AgistmentResponse>) => void;
+  onUpdate?: (updatedAgistment: AgistmentResponse) => void;
 }
 
 export const AgistmentPaddocksModal = ({
-  paddocks,
+  agistment,
   isOpen,
   onClose,
   onUpdate
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [editForm, setEditForm] = useState<EditForm>({
-    privatePaddocks: paddocks.privatePaddocks || {
+    privatePaddocks: agistment.paddocks?.privatePaddocks || {
       available: 0,
       total: 0,
       comments: '',
       weeklyPrice: 0,
       totalPaddocks: 0
     },
-    sharedPaddocks: paddocks.sharedPaddocks || {
+    sharedPaddocks: agistment.paddocks?.sharedPaddocks || {
       available: 0,
       total: 0,
       comments: '',
       weeklyPrice: 0,
       totalPaddocks: 0
     },
-    groupPaddocks: paddocks.groupPaddocks || {
+    groupPaddocks: agistment.paddocks?.groupPaddocks || {
       available: 0,
       total: 0,
       comments: '',
@@ -64,21 +63,21 @@ export const AgistmentPaddocksModal = ({
   useEffect(() => {
     if (isOpen) {
       const initialFormState = {
-        privatePaddocks: paddocks.privatePaddocks || {
+        privatePaddocks: agistment.paddocks?.privatePaddocks || {
           available: 0,
           total: 0,
           comments: '',
           weeklyPrice: 0,
           totalPaddocks: 0
         },
-        sharedPaddocks: paddocks.sharedPaddocks || {
+        sharedPaddocks: agistment.paddocks?.sharedPaddocks || {
           available: 0,
           total: 0,
           comments: '',
           weeklyPrice: 0,
           totalPaddocks: 0
         },
-        groupPaddocks: paddocks.groupPaddocks || {
+        groupPaddocks: agistment.paddocks?.groupPaddocks || {
           available: 0,
           total: 0,
           comments: '',
@@ -91,7 +90,7 @@ export const AgistmentPaddocksModal = ({
       setIsDirty(false);
       setSelectedTab(0);
     }
-  }, [isOpen, paddocks]);
+  }, [isOpen, agistment]);
 
   useEffect(() => {
     const currentHash = JSON.stringify(editForm);
@@ -163,21 +162,21 @@ export const AgistmentPaddocksModal = ({
 
   const handleClose = () => {
     const initialFormState = {
-      privatePaddocks: paddocks.privatePaddocks || {
+      privatePaddocks: agistment.paddocks?.privatePaddocks || {
         available: 0,
         total: 0,
         comments: '',
         weeklyPrice: 0,
         totalPaddocks: 0
       },
-      sharedPaddocks: paddocks.sharedPaddocks || {
+      sharedPaddocks: agistment.paddocks?.sharedPaddocks || {
         available: 0,
         total: 0,
         comments: '',
         weeklyPrice: 0,
         totalPaddocks: 0
       },
-      groupPaddocks: paddocks.groupPaddocks || {
+      groupPaddocks: agistment.paddocks?.groupPaddocks || {
         available: 0,
         total: 0,
         comments: '',
@@ -206,7 +205,8 @@ export const AgistmentPaddocksModal = ({
     setIsUpdating(true);
     
     try {
-      const paddocksData: Partial<AgistmentResponse> = {
+      const updatedAgistment: AgistmentResponse = {
+        ...agistment,
         paddocks: {
           privatePaddocks: editForm.privatePaddocks,
           sharedPaddocks: editForm.sharedPaddocks,
@@ -215,7 +215,7 @@ export const AgistmentPaddocksModal = ({
       };
       
       if (onUpdate) {
-        await onUpdate(paddocksData);
+        await onUpdate(updatedAgistment);
         handleClose();
       }
     } catch (error) {
@@ -232,6 +232,7 @@ export const AgistmentPaddocksModal = ({
 
   const handleEditFormChange = (type: keyof EditForm, field: keyof PaddockBase, value: any) => {
     setEditForm(prev => ({
+
       ...prev,
       [type]: {
         ...prev[type],

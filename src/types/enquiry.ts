@@ -1,6 +1,7 @@
 export interface EnquiryRequest {
   first_name?: string;
   last_name?: string;
+  enquiry_type: string;
   email: string;
   mobile_phone?: string;
   message: string;
@@ -10,12 +11,18 @@ export interface EnquiryRequest {
 export interface EnquiryResponse {
   id: string;
   agistment_id: string;
+  agistment_name: string;
   first_name?: string;
   last_name?: string;
+  enquiry_type: string;
   email: string;
   mobile_phone?: string;
   bioShareId?: string;
   message: string;
   read: boolean;
   created_at: string;
+}
+
+export interface EnquiriesResponse {
+  enquiries: EnquiryResponse[];
 }

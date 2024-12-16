@@ -61,6 +61,31 @@ body {
 
 /* Base form styles */
 @layer components {
+  /* Back button and breadcrumbs styles */
+  .back-button {
+    @apply flex items-center gap-1 -ml-4 px-1 sm:px-3 py-2 text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none transition-colors;
+  }
+
+  .back-button-text {
+    @apply font-medium text-sm sm:text-base;
+  }
+
+  .breadcrumb-separator {
+    @apply text-neutral-300 dark:text-neutral-600 mx-2 font-normal;
+  }
+
+  .breadcrumb-container {
+    @apply flex items-center gap-1 sm:gap-2 text-sm sm:text-sm text-neutral-900 dark:text-white whitespace-nowrap font-normal;
+  }
+
+  .breadcrumb-link {
+    @apply hover:text-primary-600 dark:hover:text-primary-400 font-normal;
+  }
+
+  .breadcrumb-chevron {
+    @apply text-neutral-900 dark:text-white shrink-0 font-normal;
+  }
+
   /* Visibility icon styles */
   .visibility-icon-visible {
     @apply text-visibility-visible-light hover:text-visibility-visible-hover-light transition-colors;
@@ -83,7 +108,7 @@ body {
            text-sm
            text-neutral-700
            placeholder-neutral-400
-           focus:border-primary-500 focus:ring-1 focus:ring-primary-500;
+           focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500;
   }
 
   .form-input-compact {
