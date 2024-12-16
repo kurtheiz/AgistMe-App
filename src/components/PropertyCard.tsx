@@ -15,7 +15,6 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
-import { useState } from 'react';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
 
 interface PropertyCardProps {
