@@ -32,7 +32,7 @@ export default function EnquiriesPage() {
   return (
     <>
       <PageToolbar
-        title={
+        titleElement={
           <div className="w-full">
             <div className="max-w-7xl mx-auto px-4">
               <div className="flex items-center">
@@ -60,7 +60,7 @@ export default function EnquiriesPage() {
         }
         actions={
           <button
-            onClick={() => queryClient.invalidateQueries(['enquiries'])}
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['enquiries'] })}
             disabled={isFetching}
             className={`button-toolbar ${isFetching && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
           >

@@ -1,5 +1,5 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
-import { EnquiriesResponse, EnquiryRequest, EnquiryResponse } from '../types/enquiry';
+import { EnquiriesResponse, EnquiryRequest } from '../types/enquiry';
 
 class EnquiriesService {
   private api;
@@ -73,6 +73,31 @@ class EnquiriesService {
         await this.api.put(`v1/protected/enquiries/${enquiryId}/read`, {}, authHeaders);
       } catch (error) {
         console.error('Failed to mark enquiry as read:', error);
+        throw error;
+      }
+    });
+  }
+
+  async getAgistmentEnquiries(agistmentId: string): Promise<EnquiriesResponse> {
+    return this.retryOperation(async () => {
+      try {
+        const authHeaders = await this.getAuthHeaders();
+        const response = await this.api.get<EnquiriesResponse>(`v1/protected/agistments/${agistmentId}/enquiries`, authHeaders);
+        return response.data;
+      } catch (error) {
+        console.error('Failed to get agistment enquiries:', error);
+        throw error;
+      }
+    });
+  }
+
+  async submitEnquiry(agistmentId: string, enquiry: EnquiryRequest): Promise<void> {
+    return this.retryOperation(async () => {
+      try {
+        const authHeaders = await this.getAuthHeaders();
+        await this.api.post(`v1/protected/agistments/${agistmentId}/enquiries`, enquiry, authHeaders);
+      } catch (error) {
+        console.error('Failed to submit enquiry:', error);
         throw error;
       }
     });

@@ -12,7 +12,6 @@ import { ViewAgistmentDetail } from './pages/agistments/ViewAgistmentDetail';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import ListAgistment from './pages/ListAgistment';
-import { CreateAgistment } from './pages/CreateAgistment';
 import { Dashboard } from './pages/Dashboard';
 import EditAgistmentDetail from './pages/agistments/EditAgistmentDetail';
 import { MyAgistments } from './pages/dashboard/MyAgistments';
