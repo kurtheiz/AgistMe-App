@@ -11,12 +11,12 @@ const calculateHash = (obj: unknown): string => {
 };
 
 const DEFAULT_FACILITIES: AgistmentResponse['facilities'] = {
-  feedRoom: { available: false },
-  floatParking: { available: false, totalSpots: 0 },
-  hotWash: { available: false },
-  stables: { available: false, totalStables: 0 },
-  tackRoom: { available: false },
-  tieUp: { available: false, totalTieUps: 0 }
+  feedRoom: { available: false, comments: '' },
+  floatParking: { available: false, comments: '', monthlyPrice: 0 },
+  hotWash: { available: false, comments: '' },
+  stables: { available: false, quantity: 0, comments: '' },
+  tackRoom: { available: false, comments: '' },
+  tieUp: { available: false, comments: '' }
 };
 
 interface AgistmentFacilitiesModalProps {

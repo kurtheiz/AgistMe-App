@@ -103,16 +103,6 @@ export function MyAgistments() {
     });
   };
 
-  const handleModalClose = () => {
-    setEditModal(null);
-  };
-
-  const handleModalSave = async (updatedData: any) => {
-    if (!editModal) return;
-
-    handleUpdateAgistment(editModal.agistment.id, updatedData);
-  };
-
   const handlePreview = (agistment: any) => {
     navigate(`/dashboard/agistments/${agistment.id}`);
   };

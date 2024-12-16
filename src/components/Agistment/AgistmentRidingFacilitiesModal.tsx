@@ -39,14 +39,17 @@ export const AgistmentRidingFacilitiesModal = ({
   onUpdate
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<{
+    arenas: Arena[];
+    roundYards: RoundYard[];
+  }>({
     arenas: [],
     roundYards: []
   });
   const [isSaving, setIsSaving] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
-  const [featureInputs, setFeatureInputs] = useState<{ [key: number]: string }>({});
+  const [featureInputs, setFeatureInputs] = useState<{ [key: number]: string }>( {});
 
   useEffect(() => {
     if (isOpen && agistment?.ridingFacilities) {

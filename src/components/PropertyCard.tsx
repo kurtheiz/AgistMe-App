@@ -9,17 +9,14 @@ import {
   StableIcon,
   TieUpIcon,
 } from './Icons';
-import { Check, X,  HandHeart, Heart } from 'lucide-react';
+import { Check, X, HandHeart, Heart } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
-import { ConfirmationModal } from './shared/ConfirmationModal';
-import { useState, useCallback, useEffect } from 'react';
-import { agistmentService } from '../services/agistment.service';
+import { useState } from 'react';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
-import toast from 'react-hot-toast';
 
 interface PropertyCardProps {
   agistment: AgistmentResponse;
@@ -44,14 +41,7 @@ const PropertyCard = ({
   showStatus
 }: PropertyCardProps) => {
   const navigate = useNavigate();
-  const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [localAgistment, setLocalAgistment] = useState(agistment);
-
-  // Update local state when agistment prop changes
-  useEffect(() => {
-    setLocalAgistment(agistment);
-  }, [agistment]);
+  const { toggleFavorite } = useFavorite(agistment);
 
   const isDateInFuture = (date: string | null | undefined) => {
     if (!date) return false;
@@ -62,69 +52,6 @@ const PropertyCard = ({
     compareDate.setHours(0, 0, 0, 0);
     
     return compareDate > today;
-  };
-
-  const validateForPublish = useCallback(() => {
-    const errors: string[] = [];
-
-    // Check for at least 1 photo
-    const hasOnePhoto =
-      agistment?.photoGallery?.photos &&
-      agistment?.photoGallery?.photos?.length > 0;
-
-    if (!hasOnePhoto) {
-      errors.push('At least one photo must be added');
-    }
-
-    // Check name
-    const name = agistment?.basicInfo?.name || '';
-    if (name.length < 3 || name === 'New Agistment') {
-      errors.push('Property name must be at least 3 characters and cannot be "New Agistment"');
-    }
-
-    // Check for valid location
-    const hasValidLocation = 
-      agistment?.propertyLocation?.location?.suburb &&
-      agistment?.propertyLocation?.location?.state &&
-      agistment?.propertyLocation?.location?.region;
-
-    if (!hasValidLocation) {
-      errors.push('A valid suburb must be selected');
-    }
-
-    // Check for paddocks
-    const hasPaddocks = 
-      (agistment?.paddocks?.privatePaddocks?.totalPaddocks || 0) > 0 ||
-      (agistment?.paddocks?.sharedPaddocks?.totalPaddocks || 0) > 0 ||
-      (agistment?.paddocks?.groupPaddocks?.totalPaddocks || 0) > 0;
-    
-    if (!hasPaddocks) {
-      errors.push('At least one paddock (private, shared, or group) must be added');
-    }
-
-    return errors;
-  }, [agistment]);
-
-  const handleVisibilityToggle = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const validationErrors = validateForPublish();
-    if (validationErrors.length > 0) {
-      toast.error(validationErrors.join('\n'));
-      return;
-    }
-    try {
-      const updatedAgistment: Partial<AgistmentResponse> = {
-        ...localAgistment,
-        status: localAgistment.status === 'HIDDEN' ? 'PUBLISHED' : 'HIDDEN'
-      };
-      const result = await agistmentService.updateAgistment(localAgistment.id, updatedAgistment);
-      setLocalAgistment(result);
-      toast.success(`Agistment ${result.status === 'HIDDEN' ? 'hidden' : 'published'} successfully`);
-    } catch (error) {
-      console.error('Error updating agistment visibility:', error);
-      toast.error('Failed to update agistment visibility');
-    }
   };
 
   // If agistment is not loaded yet, show loading state
@@ -187,7 +114,7 @@ const PropertyCard = ({
             </div>
           )}
           <div className={`aspect-w-16 aspect-h-9 ${agistment.status === 'HIDDEN' ? 'filter blur-sm' : ''}`}>
-            <AgistmentPhotosView photos={localAgistment.photoGallery.photos} />
+            <AgistmentPhotosView photos={agistment.photoGallery.photos} />
             {agistment.status === 'HIDDEN' && (
               <div className="absolute inset-0 bg-white/30" />
             )}
@@ -212,8 +139,8 @@ const PropertyCard = ({
                 </div>
               )}
               <div className="text-xs text-neutral-500 mt-1">
-                {localAgistment.basicInfo.propertySize && localAgistment.basicInfo.propertySize > 0 
-                  ? <>Property is <span className="font-bold">{localAgistment.basicInfo.propertySize}</span> acres</>
+                {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 
+                  ? <>Property is <span className="font-bold">{agistment.basicInfo.propertySize}</span> acres</>
                   : 'Property size not specified'
                 }
               </div>
@@ -447,14 +374,10 @@ const PropertyCard = ({
               className={`p-2 rounded-md transition-colors duration-200 ${
                 disableFavorite ? 'opacity-50 cursor-not-allowed' : 'hover:bg-secondary-50'
               }`}
-              disabled={!!isLoading || disableFavorite}
-              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              disabled={!!disableFavorite}
+              title="Add to favorites"
             >
-              <Heart className={`w-5 h-5 ${
-                isFavorite 
-                  ? 'fill-red-500 stroke-red-500' 
-                  : 'stroke-neutral-600'
-              }`} />
+              <Heart className={`w-5 h-5 stroke-neutral-600`} />
             </button>
           </div>
           <div className="text-xs sm:text-sm">

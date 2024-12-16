@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AgistmentResponse, AgistmentCare } from '../../types/agistment';
+import { AgistmentResponse } from '../../types/agistment';
 import { Modal } from '../shared/Modal';
 import NumberStepper from '../shared/NumberStepper';
 import { classNames } from '../../utils/classNames';
@@ -62,7 +62,7 @@ export const AgistmentCareOptionsModal = ({
   const [isSaving, setIsSaving] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
-  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [errors, setErrors] = useState<ValidationErrors>( {});
 
   // Set initial hash when modal opens or props change
   useEffect(() => {

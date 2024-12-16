@@ -10,7 +10,6 @@ interface AgistmentListProps {
   hasMore?: boolean;
   isLoading?: boolean;
   title?: string;
-  onEdit?: (agistment: AgistmentSearchResponse) => void;
   searchCriteria?: {
     paddockTypes?: ('Private' | 'Shared' | 'Group')[];
   };
@@ -23,7 +22,6 @@ export default function AgistmentList({
   hasMore = false,
   isLoading = false,
   title,
-  onEdit,
   searchCriteria
 }: AgistmentListProps) {
   const [internalList, setInternalList] = useState<AgistmentSearchResponse[]>([]);
@@ -56,7 +54,6 @@ export default function AgistmentList({
           <Fragment key={agistment.id}>
             <PropertyCard 
               agistment={agistment}
-              onEdit={onEdit ? () => onEdit(agistment) : undefined}
               searchCriteria={searchCriteria}
             />
             {adverts.length > 0 && (index === internalList.length - 1 || index % 4 === 3) && (
