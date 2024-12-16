@@ -18,7 +18,6 @@ import { buildCareOptionsString } from '../utils/careOptions';
 import { EditConfirmationModal } from './shared/EditConfirmationModal';
 import { ConfirmationModal } from './shared/ConfirmationModal';
 import { useState } from 'react';
-import toast from 'react-hot-toast';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
 
@@ -26,8 +25,6 @@ interface PropertyCardProps {
   agistment: AgistmentResponse;
   onClick?: () => void;
   onEdit?: () => void;
-  onToggleVisibility?: () => Promise<void>;
-  isUpdatingVisibility?: boolean;
   searchCriteria?: {
     paddockTypes?: ('Private' | 'Shared' | 'Group')[];
   };
@@ -37,8 +34,6 @@ export default function PropertyCard({
   agistment, 
   onClick, 
   onEdit, 
-  onToggleVisibility, 
-  isUpdatingVisibility,
   searchCriteria
 }: PropertyCardProps) {
   const navigate = useNavigate();
@@ -91,27 +86,6 @@ export default function PropertyCard({
       onClick={handleClick}
     >
       <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
-        {/* Visibility Toggle */}
-        {onToggleVisibility && (
-          <div className="absolute top-2 right-2 z-20">
-            <button 
-              onClick={onToggleVisibility}
-              disabled={isUpdatingVisibility}
-              className={`p-1 rounded-full ${
-                isUpdatingVisibility 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : 'hover:bg-neutral-100'
-              }`}
-            >
-              {agistment.status === 'HIDDEN' ? (
-                <X className="w-5 h-5 text-red-500" />
-              ) : (
-                <Check className="w-5 h-5 text-green-500" />
-              )}
-            </button>
-          </div>
-        )}
-
         {/* Property Name Header */}
         <div className="title-header relative">
           <div className="flex justify-between items-start relative z-10 py-2">
@@ -168,13 +142,7 @@ export default function PropertyCard({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  if (agistment.status === 'HIDDEN') {
-                    // If already hidden, go straight to edit
-                    onEdit();
-                  } else {
-                    // If not hidden, show the confirmation modal
-                    setShowEditModal(true);
-                  }
+                  setShowEditModal(true);
                 }}
                 className="button-toolbar"
                 title="Edit agistment"
@@ -443,31 +411,11 @@ export default function PropertyCard({
       <EditConfirmationModal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
-        onConfirm={async (hideAgistment) => {
-          if (hideAgistment && agistment.status !== 'HIDDEN') {
-            try {
-              // Directly update the agistment to hidden status
-              const updatedAgistment: Partial<AgistmentResponse> = {
-                ...agistment,
-                status: 'HIDDEN'
-              };
-              await agistmentService.updateAgistment(agistment.id, updatedAgistment);
-
-              // Notify parent component that visibility changed
-              if (onToggleVisibility) {
-                await onToggleVisibility();
-              }
-            } catch (error) {
-              console.error('Failed to hide agistment:', error);
-              toast.error('Failed to hide agistment');
-              return;
-            }
-          }
+        onConfirm={async () => {
           setShowEditModal(false);
           onEdit?.();
         }}
         currentlyHidden={agistment.status === 'HIDDEN'}
-        isUpdating={isUpdatingVisibility}
       />
 
       {/* Delete Confirmation Modal */}
@@ -476,18 +424,11 @@ export default function PropertyCard({
         onClose={() => setShowDeleteModal(false)}
         onConfirm={async () => {
           try {
-            // Update agistment status to REMOVED
             const updatedAgistment: Partial<AgistmentResponse> = {
               ...agistment,
-              status: 'REMOVED'
+              status: 'REMOVED' as const
             };
             await agistmentService.updateAgistment(agistment.id, updatedAgistment);
-
-            // Notify parent component that visibility changed
-            if (onToggleVisibility) {
-              await onToggleVisibility();
-            }
-
             setShowDeleteModal(false);
           } catch (error) {
             console.error('Error deleting agistment:', error);
