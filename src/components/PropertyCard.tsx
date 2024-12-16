@@ -16,7 +16,7 @@ import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
 import { ConfirmationModal } from './shared/ConfirmationModal';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { agistmentService } from '../services/agistment.service';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
 import toast from 'react-hot-toast';
@@ -27,17 +27,31 @@ interface PropertyCardProps {
   searchCriteria?: {
     paddockTypes?: ('Private' | 'Shared' | 'Group')[];
   };
+  paddockTypes?: ('Private' | 'Shared' | 'Group')[];
+  noShadow?: boolean;
+  disableClick?: boolean;
+  disableFavorite?: boolean;
+  showStatus?: boolean;
 }
 
 const PropertyCard = ({ 
   agistment, 
   onClick, 
-  searchCriteria
+  searchCriteria,
+  noShadow,
+  disableClick,
+  disableFavorite,
+  showStatus
 }: PropertyCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, isLoading, toggleFavorite } = useFavorite(agistment);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [localAgistment, setLocalAgistment] = useState(agistment);
+
+  // Update local state when agistment prop changes
+  useEffect(() => {
+    setLocalAgistment(agistment);
+  }, [agistment]);
 
   const isDateInFuture = (date: string | null | undefined) => {
     if (!date) return false;
@@ -143,8 +157,8 @@ const PropertyCard = ({
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
-      onClick={handleClick}
+      className={`bg-white rounded-lg ${noShadow ? '' : 'shadow-xl hover:shadow-2xl'} transition-shadow duration-300 ${!disableClick ? 'cursor-pointer' : ''}`}
+      onClick={!disableClick ? handleClick : undefined}
     >
       <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
         {/* Property Name Header */}
@@ -158,20 +172,26 @@ const PropertyCard = ({
                 </span>
               )}
             </div>
-            {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 && (
-              <div className="bg-white text-primary-600 text-sm px-2 py-1 mr-2 rounded-md flex-shrink-0">
-                {agistment.basicInfo.propertySize} acres
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Photo */}
-        <div className="relative aspect-[16/9]">
-          <AgistmentPhotosView photos={localAgistment.photoGallery.photos} />
-          {localAgistment.status === 'HIDDEN' && (
-            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
+        {/* Photo Gallery */}
+        <div className="relative">
+          {showStatus && (
+            <div className={`absolute top-0 left-0 right-0 z-10 py-1.5 text-sm font-medium text-center shadow-md backdrop-blur-sm ${
+              agistment.status === 'PUBLISHED' 
+                ? 'bg-emerald-100/90 text-emerald-700'
+                : 'bg-orange-100/90 text-orange-700'
+            }`}>
+              {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
+            </div>
           )}
+          <div className={`aspect-w-16 aspect-h-9 ${agistment.status === 'HIDDEN' ? 'filter blur-sm' : ''}`}>
+            <AgistmentPhotosView photos={localAgistment.photoGallery.photos} />
+            {agistment.status === 'HIDDEN' && (
+              <div className="absolute inset-0 bg-white/30" />
+            )}
+          </div>
         </div>
 
         {/* Location */}
@@ -191,6 +211,12 @@ const PropertyCard = ({
                   Exact location match
                 </div>
               )}
+              <div className="text-xs text-neutral-500 mt-1">
+                {localAgistment.basicInfo.propertySize && localAgistment.basicInfo.propertySize > 0 
+                  ? <>Property is <span className="font-bold">{localAgistment.basicInfo.propertySize}</span> acres</>
+                  : 'Property size not specified'
+                }
+              </div>
             </div>
           </div>
         )}
@@ -412,12 +438,16 @@ const PropertyCard = ({
             {/* Favorite Button */}
             <button
               onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleFavorite();
+                if (!disableFavorite) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleFavorite();
+                }
               }}
-              className="p-2 rounded-md hover:bg-secondary-50 transition-colors duration-200"
-              disabled={!!isLoading}
+              className={`p-2 rounded-md transition-colors duration-200 ${
+                disableFavorite ? 'opacity-50 cursor-not-allowed' : 'hover:bg-secondary-50'
+              }`}
+              disabled={!!isLoading || disableFavorite}
               title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
               <Heart className={`w-5 h-5 ${
@@ -436,4 +466,5 @@ const PropertyCard = ({
   );
 }
 
+export { PropertyCard };
 export default PropertyCard;

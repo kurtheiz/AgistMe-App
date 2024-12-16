@@ -14,6 +14,8 @@ import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentC
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
 import { AgistmentPhotos } from '../../components/Agistment/AgistmentPhotos';
 import toast from 'react-hot-toast';
+import PropertyCard from '../../components/PropertyCard';
+import { FileEdit, Fence, CircleDot, Building2, Heart, Image } from 'lucide-react';
 
 type EditModalType = 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
 
@@ -117,20 +119,14 @@ export function MyAgistments() {
   };
 
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
-    <div className="mt-4">
-      <div className="text-sm text-gray-500 mb-2">Edit sections:</div>
-      <div className="flex flex-wrap gap-2" role="group">
+    <div className="bg-neutral-50 border-t border-neutral-200">
+      <div className="text-center text-sm text-neutral-600 pt-4">Edit sections</div>
+      <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
           className="button-toolbar"
         >
           Basic Info
-        </button>
-        <button
-          onClick={() => setEditModal({ type: 'photos', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
-        >
-          Photos
         </button>
         <button
           onClick={() => setEditModal({ type: 'paddocks', agistment: agistment as AgistmentResponse })}
@@ -142,7 +138,7 @@ export function MyAgistments() {
           onClick={() => setEditModal({ type: 'riding', agistment: agistment as AgistmentResponse })}
           className="button-toolbar"
         >
-          Riding
+          Riding Facilities
         </button>
         <button
           onClick={() => setEditModal({ type: 'facilities', agistment: agistment as AgistmentResponse })}
@@ -157,10 +153,44 @@ export function MyAgistments() {
           Care
         </button>
         <button
-          onClick={() => setEditModal({ type: 'services', agistment: agistment as AgistmentResponse })}
+          onClick={() => setEditModal({ type: 'photos', agistment: agistment as AgistmentResponse })}
           className="button-toolbar"
         >
-          Services
+          Photos
+        </button>
+      </div>
+
+      <div className="border-t border-neutral-200 p-4 flex gap-2 bg-white">
+        <button
+          onClick={() => handlePreview(agistment)}
+          className="button-toolbar"
+        >
+          <Eye className="w-4 h-4" />
+          Preview
+        </button>
+        <button
+          onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
+          className="button-toolbar"
+        >
+          {agistment.status === 'PUBLISHED' ? (
+            <>
+              <X className="w-4 h-4" />
+              <span>Hide</span>
+            </>
+          ) : (
+            <>
+              <Check className="w-4 h-4" />
+              <span>Publish</span>
+            </>
+          )}
+        </button>
+        
+        <button
+          onClick={() => setAgistmentToDelete(agistment.id)}
+          className="button-toolbar text-red-600 ml-auto"
+        >
+          <Trash2 className="w-4 h-4" />
+          Delete
         </button>
       </div>
     </div>
@@ -208,84 +238,18 @@ export function MyAgistments() {
               {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'}
             </div>
             
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {agistments.map((agistment) => (
                 <div key={agistment.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="flex flex-col md:flex-row">
-                    <div className="relative w-full md:w-48 h-48 flex-shrink-0">
-                      <div className={`w-full h-full ${agistment.status === 'HIDDEN' ? 'blur-sm' : ''}`}>
-                        {agistment.photoGallery?.photos?.[0] ? (
-                          <img
-                            src={agistment.photoGallery.photos[0].link}
-                            alt={agistment.basicInfo?.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-gray-400">No photo</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className={`text-lg font-bold px-4 py-2 rounded-full ${
-                          agistment.status === 'PUBLISHED'
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-red-100 text-red-700'
-                        }`}>
-                          {agistment.status}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-grow p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-lg font-semibold">{agistment.basicInfo?.name}</h3>
-                          <p className="text-gray-600">
-                            {agistment.propertyLocation?.location?.suburb}, {agistment.propertyLocation?.location?.state}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {renderEditButtons(agistment)}
-                      
-                      <div className="mt-4 pt-4 border-t flex gap-2">
-                        <button
-                          onClick={() => handlePreview(agistment)}
-                          className="button-toolbar"
-                        >
-                          <Eye className="w-4 h-4 mr-2" />
-                          Preview
-                        </button>
-                        <button
-                          onClick={() => handleVisibilityToggle(agistment.id, agistment.status === 'PUBLISHED')}
-                          className="button-toolbar"
-                          title={agistment.status === 'PUBLISHED' ? "Hide" : "Show"}
-                        >
-                          {agistment.status === 'PUBLISHED' ? (
-                            <>
-                              <X className="w-4 h-4" />
-                              <span>Hide</span>
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-4 h-4" />
-                              <span>Publish</span>
-                            </>
-                          )}
-                        </button>
-                        
-                        <button
-                          onClick={() => setAgistmentToDelete(agistment.id)}
-                          className="button-toolbar text-red-600 hover:text-red-700 hover:bg-red-50"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          <span>Delete</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <PropertyCard
+                    agistment={agistment}
+                    onClick={() => navigate(`/dashboard/agistments/${agistment.id}`)}
+                    noShadow
+                    disableFavorite
+                    showStatus
+                  />
+                  
+                  {renderEditButtons(agistment)}
                 </div>
               ))}
             </div>

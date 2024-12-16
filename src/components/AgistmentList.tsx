@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
 import { AgistmentSearchResponse } from '../types/search';
-import { PropertyCard } from './PropertyCard';
+import PropertyCard from './PropertyCard';
 import { Advert } from '../services/advert.service';
 
 interface AgistmentListProps {
