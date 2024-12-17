@@ -1,5 +1,5 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
-import { EnquiriesResponse, EnquiryRequest } from '../types/enquiry';
+import { EnquiriesResponse, EnquiryRequest, EnquiryStatusUpdate } from '../types/enquiry';
 
 class EnquiriesService {
   private api;
@@ -34,23 +34,13 @@ class EnquiriesService {
   }
 
   private async getAuthHeaders() {
-    try {
-      await this.waitForAuth();
-      const session = await window.Clerk?.session;
-      if (session) {
-        const token = await session.getToken({ template: 'AgistMe' });
-        if (token) {
-          return {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-        }
+    await this.waitForAuth();
+    const token = await window.Clerk.session?.getToken();
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    } catch (error) {
-      console.warn('Failed to get auth token:', error);
-    }
-    return {};
+    };
   }
 
   async getEnquiries(): Promise<EnquiriesResponse> {
@@ -78,6 +68,18 @@ class EnquiriesService {
     });
   }
 
+  async markEnquiryAsUnread(enquiryId: string): Promise<void> {
+    return this.retryOperation(async () => {
+      try {
+        const authHeaders = await this.getAuthHeaders();
+        await this.api.put(`v1/protected/enquiries/${enquiryId}/unread`, {}, authHeaders);
+      } catch (error) {
+        console.error('Failed to mark enquiry as unread:', error);
+        throw error;
+      }
+    });
+  }
+
   async getAgistmentEnquiries(agistmentId: string): Promise<EnquiriesResponse> {
     return this.retryOperation(async () => {
       try {
@@ -98,6 +100,18 @@ class EnquiriesService {
         await this.api.post(`v1/protected/agistments/${agistmentId}/enquiries`, enquiry, authHeaders);
       } catch (error) {
         console.error('Failed to submit enquiry:', error);
+        throw error;
+      }
+    });
+  }
+
+  async updateEnquiryStatus(enquiryId: string, update: EnquiryStatusUpdate): Promise<void> {
+    return this.retryOperation(async () => {
+      try {
+        const authHeaders = await this.getAuthHeaders();
+        await this.api.patch(`v1/protected/enquiries/${enquiryId}`, update, authHeaders);
+      } catch (error) {
+        console.error('Failed to update enquiry status:', error);
         throw error;
       }
     });

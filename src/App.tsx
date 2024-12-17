@@ -1,32 +1,34 @@
-import { ClerkProvider, useAuth } from '@clerk/clerk-react';
+import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-react';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
-import { ErrorPage } from './components/ErrorPage';
-import { useEffect } from 'react';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import Profile from './pages/Profile';
 import Agistments from './pages/Agistments';
 import { ViewAgistmentDetail } from './pages/agistments/ViewAgistmentDetail';
-import { Toaster } from 'react-hot-toast';
-import { ErrorBoundary } from './components/ErrorBoundary';
 import ListAgistment from './pages/ListAgistment';
+import Profile from './pages/Profile';
 import { Dashboard } from './pages/Dashboard';
 import { MyAgistments } from './pages/dashboard/MyAgistments';
-import { useAuthStore } from './stores/auth.store';
+import { QueryProvider } from './providers/QueryProvider';
+import { Toaster } from 'react-hot-toast';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { ErrorPage } from './components/ErrorPage';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
-import { QueryProvider } from './providers/QueryProvider';
+import { useAuthStore } from './stores/auth.store';
 import { useNotificationsStore } from './stores/notifications.store';
 import { useFavoritesStore } from './stores/favorites.store';
 import { useSavedSearchesStore } from './stores/savedSearches.store';
 import { useBioStore } from './stores/bio.store';
-import { profileService } from './services/profile.service'; 
+import { useEnquiriesStore } from './stores/enquiries.store';
+import { profileService } from './services/profile.service';
+import { enquiriesService } from './services/enquiries.service';
 import EnquiriesPage from './pages/dashboard/Enquiries';
 import PreviewAgistmentDetail from './pages/dashboard/PreviewAgistmentDetail';
+import { useEffect } from 'react';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -141,6 +143,7 @@ const router = createBrowserRouter([
 // Component to handle auth initialization
 const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isLoaded, userId } = useAuth();
+  const { user } = useUser();
   const setUser = useAuthStore((state) => state.setUser);
   
   // Notifications state
@@ -155,11 +158,14 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
   // Bio state
   const { bio, setBio, setIsLoading: setBioLoading } = useBioStore();
 
+  // Enquiries state
+  const { setIsLoading: setEnquiriesLoading, setEnquiries } = useEnquiriesStore();
+
   useEffect(() => {
     if (isLoaded && userId) {
       setUser({
         id: userId,
-        email: ''  // We'll set this as empty since we don't have it at this point
+        email: user?.primaryEmailAddress?.emailAddress || ''
       });
       
       // Load notifications if not in state
@@ -221,8 +227,23 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
             setBioLoading(false);
           });
       }
+
+      // Load enquiries if user is an agistor
+      if (user?.publicMetadata?.role === 'agistor') {
+        setEnquiriesLoading(true);
+        enquiriesService.getEnquiries()
+          .then(response => {
+            setEnquiries(response.enquiries);
+          })
+          .catch(error => {
+            console.error('Error loading enquiries:', error);
+          })
+          .finally(() => {
+            setEnquiriesLoading(false);
+          });
+      }
     }
-  }, [isLoaded, userId]);
+  }, [isLoaded, userId, user]);
 
   return <>{children}</>;
 };

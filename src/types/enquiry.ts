@@ -22,10 +22,16 @@ export interface EnquiryResponse {
   bioShareId?: string;
   message: string;
   read: boolean;
+  acknowledged: boolean;
   created_at: string;
   bio?: ProfileResponse;
 }
 
 export interface EnquiriesResponse {
   enquiries: EnquiryResponse[];
+}
+
+export interface EnquiryStatusUpdate {
+  read?: boolean;
+  acknowledged?: boolean;
 }

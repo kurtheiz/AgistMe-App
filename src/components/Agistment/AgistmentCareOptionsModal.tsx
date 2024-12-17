@@ -190,7 +190,6 @@ export const AgistmentCareOptionsModal = ({
       onClose={handleClose}
       title="Edit Care Options"
       size="lg"
-      actionIconType="SAVE"
       onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}
@@ -202,171 +201,177 @@ export const AgistmentCareOptionsModal = ({
           </div>
         )}
         {/* Self Care Section */}
-        <div className="space-y-4">
-          <div className="flex items-start space-x-4">
-            <Switch
-              checked={editForm.selfCare.available}
-              onChange={(checked) => {
-                setEditForm(prev => ({ ...prev, selfCare: { ...prev.selfCare, available: checked } }));
-              }}
-              className={classNames(
-                editForm.selfCare.available ? 'bg-primary-600' : 'bg-neutral-200',
-                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
-              )}
-            >
-              <span className="sr-only">Self Care Available</span>
-              <span
+        <div className="border border-neutral-200 rounded-lg p-4 mb-4 relative">
+          <div className="absolute -top-3 left-3 px-2 bg-white">
+            <span className="text-sm font-medium text-neutral-900">Self Care</span>
+          </div>
+          <div className="mt-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                checked={editForm.selfCare.available}
+                onChange={(checked) => {
+                  setEditForm(prev => ({ ...prev, selfCare: { ...prev.selfCare, available: checked } }));
+                }}
                 className={classNames(
-                  editForm.selfCare.available ? 'translate-x-5' : 'translate-x-0',
-                  'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                  editForm.selfCare.available ? 'bg-primary-600' : 'bg-neutral-200',
+                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
                 )}
-              />
-            </Switch>
-            <div className="flex-grow">
-              <label className="block text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                Self Care
-              </label>
-              <div className="mt-2">
-                <div className="flex flex-col items-center">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1 text-center">
-                    Monthly Price ($)
-                  </label>
-                  <NumberStepper
-                    value={editForm.selfCare.monthlyPrice}
-                    onChange={(value) => {
-                      setEditForm(prev => ({ ...prev, selfCare: { ...prev.selfCare, monthlyPrice: value } }));
-                    }}
-                    min={0}
-                  />
-                  {errors.selfCare?.monthlyPrice && (
-                    <p className="mt-1 text-sm text-red-500">{errors.selfCare.monthlyPrice}</p>
+              >
+                <span className="sr-only">Self Care Available</span>
+                <span
+                  className={classNames(
+                    editForm.selfCare.available ? 'translate-x-5' : 'translate-x-0',
+                    'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
                   )}
-                </div>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    value={editForm.selfCare.comments}
-                    onChange={(e) => {
-                      setEditForm(prev => ({ ...prev, selfCare: { ...prev.selfCare, comments: e.target.value } }));
-                    }}
-                    className="form-input form-input-compact"
-                    placeholder="Add comments..."
-                  />
-                </div>
+                />
+              </Switch>
+              <span className="text-sm text-neutral-600">Available</span>
+            </div>
+            <div className="mt-4">
+              <div className="flex flex-col items-center">
+                <label className="block text-sm font-medium text-neutral-700 mb-1 text-center">
+                  Monthly Price ($)
+                </label>
+                <NumberStepper
+                  value={editForm.selfCare.monthlyPrice}
+                  onChange={(value) => {
+                    setEditForm(prev => ({ ...prev, selfCare: { ...prev.selfCare, monthlyPrice: value } }));
+                  }}
+                  min={0}
+                  disabled={!editForm.selfCare.available}
+                />
+                {errors.selfCare?.monthlyPrice && (
+                  <p className="mt-1 text-sm text-red-500">{errors.selfCare.monthlyPrice}</p>
+                )}
+              </div>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={editForm.selfCare.comments}
+                  onChange={(e) => {
+                    setEditForm(prev => ({ ...prev, selfCare: { ...prev.selfCare, comments: e.target.value } }));
+                  }}
+                  className="form-input form-input-compact"
+                  placeholder="Add comments..."
+                />
               </div>
             </div>
           </div>
         </div>
 
         {/* Part Care Section */}
-        <div className="space-y-4">
-          <div className="flex items-start space-x-4">
-            <Switch
-              checked={editForm.partCare.available}
-              onChange={(checked) => {
-                setEditForm(prev => ({ ...prev, partCare: { ...prev.partCare, available: checked } }));
-              }}
-              className={classNames(
-                editForm.partCare.available ? 'bg-primary-600' : 'bg-neutral-200',
-                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
-              )}
-            >
-              <span className="sr-only">Part Care Available</span>
-              <span
+        <div className="border border-neutral-200 rounded-lg p-4 mb-4 relative">
+          <div className="absolute -top-3 left-3 px-2 bg-white">
+            <span className="text-sm font-medium text-neutral-900">Part Care</span>
+          </div>
+          <div className="mt-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                checked={editForm.partCare.available}
+                onChange={(checked) => {
+                  setEditForm(prev => ({ ...prev, partCare: { ...prev.partCare, available: checked } }));
+                }}
                 className={classNames(
-                  editForm.partCare.available ? 'translate-x-5' : 'translate-x-0',
-                  'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                  editForm.partCare.available ? 'bg-primary-600' : 'bg-neutral-200',
+                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
                 )}
-              />
-            </Switch>
-            <div className="flex-grow">
-              <label className="block text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                Part Care
-              </label>
-              <div className="mt-2">
-                <div className="flex flex-col items-center">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1 text-center">
-                    Monthly Price ($)
-                  </label>
-                  <NumberStepper
-                    value={editForm.partCare.monthlyPrice}
-                    onChange={(value) => {
-                      setEditForm(prev => ({ ...prev, partCare: { ...prev.partCare, monthlyPrice: value } }));
-                    }}
-                    min={0}
-                  />
-                  {errors.partCare?.monthlyPrice && (
-                    <p className="mt-1 text-sm text-red-500">{errors.partCare.monthlyPrice}</p>
+              >
+                <span className="sr-only">Part Care Available</span>
+                <span
+                  className={classNames(
+                    editForm.partCare.available ? 'translate-x-5' : 'translate-x-0',
+                    'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
                   )}
-                </div>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    value={editForm.partCare.comments}
-                    onChange={(e) => {
-                      setEditForm(prev => ({ ...prev, partCare: { ...prev.partCare, comments: e.target.value } }));
-                    }}
-                    className="form-input form-input-compact"
-                    placeholder="Add comments..."
-                  />
-                </div>
+                />
+              </Switch>
+              <span className="text-sm text-neutral-600">Available</span>
+            </div>
+            <div className="mt-4">
+              <div className="flex flex-col items-center">
+                <label className="block text-sm font-medium text-neutral-700 mb-1 text-center">
+                  Monthly Price ($)
+                </label>
+                <NumberStepper
+                  value={editForm.partCare.monthlyPrice}
+                  onChange={(value) => {
+                    setEditForm(prev => ({ ...prev, partCare: { ...prev.partCare, monthlyPrice: value } }));
+                  }}
+                  min={0}
+                  disabled={!editForm.partCare.available}
+                />
+                {errors.partCare?.monthlyPrice && (
+                  <p className="mt-1 text-sm text-red-500">{errors.partCare.monthlyPrice}</p>
+                )}
+              </div>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={editForm.partCare.comments}
+                  onChange={(e) => {
+                    setEditForm(prev => ({ ...prev, partCare: { ...prev.partCare, comments: e.target.value } }));
+                  }}
+                  className="form-input form-input-compact"
+                  placeholder="Add comments..."
+                />
               </div>
             </div>
           </div>
         </div>
 
         {/* Full Care Section */}
-        <div className="space-y-4">
-          <div className="flex items-start space-x-4">
-            <Switch
-              checked={editForm.fullCare.available}
-              onChange={(checked) => {
-                setEditForm(prev => ({ ...prev, fullCare: { ...prev.fullCare, available: checked } }));
-              }}
-              className={classNames(
-                editForm.fullCare.available ? 'bg-primary-600' : 'bg-neutral-200',
-                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
-              )}
-            >
-              <span className="sr-only">Full Care Available</span>
-              <span
+        <div className="border border-neutral-200 rounded-lg p-4 mb-4 relative">
+          <div className="absolute -top-3 left-3 px-2 bg-white">
+            <span className="text-sm font-medium text-neutral-900">Full Care</span>
+          </div>
+          <div className="mt-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                checked={editForm.fullCare.available}
+                onChange={(checked) => {
+                  setEditForm(prev => ({ ...prev, fullCare: { ...prev.fullCare, available: checked } }));
+                }}
                 className={classNames(
-                  editForm.fullCare.available ? 'translate-x-5' : 'translate-x-0',
-                  'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                  editForm.fullCare.available ? 'bg-primary-600' : 'bg-neutral-200',
+                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
                 )}
-              />
-            </Switch>
-            <div className="flex-grow">
-              <label className="block text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                Full Care
-              </label>
-              <div className="mt-2">
-                <div className="flex flex-col items-center">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1 text-center">
-                    Monthly Price ($)
-                  </label>
-                  <NumberStepper
-                    value={editForm.fullCare.monthlyPrice}
-                    onChange={(value) => {
-                      setEditForm(prev => ({ ...prev, fullCare: { ...prev.fullCare, monthlyPrice: value } }));
-                    }}
-                    min={0}
-                  />
-                  {errors.fullCare?.monthlyPrice && (
-                    <p className="mt-1 text-sm text-red-500">{errors.fullCare.monthlyPrice}</p>
+              >
+                <span className="sr-only">Full Care Available</span>
+                <span
+                  className={classNames(
+                    editForm.fullCare.available ? 'translate-x-5' : 'translate-x-0',
+                    'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
                   )}
-                </div>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    value={editForm.fullCare.comments}
-                    onChange={(e) => {
-                      setEditForm(prev => ({ ...prev, fullCare: { ...prev.fullCare, comments: e.target.value } }));
-                    }}
-                    className="form-input form-input-compact"
-                    placeholder="Add comments..."
-                  />
-                </div>
+                />
+              </Switch>
+              <span className="text-sm text-neutral-600">Available</span>
+            </div>
+            <div className="mt-4">
+              <div className="flex flex-col items-center">
+                <label className="block text-sm font-medium text-neutral-700 mb-1 text-center">
+                  Monthly Price ($)
+                </label>
+                <NumberStepper
+                  value={editForm.fullCare.monthlyPrice}
+                  onChange={(value) => {
+                    setEditForm(prev => ({ ...prev, fullCare: { ...prev.fullCare, monthlyPrice: value } }));
+                  }}
+                  min={0}
+                  disabled={!editForm.fullCare.available}
+                />
+                {errors.fullCare?.monthlyPrice && (
+                  <p className="mt-1 text-sm text-red-500">{errors.fullCare.monthlyPrice}</p>
+                )}
+              </div>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={editForm.fullCare.comments}
+                  onChange={(e) => {
+                    setEditForm(prev => ({ ...prev, fullCare: { ...prev.fullCare, comments: e.target.value } }));
+                  }}
+                  className="form-input form-input-compact"
+                  placeholder="Add comments..."
+                />
               </div>
             </div>
           </div>

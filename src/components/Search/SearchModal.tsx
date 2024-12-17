@@ -569,13 +569,22 @@ export function SearchModal({
 
       {/* Search Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-neutral-200">
-        <button
-          type="submit"
-          disabled={searchCriteria.suburbs.length === 0 || isUpdating}
-          className={`w-full py-2 px-4 rounded-md font-medium text-white bg-primary-600 hover:bg-primary-500 transition-colors ${searchCriteria.suburbs.length === 0 || isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          {isUpdating ? 'Searching...' : 'Search'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2 px-4 rounded-md font-medium text-neutral-700 bg-white border border-neutral-300 hover:bg-neutral-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={searchCriteria.suburbs.length === 0 || isUpdating}
+            className={`flex-1 py-2 px-4 rounded-md font-medium text-white bg-primary-600 hover:bg-primary-500 transition-colors ${searchCriteria.suburbs.length === 0 || isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isUpdating ? 'Searching...' : 'Search'}
+          </button>
+        </div>
       </div>
     </form>
   );
@@ -585,7 +594,7 @@ export function SearchModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Search Agistments"
-      showCloseButton={true}
+      showCloseButton={false}
       size="md"
       slideFrom="right"
       isUpdating={false}

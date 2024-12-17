@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { profileService } from '../../services/profile.service';
 import { agistmentService } from '../../services/agistment.service';
 import { Popover, Listbox } from '@headlessui/react';
-import { Info, ChevronDown, Check, Send } from 'lucide-react';
+import { Info, ChevronDown, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useBioStore } from '../../stores/bio.store';
 
@@ -172,13 +172,12 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
       title="Send an Enquiry"
       size="md"
       isUpdating={false}
-      actionIconType="CUSTOM"
-      actionIcon={<Send className="w-5 h-5" />}
       onAction={() => {
         const event = new Event('submit') as unknown as React.FormEvent;
         handleSubmit(event);
       }}
       disableAction={!isFormValid}
+      actionLabel="Send"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">

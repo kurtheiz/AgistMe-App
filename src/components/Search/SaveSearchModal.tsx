@@ -65,7 +65,6 @@ export function SaveSearchModal({
       title={title}
       size="md"
       isUpdating={isUpdating}
-      actionIconType="SAVE"
       onAction={handleSave}
       disableAction={!name.trim() || !isDirty || !searchCriteria}
     >

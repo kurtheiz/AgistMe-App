@@ -27,48 +27,72 @@ export default function EnquiriesPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <PageToolbar>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 hover:bg-neutral-100 rounded-lg"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-xl font-semibold">Enquiries</h1>
-        </div>
-        <button
-          onClick={() => refetch()}
-          className="p-2 hover:bg-neutral-100 rounded-lg"
-          disabled={isLoading}
-        >
-          <RotateCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
-        </button>
-      </PageToolbar>
-
-      <div className="container mx-auto px-4 py-8">
-        {isLoading ? (
-          <div className="flex justify-center">
-            <Loader2 className="w-6 h-6 animate-spin" />
+      <PageToolbar
+        titleElement={
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="back-button"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="back-button-text">Back</span>
+                </button>
+                <span className="breadcrumb-separator">|</span>
+                <div className="breadcrumb-container">
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="breadcrumb-link"
+                  >
+                    Dashboard
+                  </button>
+                  <span className="breadcrumb-chevron">&gt;</span>
+                  <span>Enquiries</span>
+                </div>
+              </div>
+            </div>
           </div>
-        ) : (
-          <>
-            {!enquiries || enquiries.length === 0 ? (
-              <div className="text-center text-neutral-500">
-                No enquiries found
+        }
+        actions={
+          <button
+            onClick={() => refetch()}
+            disabled={isLoading}
+            className={`button-toolbar ${isLoading && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+          >
+            <RotateCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+        }
+      />
+      <div className="flex-grow w-full">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {isLoading ? (
+            <div className="flex justify-center">
+              <Loader2 className="w-6 h-6 animate-spin" />
+            </div>
+          ) : (
+            <>
+              <div className="mb-4 text-sm text-neutral-600">
+                {enquiries.length} {enquiries.length === 1 ? 'enquiry' : 'enquiries'}
               </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {enquiries.map((enquiry) => (
-                  <EnquiryCard
-                    key={enquiry.id}
-                    enquiry={enquiry}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        )}
+              {!enquiries || enquiries.length === 0 ? (
+                <div className="text-center text-neutral-500">
+                  No enquiries found
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {enquiries.map((enquiry) => (
+                    <EnquiryCard
+                      key={enquiry.id}
+                      enquiry={enquiry}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

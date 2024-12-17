@@ -3,7 +3,7 @@ import { Modal } from '../shared/Modal';
 import { AgistmentResponse, Arena, RoundYard } from '../../types/agistment';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { ArenaDiagram } from './ArenaDiagram';
 import { RoundYardDiagram } from './RoundYardDiagram';
 import NumberStepper from '../shared/NumberStepper';
@@ -148,7 +148,7 @@ export const AgistmentRidingFacilitiesModal = ({
 
   const handleAddFeature = (arenaIndex: number, feature: string) => {
     if (!feature.trim()) return;
-    
+
     setEditForm(prev => {
       const newArenas = [...prev.arenas];
       newArenas[arenaIndex] = {
@@ -192,7 +192,6 @@ export const AgistmentRidingFacilitiesModal = ({
       onClose={onClose}
       title={`Edit ${tabs[selectedTab]}`}
       size="lg"
-      actionIconType="SAVE"
       onAction={handleUpdateFacilities}
       isUpdating={isSaving}
       disableAction={!isDirty}
@@ -230,9 +229,9 @@ export const AgistmentRidingFacilitiesModal = ({
                           <h3 className="text-lg font-medium">Arena {index + 1}</h3>
                           <button
                             onClick={() => removeArena(index)}
-                            className="text-red-600 hover:text-red-700"
+                            className="button-toolbar inline-flex items-center px-2.5 py-1.5 text-sm font-medium text-red-600 hover:text-red-700"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            Delete
                           </button>
                         </div>
                         <div className="p-4">
@@ -298,7 +297,7 @@ export const AgistmentRidingFacilitiesModal = ({
                                     type="button"
                                     onClick={() => handleAddFeatureForArena(index)}
                                     disabled={!featureInputs[index]?.trim()}
-                                    className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="button-toolbar inline-flex items-center justify-center px-3 py-1.5 border text-sm font-medium rounded-lg shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     <Plus className="h-4 w-4" />
                                   </button>
@@ -330,7 +329,6 @@ export const AgistmentRidingFacilitiesModal = ({
                     onClick={addArena}
                     className="w-full flex items-center justify-center px-4 py-3 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
                     Add Arena
                   </button>
                 </div>
@@ -344,9 +342,9 @@ export const AgistmentRidingFacilitiesModal = ({
                           <h3 className="text-lg font-medium">Round Yard {index + 1}</h3>
                           <button
                             onClick={() => removeRoundYard(index)}
-                            className="text-red-600 hover:text-red-700"
+                            className="button-toolbar inline-flex items-center px-2.5 py-1.5 text-sm font-medium text-red-600 hover:text-red-700"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            Delete
                           </button>
                         </div>
                         <div className="p-4">
@@ -388,7 +386,6 @@ export const AgistmentRidingFacilitiesModal = ({
                     onClick={addRoundYard}
                     className="w-full flex items-center justify-center px-4 py-3 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
                     Add Round Yard
                   </button>
                 </div>

@@ -11,6 +11,7 @@ interface EnquiriesState {
   fetchEnquiries: (queryClient?: QueryClient) => Promise<EnquiriesResponse>;
   fetchAgistmentEnquiries: (agistmentId: string, queryClient?: QueryClient) => Promise<EnquiriesResponse>;
   markAsRead: (enquiryId: string, queryClient?: QueryClient) => Promise<void>;
+  markAsUnread: (enquiryId: string, queryClient?: QueryClient) => Promise<void>;
 }
 
 export const useEnquiriesStore = create<EnquiriesState>((set, get) => ({
@@ -81,6 +82,34 @@ export const useEnquiriesStore = create<EnquiriesState>((set, get) => ({
       }
     } catch (error) {
       console.error('Error marking enquiry as read:', error);
+      throw error;
+    }
+  },
+
+  markAsUnread: async (enquiryId: string, queryClient?: QueryClient) => {
+    try {
+      await enquiriesService.markEnquiryAsUnread(enquiryId);
+      
+      // Update local state
+      const updatedEnquiries = get().enquiries.map(enquiry => 
+        enquiry.id === enquiryId ? { ...enquiry, read: false } : enquiry
+      );
+      set({ enquiries: updatedEnquiries });
+
+      // Update query cache if available
+      if (queryClient) {
+        queryClient.setQueryData(['enquiries'], (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            enquiries: oldData.enquiries.map((enquiry: EnquiryResponse) =>
+              enquiry.id === enquiryId ? { ...enquiry, read: false } : enquiry
+            )
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error marking enquiry as unread:', error);
       throw error;
     }
   }

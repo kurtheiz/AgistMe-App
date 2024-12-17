@@ -231,7 +231,7 @@ export const AgistmentPaddocksModal = ({
   };
 
   const handleEditFormChange = (type: keyof EditForm, field: keyof PaddockBase, value: any) => {
-    setEditForm(prev => ({
+    setEditForm(prev =>({
 
       ...prev,
       [type]: {
@@ -263,7 +263,6 @@ export const AgistmentPaddocksModal = ({
       onClose={handleClose}
       title={`Edit ${tabs[selectedTab].title}`}
       size="lg"
-      actionIconType="SAVE"
       onAction={handleUpdatePaddocks}
       isUpdating={isUpdating}
       disableAction={!isDirty}

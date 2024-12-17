@@ -5,6 +5,7 @@ import { useAgistor } from '../hooks/useAgistor';
 import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
 import { useNotificationsStore } from '../stores/notifications.store';
+import { useEnquiries } from '../hooks/useEnquiries';
 import { Search, SquareMenu } from 'lucide-react';
 
 export const Header = () => {
@@ -17,9 +18,8 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { setUser, clearAuth } = useAuthStore();
   const { setIsSearchModalOpen } = useSearchStore();
-  const { 
-    notifications, 
-  } = useNotificationsStore();
+  const { notifications } = useNotificationsStore();
+  const { data: enquiriesData } = useEnquiries();
 
   useEffect(() => {
     if (isSignedIn && user) {
@@ -58,10 +58,9 @@ export const Header = () => {
   // Don't show agistor-specific items while loading
   const showAgistorItems = isAgistor && !isAgistorLoading;
 
-  // Remove notification fetching useEffect as it's now handled in App.tsx
-
   // Calculate unread notifications count
   const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadEnquiriesCount = enquiriesData?.enquiries.filter(e => !e.read).length || 0;
 
   return (
     <>
@@ -109,9 +108,14 @@ export const Header = () => {
                 {showAgistorItems && (
                   <Link 
                     to="/dashboard"
-                    className="text-base sm:text"
+                    className="text-base sm:text relative"
                   >
-                    Dashboard
+                    Agistor Dashboard
+                    {unreadEnquiriesCount > 0 && (
+                      <div className="absolute -top-1 -right-4 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
+                        {unreadEnquiriesCount}
+                      </div>
+                    )}
                   </Link>
                 )}
               </nav>
@@ -123,9 +127,14 @@ export const Header = () => {
               {showAgistorItems && (
                 <Link
                   to="/dashboard"
-                  className="md:hidden"
+                  className="md:hidden relative"
                 >
                   <SquareMenu className="w-6 h-6" />
+                  {unreadEnquiriesCount > 0 && (
+                    <div className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
+                      {unreadEnquiriesCount}
+                    </div>
+                  )}
                 </Link>
               )}
               {/* Search Icon */}
@@ -197,13 +206,6 @@ export const Header = () => {
             Home
           </Link>
           <Link 
-            to="/about"
-            className="text-base py-2"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            About
-          </Link>
-          <Link 
             to={agistmentsPath}
             className="text-base py-2"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -220,10 +222,15 @@ export const Header = () => {
           {showAgistorItems && (
             <Link 
               to="/dashboard"
-              className="text-base py-2"
+              className="text-base py-2 relative"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Dashboard
+              Agistor Dashboard
+              {unreadEnquiriesCount > 0 && (
+                <div className="absolute top-2 -right-4 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
+                  {unreadEnquiriesCount}
+                </div>
+              )}
             </Link>
           )}
         </nav>
