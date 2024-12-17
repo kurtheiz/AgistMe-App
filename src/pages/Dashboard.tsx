@@ -42,7 +42,7 @@ export const Dashboard = () => {
               onClick={() => navigate('/dashboard/agistments')}
             >
               <div className="flex items-center">
-                <List className="h-8 w-8 text-primary-600" />
+                <List className="h-8 w-8 text-neutral-600" />
                 <div className="ml-4">
                   <p className="text-lg font-medium text-gray-900">My Agistments</p>
                   <p className="text-sm text-gray-500">Manage your property listings</p>
@@ -55,7 +55,7 @@ export const Dashboard = () => {
               onClick={() => navigate('/dashboard/enquiries')}
             >
               <div className="flex items-center">
-                <MessageSquare className="h-8 w-8 text-emerald-600" />
+                <MessageSquare className="h-8 w-8 text-neutral-600" />
                 <div className="ml-4">
                   <p className="text-lg font-medium text-gray-900">Enquiries</p>
                   <p className="text-sm text-gray-500">View and manage enquiries</p>
@@ -71,7 +71,7 @@ export const Dashboard = () => {
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
               </div>
               <div className="flex items-center opacity-50">
-                <ClipboardList className="h-8 w-8 text-purple-600" />
+                <ClipboardList className="h-8 w-8 text-neutral-600" />
                 <div className="ml-4">
                   <p className="text-lg font-medium text-gray-900">Waiting List</p>
                   <p className="text-sm text-gray-500">Manage your property waiting list</p>
@@ -87,7 +87,7 @@ export const Dashboard = () => {
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
               </div>
               <div className="flex items-center opacity-50">
-                <Calendar className="h-8 w-8 text-rose-600" />
+                <Calendar className="h-8 w-8 text-neutral-600" />
                 <div className="ml-4">
                   <p className="text-lg font-medium text-gray-900">Inspections</p>
                   <p className="text-sm text-gray-500">Schedule and manage property inspections</p>
@@ -103,7 +103,7 @@ export const Dashboard = () => {
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
               </div>
               <div className="flex items-center opacity-50">
-                <Fence className="h-8 w-8 text-amber-600" />
+                <Fence className="h-8 w-8 text-neutral-400" />
                 <div className="ml-4">
                   <p className="text-lg font-medium text-gray-900">Paddocks</p>
                   <p className="text-sm text-gray-500">Manage your paddocks and availability</p>
@@ -119,7 +119,7 @@ export const Dashboard = () => {
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
               </div>
               <div className="flex items-center opacity-50">
-                <Users className="h-8 w-8 text-indigo-600" />
+                <Users className="h-8 w-8 text-neutral-600" />
                 <div className="ml-4">
                   <p className="text-lg font-medium text-gray-900">Agistees</p>
                   <p className="text-sm text-gray-500">View and manage your agistees</p>
@@ -135,7 +135,7 @@ export const Dashboard = () => {
                 <span className="text-sm font-medium text-neutral-300">Coming Soon</span>
               </div>
               <div className="flex items-center opacity-50">
-                <DollarSign className="h-8 w-8 text-green-600" />
+                <DollarSign className="h-8 w-8 text-neutral-600" />
                 <div className="ml-4">
                   <p className="text-lg font-medium text-gray-900">Finances</p>
                   <p className="text-sm text-gray-500">Track payments and manage invoices</p>

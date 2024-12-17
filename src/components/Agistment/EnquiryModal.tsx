@@ -37,8 +37,13 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
     message: '',
     includeBio: false,
     profileId: undefined,
-    enquiryType: 'General'
+    enquiryType: 'General'  // Default value
   });
+
+  // Debug the form state changes
+  useEffect(() => {
+    console.log('Form enquiry type changed:', form.enquiryType);
+  }, [form.enquiryType]);
 
   const [errors, setErrors] = useState<{
     email?: string;
@@ -59,15 +64,24 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
           email: profileData.email || '',
           mobile_phone: profileData.mobile || '',
           includeBio: profileData.showProfileInEnquiry ?? false,
-          profileId: profileData.id
+          profileId: profileData.id,
+          message: '',
+          enquiryType: 'General'
         }));
       } catch (error) {
         console.error('Error loading profile:', error);
       }
     };
 
+    // Reset form when modal opens
+    setForm(prev => ({
+      ...prev,
+      message: '',
+      enquiryType: 'General'
+    }));
+
     loadProfile();
-  }, [isSignedIn]);
+  }, [isSignedIn, isOpen]);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -126,6 +140,7 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
         ...(form.includeBio && bio?.shareId ? { bioShareId: bio.shareId } : {})
       };
 
+      console.log('Submitting enquiry with type:', form.enquiryType);
       await agistmentService.submitEnquiry(agistmentId, enquiryRequest);
       toast.success('Enquiry sent successfully');
       onClose();
@@ -282,7 +297,13 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
               Enquiry Type <span className="text-red-500">*</span>
             </label>
-            <Listbox value={form.enquiryType} onChange={(value) => setForm(prev => ({ ...prev, enquiryType: value }))}>
+            <Listbox 
+              value={form.enquiryType} 
+              onChange={(value) => {
+                console.log('Dropdown selected:', value);  // Debug the selection
+                setForm(prev => ({ ...prev, enquiryType: value }));
+              }}
+            >
               <div className="relative mt-1">
                 <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-neutral-800 py-2 pl-3 pr-10 text-left border border-neutral-300 dark:border-neutral-600 focus:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 text-sm text-neutral-900 dark:text-white form-input form-input-compact">
                   <span className="block truncate">{form.enquiryType}</span>

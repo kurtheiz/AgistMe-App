@@ -1,3 +1,5 @@
+import { ProfileResponse } from './profile';
+
 export interface EnquiryRequest {
   first_name?: string;
   last_name?: string;
@@ -21,6 +23,7 @@ export interface EnquiryResponse {
   message: string;
   read: boolean;
   created_at: string;
+  bio?: ProfileResponse;
 }
 
 export interface EnquiriesResponse {
