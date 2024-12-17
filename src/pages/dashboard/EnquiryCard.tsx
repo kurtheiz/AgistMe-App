@@ -40,46 +40,43 @@ export const EnquiryCard = ({ enquiry }: EnquiryCardProps) => {
           New
         </div>
       )}
-      <div className="absolute top-2 right-2">
-        <Menu as="div" className="relative inline-block text-left">
-          <Menu.Button className="text-neutral-400 hover:text-neutral-600">
-            <MoreVertical className="w-5 h-5" />
-          </Menu.Button>
-          <Menu.Items className="absolute right-0 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <Menu.Item>
-              {({ active }) => (
-                <button
-                  className={`${
-                    active ? 'bg-neutral-100' : ''
-                  } group flex w-full items-center px-3 py-2 text-sm text-neutral-700`}
-                  onClick={() => handleStatusUpdate({ read: !enquiry.read })}
-                >
-                  Mark as {enquiry.read ? 'Unread' : 'Read'}
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <button
-                  className={`${
-                    active ? 'bg-neutral-100' : ''
-                  } group flex w-full items-center px-3 py-2 text-sm text-neutral-700`}
-                  onClick={() => handleStatusUpdate({ acknowledged: !enquiry.acknowledged })}
-                >
-                  {enquiry.acknowledged ? 'Unacknowledge' : 'Acknowledge'}
-                </button>
-              )}
-            </Menu.Item>
-          </Menu.Items>
-        </Menu>
-      </div>
-      {/* Header */}
       <div className="px-4 py-3 border-b border-neutral-100">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-          <div className="flex items-center">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between">
             <h3 className="font-medium text-neutral-900">{enquiry.agistment_name}</h3>
+            <Menu as="div" className="relative inline-block text-left">
+              <Menu.Button className="p-1 hover:bg-neutral-100 rounded-full">
+                <MoreVertical className="w-4 h-4 text-neutral-500" />
+              </Menu.Button>
+              <Menu.Items className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-neutral-100 focus:outline-none">
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      className={`${
+                        active ? 'bg-neutral-100' : ''
+                      } group flex w-full items-center px-3 py-2 text-sm text-neutral-700`}
+                      onClick={() => handleStatusUpdate({ read: !enquiry.read })}
+                    >
+                      Mark as {enquiry.read ? 'Unread' : 'Read'}
+                    </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      className={`${
+                        active ? 'bg-neutral-100' : ''
+                      } group flex w-full items-center px-3 py-2 text-sm text-neutral-700`}
+                      onClick={() => handleStatusUpdate({ acknowledged: !enquiry.acknowledged })}
+                    >
+                      {enquiry.acknowledged ? 'Unacknowledge' : 'Acknowledge'}
+                    </button>
+                  )}
+                </Menu.Item>
+              </Menu.Items>
+            </Menu>
           </div>
-          <div className="flex items-center gap-2 text-sm text-neutral-500 mt-2 md:mt-0 ml-4 md:ml-0">
+          <div className="flex items-center gap-2 text-sm text-neutral-500 mt-2">
             <Calendar className="w-4 h-4" />
             <span>{new Date(enquiry.created_at).toLocaleString('en-AU', { 
               day: '2-digit',

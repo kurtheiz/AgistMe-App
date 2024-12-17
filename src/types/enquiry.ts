@@ -1,29 +1,29 @@
 import { ProfileResponse } from './profile';
 
 export interface EnquiryRequest {
-  firstName?: string;
-  lastName?: string;
-  enquiryType: string;
+  first_name?: string;
+  last_name?: string;
+  enquiry_type: string;
   email: string;
-  mobilePhone?: string;
+  mobile_phone?: string;
   message: string;
   bioShareId?: string;
 }
 
 export interface EnquiryResponse {
   id: string;
-  agistmentId: string;
-  agistmentName: string;
-  firstName?: string;
-  lastName?: string;
-  enquiryType: string;
+  agistment_id: string;
+  agistment_name: string;
+  first_name?: string;
+  last_name?: string;
+  enquiry_type: string;
   email: string;
-  mobilePhone?: string;
+  mobile_phone?: string;
   bioShareId?: string;
   message: string;
   read: boolean;
   acknowledged: boolean;
-  createdAt: string;
+  created_at: string;
   bio?: ProfileResponse;
 }
 
