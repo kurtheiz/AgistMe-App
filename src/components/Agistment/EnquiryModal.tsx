@@ -177,6 +177,7 @@ export function EnquiryModal({ isOpen, onClose, agistmentName, agistmentId }: En
         handleSubmit(event);
       }}
       disableAction={!isFormValid}
+      actionLabel="Send"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">
