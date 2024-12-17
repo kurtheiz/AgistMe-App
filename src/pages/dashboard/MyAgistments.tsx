@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, Eye, X, Check, Trash2} from 'lucide-react';
+import { ChevronLeft, Eye, X, Check, Trash2, AlertCircle } from 'lucide-react';
 import { agistmentService } from '../../services/agistment.service';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';
@@ -98,6 +98,57 @@ export function MyAgistments() {
   };
 
   const handleVisibilityToggle = async (agistmentId: string, currentStatus: string) => {
+    // Only validate when publishing (changing from HIDDEN to PUBLISHED)
+    if (currentStatus === 'HIDDEN') {
+      const agistment = agistments.find(a => a.id === agistmentId);
+      if (!agistment) return;
+
+      const errors: string[] = [];
+
+      // Basic Info Validation
+      if (!agistment.basicInfo?.name || agistment.basicInfo.name.length < 3 || agistment.basicInfo.name === 'New Agistment') {
+        errors.push('Basic Info: Name must be at least 3 characters and cannot be "New Agistment"');
+      }
+
+      if (!agistment.propertyLocation?.location?.suburb || 
+          !agistment.propertyLocation?.location?.state || 
+          !agistment.propertyLocation?.location?.region || 
+          !agistment.propertyLocation?.location?.postcode) {
+        errors.push('Basic Info: Suburb, state, region, and postcode are required');
+      }
+
+      // Paddocks Validation
+      const hasPaddocks = agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
+                         agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
+                         agistment.paddocks?.groupPaddocks?.totalPaddocks > 0;
+      if (!hasPaddocks) {
+        errors.push('Paddocks: At least one paddock type must have paddocks');
+      }
+
+      // Care Options Validation
+      const hasCareOption = agistment.care?.selfCare?.available ||
+                           agistment.care?.partCare?.available ||
+                           agistment.care?.fullCare?.available;
+      if (!hasCareOption) {
+        errors.push('Care: At least one care option must be available');
+      }
+
+      // Photos Validation
+      if (!agistment.photoGallery?.photos || agistment.photoGallery.photos.length === 0) {
+        errors.push('Photos: At least one photo is required');
+      }
+
+      if (errors.length > 0) {
+        toast.error(
+          <div>
+            <p className="font-semibold mb-2">Please fix sections with errors before publishing</p>
+            <p className="text-sm text-red-400">Look for the error indicators on each section button</p>
+          </div>
+        );
+        return;
+      }
+    }
+
     handleUpdateAgistment(agistmentId, {
       status: currentStatus === 'PUBLISHED' ? 'HIDDEN' : 'PUBLISHED'
     });
@@ -107,21 +158,56 @@ export function MyAgistments() {
     navigate(`/dashboard/agistments/${agistment.id}`);
   };
 
+  const checkSectionValidation = (agistment: AgistmentSearchResponse, section: 'header' | 'paddocks' | 'care' | 'photos') => {
+    switch (section) {
+      case 'header':
+        return !(!agistment.basicInfo?.name || 
+                agistment.basicInfo.name.length < 3 || 
+                agistment.basicInfo.name === 'New Agistment' ||
+                !agistment.propertyLocation?.location?.suburb || 
+                !agistment.propertyLocation?.location?.state || 
+                !agistment.propertyLocation?.location?.region || 
+                !agistment.propertyLocation?.location?.postcode);
+      case 'paddocks':
+        return !!(agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
+                 agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
+                 agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
+      case 'care':
+        return !!(agistment.care?.selfCare?.available ||
+                 agistment.care?.partCare?.available ||
+                 agistment.care?.fullCare?.available);
+      case 'photos':
+        return !!(agistment.photoGallery?.photos && agistment.photoGallery.photos.length > 0);
+      default:
+        return true;
+    }
+  };
+
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
     <div className="bg-neutral-50 border-t border-neutral-200">
       <div className="text-center text-sm text-neutral-600 pt-4">Edit sections</div>
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar relative"
         >
           Basic Info
+          {!checkSectionValidation(agistment, 'header') && (
+            <div className="absolute -top-1 -right-1 text-red-500">
+              <AlertCircle className="w-4 h-4" />
+            </div>
+          )}
         </button>
         <button
           onClick={() => setEditModal({ type: 'paddocks', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar relative"
         >
           Paddocks
+          {!checkSectionValidation(agistment, 'paddocks') && (
+            <div className="absolute -top-1 -right-1 text-red-500">
+              <AlertCircle className="w-4 h-4" />
+            </div>
+          )}
         </button>
         <button
           onClick={() => setEditModal({ type: 'riding', agistment: agistment as AgistmentResponse })}
@@ -137,15 +223,25 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'care', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar relative"
         >
           Care
+          {!checkSectionValidation(agistment, 'care') && (
+            <div className="absolute -top-1 -right-1 text-red-500">
+              <AlertCircle className="w-4 h-4" />
+            </div>
+          )}
         </button>
         <button
           onClick={() => setEditModal({ type: 'photos', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar relative"
         >
           Photos
+          {!checkSectionValidation(agistment, 'photos') && (
+            <div className="absolute -top-1 -right-1 text-red-500">
+              <AlertCircle className="w-4 h-4" />
+            </div>
+          )}
         </button>
       </div>
 
