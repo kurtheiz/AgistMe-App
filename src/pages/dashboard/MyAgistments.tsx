@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, Eye, X, Check, Trash2, AlertCircle } from 'lucide-react';
+import { ChevronLeft, AlertCircle } from 'lucide-react';
 import { agistmentService } from '../../services/agistment.service';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';

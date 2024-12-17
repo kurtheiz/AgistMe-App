@@ -4,7 +4,7 @@ import { useUser } from "@clerk/clerk-react";
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';
-import { BookmarkPlus, RotateCw } from 'lucide-react';
+import { RotateCw } from 'lucide-react';
 import { SearchRequest } from '../types/search';
 import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';

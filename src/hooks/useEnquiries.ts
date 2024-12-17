@@ -56,7 +56,7 @@ export const useUpdateEnquiryStatus = () => {
   return useMutation({
     mutationFn: ({ enquiryId, update }: { enquiryId: string; update: EnquiryStatusUpdate }) =>
       enquiriesService.updateEnquiryStatus(enquiryId, update),
-    onSuccess: (_, { enquiryId, update }) => {
+    onSuccess: () => {
       // Update both enquiries and agistment-enquiries queries
       queryClient.invalidateQueries({ queryKey: ['enquiries'] });
       queryClient.invalidateQueries({ 

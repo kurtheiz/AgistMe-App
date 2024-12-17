@@ -98,7 +98,6 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
       onClose={handleClose}
       title="Edit Facilities"
       size="md"
-      actionIconType="SAVE"
       onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}

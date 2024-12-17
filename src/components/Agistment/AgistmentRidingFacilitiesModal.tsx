@@ -3,7 +3,7 @@ import { Modal } from '../shared/Modal';
 import { AgistmentResponse, Arena, RoundYard } from '../../types/agistment';
 import { Tab } from '@headlessui/react';
 import { classNames } from '../../utils/classNames';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { ArenaDiagram } from './ArenaDiagram';
 import { RoundYardDiagram } from './RoundYardDiagram';
 import NumberStepper from '../shared/NumberStepper';
@@ -49,7 +49,7 @@ export const AgistmentRidingFacilitiesModal = ({
   const [isSaving, setIsSaving] = useState(false);
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
-  const [featureInputs, setFeatureInputs] = useState<{ [key: number]: string }>({});
+  const [featureInputs, setFeatureInputs] = useState<{ [key: number]: string }>( {});
 
   useEffect(() => {
     if (isOpen && agistment?.ridingFacilities) {
@@ -192,7 +192,6 @@ export const AgistmentRidingFacilitiesModal = ({
       onClose={onClose}
       title={`Edit ${tabs[selectedTab]}`}
       size="lg"
-      actionIconType="SAVE"
       onAction={handleUpdateFacilities}
       isUpdating={isSaving}
       disableAction={!isDirty}

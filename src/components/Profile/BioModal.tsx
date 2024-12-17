@@ -8,7 +8,6 @@ import { Profile } from '../../types/profile';
 import { Modal } from '../shared/Modal';
 import toast from 'react-hot-toast';
 import { Suburb } from '../../types/suburb';
-import { Switch } from '@headlessui/react';
 import { useBioStore } from '../../stores/bio.store';
 
 interface BioModalProps {
@@ -156,7 +155,6 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
       title="Edit Profile"
       size="lg"
       isUpdating={saving || isUploading}
-      actionIconType="SAVE"
       onAction={handleSubmit}
       disableAction={!isDirty || saving || isUploading}
     >

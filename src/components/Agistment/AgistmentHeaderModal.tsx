@@ -233,7 +233,6 @@ export const AgistmentHeaderModal = ({
       onClose={handleClose}
       title="Edit Property Details"
       size="lg"
-      actionIconType="SAVE"
       onAction={handleUpdateAll}
       isUpdating={isSaving}
       disableAction={!isDirty}

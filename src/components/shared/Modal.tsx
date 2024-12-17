@@ -1,20 +1,18 @@
 import { Fragment, ReactNode, useEffect } from 'react';
 import { Dialog, Transition, TransitionChild, DialogPanel } from '@headlessui/react';
-import { X, Loader2, Search, Save, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export type ActionIconType = 'SEARCH' | 'SAVE' | 'AI' | 'CUSTOM';
 
 export interface ModalProps {
+  children: ReactNode;
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  children: ReactNode;
-  headerContent?: ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'wide' | 'full';
-  slideFrom?: 'left' | 'right' | 'top' | 'bottom';
-  isUpdating: boolean;
-  actionIconType?: ActionIconType;
-  actionIcon?: ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
+  slideFrom?: 'right' | 'left';
+  isUpdating?: boolean;
+  showCloseButton?: boolean;
   onAction?: () => void;
   disableAction?: boolean;
   actionLabel?: string;
@@ -26,8 +24,12 @@ const sizeClasses = {
   md: 'md:max-w-md',
   lg: 'md:max-w-lg',
   xl: 'md:max-w-xl',
-  wide: 'md:max-w-3xl',
-  full: 'md:max-w-full'
+  '2xl': 'md:max-w-2xl',
+  '3xl': 'md:max-w-3xl',
+  '4xl': 'md:max-w-4xl',
+  '5xl': 'md:max-w-5xl',
+  '6xl': 'md:max-w-6xl',
+  '7xl': 'md:max-w-7xl'
 };
 
 export function Modal({
@@ -35,12 +37,10 @@ export function Modal({
   onClose,
   title,
   children,
-  headerContent,
   size = 'md',
   slideFrom = 'right',
   isUpdating = false,
-  actionIconType,
-  actionIcon,
+  showCloseButton,
   onAction,
   disableAction,
   actionLabel,
@@ -129,6 +129,18 @@ export function Modal({
                       <h2 className="text-base font-medium text-white">
                         {title}
                       </h2>
+                      {showCloseButton && (
+                        <button
+                          type="button"
+                          className="ml-6 h-6 w-6 text-neutral-500 hover:text-neutral-900"
+                          onClick={onClose}
+                        >
+                          <span className="sr-only">Close panel</span>
+                          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   )}
 

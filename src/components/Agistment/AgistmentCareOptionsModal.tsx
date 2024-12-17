@@ -190,7 +190,6 @@ export const AgistmentCareOptionsModal = ({
       onClose={handleClose}
       title="Edit Care Options"
       size="lg"
-      actionIconType="SAVE"
       onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}
