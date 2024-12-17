@@ -68,6 +68,18 @@ class EnquiriesService {
     });
   }
 
+  async markEnquiryAsUnread(enquiryId: string): Promise<void> {
+    return this.retryOperation(async () => {
+      try {
+        const authHeaders = await this.getAuthHeaders();
+        await this.api.put(`v1/protected/enquiries/${enquiryId}/unread`, {}, authHeaders);
+      } catch (error) {
+        console.error('Failed to mark enquiry as unread:', error);
+        throw error;
+      }
+    });
+  }
+
   async getAgistmentEnquiries(agistmentId: string): Promise<EnquiriesResponse> {
     return this.retryOperation(async () => {
       try {
