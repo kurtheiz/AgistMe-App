@@ -9,7 +9,6 @@ import ListAgistment from './pages/ListAgistment';
 import Profile from './pages/Profile';
 import { Dashboard } from './pages/Dashboard';
 import { MyAgistments } from './pages/dashboard/MyAgistments';
-import { AuthProvider } from './components/AuthProvider';
 import { QueryProvider } from './providers/QueryProvider';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
