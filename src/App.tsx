@@ -234,8 +234,10 @@ function App() {
         <ClerkProvider publishableKey={clerkPubKey}>
           <QueryProvider>
             <AuthInitializer>
-              <RouterProvider router={router} />
-              <Toaster position="top-center" />
+              <div>
+                <RouterProvider router={router} />
+                <Toaster position="top-center" />
+              </div>
             </AuthInitializer>
           </QueryProvider>
         </ClerkProvider>
