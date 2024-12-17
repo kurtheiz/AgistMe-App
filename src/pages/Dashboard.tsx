@@ -3,11 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { List, MessageSquare, Calendar, Fence, Users, DollarSign, ClipboardList } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { ListingTypeBadge } from '../components/ListingTypeBadge';
+import { useEnquiries } from '../hooks/useEnquiries';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
   const { isLoaded: isAuthLoaded } = useAuth();
   const { user } = useUser();
+  const { data: enquiriesData } = useEnquiries();
+
+  const unreadCount = enquiriesData?.enquiries.filter(e => !e.read).length || 0;
 
   // Scroll to top on mount
   useEffect(() => {
@@ -51,7 +55,7 @@ export const Dashboard = () => {
             </button>
             
             <button 
-              className="bg-white rounded-lg p-6 shadow hover:bg-neutral-50 transition-colors text-left focus:outline-none"
+              className="bg-white rounded-lg p-6 shadow hover:bg-neutral-50 transition-colors text-left focus:outline-none relative"
               onClick={() => navigate('/dashboard/enquiries')}
             >
               <div className="flex items-center">
@@ -60,6 +64,11 @@ export const Dashboard = () => {
                   <p className="text-lg font-medium text-gray-900">Enquiries</p>
                   <p className="text-sm text-gray-500">View and manage enquiries</p>
                 </div>
+                {unreadCount > 0 && (
+                  <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+                    {unreadCount}
+                  </div>
+                )}
               </div>
             </button>
 
