@@ -16,10 +16,9 @@ const calculateAge = (dateOfBirth: string | undefined): number | null => {
 
 interface EnquiryCardProps {
   enquiry: EnquiryResponse;
-  onClick?: () => void;
 }
 
-export const EnquiryCard = ({ enquiry, onClick }: EnquiryCardProps) => {
+export const EnquiryCard = ({ enquiry }: EnquiryCardProps) => {
   return (
     <div 
       className={`bg-white rounded-lg shadow-md border ${enquiry.read ? 'border-neutral-200' : 'border-primary-200'} relative`}

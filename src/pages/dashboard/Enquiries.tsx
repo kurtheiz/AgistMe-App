@@ -1,100 +1,75 @@
-import { useEnquiries, useMarkEnquiryAsRead } from '../../hooks/useEnquiries';
+import { useEnquiries } from '../../hooks/useEnquiries';
 import { useAuth } from '@clerk/clerk-react';
-import { formatDistanceToNow } from 'date-fns';
 import { Loader2, RotateCw, ChevronLeft } from 'lucide-react';
 import { PageToolbar } from '../../components/PageToolbar';
-import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { EnquiryCard } from './EnquiryCard';
 
 export default function EnquiriesPage() {
-  const { isSignedIn } = useAuth();
+  const { userId } = useAuth();
   const navigate = useNavigate();
-  const { data: enquiriesData, isLoading, isFetching } = useEnquiries();
-  const { mutate: markAsRead } = useMarkEnquiryAsRead();
-  const queryClient = useQueryClient();
+  const { data: enquiriesResponse, isLoading, refetch } = useEnquiries();
+  const enquiries = enquiriesResponse?.enquiries || [];
 
-  if (!isSignedIn) {
+  if (!userId) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-50 px-4">
         <h1 className="text-2xl font-semibold mb-4">Please sign in to view your enquiries</h1>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <button
+          onClick={() => navigate('/sign-in')}
+          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+        >
+          Sign In
+        </button>
       </div>
     );
   }
 
   return (
-    <>
-      <PageToolbar
-        titleElement={
-          <div className="w-full">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="flex items-center">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="back-button"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span className="back-button-text">Back</span>
-                </button>
-                <span className="breadcrumb-separator">|</span>
-                <div className="breadcrumb-container">
-                  <button
-                    onClick={() => navigate('/dashboard')}
-                    className="breadcrumb-link"
-                  >
-                    Dashboard
-                  </button>
-                  <span className="breadcrumb-chevron">&gt;</span>
-                  <span>Enquiries</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-        actions={
+    <div className="min-h-screen bg-neutral-50">
+      <PageToolbar>
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['enquiries'] })}
-            disabled={isFetching}
-            className={`button-toolbar ${isFetching && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+            onClick={() => navigate(-1)}
+            className="p-2 hover:bg-neutral-100 rounded-lg"
           >
-            <RotateCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <ChevronLeft className="w-5 h-5" />
           </button>
-        }
-      />
-      <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
-        <div className="pb-8 pt-4 md:px-4">
-          <div className="mb-4 text-sm text-neutral-600 px-4">
-            {enquiriesData?.enquiries.length} {enquiriesData?.enquiries.length === 1 ? 'enquiry' : 'enquiries'}
-          </div>
+          <h1 className="text-xl font-semibold">Enquiries</h1>
+        </div>
+        <button
+          onClick={() => refetch()}
+          className="p-2 hover:bg-neutral-100 rounded-lg"
+          disabled={isLoading}
+        >
+          <RotateCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+        </button>
+      </PageToolbar>
 
-          <div className="space-y-4 px-4">
-            {enquiriesData?.enquiries.length === 0 ? (
-              <div className="p-6 text-center text-neutral-600 bg-white rounded-lg shadow-md">
+      <div className="container mx-auto px-4 py-8">
+        {isLoading ? (
+          <div className="flex justify-center">
+            <Loader2 className="w-6 h-6 animate-spin" />
+          </div>
+        ) : (
+          <>
+            {!enquiries || enquiries.length === 0 ? (
+              <div className="text-center text-neutral-500">
                 No enquiries found
               </div>
             ) : (
-              <div className="space-y-4">
-                {enquiriesData?.enquiries.map((enquiry) => (
+              <div className="grid grid-cols-1 gap-4">
+                {enquiries.map((enquiry) => (
                   <EnquiryCard
                     key={enquiry.id}
                     enquiry={enquiry}
-                    onClick={() => markAsRead(enquiry.id)}
                   />
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </>
+        )}
       </div>
-    </>
+    </div>
   );
 }
