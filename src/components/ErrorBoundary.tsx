@@ -1,5 +1,4 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 
 interface Props {
   children: ReactNode;
@@ -46,13 +45,15 @@ export class ErrorBoundary extends Component<Props, State> {
               >
                 Try again
               </button>
-              <Link
-                to="/"
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null });
+                  window.location.href = '/';
+                }}
                 className="block w-full px-6 py-3 rounded-lg border-2 border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
-                onClick={() => this.setState({ hasError: false, error: null })}
               >
                 Go back home
-              </Link>
+              </button>
             </div>
           </div>
         </div>

@@ -229,20 +229,18 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
 function App() {
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <ErrorBoundary>
-        <ClerkProvider publishableKey={clerkPubKey}>
-          <QueryProvider>
-            <AuthInitializer>
-              <div>
-                <RouterProvider router={router} />
-                <Toaster position="top-center" />
-              </div>
-            </AuthInitializer>
-          </QueryProvider>
-        </ClerkProvider>
-      </ErrorBoundary>
-    </div>
+    <ClerkProvider publishableKey={clerkPubKey}>
+      <QueryProvider>
+        <AuthInitializer>
+          <div className="min-h-screen bg-neutral-50">
+            <ErrorBoundary>
+              <RouterProvider router={router} />
+              <Toaster position="top-center" />
+            </ErrorBoundary>
+          </div>
+        </AuthInitializer>
+      </QueryProvider>
+    </ClerkProvider>
   );
 }
 
