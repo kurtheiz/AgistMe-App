@@ -206,13 +206,6 @@ export const Header = () => {
             Home
           </Link>
           <Link 
-            to="/about"
-            className="text-base py-2"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            About
-          </Link>
-          <Link 
             to={agistmentsPath}
             className="text-base py-2"
             onClick={() => setIsMobileMenuOpen(false)}
