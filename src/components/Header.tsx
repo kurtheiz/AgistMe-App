@@ -132,7 +132,9 @@ export const Header = () => {
               <button
                 onClick={() => {
                   setIsSearchModalOpen(true);
-                  navigate('/agistments');
+                  if (location.pathname !== '/agistments') {
+                    navigate('/agistments');
+                  }
                 }}
                 className="p-2 rounded-full hover:bg-neutral-100"
               >

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment } from 'react';
 import { AgistmentSearchResponse } from '../types/search';
 import PropertyCard from './PropertyCard';
 import { Advert } from '../services/advert.service';
@@ -24,21 +24,6 @@ export default function AgistmentList({
   title,
   searchCriteria
 }: AgistmentListProps) {
-  const [internalList, setInternalList] = useState<AgistmentSearchResponse[]>([]);
-  
-  useEffect(() => {
-    if (Array.isArray(agistments) && agistments.length > 0) {
-      setInternalList(prev => {
-        if (agistments.length <= prev.length) {
-          return agistments;
-        }
-        return [...prev, ...agistments.slice(prev.length)];
-      });
-    } else {
-      setInternalList([]);
-    }
-  }, [agistments]);
-
   const renderAdvertAfterIndex = (index: number) => {
     const advertIndex = Math.floor(index / 4); // Show an advert after every 4 properties
     return adverts[advertIndex % adverts.length];
@@ -50,13 +35,13 @@ export default function AgistmentList({
         <h2 className="text-xl font-semibold mb-4 px-4 md:px-0">{title}</h2>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {Array.isArray(internalList) && internalList.map((agistment, index) => (
+        {Array.isArray(agistments) && agistments.map((agistment, index) => (
           <Fragment key={agistment.id}>
             <PropertyCard 
               agistment={agistment}
               searchCriteria={searchCriteria}
             />
-            {adverts.length > 0 && (index === internalList.length - 1 || index % 4 === 3) && (
+            {adverts.length > 0 && (index === agistments.length - 1 || index % 4 === 3) && (
               <div className="col-span-1 md:col-span-2 flex flex-col items-center">
                 <a 
                   href={renderAdvertAfterIndex(index)?.externalLink} 

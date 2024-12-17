@@ -185,6 +185,7 @@ const Agistments = () => {
                 hasMore={hasNextPage}
                 isLoading={isFetching}
                 onLoadMore={() => fetchNextPage()}
+                searchCriteria={{ paddockTypes: currentCriteria?.paddockTypes }}
               />
             </div>
           )}
