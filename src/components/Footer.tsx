@@ -16,33 +16,17 @@ export const Footer = () => {
               <Link to="/agistments" className="text-sm">Agistments</Link>
               <Link to="/listagistment" className="text-sm">List Agistment</Link>
               {isAgistor && (
-                <Link to="/dashboard" className="text-sm">Dashboard</Link>
+                <Link to="/dashboard" className="text-sm">Agistor Dashboard</Link>
               )}
             </div>
           </div>
           
           {/* Support */}
           <div>
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold leading-6 text-gray-900 dark:text-white">Support</h3>
-              <ul role="list" className="mt-6 space-y-4">
-                <li>
-                  <Link
-                    to="/faq"
-                    className="text-sm leading-6 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-500"
-                  >
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/contact"
-                    className="text-sm leading-6 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-500"
-                  >
-                    Contact Us
-                  </Link>
-                </li>
-              </ul>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Support</h3>
+            <div className="flex flex-col space-y-2">
+              <Link to="/faq" className="text-sm">FAQ</Link>
+              <Link to="/contact" className="text-sm">Contact Us</Link>
             </div>
           </div>
           

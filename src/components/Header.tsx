@@ -110,7 +110,7 @@ export const Header = () => {
                     to="/dashboard"
                     className="text-base sm:text relative"
                   >
-                    Dashboard
+                    Agistor Dashboard
                     {unreadEnquiriesCount > 0 && (
                       <div className="absolute -top-1 -right-4 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
                         {unreadEnquiriesCount}
@@ -232,7 +232,7 @@ export const Header = () => {
               className="text-base py-2 relative"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Dashboard
+              Agistor Dashboard
               {unreadEnquiriesCount > 0 && (
                 <div className="absolute top-2 -right-4 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
                   {unreadEnquiriesCount}

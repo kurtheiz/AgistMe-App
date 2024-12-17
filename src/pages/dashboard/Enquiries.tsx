@@ -73,6 +73,9 @@ export default function EnquiriesPage() {
             </div>
           ) : (
             <>
+              <div className="mb-4 text-sm text-neutral-600">
+                {enquiries.length} {enquiries.length === 1 ? 'enquiry' : 'enquiries'}
+              </div>
               {!enquiries || enquiries.length === 0 ? (
                 <div className="text-center text-neutral-500">
                   No enquiries found
