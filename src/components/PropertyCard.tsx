@@ -40,7 +40,7 @@ const PropertyCard = ({
   showStatus
 }: PropertyCardProps) => {
   const navigate = useNavigate();
-  const { toggleFavorite } = useFavorite(agistment);
+  const { toggleFavorite, isFavorite } = useFavorite(agistment);
 
   const isDateInFuture = (date: string | null | undefined) => {
     if (!date) return false;
@@ -376,7 +376,7 @@ const PropertyCard = ({
               disabled={!!disableFavorite}
               title="Add to favorites"
             >
-              <Heart className={`w-5 h-5 stroke-neutral-600`} />
+              <Heart className={`w-5 h-5 stroke-neutral-600 ${isFavorite ? 'fill-red-600' : ''}`} />
             </button>
           </div>
           <div className="text-xs sm:text-sm">
