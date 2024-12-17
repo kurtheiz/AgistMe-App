@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { enquiriesService } from '../services/enquiries.service';
-import { EnquiryRequest } from '../types/enquiry';
+import { EnquiryRequest, EnquiryStatusUpdate } from '../types/enquiry';
 import toast from 'react-hot-toast';
 
 export const useEnquiries = () => {
@@ -41,6 +41,22 @@ export const useMarkEnquiryAsRead = () => {
   return useMutation({
     mutationFn: (enquiryId: string) => enquiriesService.markEnquiryAsRead(enquiryId),
     onSuccess: () => {
+      // Update both enquiries and agistment-enquiries queries
+      queryClient.invalidateQueries({ queryKey: ['enquiries'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === 'agistment-enquiries'
+      });
+    }
+  });
+};
+
+export const useUpdateEnquiryStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ enquiryId, update }: { enquiryId: string; update: EnquiryStatusUpdate }) =>
+      enquiriesService.updateEnquiryStatus(enquiryId, update),
+    onSuccess: (_, { enquiryId, update }) => {
       // Update both enquiries and agistment-enquiries queries
       queryClient.invalidateQueries({ queryKey: ['enquiries'] });
       queryClient.invalidateQueries({ 

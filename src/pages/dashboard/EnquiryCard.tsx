@@ -1,6 +1,7 @@
 import { EnquiryResponse } from '../../types/enquiry';
-import { Mail, Phone, MessageCircle, User2, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
-import { Disclosure } from '@headlessui/react';
+import { Mail, Phone, MessageCircle, User2, Calendar, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
+import { Disclosure, Menu } from '@headlessui/react';
+import { useUpdateEnquiryStatus } from '../../hooks/useEnquiries';
 
 const calculateAge = (dateOfBirth: string | undefined): number | null => {
   if (!dateOfBirth) return null;
@@ -19,15 +20,59 @@ interface EnquiryCardProps {
 }
 
 export const EnquiryCard = ({ enquiry }: EnquiryCardProps) => {
+  const updateStatus = useUpdateEnquiryStatus();
+
+  const handleStatusUpdate = (update: { read?: boolean; acknowledged?: boolean; status?: string }) => {
+    updateStatus.mutate({ 
+      enquiryId: enquiry.id, 
+      update: update.acknowledged !== undefined 
+        ? { ...update, status: 'ACKNOWLEDGED', read: true } 
+        : update
+    });
+  };
+
   return (
     <div 
       className={`bg-white rounded-lg shadow-md border ${enquiry.read ? 'border-neutral-200' : 'border-primary-200'} relative`}
     >
       {!enquiry.read && (
-        <div className="absolute -top-2 -right-2 bg-primary-500 text-white text-xs font-medium px-2 py-0.5 rounded-full shadow-sm">
+        <div className="absolute -top-2 -left-2 bg-primary-500 text-white text-xs font-medium px-2 py-0.5 rounded-full shadow-sm">
           New
         </div>
       )}
+      <div className="absolute top-2 right-2">
+        <Menu as="div" className="relative inline-block text-left">
+          <Menu.Button className="text-neutral-400 hover:text-neutral-600">
+            <MoreVertical className="w-5 h-5" />
+          </Menu.Button>
+          <Menu.Items className="absolute right-0 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  className={`${
+                    active ? 'bg-neutral-100' : ''
+                  } group flex w-full items-center px-3 py-2 text-sm text-neutral-700`}
+                  onClick={() => handleStatusUpdate({ read: !enquiry.read })}
+                >
+                  Mark as {enquiry.read ? 'Unread' : 'Read'}
+                </button>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  className={`${
+                    active ? 'bg-neutral-100' : ''
+                  } group flex w-full items-center px-3 py-2 text-sm text-neutral-700`}
+                  onClick={() => handleStatusUpdate({ acknowledged: !enquiry.acknowledged })}
+                >
+                  {enquiry.acknowledged ? 'Unacknowledge' : 'Acknowledge'}
+                </button>
+              )}
+            </Menu.Item>
+          </Menu.Items>
+        </Menu>
+      </div>
       {/* Header */}
       <div className="px-4 py-3 border-b border-neutral-100">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center">

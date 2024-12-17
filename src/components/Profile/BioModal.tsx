@@ -162,6 +162,29 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-6">
+        {/* <div className="section-container">
+            <Switch.Group>
+              <div className="flex items-center">
+                <Switch
+                  checked={formData.showProfileInEnquiry ?? false}
+                  onChange={(checked) => setFormData(prev => ({ ...prev, showProfileInEnquiry: checked }))}
+                  className={`${
+                    formData.showProfileInEnquiry ?? false ? 'bg-primary-600' : 'bg-neutral-200'
+                  } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2`}
+                >
+                  <span
+                    className={`${
+                      formData.showProfileInEnquiry ?? false ? 'translate-x-6' : 'translate-x-1'
+                    } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                  />
+                </Switch>
+                <span className="ml-3 text-sm text-neutral-700 dark:text-neutral-300">
+                  Show my profile in enquiries
+                </span>
+
+              </div>
+            </Switch.Group>
+          </div> */}
           <div className="flex justify-center">
             <ProfilePhoto
               photoUrl={formData.profilePhoto || ''}
@@ -360,34 +383,13 @@ export default function BioModal({ isOpen = false, onClose = () => { }, profile 
                 value={formData.comments || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, comments: e.target.value }))}
                 rows={4}
-                className="form-input form-input-compact"
+                className="form-input resize-none"
                 placeholder="Tell us a bit about yourself..."
               />
             </div>
           </div>
 
-          <div className="section-container">
-            <Switch.Group>
-              <div className="flex items-center">
-                <Switch
-                  checked={formData.showProfileInEnquiry ?? false}
-                  onChange={(checked) => setFormData(prev => ({ ...prev, showProfileInEnquiry: checked }))}
-                  className={`${
-                    formData.showProfileInEnquiry ?? false ? 'bg-primary-600' : 'bg-neutral-200'
-                  } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2`}
-                >
-                  <span
-                    className={`${
-                      formData.showProfileInEnquiry ?? false ? 'translate-x-6' : 'translate-x-1'
-                    } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-                  />
-                </Switch>
-                <Switch.Label className="ml-3 text-sm text-neutral-700 dark:text-neutral-300">
-                  Show my profile in enquiries
-                </Switch.Label>
-              </div>
-            </Switch.Group>
-          </div>
+          
         </div>
       </form>
     </Modal>

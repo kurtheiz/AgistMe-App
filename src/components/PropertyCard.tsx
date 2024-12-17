@@ -36,8 +36,7 @@ const PropertyCard = ({
   searchCriteria,
   noShadow,
   disableClick,
-  disableFavorite,
-  showStatus
+  disableFavorite
 }: PropertyCardProps) => {
   const navigate = useNavigate();
   const { toggleFavorite, isFavorite } = useFavorite(agistment);
@@ -103,15 +102,7 @@ const PropertyCard = ({
 
         {/* Photo Gallery */}
         <div className="relative">
-          {showStatus && (
-            <div className={`absolute top-0 left-0 right-0 z-10 py-1.5 text-sm font-medium text-center shadow-md backdrop-blur-sm ${
-              agistment.status === 'PUBLISHED' 
-                ? 'bg-emerald-100/90 text-emerald-700'
-                : 'bg-orange-100/90 text-orange-700'
-            }`}>
-              {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
-            </div>
-          )}
+          
           <div className={`aspect-w-16 aspect-h-9 ${agistment.status === 'HIDDEN' ? 'filter blur-sm' : ''}`}>
             <AgistmentPhotosView photos={agistment.photoGallery.photos} />
             {agistment.status === 'HIDDEN' && (

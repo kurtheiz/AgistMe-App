@@ -126,55 +126,57 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
           };
           const displayName = displayNames[key as keyof AgistmentResponse['facilities']];
           return (
-            <div key={key} className="space-y-4">
-              <div className="flex items-start space-x-4">
-                <Switch
-                  checked={facility.available}
-                  onChange={() => updateFacility(key as keyof AgistmentResponse['facilities'], { available: !facility.available })}
-                  className={classNames(
-                    facility.available ? 'bg-primary-600' : 'bg-neutral-200',
-                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
-                  )}
-                >
-                  <span className="sr-only">{displayName} Available</span>
-                  <span
+            <div key={key} className="border border-neutral-200 rounded-lg p-4 mb-4 relative">
+              <div className="absolute -top-3 left-3 px-2 bg-white">
+                <span className="text-sm font-medium text-neutral-900">{displayName}</span>
+              </div>
+              <div className="mt-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={facility.available}
+                    onChange={() => updateFacility(key as keyof AgistmentResponse['facilities'], { available: !facility.available })}
                     className={classNames(
-                      facility.available ? 'translate-x-5' : 'translate-x-0',
-                      'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                      facility.available ? 'bg-primary-600' : 'bg-neutral-200',
+                      'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
                     )}
-                  />
-                </Switch>
-                <div className="flex-grow">
-                  <label className="block text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                    {displayName}
-                  </label>
-                  <div className="mt-2">
-                    {key === 'stables' && (
-                      <NumberStepper
-                        value={(facility as Stables).quantity}
-                        onChange={(value) => updateFacility('stables', { available: true, comments: facility.comments, quantity: value } as Stables)}
-                        min={0}
-                        label="Number of Stables"
-                        disabled={!facility.available}
-                      />
-                    )}
-                    {key === 'floatParking' && (
-                      <NumberStepper
-                        value={(facility as FloatParking).monthlyPrice}
-                        onChange={(value) => updateFacility('floatParking', { available: true, comments: facility.comments, monthlyPrice: value } as FloatParking)}
-                        min={0}
-                        label="Monthly Price ($)"
-                        disabled={!facility.available}
-                      />
-                    )}
-                    <input
-                      type="text"
-                      value={facility.comments}
-                      onChange={(e) => updateFacility(key as keyof AgistmentResponse['facilities'], { comments: e.target.value })}
-                      className="form-input form-input-compact"
-                      placeholder="Add comments..."
+                  >
+                    <span className="sr-only">{displayName} Available</span>
+                    <span
+                      className={classNames(
+                        facility.available ? 'translate-x-5' : 'translate-x-0',
+                        'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                      )}
                     />
-                  </div>
+                  </Switch>
+                  <span className="text-sm text-neutral-600">Available</span>
+                </div>
+
+                <div className="mt-4">
+                  {key === 'stables' && (
+                    <NumberStepper
+                      value={(facility as Stables).quantity}
+                      onChange={(value) => updateFacility('stables', { available: true, comments: facility.comments, quantity: value } as Stables)}
+                      min={0}
+                      label="Number of Stables"
+                      disabled={!facility.available}
+                    />
+                  )}
+                  {key === 'floatParking' && (
+                    <NumberStepper
+                      value={(facility as FloatParking).monthlyPrice}
+                      onChange={(value) => updateFacility('floatParking', { available: true, comments: facility.comments, monthlyPrice: value } as FloatParking)}
+                      min={0}
+                      label="Monthly Price ($)"
+                      disabled={!facility.available}
+                    />
+                  )}
+                  <input
+                    type="text"
+                    value={facility.comments}
+                    onChange={(e) => updateFacility(key as keyof AgistmentResponse['facilities'], { comments: e.target.value })}
+                    className="form-input form-input-compact mt-2"
+                    placeholder="Add comments..."
+                  />
                 </div>
               </div>
             </div>

@@ -114,7 +114,6 @@ const Agistments = () => {
               disabled={!searchHash}
               className={`button-toolbar ${!searchHash && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
             >
-              <BookmarkPlus className="w-4 h-4" />
               <span>Save Search</span>
             </button>
             <button

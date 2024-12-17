@@ -10,7 +10,6 @@ export interface ModalProps {
   title: string;
   children: ReactNode;
   headerContent?: ReactNode;
-  showCloseButton?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'wide' | 'full';
   slideFrom?: 'left' | 'right' | 'top' | 'bottom';
   isUpdating: boolean;
@@ -18,7 +17,8 @@ export interface ModalProps {
   actionIcon?: ReactNode;
   onAction?: () => void;
   disableAction?: boolean;
-  isDirty?: boolean;
+  actionLabel?: string;
+  cancelLabel?: string;
 }
 
 const sizeClasses = {
@@ -36,7 +36,6 @@ export function Modal({
   title,
   children,
   headerContent,
-  showCloseButton = true,
   size = 'md',
   slideFrom = 'right',
   isUpdating = false,
@@ -44,6 +43,8 @@ export function Modal({
   actionIcon,
   onAction,
   disableAction,
+  actionLabel,
+  cancelLabel,
 }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
@@ -123,51 +124,47 @@ export function Modal({
               >
                 <div className="flex flex-col h-full flex-grow">
                   {/* Header */}
-                  {(title || headerContent || showCloseButton || actionIconType) && (
-                    <div className="flex items-center justify-between px-4 py-4 sm:px-6 bg-primary-500 border-b border-primary-600 rounded-none md:rounded-t-2xl">
-                      <div className="flex items-center">
-                        <h2 className="text-lg font-medium text-white">
-                          {title}
-                        </h2>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {actionIconType && onAction && (
-                          <button
-                            onClick={onAction}
-                            disabled={disableAction || isUpdating}
-                            className="flex items-center justify-center bg-white rounded-md hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed p-2"
-                          >
-                            {isUpdating ? (
-                              <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
-                            ) : (
-                              <>
-                                {actionIconType === 'SEARCH' && <Search className="w-6 h-6 text-primary-600" />}
-                                {actionIconType === 'SAVE' && <Save className="w-6 h-6 text-primary-600" />}
-                                {actionIconType === 'AI' && <Sparkles className="w-6 h-6 text-primary-600" />}
-                                {actionIconType === 'CUSTOM' && actionIcon}
-                              </>
-                            )}
-                          </button>
-                        )}
-                        {showCloseButton && (
-                          <button
-                            type="button"
-                            className="rounded-md p-2 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
-                            onClick={onClose}
-                          >
-                            <span className="sr-only">Close</span>
-                            <X className="h-5 w-5" aria-hidden="true" />
-                          </button>
-                        )}
-                      </div>
+                  {title && (
+                    <div className="flex items-center px-4 py-2.5 sm:px-6 bg-primary-500 border-b border-primary-600 rounded-none md:rounded-t-2xl">
+                      <h2 className="text-base font-medium text-white">
+                        {title}
+                      </h2>
                     </div>
                   )}
 
                   {/* Content */}
                   <div className="flex-1 overflow-y-auto">
-                    <div className="p-6 space-y-8">
+                    <div className="p-6">
                       {children}
                     </div>
+                  </div>
+
+                  {/* Sticky Footer */}
+                  <div className="border-t border-neutral-200 bg-white px-4 py-3 sm:px-6 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      className="flex-1 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 border border-neutral-300 rounded-lg"
+                      onClick={onClose}
+                    >
+                      {cancelLabel || 'Cancel'}
+                    </button>
+                    {onAction && (
+                      <button
+                        type="button"
+                        className="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={onAction}
+                        disabled={disableAction || isUpdating}
+                      >
+                        {isUpdating ? (
+                          <div className="flex items-center justify-center">
+                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            <span>Processing...</span>
+                          </div>
+                        ) : (
+                          actionLabel || 'Save'
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </DialogPanel>

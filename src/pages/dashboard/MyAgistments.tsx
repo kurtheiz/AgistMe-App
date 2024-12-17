@@ -245,12 +245,18 @@ export function MyAgistments() {
         </button>
       </div>
 
+      <div className={`text-sm font-medium text-center py-1.5 ${
+  agistment.status === 'PUBLISHED' 
+    ? 'bg-emerald-100 text-emerald-700'
+    : 'bg-orange-100 text-orange-700'
+} rounded`}>
+  {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
+</div>
       <div className="border-t border-neutral-200 p-4 flex gap-2 bg-white">
         <button
           onClick={() => handlePreview(agistment)}
           className="button-toolbar"
         >
-          <Eye className="w-4 h-4" />
           Preview
         </button>
         <button
@@ -259,13 +265,11 @@ export function MyAgistments() {
         >
           {agistment.status === 'PUBLISHED' ? (
             <>
-              <X className="w-4 h-4" />
               <span>Hide</span>
             </>
           ) : (
             <>
-              <Check className="w-4 h-4" />
-              <span>Publish</span>
+              <span>Unhide</span>
             </>
           )}
         </button>
@@ -274,7 +278,6 @@ export function MyAgistments() {
           onClick={() => setAgistmentToDelete(agistment.id)}
           className="button-toolbar text-red-600 ml-auto"
         >
-          <Trash2 className="w-4 h-4" />
           Delete
         </button>
       </div>
