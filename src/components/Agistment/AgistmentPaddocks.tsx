@@ -1,5 +1,6 @@
 import { format, parseISO } from 'date-fns';
 import { AgistmentResponse, PaddockBase } from '../../types/agistment';
+import { calculateMonthlyPrice } from '../../utils/prices';
 
 interface AgistmentPaddocksProps {
   paddocks: AgistmentResponse['paddocks'];
@@ -7,10 +8,6 @@ interface AgistmentPaddocksProps {
   isEditable?: boolean;
   agistmentId?: string;
 }
-
-const calculateMonthlyPrice = (weeklyPrice: number) => {
-  return Math.round((weeklyPrice * 52) / 12);
-};
 
 const formatAvailabilityDate = (whenAvailable: Date | string | undefined | null) => {
   if (!whenAvailable) {

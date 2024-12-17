@@ -11,11 +11,12 @@ import {
 } from './Icons';
 import { Check, X, HandHeart, Heart } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
-import { formatCurrency } from '../utils/formatCurrency';
+import { formatCurrency } from '../utils/prices';
 import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';
+import { PriceUtils } from '../utils/prices';
 
 interface PropertyCardProps {
   agistment: AgistmentResponse;
@@ -23,7 +24,6 @@ interface PropertyCardProps {
   searchCriteria?: {
     paddockTypes?: ('Private' | 'Shared' | 'Group')[];
   };
-  paddockTypes?: ('Private' | 'Shared' | 'Group')[];
   noShadow?: boolean;
   disableClick?: boolean;
   disableFavorite?: boolean;
@@ -134,12 +134,12 @@ const PropertyCard = ({
               )}
               {agistment.matchType === 'EXACT' && (
                 <div className="text-xs text-neutral-500 mt-1">
-                  Exact location match
+                   Exact location match
                 </div>
               )}
               <div className="text-xs text-neutral-500 mt-1">
                 {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 
-                  ? <>Property is <span className="font-bold">{agistment.basicInfo.propertySize}</span> acres</>
+                  ? <>Property is <span className="text-sm font-bold">{agistment.basicInfo.propertySize}</span> acres</>
                   : 'Property size not specified'
                 }
               </div>
@@ -244,66 +244,12 @@ const PropertyCard = ({
 
             {/* Price Range */}
             <div className="text-right flex flex-col justify-start h-[72px]">
-              <div className="font-bold text-lg text-neutral-900 flex flex-col items-end">
+              <div className="font-bold text-xl text-neutral-900 flex flex-col items-end">
                 {(() => {
-                  // Get paddock types to check - either from search criteria or all types
-                  const typesToCheck = searchCriteria?.paddockTypes?.length ? searchCriteria.paddockTypes : ['Private', 'Shared', 'Group'];
-                  
-
-                  // Count how many paddock types have spots available
-                  const availablePaddockCount = !searchCriteria?.paddockTypes?.length ? 
-                    (['Private', 'Shared', 'Group'] as const)
-                      .filter(type => {
-                        const paddocks = type === 'Private' ? agistment.paddocks?.privatePaddocks :
-                                       type === 'Shared' ? agistment.paddocks?.sharedPaddocks :
-                                       agistment.paddocks?.groupPaddocks;
-                        return paddocks && paddocks.totalPaddocks > 0;
-                      }).length : 0;
-
-                  // Get valid prices
-                  const validPrices = typesToCheck
-                    .map(type => {
-                      const paddocks = type === 'Private' ? agistment.paddocks?.privatePaddocks :
-                                     type === 'Shared' ? agistment.paddocks?.sharedPaddocks :
-                                     agistment.paddocks?.groupPaddocks;
-                      return paddocks?.weeklyPrice;
-                    })
-                    .filter((price): price is number => price !== undefined && price > 0)
-                    .sort((a, b) => a - b);
-
-                  if (validPrices.length === 0) {
-                    return (
-                      <span className="font-bold text-sm text-neutral-900">Contact for price</span>
-                    );
-                  }
-
-                  // If search criteria exists and only one paddock type
-                  if (searchCriteria?.paddockTypes?.length === 1) {
-                    return (
-                      <><span>${formatCurrency(validPrices[0])}</span>
-                        <span className="font-normal text-neutral-400 text-xs">per week</span></>
-                    );
-                  }
-
-                  // Multiple valid prices
-                  if (validPrices.length > 1) {
-                    return (
-                      <><span>${formatCurrency(Math.min(...validPrices))} - ${formatCurrency(Math.max(...validPrices))}</span>
-                        <span className="font-normal text-neutral-400 text-xs">per week</span></>
-                    );
-                  }
-
-                  // Only one valid price - if no search criteria and only one paddock type has spots, don't show "From"
-                  if (!searchCriteria?.paddockTypes?.length && availablePaddockCount === 1) {
-                    return (
-                      <><span>${formatCurrency(validPrices[0])}</span>
-                        <span className="font-normal text-neutral-400 text-xs">per week</span></>
-                    );
-                  }
-
+                  const { price, subtext } = PriceUtils.getPriceDisplay(agistment, searchCriteria);
                   return (
-                    <><span>From ${formatCurrency(validPrices[0])}</span>
-                      <span className="font-normal text-neutral-400 text-xs">per week</span></>
+                    <>{price && <span>{price}</span>}
+                      {subtext && <span className="font-normal text-neutral-400 text-xs">{subtext}</span>}</>
                   );
                 })()}
               </div>
