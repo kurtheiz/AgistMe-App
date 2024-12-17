@@ -5,6 +5,7 @@ import { Loader2, RotateCw, ChevronLeft } from 'lucide-react';
 import { PageToolbar } from '../../components/PageToolbar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { EnquiryCard } from './EnquiryCard';
 
 export default function EnquiriesPage() {
   const { isSignedIn } = useAuth();
@@ -75,53 +76,19 @@ export default function EnquiriesPage() {
             {enquiriesData?.enquiries.length} {enquiriesData?.enquiries.length === 1 ? 'enquiry' : 'enquiries'}
           </div>
 
-          <div className="bg-white rounded-lg shadow">
+          <div className="space-y-4 px-4">
             {enquiriesData?.enquiries.length === 0 ? (
-              <div className="p-6 text-center text-neutral-600">
+              <div className="p-6 text-center text-neutral-600 bg-white rounded-lg shadow-md">
                 No enquiries found
               </div>
             ) : (
-              <div className="divide-y divide-neutral-200">
+              <div className="space-y-4">
                 {enquiriesData?.enquiries.map((enquiry) => (
-                  <div 
-                    key={enquiry.id} 
-                    className={`p-6 hover:bg-neutral-50 transition-colors ${!enquiry.read ? 'bg-primary-50' : ''}`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-medium">{enquiry.first_name} {enquiry.last_name}</h3>
-                          <span className="text-sm text-neutral-600">• {enquiry.agistment_name}</span>
-                          {!enquiry.read && (
-                            <span className="inline-flex items-center rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-medium text-primary-800">
-                              New
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-neutral-600 mb-2">
-                          {enquiry.email} • {enquiry.mobile_phone}
-                        </p>
-                        <p className="text-sm text-neutral-500 mb-4">
-                          Sent {formatDistanceToNow(new Date(enquiry.created_at))} ago
-                        </p>
-                        <div className="bg-neutral-50 rounded-lg p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-sm font-medium">Type:</span>
-                            <span className="text-sm text-neutral-600">{enquiry.enquiry_type}</span>
-                          </div>
-                          <p className="text-neutral-700 whitespace-pre-wrap">{enquiry.message}</p>
-                        </div>
-                      </div>
-                      {!enquiry.read && (
-                        <button
-                          onClick={() => markAsRead(enquiry.id)}
-                          className="ml-4 text-sm text-primary-600 hover:text-primary-700"
-                        >
-                          Mark as read
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                  <EnquiryCard
+                    key={enquiry.id}
+                    enquiry={enquiry}
+                    onClick={() => markAsRead(enquiry.id)}
+                  />
                 ))}
               </div>
             )}
