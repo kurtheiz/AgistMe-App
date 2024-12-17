@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useUser } from "@clerk/clerk-react";
-import AgistmentList from '../components/AgistmentList';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
 import { SearchModal } from '../components/Search/SearchModal';
 import { PageToolbar } from '../components/PageToolbar';
@@ -14,6 +13,7 @@ import { decodeSearchHash } from '../utils/searchHashUtils';
 import { useAgistmentSearch } from '../hooks/useAgistmentSearch';
 import { useSavedSearchesStore } from '../stores/savedSearches.store';
 import { useQueryClient } from '@tanstack/react-query';
+import { PropertyCard } from '../components/PropertyCard';
 
 const Agistments = () => {
   const [searchParams] = useSearchParams();
@@ -180,13 +180,30 @@ const Agistments = () => {
               <div className="mb-4 text-sm text-neutral-600 px-4">
                 {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'} found
               </div>
-              <AgistmentList 
-                agistments={agistments}
-                hasMore={hasNextPage}
-                isLoading={isFetching}
-                onLoadMore={() => fetchNextPage()}
-                searchCriteria={{ paddockTypes: currentCriteria?.paddockTypes }}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                {agistments.map((agistment) => (
+                  <PropertyCard 
+                    key={agistment.id}
+                    agistment={agistment}
+                    searchCriteria={{ paddockTypes: currentCriteria?.paddockTypes }}
+                  />
+                ))}
+              </div>
+              {hasNextPage && !isFetching && (
+                <div className="text-center mt-4">
+                  <button
+                    onClick={() => fetchNextPage()}
+                    className="button-secondary"
+                  >
+                    Load More
+                  </button>
+                </div>
+              )}
+              {isFetching && (
+                <div className="text-center mt-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900 mx-auto"></div>
+                </div>
+              )}
             </div>
           )}
         </div>
