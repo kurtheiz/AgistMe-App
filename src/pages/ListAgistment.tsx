@@ -5,13 +5,15 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import toast from 'react-hot-toast';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser, useSession } from '@clerk/clerk-react';
 import { useAuthFlow } from '../hooks/useAuthFlow';
 import { PageToolbar } from '../components/PageToolbar';
 
 const ListAgistment = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
+  const { session } = useSession();
   const { initiateSignIn } = useAuthFlow();
 
   useEffect(() => {
@@ -35,10 +37,12 @@ const ListAgistment = () => {
     }
 
     try {
-      const blankAgistment = await agistmentService.getBlankAgistment();
-      navigate(`/agistments/${blankAgistment.id}/edit`, {
-        state: { initialAgistment: blankAgistment }
-      });
+      await agistmentService.getBlankAgistment();
+      // Force a new token fetch after the metadata is updated
+      await user?.reload();
+      // Get a new token with updated metadata
+      const token = await session?.getToken();
+      navigate('/dashboard/agistments', { state: { from: '/listagistment' } });
     } catch (error) {
       console.error('Error creating agistment:', error);
       toast.error('Failed to create agistment');

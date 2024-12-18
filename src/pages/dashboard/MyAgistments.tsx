@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, AlertCircle } from 'lucide-react';
+import { ChevronLeft, AlertCircle, HelpCircle } from 'lucide-react';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
 import { agistmentService } from '../../services/agistment.service';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';
@@ -22,17 +24,25 @@ type EditModalType = 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 
 export function MyAgistments() {
   const { userId } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [agistments, setAgistments] = useState<AgistmentSearchResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [agistmentToDelete, setAgistmentToDelete] = useState<string | null>(null);
   const [editModal, setEditModal] = useState<{ type: EditModalType; agistment: AgistmentResponse } | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   useEffect(() => {
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
         setAgistments(response.results || []);
+        
+        // Automatically show help dialog if first agistment is new and coming from listagistment
+        const fromListAgistment = location.state?.from === '/listagistment';
+        if (fromListAgistment && response.results?.[0]?.basicInfo?.name === 'New Agistment') {
+          setIsHelpOpen(true);
+        }
       } catch (error) {
         console.error('Error fetching agistments:', error);
         toast.error('Failed to load agistments');
@@ -44,7 +54,7 @@ export function MyAgistments() {
     if (userId) {
       fetchAgistments();
     }
-  }, [userId]);
+  }, [userId, location.state]);
 
   const handleDelete = async () => {
     if (!agistmentToDelete) return;
@@ -101,48 +111,27 @@ export function MyAgistments() {
       const agistment = agistments.find(a => a.id === agistmentId);
       if (!agistment) return;
 
-      const errors: string[] = [];
+      // Check if there are any validation errors
+      const hasBasicInfoErrors = !agistment.basicInfo?.name || 
+                                agistment.basicInfo.name.length < 3 || 
+                                agistment.basicInfo.name === 'New Agistment' ||
+                                !agistment.propertyLocation?.location?.suburb || 
+                                !agistment.propertyLocation?.location?.state || 
+                                !agistment.propertyLocation?.location?.region || 
+                                !agistment.propertyLocation?.location?.postcode;
 
-      // Basic Info Validation
-      if (!agistment.basicInfo?.name || agistment.basicInfo.name.length < 3 || agistment.basicInfo.name === 'New Agistment') {
-        errors.push('Basic Info: Name must be at least 3 characters and cannot be "New Agistment"');
-      }
+      const hasPaddocksErrors = !(agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
+                                 agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
+                                 agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
 
-      if (!agistment.propertyLocation?.location?.suburb || 
-          !agistment.propertyLocation?.location?.state || 
-          !agistment.propertyLocation?.location?.region || 
-          !agistment.propertyLocation?.location?.postcode) {
-        errors.push('Basic Info: Suburb, state, region, and postcode are required');
-      }
+      const hasCareErrors = !(agistment.care?.selfCare?.available ||
+                             agistment.care?.partCare?.available ||
+                             agistment.care?.fullCare?.available);
 
-      // Paddocks Validation
-      const hasPaddocks = agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
-                         agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
-                         agistment.paddocks?.groupPaddocks?.totalPaddocks > 0;
-      if (!hasPaddocks) {
-        errors.push('Paddocks: At least one paddock type must have paddocks');
-      }
+      const hasPhotosErrors = !agistment.photoGallery?.photos || agistment.photoGallery.photos.length === 0;
 
-      // Care Options Validation
-      const hasCareOption = agistment.care?.selfCare?.available ||
-                           agistment.care?.partCare?.available ||
-                           agistment.care?.fullCare?.available;
-      if (!hasCareOption) {
-        errors.push('Care: At least one care option must be available');
-      }
-
-      // Photos Validation
-      if (!agistment.photoGallery?.photos || agistment.photoGallery.photos.length === 0) {
-        errors.push('Photos: At least one photo is required');
-      }
-
-      if (errors.length > 0) {
-        toast.error(
-          <div>
-            <p className="font-semibold mb-2">Please fix sections with errors before unhiding</p>
-            <p className="text-sm text-red-400">Look for the error indicators on each section button</p>
-          </div>
-        );
+      if (hasBasicInfoErrors || hasPaddocksErrors || hasCareErrors || hasPhotosErrors) {
+        setIsHelpOpen(true);
         return;
       }
     }
@@ -183,11 +172,22 @@ export function MyAgistments() {
 
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
     <div className="bg-neutral-50 border-t border-neutral-200">
-      <div className="text-center text-sm text-neutral-600 pt-4">Edit sections</div>
+      <div className="text-center text-sm text-neutral-600 pt-4 flex items-center justify-center gap-2">
+        Edit sections
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsHelpOpen(true);
+          }}
+          className="text-neutral-500 hover:text-neutral-700"
+        >
+          <HelpCircle className="w-4 h-4" />
+        </button>
+      </div>
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar relative"
+          className="button-toolbar"
         >
           Basic Info
           {!checkSectionValidation(agistment, 'header') && (
@@ -198,7 +198,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'paddocks', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar relative"
+          className="button-toolbar"
         >
           Paddocks
           {!checkSectionValidation(agistment, 'paddocks') && (
@@ -221,7 +221,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'care', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar relative"
+          className="button-toolbar"
         >
           Care
           {!checkSectionValidation(agistment, 'care') && (
@@ -232,7 +232,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'photos', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar relative"
+          className="button-toolbar"
         >
           Photos
           {!checkSectionValidation(agistment, 'photos') && (
@@ -286,7 +286,7 @@ export function MyAgistments() {
             <div className="max-w-7xl mx-auto px-4">
               <div className="flex items-center">
                 <button
-                  onClick={() => navigate(-1)}
+                  onClick={() => navigate('/dashboard')}
                   className="back-button"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -313,6 +313,17 @@ export function MyAgistments() {
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+          </div>
+        ) : agistments.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 px-4">
+            <p className="text-lg font-medium text-gray-900 mb-2">No agistments yet</p>
+            <p className="text-sm text-gray-600 text-center mb-6">Start earning by listing your property for horse agistment</p>
+            <button
+              onClick={() => navigate('/listagistment')}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              List your property
+            </button>
           </div>
         ) : (
           <div className="pb-8 pt-4 md:px-4">
@@ -419,6 +430,91 @@ export function MyAgistments() {
           disableOutsideClick={true}
         />
       )}
+      <Transition appear show={isHelpOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setIsHelpOpen(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900 mb-4"
+                  >
+                    Agistment Section Guide
+                  </Dialog.Title>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="font-medium mb-1">Required Sections</p>
+                      <p className="text-sm text-neutral-600">
+                        Sections marked with a <span className="inline-block align-middle"><AlertCircle className="w-4 h-4 text-red-500" /></span> require your attention before your agistment can be made visible in search results.
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="font-medium">Section Requirements:</p>
+                      <div className="text-sm space-y-3">
+                        <div>
+                          <p className="font-medium text-neutral-800">Basic Info</p>
+                          <p className="text-neutral-600">Set your agistment name and complete location details</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-neutral-800">Paddocks</p>
+                          <p className="text-neutral-600">Add at least one paddock type (private, shared, or group)</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-neutral-800">Riding Facilities</p>
+                          <p className="text-neutral-600">Optional: Add any available riding facilities</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-neutral-800">Facilities</p>
+                          <p className="text-neutral-600">Optional: Add any additional facilities</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-neutral-800">Care</p>
+                          <p className="text-neutral-600">Enable at least one care option (self, part, or full care)</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-neutral-800">Photos</p>
+                          <p className="text-neutral-600">Upload at least one photo of your property</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <button
+                      type="button"
+                      className="w-full inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setIsHelpOpen(false)}
+                    >
+                      Got it, thanks!
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </>
   );
 }
