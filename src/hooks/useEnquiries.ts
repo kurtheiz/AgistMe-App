@@ -10,7 +10,9 @@ export const useEnquiries = () => {
 
   const query = useQuery({
     queryKey: ['enquiries'],
-    queryFn: () => enquiriesService.getEnquiries()
+    queryFn: () => enquiriesService.getEnquiries(),
+    refetchInterval: 1000 * 60 * 15, // 15 minutes
+    refetchIntervalInBackground: true
   });
 
   // Sync query data with store
