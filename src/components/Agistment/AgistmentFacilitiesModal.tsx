@@ -57,13 +57,13 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
     setIsDirty(currentHash !== initialHash);
   }, [editableFacilities, initialHash]);
 
-  const handleClose = () => {
-    const initialFacilities = agistment.facilities || DEFAULT_FACILITIES;
-    setEditableFacilities(initialFacilities);
-    setInitialHash(calculateHash(initialFacilities));
-    setIsDirty(false);
-    onClose();
-  };
+  // const handleClose = () => {
+  //   const initialFacilities = agistment.facilities || DEFAULT_FACILITIES;
+  //   setEditableFacilities(initialFacilities);
+  //   setInitialHash(calculateHash(initialFacilities));
+  //   setIsDirty(false);
+  //   onClose();
+  // };
 
   const handleSave = async () => {
     if (!onUpdate) return;
