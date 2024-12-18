@@ -7,10 +7,9 @@ import { Photo } from '../../types/agistment';
 
 interface AgistmentPhotosViewProps {
   photos?: Photo[];
-  isHidden?: boolean;
 }
 
-export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos = [], isHidden = false }) => {
+export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos = [] }) => {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [slides, setSlides] = useState<any[]>([]);
