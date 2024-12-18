@@ -148,14 +148,7 @@ const ListAgistment = () => {
         </div>
 
         <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-300 mb-4 flex flex-wrap items-center justify-center gap-2 px-4">
-            <span>Pro tip: On the next page, look for</span>
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-neutral-200 dark:border-neutral-700">
-              <Sparkles className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
-              <span className="text-neutral-600 dark:text-neutral-400 text-sm">From text</span>
-            </span>
-            <span>in the toolbar to create your listing from text (for example, from a social media post)!</span>
-          </p>
+          
           <button 
             onClick={handleCreateAgistment}
             className="btn-primary"

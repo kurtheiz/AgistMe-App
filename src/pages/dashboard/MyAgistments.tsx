@@ -272,7 +272,7 @@ export function MyAgistments() {
           onClick={() => setAgistmentToDelete(agistment.id)}
           className="button-toolbar text-red-600 ml-auto"
         >
-          Delete
+          Cancel
         </button>
       </div>
     </div>
@@ -343,10 +343,10 @@ export function MyAgistments() {
         isOpen={!!agistmentToDelete}
         onClose={() => setAgistmentToDelete(null)}
         onConfirm={handleDelete}
-        title="Delete Agistment"
-        message="Are you sure you want to delete this agistment? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
+        title="Cancel Agistment"
+        message="Are you sure you want to cancel your subscription for this agistment?"
+        confirmText="Yes, Cancel"
+        cancelText="No, Keep It"
         disableOutsideClick={true}
       />
 

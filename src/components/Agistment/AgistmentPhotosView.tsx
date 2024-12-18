@@ -7,9 +7,10 @@ import { Photo } from '../../types/agistment';
 
 interface AgistmentPhotosViewProps {
   photos?: Photo[];
+  isHidden?: boolean;
 }
 
-export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos = [] }) => {
+export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos = [], isHidden = false }) => {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [slides, setSlides] = useState<any[]>([]);
@@ -49,7 +50,10 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
               },
             }}
             styles={{
-              container: { backgroundColor: "transparent", padding: 0 },
+              container: { 
+                backgroundColor: "transparent", 
+                padding: 0,
+              },
               root: { backgroundColor: "transparent" }
             }}
             carousel={{

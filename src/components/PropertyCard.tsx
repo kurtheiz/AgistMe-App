@@ -82,7 +82,7 @@ const PropertyCard = ({
 
   return (
     <div 
-      className={`bg-white rounded-lg ${noShadow ? '' : 'shadow-xl hover:shadow-2xl'} transition-shadow duration-300 ${!disableClick ? 'cursor-pointer' : ''}`}
+      className={`bg-white rounded-lg ${noShadow ? '' : 'shadow-xl hover:shadow-2xl'} transition-shadow duration-300 ${!disableClick ? 'cursor-pointer' : ''} ${agistment.status === 'HIDDEN' ? 'grayscale' : ''}`}
       onClick={!disableClick ? handleClick : undefined}
     >
       <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
@@ -102,9 +102,11 @@ const PropertyCard = ({
 
         {/* Photo Gallery */}
         <div className="relative">
-          
-          <div className={`aspect-w-16 aspect-h-9 ${agistment.status === 'HIDDEN' ? 'filter blur-sm' : ''}`}>
-            <AgistmentPhotosView photos={agistment.photoGallery.photos} />
+          <div className="aspect-w-16 aspect-h-9">
+            <AgistmentPhotosView 
+              photos={agistment.photoGallery?.photos}
+              isHidden={agistment.status === 'HIDDEN'}
+            />
             {agistment.status === 'HIDDEN' && (
               <div className="absolute inset-0 bg-white/30" />
             )}
