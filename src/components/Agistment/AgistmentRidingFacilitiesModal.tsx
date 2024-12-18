@@ -18,6 +18,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onUpdate?: (updatedAgistment: AgistmentResponse) => void;
+  disableOutsideClick?: boolean;
 }
 
 interface ArenaForm {
@@ -36,7 +37,8 @@ export const AgistmentRidingFacilitiesModal = ({
   agistment,
   isOpen,
   onClose,
-  onUpdate
+  onUpdate,
+  disableOutsideClick
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [editForm, setEditForm] = useState<{
@@ -195,6 +197,7 @@ export const AgistmentRidingFacilitiesModal = ({
       onAction={handleUpdateFacilities}
       isUpdating={isSaving}
       disableAction={!isDirty}
+      disableOutsideClick={disableOutsideClick}
     >
       <div className="h-[800px] overflow-y-auto">
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>

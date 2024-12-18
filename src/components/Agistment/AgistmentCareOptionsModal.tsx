@@ -34,13 +34,15 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onUpdate?: (updatedAgistment: AgistmentResponse) => void;
+  disableOutsideClick?: boolean;
 }
 
 export const AgistmentCareOptionsModal = ({
   agistment,
   isOpen,
   onClose,
-  onUpdate
+  onUpdate,
+  disableOutsideClick
 }: Props) => {
   const [editForm, setEditForm] = useState<EditForm>({
     selfCare: {
@@ -96,29 +98,29 @@ export const AgistmentCareOptionsModal = ({
     setIsDirty(currentHash !== initialHash);
   }, [editForm, initialHash]);
 
-  const handleClose = () => {
-    const initialFormState = {
-      selfCare: {
-        available: agistment.care?.selfCare?.available || false,
-        monthlyPrice: agistment.care?.selfCare?.monthlyPrice || 0,
-        comments: agistment.care?.selfCare?.comments || ''
-      },
-      partCare: {
-        available: agistment.care?.partCare?.available || false,
-        monthlyPrice: agistment.care?.partCare?.monthlyPrice || 0,
-        comments: agistment.care?.partCare?.comments || ''
-      },
-      fullCare: {
-        available: agistment.care?.fullCare?.available || false,
-        monthlyPrice: agistment.care?.fullCare?.monthlyPrice || 0,
-        comments: agistment.care?.fullCare?.comments || ''
-      }
-    };
-    setEditForm(initialFormState);
-    setInitialHash(calculateHash(initialFormState));
-    setIsDirty(false);
-    onClose();
-  };
+  // const handleClose = () => {
+  //   const initialFormState = {
+  //     selfCare: {
+  //       available: agistment.care?.selfCare?.available || false,
+  //       monthlyPrice: agistment.care?.selfCare?.monthlyPrice || 0,
+  //       comments: agistment.care?.selfCare?.comments || ''
+  //     },
+  //     partCare: {
+  //       available: agistment.care?.partCare?.available || false,
+  //       monthlyPrice: agistment.care?.partCare?.monthlyPrice || 0,
+  //       comments: agistment.care?.partCare?.comments || ''
+  //     },
+  //     fullCare: {
+  //       available: agistment.care?.fullCare?.available || false,
+  //       monthlyPrice: agistment.care?.fullCare?.monthlyPrice || 0,
+  //       comments: agistment.care?.fullCare?.comments || ''
+  //     }
+  //   };
+  //   setEditForm(initialFormState);
+  //   setInitialHash(calculateHash(initialFormState));
+  //   setIsDirty(false);
+  //   onClose();
+  // };
 
   const validateFields = () => {
     const newErrors: ValidationErrors = {};
@@ -187,12 +189,13 @@ export const AgistmentCareOptionsModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
       title="Edit Care Options"
       size="lg"
       onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}
+      disableOutsideClick={disableOutsideClick}
     >
       <div className="space-y-4 max-w-2xl mx-auto">
         {errors.general && (

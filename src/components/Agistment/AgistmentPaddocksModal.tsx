@@ -23,13 +23,15 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onUpdate?: (updatedAgistment: AgistmentResponse) => void;
+  disableOutsideClick?: boolean;
 }
 
 export const AgistmentPaddocksModal = ({
   agistment,
   isOpen,
   onClose,
-  onUpdate
+  onUpdate,
+  disableOutsideClick
 }: Props) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [editForm, setEditForm] = useState<EditForm>({
@@ -260,12 +262,13 @@ export const AgistmentPaddocksModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
       title={`Edit ${tabs[selectedTab].title}`}
       size="lg"
       onAction={handleUpdatePaddocks}
       isUpdating={isUpdating}
       disableAction={!isDirty}
+      disableOutsideClick={disableOutsideClick}
     >
       <div className="space-y-6">
         <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>

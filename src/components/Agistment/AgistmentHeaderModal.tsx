@@ -11,6 +11,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onUpdate?: (updatedAgistment: AgistmentResponse) => void;
+  disableOutsideClick?: boolean;
 }
 
 type EditForm = {
@@ -31,7 +32,8 @@ export const AgistmentHeaderModal = ({
   agistment,
   isOpen,
   onClose,
-  onUpdate
+  onUpdate,
+  disableOutsideClick
 }: Props) => {
   const [editForm, setEditForm] = useState<EditForm>({
     propertyName: '',
@@ -236,6 +238,7 @@ export const AgistmentHeaderModal = ({
       onAction={handleUpdateAll}
       isUpdating={isSaving}
       disableAction={!isDirty}
+      disableOutsideClick={disableOutsideClick}
     >
       <div className="space-y-6">
         {/* Property Name */}

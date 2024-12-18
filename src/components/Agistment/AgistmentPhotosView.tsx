@@ -49,7 +49,10 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
               },
             }}
             styles={{
-              container: { backgroundColor: "transparent", padding: 0 },
+              container: { 
+                backgroundColor: "transparent", 
+                padding: 0,
+              },
               root: { backgroundColor: "transparent" }
             }}
             carousel={{

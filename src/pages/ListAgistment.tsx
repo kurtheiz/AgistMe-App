@@ -1,17 +1,17 @@
 import { CheckCircle } from 'lucide-react';
-import { Sparkles } from 'lucide-react';
 import { ChevronLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agistmentService } from '../services/agistment.service';
 import toast from 'react-hot-toast';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { useAuthFlow } from '../hooks/useAuthFlow';
 import { PageToolbar } from '../components/PageToolbar';
 
 const ListAgistment = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const { initiateSignIn } = useAuthFlow();
 
   useEffect(() => {
@@ -35,10 +35,10 @@ const ListAgistment = () => {
     }
 
     try {
-      const blankAgistment = await agistmentService.getBlankAgistment();
-      navigate(`/agistments/${blankAgistment.id}/edit`, {
-        state: { initialAgistment: blankAgistment }
-      });
+      await agistmentService.getBlankAgistment();
+      // Force a new token fetch after the metadata is updated
+      await user?.reload();
+      navigate('/dashboard/agistments', { state: { from: '/listagistment' } });
     } catch (error) {
       console.error('Error creating agistment:', error);
       toast.error('Failed to create agistment');
@@ -148,14 +148,7 @@ const ListAgistment = () => {
         </div>
 
         <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-300 mb-4 flex flex-wrap items-center justify-center gap-2 px-4">
-            <span>Pro tip: On the next page, look for</span>
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-neutral-200 dark:border-neutral-700">
-              <Sparkles className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
-              <span className="text-neutral-600 dark:text-neutral-400 text-sm">From text</span>
-            </span>
-            <span>in the toolbar to create your listing from text (for example, from a social media post)!</span>
-          </p>
+          
           <button 
             onClick={handleCreateAgistment}
             className="btn-primary"

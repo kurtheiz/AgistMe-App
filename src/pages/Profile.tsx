@@ -238,6 +238,15 @@ export default function Profile() {
           </button>
         </div>
 
+        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-4 mb-6">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-neutral-600">Account Type:</span>
+            <span className="text-sm font-medium text-primary-600">
+              {isAgistor ? 'Agistor' : 'Horse Owner'}
+            </span>
+          </div>
+        </div>
+
         <NotificationsPanel
           notifications={notifications}
           isLoading={isLoading}
