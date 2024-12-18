@@ -17,6 +17,7 @@ export interface ModalProps {
   disableAction?: boolean;
   actionLabel?: string;
   cancelLabel?: string;
+  disableOutsideClick?: boolean;
 }
 
 const sizeClasses = {
@@ -45,6 +46,7 @@ export function Modal({
   disableAction,
   actionLabel,
   cancelLabel,
+  disableOutsideClick = false,
 }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
@@ -78,7 +80,12 @@ export function Modal({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog 
+        as="div" 
+        className="fixed inset-0 z-50 overflow-y-auto"
+        onClose={disableOutsideClick ? () => {} : onClose}
+        static={disableOutsideClick}
+      >
         {/* Backdrop */}
         <TransitionChild
           as={Fragment}

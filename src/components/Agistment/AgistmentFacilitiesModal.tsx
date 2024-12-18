@@ -24,13 +24,15 @@ interface AgistmentFacilitiesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate?: (updatedAgistment: AgistmentResponse) => void;
+  disableOutsideClick?: boolean;
 }
 
 export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> = ({
   agistment,
   isOpen,
   onClose,
-  onUpdate
+  onUpdate,
+  disableOutsideClick
 }) => {
   const [editableFacilities, setEditableFacilities] = useState<AgistmentResponse['facilities']>(
     agistment.facilities || DEFAULT_FACILITIES
@@ -95,12 +97,13 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
       title="Edit Facilities"
       size="md"
       onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}
+      disableOutsideClick={disableOutsideClick}
     >
       {Object.entries(editableFacilities)
         .sort(([keyA], [keyB]) => {

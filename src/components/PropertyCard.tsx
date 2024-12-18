@@ -88,11 +88,11 @@ const PropertyCard = ({
       <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
         {/* Property Name Header */}
         <div className="title-header relative">
-          <div className="flex justify-between items-start relative z-10 py-2">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <h2 className="title-text truncate px-2 min-w-0 flex-1">{agistment.basicInfo.name}</h2>
+          <div className="flex justify-between items-start relative z-10 py-1">
+            <div className="flex items-center gap-1 min-w-0 flex-1">
+              <h2 className="title-text truncate px-1.5 min-w-0 flex-1 font-medium">{agistment.basicInfo.name}</h2>
               {agistment.listing.listingType === 'PROFESSIONAL' && (
-                <span className="bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0">
+                <span className="bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">
                   PRO
                 </span>
               )}
@@ -115,7 +115,7 @@ const PropertyCard = ({
         {agistment.propertyLocation.location && (
           <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 bg-white">
             <div className="flex flex-col min-w-0">
-              <div className="text-sm text-neutral-800 truncate">
+              <div className="text-neutral-800 truncate">
                 <span className="font-semibold">{agistment.propertyLocation.location.address}</span>, <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
               </div>
               {agistment.matchType === 'ADJACENT' && agistment.distance !== undefined && (
@@ -160,7 +160,7 @@ const PropertyCard = ({
                     {agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ? agistment.paddocks?.privatePaddocks?.available : '-'}
 
                   </span>
-                  <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
+                  <span className="text-neutral-600 font-medium mt-2">
                     Private
                   </span>
                   <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
@@ -188,7 +188,7 @@ const PropertyCard = ({
                     {agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ? agistment.paddocks?.sharedPaddocks?.available : '-'}
 
                   </span>
-                  <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
+                  <span className="text-neutral-600 font-medium mt-2">
                     Shared
                   </span>
                   <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
@@ -216,7 +216,7 @@ const PropertyCard = ({
                     {agistment.paddocks?.groupPaddocks?.totalPaddocks > 0 ? agistment.paddocks?.groupPaddocks?.available : '-'}
 
                   </span>
-                  <span className="text-sm sm:text-base text-neutral-600 font-medium mt-2">
+                  <span className="text-neutral-600 font-medium mt-2">
                     Group
                   </span>
                   <span className="text-xs font-bold text-neutral-600 mt-1 h-4 flex items-center gap-1">
@@ -279,7 +279,7 @@ const PropertyCard = ({
             ].map(({ key, label, icon: Icon, available }) => (
               <div key={key} className="flex items-center gap-2 text-neutral-600">
                 {Icon && <Icon className="w-5 h-5" />}
-                <span className="text-sm flex items-center gap-1">
+                <span className="flex items-center gap-1">
                   {label}
                   {key !== 'careOptions' && (
                     available ? (

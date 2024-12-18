@@ -13,7 +13,7 @@ import { AgistmentRidingFacilitiesModal } from '../../components/Agistment/Agist
 import { AgistmentFacilitiesModal } from '../../components/Agistment/AgistmentFacilitiesModal';
 import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentCareOptionsModal';
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
-//import { AgistmentPhotos } from '../../components/Agistment/AgistmentPhotos';
+import { AgistmentPhotosModal } from '../../components/Agistment/AgistmentPhotosModal';
 import toast from 'react-hot-toast';
 import PropertyCard from '../../components/PropertyCard';
 
@@ -61,34 +61,32 @@ export function MyAgistments() {
     }
   };
 
-  const handleUpdateAgistment = async (agistmentId: string, updatedData: Partial<AgistmentResponse>) => {
+  const handleUpdateAgistment = async (agistmentId: string, updatedData: Partial<AgistmentResponse>, keepModalOpen = false) => {
     if (!agistmentId || isUpdating) return;
 
     setIsUpdating(true);
     try {
-      // Get the current agistment
       const currentAgistment = agistments.find(a => a.id === agistmentId);
       if (!currentAgistment) {
         throw new Error('Agistment not found');
       }
 
-      // Merge the updates with current data
       const mergedAgistment = {
         ...currentAgistment,
         ...updatedData
       };
 
-      // Send the complete updated agistment
       await agistmentService.updateAgistment(agistmentId, mergedAgistment);
       
-      // Refresh the list
       const updatedAgistments = await agistmentService.getMyAgistments();
       setAgistments(updatedAgistments.results || []);
       
       toast.success('Agistment updated successfully');
       
-      // Close any open modals
-      setEditModal(null);
+      // Only close modal if keepModalOpen is false
+      if (!keepModalOpen) {
+        setEditModal(null);
+      }
     } catch (error) {
       console.error('Error updating agistment:', error);
       toast.error('Failed to update agistment');
@@ -141,7 +139,7 @@ export function MyAgistments() {
       if (errors.length > 0) {
         toast.error(
           <div>
-            <p className="font-semibold mb-2">Please fix sections with errors before publishing</p>
+            <p className="font-semibold mb-2">Please fix sections with errors before unhiding</p>
             <p className="text-sm text-red-400">Look for the error indicators on each section button</p>
           </div>
         );
@@ -264,13 +262,9 @@ export function MyAgistments() {
           className="button-toolbar"
         >
           {agistment.status === 'PUBLISHED' ? (
-            <>
-              <span>Hide</span>
-            </>
+            <><span>Hide</span></>
           ) : (
-            <>
-              <span>Unhide</span>
-            </>
+            <><span>Unhide</span></>
           )}
         </button>
         
@@ -353,68 +347,76 @@ export function MyAgistments() {
         message="Are you sure you want to delete this agistment? This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
+        disableOutsideClick={true}
       />
 
-      {/* {editModal?.type === 'photos' && (
-        <AgistmentPhotos
-          isOpen={true}
-          onClose={handleModalClose}
-          onSave={handleModalSave}
+      {editModal?.type === 'photos' && editModal.agistment && (
+        <AgistmentPhotosModal
           agistment={editModal.agistment}
+          isOpen={true}
+          onClose={() => setEditModal(null)}
+          onUpdate={(updatedAgistment) => handleUpdateAgistment(editModal.agistment.id, updatedAgistment, true)}
+          disableOutsideClick={true}
         />
-      )} */}
+      )}
 
-      {editModal?.type === 'header' && (
+      {editModal?.type === 'header' && editModal.agistment && (
         <AgistmentHeaderModal
           agistment={editModal.agistment}
           isOpen={true}
           onClose={() => setEditModal(null)}
           onUpdate={(updatedAgistment) => handleUpdateAgistment(editModal.agistment.id, updatedAgistment)}
+          disableOutsideClick={true}
         />
       )}
 
-      {editModal?.type === 'paddocks' && (
+      {editModal?.type === 'paddocks' && editModal.agistment && (
         <AgistmentPaddocksModal
           agistment={editModal.agistment}
           isOpen={true}
           onClose={() => setEditModal(null)}
           onUpdate={(updatedAgistment) => handleUpdateAgistment(editModal.agistment.id, updatedAgistment)}
+          disableOutsideClick={true}
         />
       )}
 
-      {editModal?.type === 'riding' && (
+      {editModal?.type === 'riding' && editModal.agistment && (
         <AgistmentRidingFacilitiesModal
           agistment={editModal.agistment}
           isOpen={true}
           onClose={() => setEditModal(null)}
           onUpdate={(updatedAgistment) => handleUpdateAgistment(editModal.agistment.id, updatedAgistment)}
+          disableOutsideClick={true}
         />
       )}
 
-      {editModal?.type === 'facilities' && (
+      {editModal?.type === 'facilities' && editModal.agistment && (
         <AgistmentFacilitiesModal
           agistment={editModal.agistment}
           isOpen={true}
           onClose={() => setEditModal(null)}
           onUpdate={(updatedAgistment) => handleUpdateAgistment(editModal.agistment.id, updatedAgistment)}
+          disableOutsideClick={true}
         />
       )}
 
-      {editModal?.type === 'care' && (
+      {editModal?.type === 'care' && editModal.agistment && (
         <AgistmentCareOptionsModal
           agistment={editModal.agistment}
           isOpen={true}
           onClose={() => setEditModal(null)}
           onUpdate={(updatedAgistment) => handleUpdateAgistment(editModal.agistment.id, updatedAgistment)}
+          disableOutsideClick={true}
         />
       )}
 
-      {editModal?.type === 'services' && (
+      {editModal?.type === 'services' && editModal.agistment && (
         <AgistmentServicesModal
           agistment={editModal.agistment}
           isOpen={true}
           onClose={() => setEditModal(null)}
           onUpdate={(updatedAgistment) => handleUpdateAgistment(editModal.agistment.id, updatedAgistment)}
+          disableOutsideClick={true}
         />
       )}
     </>

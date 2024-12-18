@@ -13,13 +13,15 @@ interface AgistmentServicesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate?: (updatedAgistment: AgistmentResponse) => void;
+  disableOutsideClick?: boolean;
 }
 
 export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
   agistment,
   isOpen,
   onClose,
-  onUpdate
+  onUpdate,
+  disableOutsideClick
 }) => {
   const [editableServices, setEditableServices] = useState<string[]>(agistment.propertyServices?.services || []);
   const [newService, setNewService] = useState('');
@@ -87,6 +89,7 @@ export const AgistmentServicesModal: React.FC<AgistmentServicesModalProps> = ({
       onAction={handleSave}
       isUpdating={isSaving}
       disableAction={!isDirty}
+      disableOutsideClick={disableOutsideClick}
     >
       <div className="space-y-4">
         <div className="form-group">

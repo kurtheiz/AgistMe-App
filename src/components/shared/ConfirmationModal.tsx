@@ -10,6 +10,7 @@ interface ConfirmationModalProps {
   confirmText?: string;
   cancelText?: string;
   confirmStyle?: string;
+  disableOutsideClick?: boolean;
 }
 
 export function ConfirmationModal({
@@ -20,11 +21,12 @@ export function ConfirmationModal({
   message,
   confirmText = 'Yes',
   cancelText = 'No',
-  confirmStyle
+  confirmStyle,
+  disableOutsideClick
 }: ConfirmationModalProps) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog as="div" className="relative z-50" onClose={onClose} static={disableOutsideClick}>
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
