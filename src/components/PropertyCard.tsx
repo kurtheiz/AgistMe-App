@@ -91,11 +91,7 @@ const PropertyCard = ({
           <div className="flex justify-between items-start relative z-10 py-1">
             <div className="flex items-center gap-1 min-w-0 flex-1">
               <h2 className="title-text truncate px-1.5 min-w-0 flex-1 font-medium">{agistment.basicInfo.name}</h2>
-              {agistment.listing.listingType === 'PROFESSIONAL' && (
-                <span className="bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">
-                  PRO
-                </span>
-              )}
+              
             </div>
           </div>
         </div>
@@ -117,7 +113,10 @@ const PropertyCard = ({
           <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 bg-white">
             <div className="flex flex-col min-w-0">
               <div className="text-neutral-800 truncate">
-                <span className="font-semibold">{agistment.propertyLocation.location.address}</span>, <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
+              {agistment.propertyLocation.location.address && (
+    <><span className="font-semibold">{agistment.propertyLocation.location.address}</span>, </>
+  )}
+  <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
               </div>
               {agistment.matchType === 'ADJACENT' && agistment.distance !== undefined && (
                 <div className="text-xs text-neutral-500 mt-1">
