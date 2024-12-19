@@ -1,4 +1,4 @@
-import { Mail, Phone } from 'lucide-react';
+import { Mail, Phone, Facebook, Globe, Instagram } from 'lucide-react';
 import { AgistmentContact, AgistmentBasicInfo, AgistmentPropertyLocation, AgistmentDescription } from '../../types/agistment';
 import { ExpandableText } from '../shared/ExpandableText';
 
@@ -7,13 +7,15 @@ interface Props {
   propertyLocation?: AgistmentPropertyLocation;
   contactDetails?: AgistmentContact;
   propertyDescription?: AgistmentDescription;
+  socialMedia?: { type: string; link: string }[];
 }
 
 export const AgistmentHeader = ({
   basicInfo,
   propertyLocation,
   contactDetails,
-  propertyDescription
+  propertyDescription,
+  socialMedia
 }: Props) => {
   return (
     <>
@@ -33,7 +35,12 @@ export const AgistmentHeader = ({
         {propertyLocation?.location && (
           <div>
             <p className="text-neutral-900 dark:text-neutral-100">
-              {propertyLocation.location.address}, {propertyLocation.location.suburb}, {propertyLocation.location.state} {propertyLocation.location.postcode}
+              {[
+                propertyLocation.location.address,
+                propertyLocation.location.suburb,
+                propertyLocation.location.state,
+                propertyLocation.location.postcode
+              ].filter(Boolean).join(', ')}
             </p>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
               {basicInfo?.propertySize && basicInfo.propertySize > 0 
@@ -76,6 +83,55 @@ export const AgistmentHeader = ({
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Social Media Links */}
+        {socialMedia && socialMedia.length > 0 && (
+          <div className="space-y-2">
+            {socialMedia.map((social) => (
+              <div key={social.type} className="flex items-center text-neutral-900 dark:text-neutral-100">
+                {social.type === 'facebook' && (
+                  <>
+                    <Facebook className="w-4 h-4 mr-2" />
+                    <a 
+                      href={social.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-primary-600"
+                    >
+                      Facebook Page
+                    </a>
+                  </>
+                )}
+                {social.type === 'instagram' && (
+                  <>
+                    <Instagram className="w-4 h-4 mr-2" />
+                    <a 
+                      href={social.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-primary-600"
+                    >
+                      Instagram Page
+                    </a>
+                  </>
+                )}
+                {(social.type === 'web' || social.type === 'website') && (
+                  <>
+                    <Globe className="w-4 h-4 mr-2" />
+                    <a 
+                      href={social.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-primary-600"
+                    >
+                      Website
+                    </a>
+                  </>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>

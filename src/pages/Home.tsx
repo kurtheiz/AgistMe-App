@@ -31,7 +31,7 @@ export const Home = () => {
               Finding the perfect home for your horse shouldn't be a wild goose chase. Whether you're seeking private paddocks, shared arrangements, or full-care options, our smart search helps you discover properties that match your needs – from lit arenas and round yards to secure tack rooms and float parking.
             </p>
             <ul className="space-y-3 mb-8">
-              {['Search by location', 'Filter by what you need', 'Direct owner contact', 'Detailed property information', 'Save searches and add favourites', 'Get notifications on your saved searches'].map((item) => (
+              {['Search by location', 'Filter by what you need', 'Direct owner contact',  'Save searches and add favourites'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-gray-700 min-h-[28px]">
                   <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
                   {item}
@@ -54,10 +54,10 @@ export const Home = () => {
           <div>
             <h2 className="text-3xl font-bold mb-6 text-gray-900">For Property Owners</h2>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Showcase your facilities, manage your paddock availability, and connect with qualified horse owners. List your property details and get notified when interested agistees enquire about your property. Already posting on social media? Our AI can help you turn that text into the beginning of a listing in seconds.
+              Showcase your facilities, manage your paddock availability, and connect with qualified horse owners. List your property details and get notified when interested agistees enquire about your property. Connect with horse owners who are interested in your property and what you offer.
             </p>
             <ul className="space-y-3 mb-8">
-              {['Easy property listing', 'Facility showcase', 'Availability management', 'Direct communication', 'Create text for social media posts'].map((item) => (
+              {['Easy property listing', 'Facility showcase', 'Availability management'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-gray-700 min-h-[28px]">
                   <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
                   {item}
