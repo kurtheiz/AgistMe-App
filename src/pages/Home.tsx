@@ -31,7 +31,7 @@ export const Home = () => {
               Finding the perfect home for your horse shouldn't be a wild goose chase. Whether you're seeking private paddocks, shared arrangements, or full-care options, our smart search helps you discover properties that match your needs – from lit arenas and round yards to secure tack rooms and float parking.
             </p>
             <ul className="space-y-3 mb-8">
-              {['Search by location', 'Filter by what you need', 'Direct owner contact',  'Save searches and add favourites'].map((item) => (
+              {['Search by multiple locations and radius', 'Filter by what you need and your budget', 'Direct owner contact',  'Save searches', 'Add favourites'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-gray-700 min-h-[28px]">
                   <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
                   {item}
@@ -57,7 +57,7 @@ export const Home = () => {
               Showcase your facilities, manage your paddock availability, and connect with qualified horse owners. List your property details and get notified when interested agistees enquire about your property. Connect with horse owners who are interested in your property and what you offer.
             </p>
             <ul className="space-y-3 mb-8">
-              {['Easy property listing', 'Facility showcase', 'Availability management'].map((item) => (
+              {['List once and update as you need', 'Facility showcase', 'Availability management','Easily create agistments from text'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-gray-700 min-h-[28px]">
                   <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
                   {item}
@@ -65,7 +65,7 @@ export const Home = () => {
               ))}
               <li className="flex items-center gap-2 text-gray-900 font-bold min-h-[28px]">
                 <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
-                List for FREE until 31st March 2025, then only $4.90/month after
+                List for FREE until 31st July 2025, then only $4.90/month thereafter
               </li>
             </ul>
             <div className="flex justify-center md:justify-start">
