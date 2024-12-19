@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, AlertCircle, HelpCircle } from 'lucide-react';
+import { ChevronLeft, AlertCircle, HelpCircle, Sparkles } from 'lucide-react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { agistmentService } from '../../services/agistment.service';
@@ -16,10 +16,11 @@ import { AgistmentFacilitiesModal } from '../../components/Agistment/AgistmentFa
 import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentCareOptionsModal';
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
 import { AgistmentPhotosModal } from '../../components/Agistment/AgistmentPhotosModal';
+import { AgistmentFromTextModal } from '../../components/Agistment/AgistmentFromTextModal';
 import toast from 'react-hot-toast';
 import PropertyCard from '../../components/PropertyCard';
 
-type EditModalType = 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
+type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
 
 export function MyAgistments() {
   const { userId } = useAuth();
@@ -37,7 +38,7 @@ export function MyAgistments() {
       try {
         const response = await agistmentService.getMyAgistments();
         setAgistments(response.results || []);
-        
+
         // Automatically show help dialog if first agistment is new and coming from listagistment
         const fromListAgistment = location.state?.from === '/listagistment';
         if (fromListAgistment && response.results?.[0]?.basicInfo?.name === 'New Agistment') {
@@ -87,12 +88,12 @@ export function MyAgistments() {
       };
 
       await agistmentService.updateAgistment(agistmentId, mergedAgistment);
-      
+
       const updatedAgistments = await agistmentService.getMyAgistments();
       setAgistments(updatedAgistments.results || []);
-      
+
       toast.success('Agistment updated successfully');
-      
+
       // Only close modal if keepModalOpen is false
       if (!keepModalOpen) {
         setEditModal(null);
@@ -112,21 +113,21 @@ export function MyAgistments() {
       if (!agistment) return;
 
       // Check if there are any validation errors
-      const hasBasicInfoErrors = !agistment.basicInfo?.name || 
-                                agistment.basicInfo.name.length < 3 || 
-                                agistment.basicInfo.name === 'New Agistment' ||
-                                !agistment.propertyLocation?.location?.suburb || 
-                                !agistment.propertyLocation?.location?.state || 
-                                !agistment.propertyLocation?.location?.region || 
-                                !agistment.propertyLocation?.location?.postcode;
+      const hasBasicInfoErrors = !agistment.basicInfo?.name ||
+        agistment.basicInfo.name.length < 3 ||
+        agistment.basicInfo.name === 'New Agistment' ||
+        !agistment.propertyLocation?.location?.suburb ||
+        !agistment.propertyLocation?.location?.state ||
+        !agistment.propertyLocation?.location?.region ||
+        !agistment.propertyLocation?.location?.postcode;
 
       const hasPaddocksErrors = !(agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
-                                 agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
-                                 agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
+        agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
+        agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
 
       const hasCareErrors = !(agistment.care?.selfCare?.available ||
-                             agistment.care?.partCare?.available ||
-                             agistment.care?.fullCare?.available);
+        agistment.care?.partCare?.available ||
+        agistment.care?.fullCare?.available);
 
       const hasPhotosErrors = !agistment.photoGallery?.photos || agistment.photoGallery.photos.length === 0;
 
@@ -148,21 +149,21 @@ export function MyAgistments() {
   const checkSectionValidation = (agistment: AgistmentSearchResponse, section: 'header' | 'paddocks' | 'care' | 'photos') => {
     switch (section) {
       case 'header':
-        return !(!agistment.basicInfo?.name || 
-                agistment.basicInfo.name.length < 3 || 
-                agistment.basicInfo.name === 'New Agistment' ||
-                !agistment.propertyLocation?.location?.suburb || 
-                !agistment.propertyLocation?.location?.state || 
-                !agistment.propertyLocation?.location?.region || 
-                !agistment.propertyLocation?.location?.postcode);
+        return !(!agistment.basicInfo?.name ||
+          agistment.basicInfo.name.length < 3 ||
+          agistment.basicInfo.name === 'New Agistment' ||
+          !agistment.propertyLocation?.location?.suburb ||
+          !agistment.propertyLocation?.location?.state ||
+          !agistment.propertyLocation?.location?.region ||
+          !agistment.propertyLocation?.location?.postcode);
       case 'paddocks':
         return !!(agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
-                 agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
-                 agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
+          agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
+          agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
       case 'care':
         return !!(agistment.care?.selfCare?.available ||
-                 agistment.care?.partCare?.available ||
-                 agistment.care?.fullCare?.available);
+          agistment.care?.partCare?.available ||
+          agistment.care?.fullCare?.available);
       case 'photos':
         return !!(agistment.photoGallery?.photos && agistment.photoGallery.photos.length > 0);
       default:
@@ -173,7 +174,7 @@ export function MyAgistments() {
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
     <div className="bg-neutral-50 border-t border-neutral-200">
       <div className="text-center text-sm text-neutral-600 pt-4 flex items-center justify-center gap-2">
-        Edit sections
+        Edit
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -185,6 +186,14 @@ export function MyAgistments() {
         </button>
       </div>
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
+        <button
+          onClick={() => setEditModal({ type: 'fromtext', agistment: agistment as AgistmentResponse })}
+          className="button-toolbar"
+        >
+          <Sparkles className={'w-4 h-4'} />
+          <span>From Text</span>
+          
+        </button>
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
           className="button-toolbar"
@@ -241,15 +250,20 @@ export function MyAgistments() {
             </div>
           )}
         </button>
+        <button
+          onClick={() => setEditModal({ type: 'services', agistment: agistment as AgistmentResponse })}
+          className="button-toolbar"
+        >
+          Services
+        </button>
       </div>
 
-      <div className={`text-sm font-medium text-center py-1.5 ${
-  agistment.status === 'PUBLISHED' 
-    ? 'bg-emerald-100 text-emerald-700'
-    : 'bg-orange-100 text-orange-700'
-} rounded`}>
-  {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
-</div>
+      <div className={`text-sm font-medium text-center py-1.5 ${agistment.status === 'PUBLISHED'
+          ? 'bg-emerald-100 text-emerald-700'
+          : 'bg-orange-100 text-orange-700'
+        } rounded`}>
+        {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
+      </div>
       <div className="border-t border-neutral-200 p-4 flex gap-2 bg-white">
         <button
           onClick={() => handlePreview(agistment)}
@@ -267,7 +281,7 @@ export function MyAgistments() {
             <><span>Unhide</span></>
           )}
         </button>
-        
+
         <button
           onClick={() => setAgistmentToDelete(agistment.id)}
           className="button-toolbar text-red-600 ml-auto"
@@ -308,7 +322,7 @@ export function MyAgistments() {
           </div>
         }
       />
-      
+
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
@@ -330,7 +344,7 @@ export function MyAgistments() {
             <div className="mb-4 text-sm text-neutral-600 px-4">
               {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'}
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {agistments.map((agistment) => (
                 <div key={agistment.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -341,7 +355,7 @@ export function MyAgistments() {
                     disableFavorite
                     showStatus
                   />
-                  
+
                   {renderEditButtons(agistment)}
                 </div>
               ))}
@@ -360,6 +374,16 @@ export function MyAgistments() {
         cancelText="No, Keep It"
         disableOutsideClick={true}
       />
+
+      {editModal?.type === 'fromtext' && editModal.agistment && (
+        <AgistmentFromTextModal
+          agistment={editModal.agistment}
+          isOpen={true}
+          onClose={() => setEditModal(null)}
+          onUpdate={(updatedAgistment) => handleUpdateAgistment(editModal.agistment.id, updatedAgistment, true)}
+          disableOutsideClick={true}
+        />
+      )}
 
       {editModal?.type === 'photos' && editModal.agistment && (
         <AgistmentPhotosModal
@@ -464,12 +488,18 @@ export function MyAgistments() {
                   </Dialog.Title>
                   <div className="space-y-4">
                     <div>
-                      <p className="font-medium mb-1">Required Sections</p>
+                      <p className="font-medium mb-1">Edit Help</p>
                       <p className="text-sm text-neutral-600">
                         Sections marked with a <span className="inline-block align-middle"><AlertCircle className="w-4 h-4 text-red-500" /></span> require your attention before your agistment can be made visible in search results.
                       </p>
                     </div>
                     <div className="space-y-2">
+                      <p className="font-medium">From Text</p>
+                      <div className="text-sm space-y-3">
+
+                        <p className="text-neutral-600">Typically used to start your listing from a plain english description, like a social media post.</p>
+                      </div>
+
                       <p className="font-medium">Section Requirements:</p>
                       <div className="text-sm space-y-3">
                         <div>
@@ -496,6 +526,10 @@ export function MyAgistments() {
                           <p className="font-medium text-neutral-800">Photos</p>
                           <p className="text-neutral-600">Upload at least one photo of your property</p>
                         </div>
+                        <div>
+                          <p className="font-medium text-neutral-800">Services</p>
+                          <p className="text-neutral-600">Optional: Additional services you offer</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -503,7 +537,7 @@ export function MyAgistments() {
                   <div className="mt-6">
                     <button
                       type="button"
-                      className="w-full inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="w-full inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                       onClick={() => setIsHelpOpen(false)}
                     >
                       Got it, thanks!
