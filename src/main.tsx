@@ -25,16 +25,17 @@ try {
     APPLICATION_REGION,
     config
   );
-
 } catch (error) {
   // Ignore errors thrown during CloudWatch RUM web client initialization
 }
 
 const App = React.lazy(() => import('./App.tsx')); // Implement dynamic import for App component
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.Suspense fallback={<div>Loading...</div>}>
-   
+const container = document.getElementById('root');
+const root = ReactDOM.createRoot(container!);
+
+root.render(
+  <React.StrictMode>
     <App />
-  </React.Suspense>,
-)
+  </React.StrictMode>
+);
