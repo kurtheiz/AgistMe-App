@@ -143,7 +143,7 @@ const router = createBrowserRouter([
 // Component to handle auth initialization
 const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isLoaded, userId } = useAuth();
-  const { user } = useUser();
+  const { user, isLoaded: isUserLoaded } = useUser();
   const setUser = useAuthStore((state) => state.setUser);
   
   // Notifications state
@@ -162,7 +162,8 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const { setIsLoading: setEnquiriesLoading, setEnquiries } = useEnquiriesStore();
 
   useEffect(() => {
-    if (isLoaded && userId) {
+    // Only proceed if both auth and user data are loaded and we have a userId
+    if (isLoaded && isUserLoaded && userId && user) {
       setUser({
         id: userId,
         email: user?.primaryEmailAddress?.emailAddress || ''
@@ -228,7 +229,7 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
           });
       }
 
-      // Load enquiries if user is an agistor
+      // Only load enquiries if user is fully loaded and is an agistor
       if (user?.publicMetadata?.role === 'agistor') {
         setEnquiriesLoading(true);
         enquiriesService.getEnquiries()
@@ -243,7 +244,7 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
           });
       }
     }
-  }, [isLoaded, userId, user]);
+  }, [isLoaded, isUserLoaded, userId, user]);
 
   return <>{children}</>;
 };

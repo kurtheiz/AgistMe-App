@@ -26,6 +26,9 @@ type EditForm = {
   contactEmail: string;
   contactNumber: string;
   description: string;
+  facebookUrl: string;
+  websiteUrl: string;
+  instagramUrl: string;
 }
 
 export const AgistmentHeaderModal = ({
@@ -46,7 +49,10 @@ export const AgistmentHeaderModal = ({
     contactName: '',
     contactEmail: '',
     contactNumber: '',
-    description: ''
+    description: '',
+    facebookUrl: agistment?.socialMedia?.find(s => s.type === 'facebook')?.link || '',
+    websiteUrl: agistment?.socialMedia?.find(s => s.type === 'website')?.link || '',
+    instagramUrl: agistment?.socialMedia?.find(s => s.type === 'instagram')?.link || ''
   });
   const [selectedSuburbs, setSelectedSuburbs] = useState<Suburb[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -56,6 +62,9 @@ export const AgistmentHeaderModal = ({
     location?: string;
     email?: string;
     mobile?: string;
+    facebookUrl?: string;
+    websiteUrl?: string;
+    instagramUrl?: string;
   }>({});
   const [initialHash, setInitialHash] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
@@ -73,7 +82,10 @@ export const AgistmentHeaderModal = ({
         contactName: agistment.contact?.contactDetails?.name || '',
         contactEmail: agistment.contact?.contactDetails?.email || '',
         contactNumber: agistment.contact?.contactDetails?.number || '',
-        description: agistment.propertyDescription?.description || ''
+        description: agistment.propertyDescription?.description || '',
+        facebookUrl: agistment?.socialMedia?.find(s => s.type === 'facebook')?.link || '',
+        websiteUrl: agistment?.socialMedia?.find(s => s.type === 'website')?.link || '',
+        instagramUrl: agistment?.socialMedia?.find(s => s.type === 'instagram')?.link || ''
       });
     }
   }, [isOpen, agistment]);
@@ -91,7 +103,10 @@ export const AgistmentHeaderModal = ({
         contactName: agistment?.contact?.contactDetails?.name || '',
         contactEmail: agistment?.contact?.contactDetails?.email || '',
         contactNumber: agistment?.contact?.contactDetails?.number || '',
-        description: agistment?.propertyDescription?.description || ''
+        description: agistment?.propertyDescription?.description || '',
+        facebookUrl: agistment?.socialMedia?.find(s => s.type === 'facebook')?.link || '',
+        websiteUrl: agistment?.socialMedia?.find(s => s.type === 'website')?.link || '',
+        instagramUrl: agistment?.socialMedia?.find(s => s.type === 'instagram')?.link || ''
       };
       setInitialHash(JSON.stringify(initialFormState));
       setSelectedSuburbs([]);
@@ -117,7 +132,10 @@ export const AgistmentHeaderModal = ({
       contactName: agistment.contact?.contactDetails?.name || '',
       contactEmail: agistment.contact?.contactDetails?.email || '',
       contactNumber: agistment.contact?.contactDetails?.number || '',
-      description: agistment.propertyDescription?.description || ''
+      description: agistment.propertyDescription?.description || '',
+      facebookUrl: agistment?.socialMedia?.find(s => s.type === 'facebook')?.link || '',
+      websiteUrl: agistment?.socialMedia?.find(s => s.type === 'website')?.link || '',
+      instagramUrl: agistment?.socialMedia?.find(s => s.type === 'instagram')?.link || ''
     };
     setEditForm(initialFormState);
     setInitialHash(JSON.stringify(initialFormState));
@@ -128,7 +146,16 @@ export const AgistmentHeaderModal = ({
   };
 
   const validateFields = () => {
-    const newErrors: { propertyName?: string; address?: string; location?: string; email?: string; mobile?: string; } = {};
+    const newErrors: {
+      propertyName?: string;
+      address?: string;
+      location?: string;
+      email?: string;
+      mobile?: string;
+      facebookUrl?: string;
+      websiteUrl?: string;
+      instagramUrl?: string;
+    } = {};
     
     const trimmedName = editForm.propertyName?.trim();
     if (!trimmedName) {
@@ -138,10 +165,6 @@ export const AgistmentHeaderModal = ({
     } else if (trimmedName === 'New Agistment') {
       newErrors.propertyName = 'Agistment Name cannot be "New Agistment"';
     }
-
-    //if (!editForm.address?.trim()) {
-    //  newErrors.address = 'Address is required';
-    //}
 
     if (!editForm.suburb || !editForm.state || !editForm.postcode || !editForm.region) {
       newErrors.location = 'Please select a suburb';
@@ -158,6 +181,30 @@ export const AgistmentHeaderModal = ({
       const mobileRegex = /^\d{10}$/;
       if (!mobileRegex.test(editForm.contactNumber)) {
         newErrors.mobile = 'Mobile number must be exactly 10 digits';
+      }
+    }
+
+    // Validate Facebook URL
+    if (editForm.facebookUrl && editForm.facebookUrl.trim()) {
+      const urlRegex = /^https?:\/\//i;
+      if (!urlRegex.test(editForm.facebookUrl)) {
+        newErrors.facebookUrl = 'URL must start with http:// or https://';
+      }
+    }
+
+    // Validate Instagram URL
+    if (editForm.instagramUrl && editForm.instagramUrl.trim()) {
+      const urlRegex = /^https?:\/\//i;
+      if (!urlRegex.test(editForm.instagramUrl)) {
+        newErrors.instagramUrl = 'URL must start with http:// or https://';
+      }
+    }
+
+    // Validate Website URL
+    if (editForm.websiteUrl && editForm.websiteUrl.trim()) {
+      const urlRegex = /^https?:\/\//i;
+      if (!urlRegex.test(editForm.websiteUrl)) {
+        newErrors.websiteUrl = 'URL must start with http:// or https://';
       }
     }
 
@@ -200,7 +247,13 @@ export const AgistmentHeaderModal = ({
         },
         propertyDescription: {
           description: editForm.description || ''
-        }
+        },
+        socialMedia: [
+          ...(agistment.socialMedia || []).filter(s => s.type !== 'facebook' && s.type !== 'website' && s.type !== 'instagram'),
+          ...(editForm.facebookUrl ? [{ type: 'facebook', link: editForm.facebookUrl }] : []),
+          ...(editForm.websiteUrl ? [{ type: 'website', link: editForm.websiteUrl }] : []),
+          ...(editForm.instagramUrl ? [{ type: 'instagram', link: editForm.instagramUrl }] : [])
+        ]
       };
 
       if (onUpdate) {
@@ -437,6 +490,108 @@ export const AgistmentHeaderModal = ({
               className="form-textarea"
               placeholder="Describe your property..."
             />
+          </div>
+        </div>
+
+        {/* Social Media */}
+        <div className="section-container">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                Facebook URL
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={editForm.facebookUrl}
+                  onChange={(e) => {
+                    let url = e.target.value;
+                    if (url && !url.match(/^https?:\/\//i)) {
+                      url = 'https://' + url;
+                    }
+                    setEditForm(prev => ({ ...prev, facebookUrl: url }));
+                  }}
+                  className={`form-input form-input-compact w-64 ${errors.facebookUrl ? 'border-red-500' : ''}`}
+                  placeholder="https://facebook.com/..."
+                />
+                {editForm.facebookUrl && (
+                  <button
+                    type="button"
+                    onClick={() => window.open(editForm.facebookUrl, '_blank')}
+                    className="button-toolbar"
+                  >
+                    Test
+                  </button>
+                )}
+              </div>
+              {errors.facebookUrl && (
+                <p className="mt-1 text-sm text-red-500">{errors.facebookUrl}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                Instagram URL
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={editForm.instagramUrl}
+                  onChange={(e) => {
+                    let url = e.target.value;
+                    if (url && !url.match(/^https?:\/\//i)) {
+                      url = 'https://' + url;
+                    }
+                    setEditForm(prev => ({ ...prev, instagramUrl: url }));
+                  }}
+                  className={`form-input form-input-compact w-64 ${errors.instagramUrl ? 'border-red-500' : ''}`}
+                  placeholder="https://instagram.com/..."
+                />
+                {editForm.instagramUrl && (
+                  <button
+                    type="button"
+                    onClick={() => window.open(editForm.instagramUrl, '_blank')}
+                    className="button-toolbar"
+                  >
+                    Test
+                  </button>
+                )}
+              </div>
+              {errors.instagramUrl && (
+                <p className="mt-1 text-sm text-red-500">{errors.instagramUrl}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                Website URL
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={editForm.websiteUrl}
+                  onChange={(e) => {
+                    let url = e.target.value;
+                    if (url && !url.match(/^https?:\/\//i)) {
+                      url = 'https://' + url;
+                    }
+                    setEditForm(prev => ({ ...prev, websiteUrl: url }));
+                  }}
+                  className={`form-input form-input-compact w-64 ${errors.websiteUrl ? 'border-red-500' : ''}`}
+                  placeholder="https://..."
+                />
+                {editForm.websiteUrl && (
+                  <button
+                    type="button"
+                    onClick={() => window.open(editForm.websiteUrl, '_blank')}
+                    className="button-toolbar"
+                  >
+                    Test
+                  </button>
+                )}
+              </div>
+              {errors.websiteUrl && (
+                <p className="mt-1 text-sm text-red-500">{errors.websiteUrl}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

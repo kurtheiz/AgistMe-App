@@ -171,6 +171,7 @@ export default function PreviewAgistmentDetail() {
                 propertyLocation={agistment.propertyLocation}
                 contactDetails={agistment.contact}
                 propertyDescription={agistment.propertyDescription}
+                socialMedia={agistment.socialMedia}
               />
               {agistment.propertyLocation?.location && (
                 <div className="mt-8">
