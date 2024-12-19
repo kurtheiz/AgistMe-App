@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, AlertCircle, HelpCircle, Sparkles } from 'lucide-react';
+import { ChevronLeft, AlertCircle, HelpCircle } from 'lucide-react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { agistmentService } from '../../services/agistment.service';

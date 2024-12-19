@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Modal } from '@/components/shared/Modal';
-import { PasteIcon } from 'lucide-react';
-import { agistmentService } from '@/services/agistment.service';
+import { Modal } from '../../components/shared/Modal';
+import { Clipboard } from 'lucide-react';
 
 export function CreateFromSocial() {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,7 +29,7 @@ export function CreateFromSocial() {
         onClick={() => setIsOpen(true)}
         className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
-        <PasteIcon className="w-4 h-4" />
+        <Clipboard className="w-4 h-4" />
         Create from Social
       </button>
 
