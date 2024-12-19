@@ -17,15 +17,15 @@ const ListAgistment = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    // Add Stripe script
-    const script = document.createElement('script');
-    script.src = 'https://js.stripe.com/v3/pricing-table.js';
-    script.async = true;
-    document.head.appendChild(script);
+    // // Add Stripe script
+    // const script = document.createElement('script');
+    // script.src = 'https://js.stripe.com/v3/pricing-table.js';
+    // script.async = true;
+    // document.head.appendChild(script);
 
-    return () => {
-      document.head.removeChild(script);
-    };
+    // return () => {
+    //   document.head.removeChild(script);
+    // };
   }, []);
 
   const handleCreateAgistment = async () => {
@@ -157,7 +157,7 @@ const ListAgistment = () => {
           </button>
         </div>
         
-        <div className="mt-12">
+        {/* <div className="mt-12">
           <h2 className="text-2xl font-semibold mb-8 text-center text-gray-900 dark:text-white">
             Choose Your Plan
           </h2>
@@ -165,7 +165,7 @@ const ListAgistment = () => {
             pricing-table-id="prctbl_1QWPkDEyHrGCpwOXjYIHiAtB"
             publishable-key="pk_test_51L90MMEyHrGCpwOXqCOvrY2C0MIkd6yFTNjfM6k3mOUoV58j4jNTm2D4NMzbgAbL7fFsLJyOOvlRRFBd9EcChDYy00OXK0rBbC"
           />
-        </div>
+        </div> */}
 
         
       </div>
