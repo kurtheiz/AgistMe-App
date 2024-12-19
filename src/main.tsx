@@ -26,13 +26,15 @@ try {
     APPLICATION_REGION,
     config
   );
-
 } catch (error) {
   // Ignore errors thrown during CloudWatch RUM web client initialization
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const container = document.getElementById('root');
+const root = ReactDOM.createRoot(container!);
+
+root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
