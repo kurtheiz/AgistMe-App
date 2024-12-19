@@ -136,7 +136,7 @@ export function MyAgistments() {
       }
     }
 
-    handleUpdateAgistment(agistmentId, {
+    await handleUpdateAgistment(agistmentId, {
       status: currentStatus === 'PUBLISHED' ? 'HIDDEN' : 'PUBLISHED'
     });
   };
@@ -272,7 +272,7 @@ export function MyAgistments() {
           onClick={() => setAgistmentToDelete(agistment.id)}
           className="button-toolbar text-red-600 ml-auto"
         >
-          Cancel
+          Cancel Subscription
         </button>
       </div>
     </div>
