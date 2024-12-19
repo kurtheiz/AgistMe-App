@@ -30,11 +30,27 @@ try {
   // Ignore errors thrown during CloudWatch RUM web client initialization
 }
 
+// Get the container element
 const container = document.getElementById('root');
-const root = ReactDOM.createRoot(container!);
 
+// Ensure the container exists
+if (!container) {
+  throw new Error('Root element not found');
+}
+
+// Create root only if it hasn't been created before
+const root = ReactDOM.createRoot(container);
+
+// Initial render
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
+
+// Handle HMR
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    // Cleanup any subscriptions/references here if needed
+  });
+}
