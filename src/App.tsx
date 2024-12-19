@@ -29,6 +29,7 @@ import { enquiriesService } from './services/enquiries.service';
 import EnquiriesPage from './pages/dashboard/Enquiries';
 import PreviewAgistmentDetail from './pages/dashboard/PreviewAgistmentDetail';
 import { useEffect } from 'react';
+import React from 'react'; // Added React import
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
