@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
 import { AgistmentResponse } from '../../types/agistment';
 import toast from 'react-hot-toast';
-import { FileText } from 'lucide-react';
 import { agistmentService } from '../../services/agistment.service';
 
 interface Props {
