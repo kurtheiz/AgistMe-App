@@ -4,15 +4,19 @@ import { EnquiryRequest, EnquiryStatusUpdate } from '../types/enquiry';
 import toast from 'react-hot-toast';
 import { useEnquiriesStore } from '../stores/enquiries.store';
 import { useEffect } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 
 export const useEnquiries = () => {
   const { setEnquiries } = useEnquiriesStore();
+  const { isSignedIn, isLoaded } = useAuth();
 
   const query = useQuery({
     queryKey: ['enquiries'],
     queryFn: () => enquiriesService.getEnquiries(),
     refetchInterval: 1000 * 60 * 15, // 15 minutes
-    refetchIntervalInBackground: true
+    refetchIntervalInBackground: true,
+    enabled: isLoaded && isSignedIn, // Only run query if auth is loaded and user is signed in
+    initialData: { enquiries: [] } // Provide initial data to prevent undefined
   });
 
   // Sync query data with store
@@ -22,7 +26,10 @@ export const useEnquiries = () => {
     }
   }, [query.data, setEnquiries]);
 
-  return query;
+  return {
+    ...query,
+    data: query.data || { enquiries: [] } // Ensure we always return a valid data structure
+  };
 };
 
 export const useAgistmentEnquiries = (agistmentId: string) => {

@@ -13,9 +13,7 @@ import {
   FavouritesResponse,
   SavedSearch,
   Horse,
-  Favourite,
-  Notification,
-  NotificationsResponse
+  Favourite
 } from '../types/profile';
 
 interface PresignedUrlRequest {
@@ -145,14 +143,13 @@ class ProfileService {
     });
   }
 
-  async getFavourites(params?: { d?: boolean }): Promise<FavouritesResponse> {
+  async getFavourites(): Promise<FavouritesResponse> {
     return this.retryOperation(async () => {
       try {
-        const queryString = params?.d ? '?d=true' : '';
-        const response = await this.api.get<FavouritesResponse>(`v1/protected/profile/favourites${queryString}`);
+        const response = await this.api.get<FavouritesResponse>('v1/protected/profile/favourites');
         return response.data;
       } catch (error) {
-        console.error('Failed to get favourites:', error);
+        console.error('Error getting favourites:', error);
         throw error;
       }
     });
@@ -161,27 +158,40 @@ class ProfileService {
   async updateFavourites(favourites: Favourite[]): Promise<FavouritesResponse> {
     return this.retryOperation(async () => {
       try {
-        const response = await this.api.put<FavouritesResponse>('v1/protected/profile/favourites', {
-          favourites
-        });
+        const response = await this.api.put<FavouritesResponse>('v1/protected/favourites', { favourites });
         return response.data;
       } catch (error) {
-        console.error('Failed to update favourites:', error);
+        console.error('Error updating favourites:', error);
         throw error;
       }
     });
   }
 
-  async getNotifications(): Promise<NotificationsResponse> {
+  async toggleFavorite(agistmentId: string, currentStatus: boolean): Promise<boolean> {
     return this.retryOperation(async () => {
-      const response = await this.api.get<NotificationsResponse>('v1/protected/profile/notifications');
-      return response.data;
+      try {
+        if (currentStatus) {
+          await this.api.delete(`v1/protected/profile/favourites/${agistmentId}`);
+          return false;
+        } else {
+          await this.api.post(`v1/protected/profile/favourites/${agistmentId}`);
+          return true;
+        }
+      } catch (error) {
+        console.error('Error toggling favorite:', error);
+        throw error;
+      }
     });
   }
 
-  async updateNotifications(notifications: Notification[]): Promise<void> {
+  async deleteFavorite(agistmentId: string): Promise<void> {
     return this.retryOperation(async () => {
-      await this.api.put('v1/protected/profile/notifications', { notifications });
+      try {
+        await this.api.delete(`v1/protected/profile/favourites/${agistmentId}`);
+      } catch (error) {
+        console.error('Error deleting favorite:', error);
+        throw error;
+      }
     });
   }
 
@@ -196,110 +206,30 @@ class ProfileService {
     });
   }
 
-  private async waitForAuth() {
-    // Wait for Clerk to be available
-    while (!window.Clerk) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-    }
-    // Wait for session to be initialized
-    await window.Clerk.load();
-  }
-
-  private async getAuthHeaders() {
-    try {
-      await this.waitForAuth();
-      const session = await window.Clerk?.session;
-      if (session) {
-        const token = await session.getToken({ template: 'AgistMe' });
-        if (token) {
-          return {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to get auth token:', error);
-    }
-    return {};
-  }
-
-  async toggleFavorite(agistmentId: string, currentStatus: boolean): Promise<boolean> {
-    try {
-      const authHeaders = await this.getAuthHeaders();
-      
-      if (currentStatus) {
-        // If currently favorited, remove it with DELETE
-        await this.api.delete(
-          `v1/protected/profile/favourites/${agistmentId}`,
-          authHeaders
-        );
-        return false;
-      } else {
-        // If not favorited, add it with POST
-        await this.api.post(
-          `v1/protected/profile/favourites/${agistmentId}`,
-          {},
-          authHeaders
-        );
-        return true;
-      }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
-      throw error;
-    }
-  }
-
-  async deleteFavorite(agistmentId: string): Promise<void> {
-    return this.retryOperation(async () => {
-      try {
-        const authHeaders = await this.getAuthHeaders();
-        await this.api.delete(
-          `v1/protected/profile/favourites/${agistmentId}`,
-          authHeaders
-        );
-      } catch (error) {
-        console.error('Failed to delete favorite:', error);
-        throw error;
-      }
-    });
-  }
-
   async uploadProfilePhoto(file: File): Promise<string> {
     try {
       // Get presigned URL
-      const filename = `${Date.now()}-${file.name}`;
-      const presignedRequest: PresignedUrlRequest = {
-        filenames: [filename],
-        image_type: 'profile'  // Changed to 'profile' as per API requirements
-      };
-      
-      console.log('Requesting presigned URL...');
-      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', presignedRequest);
-      const presignedData = response.data[0];
-      console.log('Received presigned URL data:', presignedData);
+      const response = await this.api.post<PresignedUrlResponse[]>('v1/protected/upload/presigned', {
+        filenames: [file.name],
+        image_type: 'profile'
+      });
 
-      // Create form data for S3 upload
+      const { url, fields, s3Key } = response.data[0];
+
+      // Create form data
       const formData = new FormData();
-      Object.entries(presignedData.fields).forEach(([key, value]) => {
+      Object.entries(fields).forEach(([key, value]) => {
         formData.append(key, value);
       });
       formData.append('file', file);
 
-      console.log('Uploading to S3...');
       // Upload to S3
-      const uploadResponse = await fetch(presignedData.url, {
+      await fetch(url, {
         method: 'POST',
         body: formData
       });
 
-      if (!uploadResponse.ok) {
-        throw new Error(`Failed to upload to S3: ${uploadResponse.statusText}`);
-      }
-
-      console.log('Upload successful');
-      return presignedData.publicUrl;
+      return s3Key;
     } catch (error) {
       console.error('Failed to upload profile photo:', error);
       throw error;

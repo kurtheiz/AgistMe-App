@@ -49,12 +49,9 @@ export function SavedSearchesPanel({
                       let locationDisplay = 'Any location';
                       
                       if (location?.locationType) {
-                        const type = location.locationType.toLowerCase();
-                        if (type === 'suburb') {
-                          locationDisplay = `${location.suburb}, ${location.postcode} ${location.state}`;
-                        } else if (type === 'state') {
-                          locationDisplay = location.state;
-                        } else if (type === 'region') {
+                        if (location.locationType === 'SUBURB') {
+                          locationDisplay = `${location.suburb}, ${location.state}`;
+                        } else if (location.locationType === 'REGION') {
                           locationDisplay = `${location.region}, ${location.state}`;
                         }
                         
@@ -63,7 +60,8 @@ export function SavedSearchesPanel({
                         }
                       }
 
-                      const filterCount = [
+                      // Count active filters
+                      const activeFilters = [
                         searchCriteria.paddockTypes?.length > 0,
                         searchCriteria.spaces > 0,
                         searchCriteria.maxPrice > 0,
@@ -74,7 +72,7 @@ export function SavedSearchesPanel({
                       ].filter(Boolean).length;
 
                       return (
-                        <div 
+                        <div
                           key={search.id}
                           className={`p-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors ${
                             index !== savedSearches.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-700' : ''
@@ -86,7 +84,7 @@ export function SavedSearchesPanel({
                               <div>
                                 <h3 className="font-medium">{search.name}</h3>
                                 <p className="text-sm text-neutral-600">{locationDisplay}</p>
-                                <p className="text-sm text-neutral-500">{filterCount} filter{filterCount !== 1 ? 's' : ''}</p>
+                                <p className="text-sm text-neutral-500">{activeFilters} filter{activeFilters !== 1 ? 's' : ''}</p>
                                   
                               </div>
                             </div>

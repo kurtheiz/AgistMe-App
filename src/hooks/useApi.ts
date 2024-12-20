@@ -12,6 +12,7 @@ import { useProgressStore } from '../stores/progress.store';
 import { useAuthStore } from '../stores/auth.store';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+export const API_KEY = import.meta.env.VITE_API_KEY;
 
 // Generic API Response type that works with our generated types
 export interface ApiResponse<T> {
@@ -76,6 +77,7 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
     headers: {
       'Content-Type': 'application/json',
     },
+    withCredentials: true
   });
 
   // Remove trailing slashes from URLs
@@ -91,6 +93,12 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
   instance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
       try {
+        // Always set API key
+        if (config.headers && config.method !== 'OPTIONS') {
+          config.headers['agistme-api-key'] = API_KEY;
+        }
+
+        // Add bearer token if available
         const session = await window.Clerk?.session;
         if (session) {
           const token = await session.getToken({ template: 'AgistMe' });
@@ -102,7 +110,7 @@ export const createApi = (baseURL: string, getToken?: () => Promise<string | nul
         onRequestStart?.();
         return config;
       } catch (error) {
-        console.warn('Error getting auth token:', error);
+        console.warn('Error in request interceptor:', error);
         return config;
       }
     },

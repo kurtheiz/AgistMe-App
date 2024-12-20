@@ -4,22 +4,18 @@ import { useState, useEffect } from 'react';
 import { useAgistor } from '../hooks/useAgistor';
 import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
-import { useNotificationsStore } from '../stores/notifications.store';
-import { useEnquiries } from '../hooks/useEnquiries';
-import { Search, SquareMenu } from 'lucide-react';
+import { Search, SquareMenu as Menu } from 'lucide-react';
 
 export const Header = () => {
-  const { user, isSignedIn, isLoaded } = useUser();
+  const { user, isSignedIn } = useUser();
   const { openSignIn } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { isAgistor, isLoading: isAgistorLoading } = useAgistor();
+  const { isAgistor } = useAgistor();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { setUser, clearAuth } = useAuthStore();
   const { setIsSearchModalOpen } = useSearchStore();
-  const { notifications } = useNotificationsStore();
-  const { data: enquiriesData } = useEnquiries();
 
   useEffect(() => {
     if (isSignedIn && user) {
@@ -56,11 +52,7 @@ export const Header = () => {
   const agistmentsPath = searchHash ? `/agistments?q=${searchHash}` : '/agistments';
 
   // Don't show agistor-specific items while loading
-  const showAgistorItems = isAgistor && !isAgistorLoading;
-
-  // Calculate unread notifications count
-  const unreadCount = notifications.filter(n => !n.read).length;
-  const unreadEnquiriesCount = enquiriesData?.enquiries.filter(e => !e.read).length || 0;
+  const showAgistorItems = isAgistor;
 
   return (
     <>
@@ -111,11 +103,6 @@ export const Header = () => {
                     className="text-base sm:text relative"
                   >
                     Agistor Dashboard
-                    {unreadEnquiriesCount > 0 && (
-                      <div className="absolute -top-1 -right-4 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
-                        {unreadEnquiriesCount}
-                      </div>
-                    )}
                   </Link>
                 )}
               </nav>
@@ -129,12 +116,7 @@ export const Header = () => {
                   to="/dashboard"
                   className="md:hidden relative"
                 >
-                  <SquareMenu className="w-6 h-6" />
-                  {unreadEnquiriesCount > 0 && (
-                    <div className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
-                      {unreadEnquiriesCount}
-                    </div>
-                  )}
+                  <Menu className="w-6 h-6" />
                 </Link>
               )}
               {/* Search Icon */}
@@ -149,42 +131,35 @@ export const Header = () => {
               >
                 <Search className="w-5 h-5" />
               </button>
-              {/* Avatar with notification indicator */}
+              {/* Avatar */}
               <div className="relative">
                 <button
                   onClick={handleAvatarClick}
                   className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-neutral-200 transition-colors"
                 >
-                  {isLoaded ? (
-                    isSignedIn ? (
-                      <img 
-                        src={user.imageUrl} 
-                        alt={user.fullName || 'User avatar'} 
-                        className="h-8 w-8 rounded-full"
+                  {isSignedIn ? (
+                    <img 
+                      src={user.imageUrl} 
+                      alt={user.fullName || 'User avatar'} 
+                      className="h-8 w-8 rounded-full"
+                    />
+                  ) : (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      strokeWidth={1.5} 
+                      stroke="currentColor" 
+                      className="w-8 h-8"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
                       />
-                    ) : (
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        strokeWidth={1.5} 
-                        stroke="currentColor" 
-                        className="w-8 h-8"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    )
-                  ) : null}
+                    </svg>
+                  )}
                 </button>
-                {isSignedIn && unreadCount > 0 && (
-                  <div className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
-                    {unreadCount}
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -226,11 +201,6 @@ export const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Agistor Dashboard
-              {unreadEnquiriesCount > 0 && (
-                <div className="absolute top-2 -right-4 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-xs px-1">
-                  {unreadEnquiriesCount}
-                </div>
-              )}
             </Link>
           )}
         </nav>
