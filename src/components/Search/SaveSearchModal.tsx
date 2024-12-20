@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Switch } from '@headlessui/react';
 import { Modal } from '../shared/Modal';
 import { SearchRequest } from '../../types/search';
 import { SearchCriteriaDisplay } from '../shared/SearchCriteriaDisplay';
@@ -90,23 +89,7 @@ export function SaveSearchModal({
           </div>
         )}
 
-        <div className="flex items-center">
-          <Switch
-            checked={enableNotifications}
-            onChange={setEnableNotifications}
-            className={`${
-              enableNotifications ? 'bg-primary-500' : 'bg-gray-200'
-            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2`}
-          >
-            <span className="sr-only">Enable notifications</span>
-            <span
-              className={`${
-                enableNotifications ? 'translate-x-6' : 'translate-x-1'
-              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-            />
-          </Switch>
-          <span className="ml-3 text-sm text-gray-700">Enable notifications for this search</span>
-        </div>
+
       </div>
     </Modal>
   );

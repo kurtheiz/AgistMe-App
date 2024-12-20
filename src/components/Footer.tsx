@@ -13,7 +13,7 @@ export const Footer = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Agist Me</h3>
             <div className="flex flex-col space-y-2">
               <Link to="/about" className="text-sm">About</Link>
-              <Link to="/agistments" className="text-sm">Agistments</Link>
+              <Link to="/agistments" className="text-sm">Search Agistments</Link>
               <Link to="/listagistment" className="text-sm">List Agistment</Link>
               {isAgistor && (
                 <Link to="/dashboard" className="text-sm">Agistor Dashboard</Link>

@@ -5,8 +5,6 @@ import { LogOut } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { SavedSearch } from '../types/profile';
 import { SaveSearchModal } from '../components/Search/SaveSearchModal';
-import { useNotificationsStore } from '../stores/notifications.store';
-import { NotificationsPanel } from '../components/Profile/NotificationsPanel';
 import { BioPanel } from '../components/Profile/BioPanel';
 import BioModal from '../components/Profile/BioModal';
 import { FavoritesPanel } from '../components/Profile/FavoritesPanel';
@@ -32,7 +30,6 @@ export default function Profile() {
   const queryClient = useQueryClient();
 
   // Use Zustand stores instead of local state
-  const { notifications, updateNotification } = useNotificationsStore();
   const { bio, isLoading: isBioLoading } = useBioStore();
   const { favorites, isLoading: isFavoritesLoading } = useFavoritesStore();
   const { savedSearches, isLoading: isSavedSearchesLoading } = useSavedSearchesStore();
@@ -43,8 +40,6 @@ export default function Profile() {
       navigate('/');
     }
   }, [isSignedIn, isLoaded, navigate]);
-
-  // Remove fetchData useEffect as data is now loaded at app initialization
 
   const isLoading = isBioLoading || isFavoritesLoading || isSavedSearchesLoading;
 
@@ -105,65 +100,6 @@ export default function Profile() {
       setSaveSearchCriteria(null);
     } catch (error) {
       console.error('Failed to save search:', error);
-    }
-  };
-
-  const handleNotificationClick = async (notificationId: string) => {
-    try {
-      const notification = notifications.find(n => n.id === notificationId);
-      if (!notification) return;
-
-      if (!notification.read) {
-        updateNotification(notificationId, { read: true });
-      }
-
-      if (notification.agistmentId) {
-        navigate(`/agistments/${notification.agistmentId}`);
-      } else if (notification.searchId) {
-        const savedSearch = savedSearches.find(s => s.id === notification.searchId);
-        if (savedSearch) {
-          navigate(`/agistments?${new URLSearchParams({
-            suburbs: JSON.stringify(savedSearch.searchCriteria.suburbs),
-            paddockTypes: JSON.stringify(savedSearch.searchCriteria.paddockTypes),
-            spaces: savedSearch.searchCriteria.spaces.toString(),
-            maxPrice: savedSearch.searchCriteria.maxPrice.toString(),
-            hasArena: savedSearch.searchCriteria.hasArena.toString(),
-            hasRoundYard: savedSearch.searchCriteria.hasRoundYard.toString(),
-            facilities: JSON.stringify(savedSearch.searchCriteria.facilities),
-            careTypes: JSON.stringify(savedSearch.searchCriteria.careTypes)
-          }).toString()}`);
-        } else {
-          console.error('Saved search not found:', notification.searchId);
-          toast.error('Could not find saved search details');
-        }
-      }
-    } catch (error) {
-      console.error('Error handling notification:', error);
-      toast.error('Failed to update notification');
-    }
-  };
-
-  const handleDeleteNotification = async (e: React.MouseEvent, notificationId: string) => {
-    e.stopPropagation();
-    try {
-      await profileService.updateNotifications(notifications.filter(n => n.id !== notificationId));
-      toast.success('Notification removed');
-    } catch (error) {
-      console.error('Error deleting notification:', error);
-      toast.error('Failed to remove notification');
-    }
-  };
-
-  const handleToggleRead = async (e: React.MouseEvent, notificationId: string) => {
-    e.stopPropagation();
-    try {
-      const notification = notifications.find(n => n.id === notificationId);
-      if (!notification) return;
-
-      updateNotification(notificationId, { read: !notification.read });
-    } catch (error) {
-      console.error('Error updating notification:', error);
-      toast.error('Failed to update notification');
     }
   };
 
@@ -246,14 +182,6 @@ export default function Profile() {
             </span>
           </div>
         </div>
-
-        <NotificationsPanel
-          notifications={notifications}
-          isLoading={isLoading}
-          onNotificationClick={handleNotificationClick}
-          onToggleRead={handleToggleRead}
-          onDelete={handleDeleteNotification}
-        />
 
         <div className="space-y-6">
           <div className="space-y-4">

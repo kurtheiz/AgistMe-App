@@ -97,7 +97,7 @@ export const Header = () => {
                   to={agistmentsPath}
                   className="text-base sm:text"
                 >
-                  Agistments
+                  Search Agistments
                 </Link>
                 <Link 
                   to="/listagistment" 
@@ -210,7 +210,7 @@ export const Header = () => {
             className="text-base py-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            Agistments
+            Search Agistments
           </Link>
           <Link 
             to="/listagistment" 

@@ -1,4 +1,4 @@
-import { Bookmark, ChevronDown, MoreVertical, Bell } from 'lucide-react';
+import { Bookmark, ChevronDown, MoreVertical } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, Transition, MenuItem } from '@headlessui/react';
 import { useRef, useState, useEffect } from 'react';
 import { SavedSearch } from '../../types/profile';
@@ -87,12 +87,7 @@ export function SavedSearchesPanel({
                                 <h3 className="font-medium">{search.name}</h3>
                                 <p className="text-sm text-neutral-600">{locationDisplay}</p>
                                 <p className="text-sm text-neutral-500">{filterCount} filter{filterCount !== 1 ? 's' : ''}</p>
-                                {search.enableNotifications && (
-                                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 mt-2">
-                                    <Bell className="w-3 h-3" />
-                                    Notify Me
-                                  </span>
-                                )}
+                                  
                               </div>
                             </div>
                             <Menu as="div" className="relative">
