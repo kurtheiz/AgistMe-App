@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Modal } from '../shared/Modal';
 import { AgistmentResponse } from '../../types/agistment';
 import toast from 'react-hot-toast';
@@ -24,6 +24,7 @@ export function AgistmentFromTextModal({
   const [highlightedWordIndex, setHighlightedWordIndex] = useState(-1);
   const [isComplete, setIsComplete] = useState(false);
   const [updateDescription, setUpdateDescription] = useState<string | undefined>();
+  const changesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -32,6 +33,12 @@ export function AgistmentFromTextModal({
       setUpdateDescription(undefined);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isComplete && changesRef.current) {
+      changesRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [isComplete]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -131,7 +138,7 @@ export function AgistmentFromTextModal({
         </div>
 
         {/* Response Section */}
-        <div className="flex-1 border-t pt-4">
+        <div ref={changesRef} className="flex-1 border-t pt-4 scroll-mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Changes Made
           </label>
