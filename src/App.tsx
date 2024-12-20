@@ -19,7 +19,6 @@ import Terms from './pages/Terms';
 import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
 import { useAuthStore } from './stores/auth.store';
-import { useNotificationsStore } from './stores/notifications.store';
 import { useFavoritesStore } from './stores/favorites.store';
 import { useSavedSearchesStore } from './stores/savedSearches.store';
 import { useBioStore } from './stores/bio.store';
@@ -147,9 +146,6 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const { user, isLoaded: isUserLoaded } = useUser();
   const setUser = useAuthStore((state) => state.setUser);
   
-  // Notifications state
-  const { notifications, setNotifications, setIsLoading: setNotificationsLoading } = useNotificationsStore();
-  
   // Favorites state
   const { favorites, setFavorites, setIsLoading: setFavoritesLoading } = useFavoritesStore();
   
@@ -169,21 +165,6 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
         id: userId,
         email: user?.primaryEmailAddress?.emailAddress || ''
       });
-      
-      // Load notifications if not in state
-      if (!notifications?.length) {
-        setNotificationsLoading(true);
-        profileService.getNotifications()
-          .then(response => {
-            setNotifications(response.notifications);
-          })
-          .catch(error => {
-            console.error('Error loading notifications:', error);
-          })
-          .finally(() => {
-            setNotificationsLoading(false);
-          });
-      }
       
       // Load favorites if not in state
       if (!favorites?.length) {

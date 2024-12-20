@@ -13,9 +13,7 @@ import {
   FavouritesResponse,
   SavedSearch,
   Horse,
-  Favourite,
-  Notification,
-  NotificationsResponse
+  Favourite
 } from '../types/profile';
 
 interface PresignedUrlRequest {
@@ -145,14 +143,13 @@ class ProfileService {
     });
   }
 
-  async getFavourites(params?: { d?: boolean }): Promise<FavouritesResponse> {
+  async getFavourites(): Promise<FavouritesResponse> {
     return this.retryOperation(async () => {
       try {
-        const queryString = params?.d ? '?d=true' : '';
-        const response = await this.api.get<FavouritesResponse>(`v1/protected/profile/favourites${queryString}`);
+        const response = await this.api.get<FavouritesResponse>('v1/protected/profile/favourites');
         return response.data;
       } catch (error) {
-        console.error('Failed to get favourites:', error);
+        console.error('Error getting favourites:', error);
         throw error;
       }
     });
@@ -161,27 +158,40 @@ class ProfileService {
   async updateFavourites(favourites: Favourite[]): Promise<FavouritesResponse> {
     return this.retryOperation(async () => {
       try {
-        const response = await this.api.put<FavouritesResponse>('v1/protected/profile/favourites', {
-          favourites
-        });
+        const response = await this.api.put<FavouritesResponse>('v1/protected/favourites', { favourites });
         return response.data;
       } catch (error) {
-        console.error('Failed to update favourites:', error);
+        console.error('Error updating favourites:', error);
         throw error;
       }
     });
   }
 
-  async getNotifications(): Promise<NotificationsResponse> {
+  async toggleFavorite(agistmentId: string, currentStatus: boolean): Promise<boolean> {
     return this.retryOperation(async () => {
-      const response = await this.api.get<NotificationsResponse>('v1/protected/profile/notifications');
-      return response.data;
+      try {
+        if (currentStatus) {
+          await this.api.delete(`v1/protected/profile/favourites/${agistmentId}`);
+          return false;
+        } else {
+          await this.api.post(`v1/protected/profile/favourites/${agistmentId}`);
+          return true;
+        }
+      } catch (error) {
+        console.error('Error toggling favorite:', error);
+        throw error;
+      }
     });
   }
 
-  async updateNotifications(notifications: Notification[]): Promise<void> {
+  async deleteFavorite(agistmentId: string): Promise<void> {
     return this.retryOperation(async () => {
-      await this.api.put('v1/protected/profile/notifications', { notifications });
+      try {
+        await this.api.delete(`v1/protected/profile/favourites/${agistmentId}`);
+      } catch (error) {
+        console.error('Error deleting favorite:', error);
+        throw error;
+      }
     });
   }
 
@@ -197,73 +207,16 @@ class ProfileService {
   }
 
   private async waitForAuth() {
-    // Wait for Clerk to be available
-    while (!window.Clerk) {
-      await new Promise(resolve => setTimeout(resolve, 50));
+    if (typeof window === 'undefined' || !window.Clerk) {
+      return;
     }
-    // Wait for session to be initialized
-    await window.Clerk.load();
-  }
 
-  private async getAuthHeaders() {
-    try {
-      await this.waitForAuth();
-      const session = await window.Clerk?.session;
-      if (session) {
-        const token = await session.getToken({ template: 'AgistMe' });
-        if (token) {
-          return {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          };
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to get auth token:', error);
+    const clerk = window.Clerk;
+    if (!clerk.loaded) {
+      await new Promise<void>((resolve) => {
+        clerk.addListener(() => resolve());
+      });
     }
-    return {};
-  }
-
-  async toggleFavorite(agistmentId: string, currentStatus: boolean): Promise<boolean> {
-    try {
-      const authHeaders = await this.getAuthHeaders();
-      
-      if (currentStatus) {
-        // If currently favorited, remove it with DELETE
-        await this.api.delete(
-          `v1/protected/profile/favourites/${agistmentId}`,
-          authHeaders
-        );
-        return false;
-      } else {
-        // If not favorited, add it with POST
-        await this.api.post(
-          `v1/protected/profile/favourites/${agistmentId}`,
-          {},
-          authHeaders
-        );
-        return true;
-      }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
-      throw error;
-    }
-  }
-
-  async deleteFavorite(agistmentId: string): Promise<void> {
-    return this.retryOperation(async () => {
-      try {
-        const authHeaders = await this.getAuthHeaders();
-        await this.api.delete(
-          `v1/protected/profile/favourites/${agistmentId}`,
-          authHeaders
-        );
-      } catch (error) {
-        console.error('Failed to delete favorite:', error);
-        throw error;
-      }
-    });
   }
 
   async uploadProfilePhoto(file: File): Promise<string> {

@@ -18,7 +18,7 @@ import { ConfirmationModal } from '../components/shared/ConfirmationModal';
 import { useAgistor } from '../hooks/useAgistor';
 
 export default function Profile() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn } = useAuth();
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -36,10 +36,10 @@ export default function Profile() {
   const { isAgistor } = useAgistor();
 
   useEffect(() => {
-    if (!isSignedIn && isLoaded) {
+    if (!isSignedIn) {
       navigate('/');
     }
-  }, [isSignedIn, isLoaded, navigate]);
+  }, [isSignedIn, navigate]);
 
   const isLoading = isBioLoading || isFavoritesLoading || isSavedSearchesLoading;
 
@@ -146,14 +146,6 @@ export default function Profile() {
       toast.error('Failed to delete account. Please try again.');
     }
   };
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
-      </div>
-    );
-  }
 
   if (!isSignedIn) {
     navigate('/');
