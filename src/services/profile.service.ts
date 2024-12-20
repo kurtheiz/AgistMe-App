@@ -206,53 +206,30 @@ class ProfileService {
     });
   }
 
-  private async waitForAuth() {
-    if (typeof window === 'undefined' || !window.Clerk) {
-      return;
-    }
-
-    const clerk = window.Clerk;
-    if (!clerk.loaded) {
-      await new Promise<void>((resolve) => {
-        clerk.addListener(() => resolve());
-      });
-    }
-  }
-
   async uploadProfilePhoto(file: File): Promise<string> {
     try {
       // Get presigned URL
-      const filename = `${Date.now()}-${file.name}`;
-      const presignedRequest: PresignedUrlRequest = {
-        filenames: [filename],
-        image_type: 'profile'  // Changed to 'profile' as per API requirements
-      };
-      
-      console.log('Requesting presigned URL...');
-      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', presignedRequest);
-      const presignedData = response.data[0];
-      console.log('Received presigned URL data:', presignedData);
+      const response = await this.api.post<PresignedUrlResponse[]>('v1/protected/upload/presigned', {
+        filenames: [file.name],
+        image_type: 'profile'
+      });
 
-      // Create form data for S3 upload
+      const { url, fields, s3Key } = response.data[0];
+
+      // Create form data
       const formData = new FormData();
-      Object.entries(presignedData.fields).forEach(([key, value]) => {
+      Object.entries(fields).forEach(([key, value]) => {
         formData.append(key, value);
       });
       formData.append('file', file);
 
-      console.log('Uploading to S3...');
       // Upload to S3
-      const uploadResponse = await fetch(presignedData.url, {
+      await fetch(url, {
         method: 'POST',
         body: formData
       });
 
-      if (!uploadResponse.ok) {
-        throw new Error(`Failed to upload to S3: ${uploadResponse.statusText}`);
-      }
-
-      console.log('Upload successful');
-      return presignedData.publicUrl;
+      return s3Key;
     } catch (error) {
       console.error('Failed to upload profile photo:', error);
       throw error;

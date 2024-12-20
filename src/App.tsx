@@ -169,7 +169,7 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
       // Load favorites if not in state
       if (!favorites?.length) {
         setFavoritesLoading(true);
-        profileService.getFavourites({ d: true })
+        profileService.getFavourites()
           .then(response => {
             setFavorites(Array.isArray(response) ? response : response.favourites);
           })
