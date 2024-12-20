@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client'
 import React from 'react'; // Add React import
 import './index.css'
 import { AwsRum, AwsRumConfig } from 'aws-rum-web';
+import App from './App'; // Add App import
 
 try {
   const config: AwsRumConfig = {
@@ -42,9 +43,8 @@ const root = ReactDOM.createRoot(container);
 
 // Initial render
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+      <App />
+  
 );
 
 // Handle HMR
