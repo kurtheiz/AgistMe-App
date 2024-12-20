@@ -141,6 +141,7 @@ export interface AgistmentResponse {
   socialMedia: SocialMediaLink[];
   status: 'PUBLISHED' | 'HIDDEN' | 'REMOVED';
   urgentAvailability: boolean;
+  lastUpdateDescription?: string;
   isFavourite: boolean;
   distance?: number;
   distanceFrom?: string;
