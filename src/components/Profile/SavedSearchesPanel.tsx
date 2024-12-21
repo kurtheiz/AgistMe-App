@@ -45,15 +45,22 @@ export function SavedSearchesPanel({
                   <div className="space-y-4">
                     {savedSearches.map((search, index) => {
                       const searchCriteria = search.searchCriteria;
-                      const location = searchCriteria.suburbs?.[0];
+                      const locations = searchCriteria.suburbs || [];
                       let locationDisplay = 'Any location';
                       
-                      if (location?.locationType) {
-                        if (location.locationType === 'SUBURB') {
-                          locationDisplay = `${location.suburb}, ${location.state}`;
-                        } else if (location.locationType === 'REGION') {
-                          locationDisplay = `${location.region}, ${location.state}`;
-                        }
+                      if (locations.length > 0) {
+                        const locationStrings = locations.map(location => {
+                          if (location.locationType === 'SUBURB') {
+                            return `${location.suburb}, ${location.state}`;
+                          } else if (location.locationType === 'REGION') {
+                            return `${location.region}, ${location.state}`;
+                          } else if (location.locationType === 'STATE') {
+                            return location.state;
+                          }
+                          return '';
+                        }).filter(loc => loc !== '');
+
+                        locationDisplay = locationStrings.join(' | ');
                         
                         if (searchCriteria.radius && searchCriteria.radius > 0) {
                           locationDisplay += ` within ${searchCriteria.radius}km`;

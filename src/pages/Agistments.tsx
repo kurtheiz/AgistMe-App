@@ -43,6 +43,31 @@ const Agistments = () => {
 
   const queryClient = useQueryClient();
 
+  const getLocationDisplayText = (criteria: SearchRequest | null) => {
+    if (!criteria?.suburbs?.[0]) return '';
+    
+    const firstLocation = criteria.suburbs[0];
+    let locationText = '';
+
+    if (firstLocation.locationType === 'STATE') {
+      locationText = firstLocation.state;
+    } else if (firstLocation.locationType === 'REGION') {
+      locationText = `${firstLocation.region}, ${firstLocation.state}`;
+    } else if (firstLocation.locationType === 'SUBURB') {
+      locationText = `${firstLocation.suburb}, ${firstLocation.state}`;
+    }
+
+    if (criteria.radius && criteria.radius > 0) {
+      locationText += ` (${criteria.radius}km radius)`;
+    }
+
+    if (criteria.suburbs.length > 1) {
+      locationText += ' and other locations';
+    }
+
+    return locationText;
+  };
+
   // Save scroll position when unmounting
   useEffect(() => {
     return () => {
@@ -78,6 +103,8 @@ const Agistments = () => {
       toast.error('Please sign in to save searches');
       return;
     }
+    const locationText = getLocationDisplayText(currentCriteria);
+    console.log('Location text for save:', locationText);
     setIsSaveSearchModalOpen(true);
   };
 
@@ -177,7 +204,11 @@ const Agistments = () => {
           ) : (
             <div className="pb-8 pt-4 md:px-4">
               <div className="mb-4 text-sm text-neutral-600 px-4">
-                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'} found
+                {(() => {
+                  const count = agistments.length;
+                  const locationText = getLocationDisplayText(currentCriteria);
+                  return `${count} ${count === 1 ? 'agistment' : 'agistments'} found${locationText ? ` in ${locationText}` : ''}`;
+                })()}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 {agistments.map((agistment) => (
@@ -224,6 +255,7 @@ const Agistments = () => {
         onClose={() => setIsSaveSearchModalOpen(false)}
         onSave={handleSaveSearchComplete}
         searchCriteria={currentCriteria}
+        initialName={getLocationDisplayText(currentCriteria)}
       />
     </>
   );
