@@ -256,6 +256,7 @@ const Agistments = () => {
         onSave={handleSaveSearchComplete}
         searchCriteria={currentCriteria}
         initialName={getLocationDisplayText(currentCriteria)}
+        initialIsDirty={true}
       />
     </>
   );
