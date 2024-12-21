@@ -3,7 +3,7 @@ import { Modal } from '../shared/Modal';
 import { AgistmentResponse } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
-import { Loader2, Brain, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface Props {
   agistment: AgistmentResponse;
@@ -22,7 +22,6 @@ export function AgistmentFromTextModal({
 }: Props) {
   const [description, setDescription] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [highlightedWordIndex, setHighlightedWordIndex] = useState(-1);
   const [isComplete, setIsComplete] = useState(false);
   const [updateDescription, setUpdateDescription] = useState<string | undefined>();
   const [lastProcessedDescription, setLastProcessedDescription] = useState('');
@@ -30,13 +29,10 @@ export function AgistmentFromTextModal({
   const changesRef = useRef<HTMLDivElement>(null);
 
   const processingStates = [
-    'Analyzing text structure...',
-    'Extracting key information...',
-    'Processing property details...',
-    'Identifying amenities...',
-    'Validating data format...',
-    'Generating listing updates...',
-    'Optimizing content...',
+    'Analyzing text...',
+    'Extracting details...',
+    'Processing content...',
+    'Finalizing updates...',
   ];
 
   useEffect(() => {
@@ -69,85 +65,34 @@ export function AgistmentFromTextModal({
     }
   }, [isComplete]);
 
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    if (isProcessing && description) {
-      const sentences = description.split(/[.!?]+/).filter(Boolean);
-      intervalId = setInterval(() => {
-        setHighlightedWordIndex(prev => (prev + 1) % sentences.length);
-      }, 1000);
-    } else {
-      setHighlightedWordIndex(-1);
-    }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isProcessing, description]);
-
   const renderHighlightedText = () => {
     if (!isProcessing) return description;
-    const sentences = description.split(/[.!?]+/).filter(Boolean);
     
     return (
-      <div className="font-mono bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-lg shadow-xl border border-slate-700">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Brain className="w-5 h-5 text-primary-400 animate-pulse" />
-              <span className="text-primary-400 text-sm font-semibold">AI Analysis in Progress</span>
-            </div>
-            <div className="flex gap-1">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
-                  style={{ animationDelay: `${i * 200}ms` }}
-                />
-              ))}
-            </div>
+      <div className="bg-white border border-neutral-200 p-6 rounded-lg shadow-sm">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex items-center gap-3">
+            <Loader2 className="w-5 h-5 text-primary-600 animate-spin" />
+            <span className="text-neutral-600 text-sm font-medium">
+              {processingStates[processingStatus]}
+            </span>
           </div>
-
-          <div className="space-y-3">
-            {sentences.map((sentence, index) => (
+          
+          <div className="w-full max-w-xs">
+            <div className="h-1 bg-neutral-100 rounded-full overflow-hidden">
               <div
-                key={index}
-                className={`transition-all duration-500 p-3 rounded-lg ${
-                  index === highlightedWordIndex
-                    ? 'bg-primary-500/20 border border-primary-500/30'
-                    : index < highlightedWordIndex
-                    ? 'bg-slate-800/50 text-slate-400'
-                    : 'bg-slate-800/20'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center">
-                    {index < highlightedWordIndex ? (
-                      <Sparkles className="w-4 h-4 text-primary-400" />
-                    ) : index === highlightedWordIndex ? (
-                      <Loader2 className="w-4 h-4 text-primary-400 animate-spin" />
-                    ) : (
-                      <span className="text-xs text-slate-500">{index + 1}</span>
-                    )}
-                  </div>
-                  <span className={index === highlightedWordIndex ? 'text-primary-100' : ''}>
-                    {sentence.trim()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-2">
-            <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-primary-400 to-primary-600 transition-all duration-500 animate-pulse"
-                style={{ width: '100%' }}
+                className="h-full bg-primary-600 transition-all duration-500"
+                style={{ 
+                  width: `${((processingStatus + 1) / processingStates.length) * 100}%`,
+                  transition: 'width 2s ease-in-out'
+                }}
               />
             </div>
-            <div className="flex justify-between mt-2 text-xs text-slate-400">
-              <span className="animate-fade-in-out">{processingStates[processingStatus]}</span>
-            </div>
           </div>
+
+          <p className="text-sm text-neutral-500">
+            Please wait while we process your content...
+          </p>
         </div>
       </div>
     );
