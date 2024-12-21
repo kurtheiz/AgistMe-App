@@ -54,7 +54,7 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
     <div>
       <div className="space-y-3">
         <p className="text-neutral-700">
-          This property offers <span className="font-semibold text-neutral-900">{paddock.totalPaddocks}</span> {type.toLowerCase()} {paddock.totalPaddocks === 1 ? 'paddock' : 'paddocks'} that can accommodate up to <span className="font-semibold text-neutral-900">{paddock.total}</span> horses.
+          This property offers <span className="font-semibold text-neutral-900">{paddock.totalPaddocks}</span> {type.toLowerCase()} {paddock.totalPaddocks === 1 ? 'paddock' : 'paddocks'} that can accommodate up to <span className="font-semibold text-neutral-900">{paddock.total}</span> {paddock.total === 1 ? 'horse' : 'horses'}.
         </p>
 
         {paddock.totalPaddocks > 0 && (

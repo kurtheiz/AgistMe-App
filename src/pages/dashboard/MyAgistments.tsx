@@ -92,15 +92,15 @@ export function MyAgistments() {
       const updatedAgistments = await agistmentService.getMyAgistments();
       setAgistments(updatedAgistments.results || []);
 
-      toast.success('Agistment updated successfully');
+      toast.success('Subscription cancelled successfully');
 
       // Only close modal if keepModalOpen is false
       if (!keepModalOpen) {
         setEditModal(null);
       }
     } catch (error) {
-      console.error('Error updating agistment:', error);
-      toast.error('Failed to update agistment');
+      console.error('Error cancelling subscription:', error);
+      toast.error('Failed to cancel subscription');
     } finally {
       setIsUpdating(false);
     }

@@ -26,14 +26,17 @@ export default function NumberStepper({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const longPressRef = useRef(false);
   const valueRef = useRef(value);
-  
+  const lastTriggerRef = useRef(0);
+
   // Keep valueRef in sync with value prop
   useEffect(() => {
     valueRef.current = value;
   }, [value]);
-  
+
   const startCounting = useCallback((increment: boolean) => {
-    if (intervalRef.current || disabled) return;
+    const now = Date.now();
+    if (intervalRef.current || disabled || now - lastTriggerRef.current < 200) return;
+    lastTriggerRef.current = now;
     
     // Initial change
     const newValue = valueRef.current + (increment ? step : -step);
@@ -59,7 +62,7 @@ export default function NumberStepper({
     
     longPressRef.current = true;
   }, [step, speed, min, max, onChange, disabled]);
-  
+
   const stopCounting = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -68,22 +71,34 @@ export default function NumberStepper({
     setSpeed(1);
     longPressRef.current = false;
   }, []);
-  
+
+  const handleInteractionStart = useCallback((increment: boolean) => {
+    startCounting(increment);
+  }, [startCounting]);
+
+  const handleInteractionEnd = useCallback(() => {
+    stopCounting();
+  }, [stopCounting]);
+
   const handleMouseDown = useCallback((increment: boolean) => {
-    startCounting(increment);
-  }, [startCounting]);
-  
+    if (!disabled) {
+      handleInteractionStart(increment);
+    }
+  }, [handleInteractionStart, disabled]);
+
   const handleMouseUp = useCallback(() => {
-    stopCounting();
-  }, [stopCounting]);
-  
+    handleInteractionEnd();
+  }, [handleInteractionEnd]);
+
   const handleTouchStart = useCallback((_: React.TouchEvent, increment: boolean) => {
-    startCounting(increment);
-  }, [startCounting]);
-  
+    if (!disabled) {
+      handleInteractionStart(increment);
+    }
+  }, [handleInteractionStart, disabled]);
+
   const handleTouchEnd = useCallback(() => {
-    stopCounting();
-  }, [stopCounting]);
+    handleInteractionEnd();
+  }, [handleInteractionEnd]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(formatValue(value));
@@ -131,10 +146,10 @@ export default function NumberStepper({
           onMouseDown={() => !disabled && value > min && handleMouseDown(false)}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          onTouchStart={(e) => !disabled && value > min && handleTouchStart(e, false)}
+          onTouchStart={() => !disabled && value > min && handleTouchStart({} as React.TouchEvent, false)}
           onTouchEnd={handleTouchEnd}
           onTouchCancel={handleTouchEnd}
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'manipulation' }}
         >
           <MinusIcon className="h-5 w-5" />
         </button>
@@ -165,10 +180,10 @@ export default function NumberStepper({
           onMouseDown={() => !disabled && value < max && handleMouseDown(true)}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          onTouchStart={(e) => !disabled && value < max && handleTouchStart(e, true)}
+          onTouchStart={() => !disabled && value < max && handleTouchStart({} as React.TouchEvent, true)}
           onTouchEnd={handleTouchEnd}
           onTouchCancel={handleTouchEnd}
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'manipulation' }}
         >
           <PlusIcon className="h-5 w-5" />
         </button>

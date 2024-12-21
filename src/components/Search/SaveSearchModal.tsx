@@ -10,6 +10,7 @@ interface SaveSearchModalProps {
   existingId?: string;
   initialName?: string;
   initialNotifications?: boolean;
+  initialIsDirty?: boolean;
   title?: string;
   onSave: (name: string, enableNotifications: boolean) => Promise<void>;
 }
@@ -20,28 +21,31 @@ export function SaveSearchModal({
   searchCriteria,
   initialName = '',
   initialNotifications = false,
+  initialIsDirty = false,
   title = 'Save Search',
   onSave
 }: SaveSearchModalProps) {
   const [name, setName] = useState(initialName);
   const [enableNotifications, setEnableNotifications] = useState(initialNotifications);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
+  const [isDirty, setIsDirty] = useState(initialIsDirty);
 
   useEffect(() => {
     if (isOpen) {
       setName(initialName);
       setEnableNotifications(initialNotifications);
-      setIsDirty(initialName !== '');
+      setIsDirty(initialIsDirty);
     }
-  }, [isOpen, initialName, initialNotifications]);
+  }, [isOpen, initialName, initialNotifications, initialIsDirty]);
 
   // Track form changes
   useEffect(() => {
-    const isNameDirty = name !== initialName;
-    const isNotificationsDirty = enableNotifications !== initialNotifications;
-    setIsDirty(isNameDirty || isNotificationsDirty);
-  }, [name, enableNotifications, initialName, initialNotifications]);
+    if (!initialIsDirty) {
+      const isNameDirty = name !== initialName;
+      const isNotificationsDirty = enableNotifications !== initialNotifications;
+      setIsDirty(isNameDirty || isNotificationsDirty);
+    }
+  }, [name, enableNotifications, initialName, initialNotifications, initialIsDirty]);
 
   const handleSave = async () => {
     if (!name.trim() || !searchCriteria) return;
