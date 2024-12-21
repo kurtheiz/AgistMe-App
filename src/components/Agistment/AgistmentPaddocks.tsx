@@ -99,7 +99,7 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
             <>Please contact us for pricing details.</>
           ) : (
             <>
-              Agistment is <span className="font-semibold text-neutral-900">${formatCurrency(paddock.weeklyPrice)}</span> per week per horse (approximately <span className="font-semibold text-neutral-900">${formatCurrency(monthlyPrice)}</span> per month).
+              Agistment is <span className="font-semibold text-neutral-900">${formatCurrency(Number(paddock.weeklyPrice))}</span> per week per horse (approximately <span className="font-semibold text-neutral-900">${formatCurrency(Number(monthlyPrice))}</span> per month).
             </>
           )}
         </p>

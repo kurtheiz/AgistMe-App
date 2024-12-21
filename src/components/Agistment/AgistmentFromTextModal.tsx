@@ -3,7 +3,7 @@ import { Modal } from '../shared/Modal';
 import { AgistmentResponse } from '../../types/agistment';
 import toast from 'react-hot-toast';
 import { agistmentService } from '../../services/agistment.service';
-import { Loader2, Brain, Sparkles, Code2 } from 'lucide-react';
+import { Loader2, Brain, Sparkles } from 'lucide-react';
 
 interface Props {
   agistment: AgistmentResponse;

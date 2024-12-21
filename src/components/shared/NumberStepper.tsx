@@ -77,11 +77,11 @@ export default function NumberStepper({
     stopCounting();
   }, [stopCounting]);
   
-  const handleTouchStart = useCallback((e: React.TouchEvent, increment: boolean) => {
+  const handleTouchStart = useCallback((_: React.TouchEvent, increment: boolean) => {
     startCounting(increment);
   }, [startCounting]);
   
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+  const handleTouchEnd = useCallback(() => {
     stopCounting();
   }, [stopCounting]);
 
