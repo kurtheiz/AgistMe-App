@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import { AwsRum, AwsRumConfig } from 'aws-rum-web';
 import App from './App';
+import { StrictMode } from 'react';
 
 // Only initialize RUM in production
 if (import.meta.env.PROD) {
@@ -46,8 +47,9 @@ const root = ReactDOM.createRoot(container);
 
 // Initial render
 root.render(
+  <StrictMode>
       <App />
-  
+  </StrictMode>
 );
 
 // Handle HMR

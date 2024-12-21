@@ -359,6 +359,36 @@ body {
   }
 }
 
+@layer utilities {
+  @keyframes scanning-progress {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(200%);
+    }
+  }
+
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    20%, 80% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+  }
+
+  .animate-fade-in-out {
+    animation: fade-in-out 2s ease-in-out;
+  }
+}
+
 /* Remove focus outline from non-interactive elements */
 *:not(button):not(input):not(select):not(textarea):not(a):not([tabindex]):not([contenteditable="true"]):not([role="button"]):not(.cursor-pointer):focus {
   outline: none !important;

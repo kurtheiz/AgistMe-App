@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns';
 import { AgistmentResponse, PaddockBase } from '../../types/agistment';
-import { calculateMonthlyPrice } from '../../utils/prices';
+import { calculateMonthlyPrice, formatCurrency } from '../../utils/prices';
 
 interface AgistmentPaddocksProps {
   paddocks: AgistmentResponse['paddocks'];
@@ -99,7 +99,7 @@ const formatPaddockInfo = (paddock: PaddockBase, type: string) => {
             <>Please contact us for pricing details.</>
           ) : (
             <>
-              Agistment is <span className="font-semibold text-neutral-900">${paddock.weeklyPrice}</span> per week per horse (approximately <span className="font-semibold text-neutral-900">${monthlyPrice}</span> per month).
+              Agistment is <span className="font-semibold text-neutral-900">${formatCurrency(Number(paddock.weeklyPrice))}</span> per week per horse (approximately <span className="font-semibold text-neutral-900">${formatCurrency(Number(monthlyPrice))}</span> per month).
             </>
           )}
         </p>

@@ -14,10 +14,10 @@ export function formatCurrency(value: number): string {
  * Calculates the monthly price from a weekly price
  * Assumes 52 weeks per year divided by 12 months (4.333... weeks per month)
  */
-export const calculateMonthlyPrice = (weeklyPrice: number | null | undefined): number => {
-    if (!weeklyPrice) return 0;
+export const calculateMonthlyPrice = (weeklyPrice: number | null | undefined): string => {
+    if (!weeklyPrice) return '0';
     const weeksPerMonth = 52 / 12; // approximately 4.333 weeks per month
-    return Math.round(weeklyPrice * weeksPerMonth);
+    return formatCurrency(Math.round(weeklyPrice * weeksPerMonth));
 };
 
 export class PriceUtils {
@@ -28,7 +28,7 @@ export class PriceUtils {
     // Get paddock types to check - either from search criteria or all types
     const typesToCheck = searchCriteria?.paddockTypes?.length 
       ? searchCriteria.paddockTypes 
-      : ['Private', 'Shared', 'Group'];
+      : ['Private', 'Shared', 'Group']
 
     // Count how many paddock types have spots available
     const availablePaddockCount = !searchCriteria?.paddockTypes?.length ? 
@@ -65,7 +65,7 @@ export class PriceUtils {
       return { price: 'Contact for price', subtext: '' };
     }
 
-    const subtext = 'per week';
+    const subtext = 'per week'
 
     // If search criteria exists and only one paddock type, show exact price
     if (searchCriteria?.paddockTypes?.length === 1) {

@@ -18,11 +18,40 @@ export default {
           '50%': { transform: 'translate(5px, 15px)' },
           '75%': { transform: 'translate(-10px, 5px)' }
         },
+        'gradient-x': {
+          '0%, 100%': { 'background-position': '200% 0' },
+          '50%': { 'background-position': '0 0' },
+        },
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' }
+        },
+        'terminal-type': {
+          '0%': { opacity: '0', transform: 'translateX(-10px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' }
+        },
+        'terminal-blink': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' }
+        },
+        'scanning-cursor': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' }
+        }
       },
       animation: {
         'moveLeftToRight': 'moveLeftToRight 8s linear infinite',
         'searchMove': 'searchMove 4s ease-in-out infinite',
         'float': 'float 6s ease-in-out infinite',
+        'gradient-x': 'gradient-x 3s ease infinite',
+        'fade-in': 'fade-in 0.5s ease-out forwards',
+        'shimmer': 'shimmer 2s infinite',
+        'terminal-type': 'terminal-type 0.2s ease-out forwards',
+        'terminal-blink': 'terminal-blink 1s step-end infinite',
+        'scanning-cursor': 'scanning-cursor 2s ease-in-out infinite'
       },
       colors: {
         // Primary colors - Forest Green

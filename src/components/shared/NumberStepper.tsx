@@ -77,13 +77,11 @@ export default function NumberStepper({
     stopCounting();
   }, [stopCounting]);
   
-  const handleTouchStart = useCallback((e: React.TouchEvent, increment: boolean) => {
-    e.preventDefault(); // Prevent mouse events from firing
+  const handleTouchStart = useCallback((_: React.TouchEvent, increment: boolean) => {
     startCounting(increment);
   }, [startCounting]);
   
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    e.preventDefault(); // Prevent mouse events from firing
+  const handleTouchEnd = useCallback(() => {
     stopCounting();
   }, [stopCounting]);
 
@@ -127,7 +125,7 @@ export default function NumberStepper({
       <div className="flex items-center justify-center space-x-4">
         <button
           type="button"
-          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none
+          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none select-none
             ${disabled || value <= min ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           disabled={disabled || value <= min}
           onMouseDown={() => !disabled && value > min && handleMouseDown(false)}
@@ -136,6 +134,7 @@ export default function NumberStepper({
           onTouchStart={(e) => !disabled && value > min && handleTouchStart(e, false)}
           onTouchEnd={handleTouchEnd}
           onTouchCancel={handleTouchEnd}
+          style={{ touchAction: 'none' }}
         >
           <MinusIcon className="h-5 w-5" />
         </button>
@@ -160,7 +159,7 @@ export default function NumberStepper({
         )}
         <button
           type="button"
-          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none
+          className={`w-10 h-10 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 touch-none select-none
             ${disabled || value >= max ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           disabled={disabled || value >= max}
           onMouseDown={() => !disabled && value < max && handleMouseDown(true)}
@@ -169,6 +168,7 @@ export default function NumberStepper({
           onTouchStart={(e) => !disabled && value < max && handleTouchStart(e, true)}
           onTouchEnd={handleTouchEnd}
           onTouchCancel={handleTouchEnd}
+          style={{ touchAction: 'none' }}
         >
           <PlusIcon className="h-5 w-5" />
         </button>

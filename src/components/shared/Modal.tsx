@@ -18,6 +18,7 @@ export interface ModalProps {
   actionLabel?: string;
   cancelLabel?: string;
   disableOutsideClick?: boolean;
+  disableCancel?: boolean;
 }
 
 const sizeClasses = {
@@ -47,6 +48,7 @@ export function Modal({
   actionLabel,
   cancelLabel,
   disableOutsideClick = false,
+  disableCancel,
 }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
@@ -162,8 +164,9 @@ export function Modal({
                   <div className="border-t border-neutral-200 bg-white px-4 py-3 sm:px-6 flex justify-end gap-3">
                     <button
                       type="button"
-                      className="flex-1 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 border border-neutral-300 rounded-lg"
+                      className="flex-1 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 border border-neutral-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={onClose}
+                      disabled={disableCancel}
                     >
                       {cancelLabel || 'Cancel'}
                     </button>

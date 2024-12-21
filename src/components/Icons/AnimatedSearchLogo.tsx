@@ -16,7 +16,7 @@ export const AnimatedSearchLogo = ({ className = '' }: IconProps) => {
             
             {/* AgistMe Logo in the center */}
             <image
-              href="/AgistMeLogo.svg"
+              href="/amlogo.png"
               x="30"
               y="30"
               width="40"
