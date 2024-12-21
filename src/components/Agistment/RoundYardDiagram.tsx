@@ -3,9 +3,9 @@ interface RoundYardDiagramProps {
 }
 
 export const RoundYardDiagram: React.FC<RoundYardDiagramProps> = ({ diameter }) => {
-  // If diameter is 0, use default value but don't show dimensions
-  const isDefault = diameter === 0;
-  const actualDiameter = isDefault ? 30 : diameter;
+  // If diameter is 0 or null/undefined, use default value but don't show dimensions
+  const isDefault = !diameter || diameter === 0;
+  const actualDiameter = isDefault ? 20 : diameter;
 
   // Calculate dimensions based on 30m reference
   const maxDiameter = 150; // Maximum diameter in pixels
