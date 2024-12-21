@@ -32,7 +32,7 @@ export function SaveSearchModal({
     if (isOpen) {
       setName(initialName);
       setEnableNotifications(initialNotifications);
-      setIsDirty(false);
+      setIsDirty(initialName !== '');
     }
   }, [isOpen, initialName, initialNotifications]);
 
@@ -44,7 +44,7 @@ export function SaveSearchModal({
   }, [name, enableNotifications, initialName, initialNotifications]);
 
   const handleSave = async () => {
-    if (!name.trim() || !isDirty || !searchCriteria) return;
+    if (!name.trim() || !searchCriteria) return;
     
     setIsUpdating(true);
     try {
@@ -65,7 +65,7 @@ export function SaveSearchModal({
       size="md"
       isUpdating={isUpdating}
       onAction={handleSave}
-      disableAction={!name.trim() || !isDirty || !searchCriteria}
+      disableAction={!isDirty || !name.trim() || !searchCriteria}
     >
       <div className="space-y-6">
         <div>
