@@ -5,6 +5,7 @@ import { useAgistor } from '../hooks/useAgistor';
 import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
 import { Search, SquareMenu as Menu } from 'lucide-react';
+import { useEnquiries } from '../hooks/useEnquiries';
 
 export const Header = () => {
   const { user, isSignedIn } = useUser();
@@ -16,6 +17,9 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { setUser, clearAuth } = useAuthStore();
   const { setIsSearchModalOpen } = useSearchStore();
+  const { data: enquiriesData } = useEnquiries();
+
+  const unreadCount = enquiriesData?.enquiries.filter(e => !e.read).length || 0;
 
   useEffect(() => {
     if (isSignedIn && user) {
@@ -105,6 +109,11 @@ export const Header = () => {
                     className="text-base sm:text relative"
                   >
                     Agistor Dashboard
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 )}
               </nav>
@@ -119,6 +128,11 @@ export const Header = () => {
                   className="md:hidden relative"
                 >
                   <Menu className="w-6 h-6" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               )}
               {/* Search Icon */}
@@ -203,10 +217,16 @@ export const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Agistor Dashboard
+              {unreadCount > 0 && (
+                <span className="absolute top-2 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
             </Link>
           )}
         </nav>
       </div>
     </>
+
   );
 };
