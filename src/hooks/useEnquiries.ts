@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { enquiriesService } from '../services/enquiries.service';
-import { EnquiryRequest, EnquiryStatusUpdate, EnquiriesResponse } from '../types/enquiry';
+import { EnquiryRequest, EnquiryStatusUpdate, EnquiriesResponse, EnquiryResponse } from '../types/enquiry';
 import toast from 'react-hot-toast';
 
 export const useUnreadEnquiriesCount = () => {
@@ -54,12 +54,16 @@ export const useUpdateEnquiryStatus = () => {
         });
 
         // Also update agistment-enquiries if they exist
-        const agistmentEnquiriesQueries = queryClient.getQueriesData<EnquiriesResponse>(['agistment-enquiries']);
-        agistmentEnquiriesQueries.forEach(([queryKey, data]) => {
+        const agistmentEnquiriesQueries = queryClient.getQueriesData<EnquiriesResponse>({ 
+          queryKey: ['agistment-enquiries'],
+          exact: true 
+        });
+        agistmentEnquiriesQueries.forEach(([queryKey]) => {
+          const data = queryClient.getQueryData<EnquiriesResponse>(queryKey);
           if (data?.enquiries) {
-            queryClient.setQueryData(queryKey, {
+            queryClient.setQueryData<EnquiriesResponse>(queryKey, {
               ...data,
-              enquiries: data.enquiries.map(enquiry =>
+              enquiries: data.enquiries.map((enquiry: EnquiryResponse) =>
                 enquiry.id === enquiryId ? { ...enquiry, ...update } : enquiry
               )
             });
@@ -79,7 +83,7 @@ export const useUpdateEnquiryStatus = () => {
       }
       toast.success(message);
     },
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       // Revert back to the previous value if there's an error
       if (context?.previousEnquiries) {
         queryClient.setQueryData(['enquiries'], context.previousEnquiries);
@@ -91,7 +95,7 @@ export const useUpdateEnquiryStatus = () => {
       // Always refetch after error or success to ensure we're up to date
       queryClient.invalidateQueries({ queryKey: ['enquiries'] });
       queryClient.invalidateQueries({ 
-        predicate: (query) => query.queryKey[0] === 'agistment-enquiries'
+        queryKey: ['agistment-enquiries']
       });
     }
   });

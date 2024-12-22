@@ -125,7 +125,7 @@ const Agistments = () => {
 
   const getLocationTextForSave = (criteria: SearchRequest | null) => {
     if (!criteria) return '';
-    const locationText = criteria.location?.text || '';
+    const locationText = criteria.suburbs.map(s => s.suburb).join(', ');
     return locationText;
   };
 
@@ -134,7 +134,6 @@ const Agistments = () => {
       toast.error('Please sign in to save searches');
       return;
     }
-    const locationText = getLocationTextForSave(currentCriteria);
     setIsSaveSearchModalOpen(true);
   };
 

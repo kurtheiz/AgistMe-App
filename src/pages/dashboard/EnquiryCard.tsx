@@ -1,7 +1,6 @@
 import { EnquiryResponse } from '../../types/enquiry';
 import { Mail, Phone, MessageCircle, User2, Calendar, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
 import { Disclosure, Menu } from '@headlessui/react';
-import { useEnquiriesStore } from '../../stores/enquiries.store';
 import { useUpdateEnquiryStatus } from '../../hooks/useEnquiries';
 
 const calculateAge = (dateOfBirth: string | undefined): number | null => {

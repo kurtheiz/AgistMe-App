@@ -10,7 +10,6 @@ import Profile from './pages/Profile';
 import { Dashboard } from './pages/Dashboard';
 import { MyAgistments } from './pages/dashboard/MyAgistments';
 import { QueryProvider } from './providers/QueryProvider';
-import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ErrorPage } from './components/ErrorPage';
@@ -28,7 +27,7 @@ import { enquiriesService } from './services/enquiries.service';
 import EnquiriesPage from './pages/dashboard/Enquiries';
 import PreviewAgistmentDetail from './pages/dashboard/PreviewAgistmentDetail';
 import { useEffect } from 'react';
-import React from 'react'; // Added React import
+import React from 'react'; 
 import { useQueryClient } from '@tanstack/react-query';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -150,8 +149,9 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
   
   // Store states
   const { setEnquiries, setIsLoading: setEnquiriesLoading } = useEnquiriesStore();
-  const { savedSearches, setSavedSearches, setIsLoading: setSavedSearchesLoading } = useSavedSearchesStore();
-  const { bio, setBio, setIsLoading: setBioLoading } = useBioStore();
+  const { setSavedSearches, setIsLoading: setSavedSearchesLoading } = useSavedSearchesStore();
+  const { setBio, setIsLoading: setBioLoading } = useBioStore();
+  const { setFavorites, setIsLoading: setFavoritesLoading } = useFavoritesStore();
 
   useEffect(() => {
     // Only proceed if both auth and user data are loaded and we have a userId
@@ -199,6 +199,19 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
           } finally {
             setBioLoading(false);
           }
+        })(),
+
+        // Load favorites
+        (async () => {
+          setFavoritesLoading(true);
+          try {
+            const response = await profileService.getFavourites();
+            setFavorites(Array.isArray(response) ? response : response.favourites);
+          } catch (error) {
+            console.error('Error loading favorites:', error);
+          } finally {
+            setFavoritesLoading(false);
+          }
         })()
       );
 
@@ -227,7 +240,7 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
     }
   }, [isLoaded, isUserLoaded, userId, user, setUser, queryClient,
       setSavedSearches, setSavedSearchesLoading, setBio, setBioLoading,
-      setEnquiries, setEnquiriesLoading]);
+      setEnquiries, setEnquiriesLoading, setFavorites, setFavoritesLoading]);
 
   return <>{children}</>;
 };
@@ -240,7 +253,6 @@ function App() {
           <div className="min-h-screen bg-neutral-50">
             <ErrorBoundary>
               <RouterProvider router={router} />
-              {/* <Toaster position="top-center" /> */}
             </ErrorBoundary>
           </div>
         </AuthInitializer>

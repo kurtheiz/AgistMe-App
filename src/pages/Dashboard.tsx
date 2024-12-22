@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { List, MessageSquare, Calendar, Fence, Users, DollarSign, ClipboardList } from 'lucide-react';
+import { List, MessageSquare } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
-import { ListingTypeBadge } from '../components/ListingTypeBadge';
 import { useUnreadEnquiriesCount } from '../hooks/useEnquiries';
 
 export const Dashboard = () => {
