@@ -168,7 +168,10 @@ const Agistments = () => {
           <div className="flex justify-between w-full">
             <div className="flex items-center gap-2">
               <Menu as="div" className="relative">
-                <Menu.Button className="button-toolbar">
+                <Menu.Button 
+                  className={`button-toolbar ${(!searchHash || agistments.length === 0) && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+                  disabled={!searchHash || agistments.length === 0}
+                >
                   {sortOption === 'default' && <MapPin className="w-4 h-4" />}
                   {sortOption === 'low-to-high' && <ArrowUpNarrowWide className="w-4 h-4" />}
                   {sortOption === 'high-to-low' && <ArrowDownNarrowWide className="w-4 h-4" />}
@@ -228,8 +231,6 @@ const Agistments = () => {
                   </div>
                 </Menu.Items>
               </Menu>
-            </div>
-            <div className="flex gap-2">
               <button
                 onClick={handleSaveSearch}
                 disabled={!searchHash}
@@ -237,6 +238,8 @@ const Agistments = () => {
               >
                 <span>Save Search</span>
               </button>
+            </div>
+            <div className="flex gap-2">
               <button
                 onClick={() => refetch()}
                 disabled={!searchHash || isFetching}

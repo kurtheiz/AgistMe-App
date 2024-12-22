@@ -92,7 +92,7 @@ class EnquiriesService {
   async updateEnquiryStatus(enquiryId: string, update: EnquiryStatusUpdate): Promise<void> {
     return this.retryOperation(async () => {
       try {
-        await this.api.put(`v1/protected/enquiries/${enquiryId}/status`, update);
+        await this.api.patch(`v1/protected/enquiries/${enquiryId}`, update);
       } catch (error) {
         console.error('Failed to update enquiry status:', error);
         throw error;

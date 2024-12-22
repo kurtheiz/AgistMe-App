@@ -29,6 +29,7 @@ import EnquiriesPage from './pages/dashboard/Enquiries';
 import PreviewAgistmentDetail from './pages/dashboard/PreviewAgistmentDetail';
 import { useEffect } from 'react';
 import React from 'react'; // Added React import
+import { useQueryClient } from '@tanstack/react-query';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -145,18 +146,12 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const { isLoaded, userId } = useAuth();
   const { user, isLoaded: isUserLoaded } = useUser();
   const setUser = useAuthStore((state) => state.setUser);
+  const queryClient = useQueryClient();
   
-  // Favorites state
-  const { favorites, setFavorites, setIsLoading: setFavoritesLoading } = useFavoritesStore();
-  
-  // Saved searches state
+  // Store states
+  const { setEnquiries, setIsLoading: setEnquiriesLoading } = useEnquiriesStore();
   const { savedSearches, setSavedSearches, setIsLoading: setSavedSearchesLoading } = useSavedSearchesStore();
-  
-  // Bio state
   const { bio, setBio, setIsLoading: setBioLoading } = useBioStore();
-
-  // Enquiries state
-  const { setIsLoading: setEnquiriesLoading, setEnquiries } = useEnquiriesStore();
 
   useEffect(() => {
     // Only proceed if both auth and user data are loaded and we have a userId
@@ -174,69 +169,64 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
           unsafeMetadata: user.unsafeMetadata,
         },
       });
-      
-      // Load favorites if not in state
-      if (!favorites?.length) {
-        setFavoritesLoading(true);
-        profileService.getFavourites()
-          .then(response => {
-            setFavorites(Array.isArray(response) ? response : response.favourites);
-          })
-          .catch(error => {
-            console.error('Error loading favorites:', error);
-          })
-          .finally(() => {
-            setFavoritesLoading(false);
-          });
-      }
-      
-      // Load saved searches if not in state
-      if (!savedSearches?.length) {
-        setSavedSearchesLoading(true);
-        profileService.getSavedSearches()
-          .then(response => {
+
+      // Create a promise array to load all data in parallel
+      const loadPromises: Promise<void>[] = [];
+
+      // Load initial data
+      loadPromises.push(
+        // Load saved searches
+        (async () => {
+          setSavedSearchesLoading(true);
+          try {
+            const response = await profileService.getSavedSearches();
             setSavedSearches(response.savedSearches);
-          })
-          .catch(error => {
+          } catch (error) {
             console.error('Error loading saved searches:', error);
-          })
-          .finally(() => {
+          } finally {
             setSavedSearchesLoading(false);
-          });
-      }
-      
-      // Load bio if not in state
-      if (!bio) {
-        setBioLoading(true);
-        profileService.getProfile()
-          .then(response => {
+          }
+        })(),
+
+        // Load bio
+        (async () => {
+          setBioLoading(true);
+          try {
+            const response = await profileService.getProfile();
             setBio(response);
-          })
-          .catch(error => {
+          } catch (error) {
             console.error('Error loading bio:', error);
-          })
-          .finally(() => {
+          } finally {
             setBioLoading(false);
-          });
-      }
+          }
+        })()
+      );
 
       // Load enquiries only for agistors
       if (user.publicMetadata?.role === 'agistor') {
         setEnquiriesLoading(true);
-        enquiriesService.getEnquiries()
-          .then(response => {
-            setEnquiries(response.enquiries);
-          })
-          .catch(error => {
-            console.error('Error loading enquiries:', error);
-          })
-          .finally(() => {
-            setEnquiriesLoading(false);
-          });
+        loadPromises.push(
+          enquiriesService.getEnquiries()
+            .then(response => {
+              setEnquiries(response.enquiries);
+              queryClient.setQueryData(['enquiries'], response);
+            })
+            .catch(error => {
+              console.error('Error loading enquiries:', error);
+            })
+            .finally(() => {
+              setEnquiriesLoading(false);
+            })
+        );
       }
+
+      // Wait for all data to load
+      Promise.all(loadPromises).catch(error => {
+        console.error('Error loading data:', error);
+      });
     }
-  }, [isLoaded, isUserLoaded, userId, user, setUser, favorites, setFavorites, setFavoritesLoading, 
-      savedSearches, setSavedSearches, setSavedSearchesLoading, bio, setBio, setBioLoading,
+  }, [isLoaded, isUserLoaded, userId, user, setUser, queryClient,
+      setSavedSearches, setSavedSearchesLoading, setBio, setBioLoading,
       setEnquiries, setEnquiriesLoading]);
 
   return <>{children}</>;
@@ -250,7 +240,7 @@ function App() {
           <div className="min-h-screen bg-neutral-50">
             <ErrorBoundary>
               <RouterProvider router={router} />
-              <Toaster position="top-center" />
+              {/* <Toaster position="top-center" /> */}
             </ErrorBoundary>
           </div>
         </AuthInitializer>

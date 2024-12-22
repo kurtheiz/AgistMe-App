@@ -25,22 +25,18 @@ function sortAgistments(results: SearchResponse['results'], searchHash: string, 
   });
   
   // Sort based on the price values from PriceUtils
-  return [...results].sort((a, b) => {
+  const sortedResults = [...results].sort((a, b) => {
     const priceInfoA = pricesWithIds.find(p => p.id === a.id);
     const priceInfoB = pricesWithIds.find(p => p.id === b.id);
     
-    if (sortOption === 'low-to-high') {
-      // For low to high: Contact for price (-1) should be last
-      if (priceInfoA?.minPrice === -1) return 1;
-      if (priceInfoB?.minPrice === -1) return -1;
-      return (priceInfoA?.minPrice || 0) - (priceInfoB?.minPrice || 0);
-    } else {
-      // For high to low: Contact for price (-1) should be first
-      if (priceInfoA?.minPrice === -1) return -1;
-      if (priceInfoB?.minPrice === -1) return 1;
-      return (priceInfoB?.maxPrice || 0) - (priceInfoA?.maxPrice || 0);
-    }
+    // For low to high: Contact for price (-1) should be last
+    if (priceInfoA?.minPrice === -1) return 1;
+    if (priceInfoB?.minPrice === -1) return -1;
+    return (priceInfoA?.minPrice || 0) - (priceInfoB?.minPrice || 0);
   });
+
+  // For high to low, just reverse the low to high results
+  return sortOption === 'high-to-low' ? sortedResults.reverse() : sortedResults;
 }
 
 export function useAgistmentSearch(searchHash: string, sortOption: SortOption = 'default') {

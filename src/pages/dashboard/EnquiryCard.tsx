@@ -1,6 +1,7 @@
 import { EnquiryResponse } from '../../types/enquiry';
 import { Mail, Phone, MessageCircle, User2, Calendar, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
 import { Disclosure, Menu } from '@headlessui/react';
+import { useEnquiriesStore } from '../../stores/enquiries.store';
 import { useUpdateEnquiryStatus } from '../../hooks/useEnquiries';
 
 const calculateAge = (dateOfBirth: string | undefined): number | null => {
@@ -20,15 +21,10 @@ interface EnquiryCardProps {
 }
 
 export const EnquiryCard = ({ enquiry }: EnquiryCardProps) => {
-  const updateStatus = useUpdateEnquiryStatus();
+  const { mutate: updateStatus } = useUpdateEnquiryStatus();
 
-  const handleStatusUpdate = (update: { read?: boolean; acknowledged?: boolean; status?: string }) => {
-    updateStatus.mutate({ 
-      enquiryId: enquiry.id, 
-      update: update.acknowledged !== undefined 
-        ? { ...update, status: 'ACKNOWLEDGED', read: true } 
-        : update
-    });
+  const handleStatusUpdate = async (update: { read?: boolean; status?: string }) => {
+    updateStatus({ enquiryId: enquiry.id, update });
   };
 
   return (
@@ -44,35 +40,37 @@ export const EnquiryCard = ({ enquiry }: EnquiryCardProps) => {
         <div className="flex flex-col">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-neutral-900">{enquiry.agistment_name}</h3>
-            <Menu as="div" className="relative inline-block text-left">
-              <Menu.Button className="p-1 hover:bg-neutral-100 rounded-full">
-                <MoreVertical className="w-4 h-4 text-neutral-500" />
+            <Menu as="div" className="relative">
+              <Menu.Button className="flex items-center p-1 text-neutral-500 hover:text-neutral-700">
+                <MoreVertical className="w-4 h-4" />
               </Menu.Button>
-              <Menu.Items className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-neutral-100 focus:outline-none">
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-neutral-100' : ''
-                      } group flex w-full items-center px-3 py-2 text-sm text-neutral-700`}
-                      onClick={() => handleStatusUpdate({ read: !enquiry.read })}
-                    >
-                      Mark as {enquiry.read ? 'Unread' : 'Read'}
-                    </button>
-                  )}
-                </Menu.Item>
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-neutral-100' : ''
-                      } group flex w-full items-center px-3 py-2 text-sm text-neutral-700`}
-                      onClick={() => handleStatusUpdate({ acknowledged: !enquiry.acknowledged })}
-                    >
-                      {enquiry.acknowledged ? 'Unacknowledge' : 'Acknowledge'}
-                    </button>
-                  )}
-                </Menu.Item>
+              <Menu.Items className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-neutral-200 focus:outline-none z-10">
+                <div className="py-1">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => handleStatusUpdate({ read: !enquiry.read })}
+                        className={`${
+                          active ? 'bg-neutral-100' : ''
+                        } w-full text-left px-4 py-2 text-sm text-neutral-700`}
+                      >
+                        {enquiry.read ? 'Mark as unread' : 'Mark as read'}
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => handleStatusUpdate({ status: 'ACKNOWLEDGED' })}
+                        className={`${
+                          active ? 'bg-neutral-100' : ''
+                        } w-full text-left px-4 py-2 text-sm text-neutral-700`}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </Menu.Item>
+                </div>
               </Menu.Items>
             </Menu>
           </div>
