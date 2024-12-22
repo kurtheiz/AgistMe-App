@@ -72,7 +72,7 @@ class AgistmentService {
 
   async searchAgistments(searchHash: string, nextToken: string): Promise<SearchResponse> {
     try {
-      const url = `v1/agistments?q=${encodeURIComponent(searchHash)}${nextToken ? `&n=${nextToken}` : ''}`;
+      const url = `v1/agistments?q=${encodeURIComponent(searchHash)}${nextToken ? `&n=${encodeURIComponent(nextToken)}` : ''}`;
       const authHeaders = await this.getAuthHeaders();
       const response = await this.api.get<SearchResponse>(url, authHeaders);
       return response.data;
