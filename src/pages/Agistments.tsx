@@ -68,6 +68,21 @@ const Agistments = () => {
     return locationText;
   };
 
+  const getActiveFiltersCount = (criteria: SearchRequest | null) => {
+    if (!criteria) return 0;
+    let count = 0;
+    
+    if (criteria.paddockTypes.length > 0) count++;
+    if (criteria.spaces > 0) count++;
+    if (criteria.maxPrice > 0) count++;
+    if (criteria.hasArena) count++;
+    if (criteria.hasRoundYard) count++;
+    if (criteria.facilities.length > 0) count++;
+    if (criteria.careTypes.length > 0) count++;
+    
+    return count;
+  };
+
   // Save scroll position when unmounting
   useEffect(() => {
     return () => {
@@ -205,9 +220,15 @@ const Agistments = () => {
             <div className="pb-8 pt-4 md:px-4">
               <div className="mb-4 text-sm text-neutral-600 px-4">
                 {(() => {
-                  const count = agistments.length;
                   const locationText = getLocationDisplayText(currentCriteria);
-                  return `${count} ${count === 1 ? 'agistment' : 'agistments'} found${locationText ? ` in ${locationText}` : ''}`;
+                  const filterCount = getActiveFiltersCount(currentCriteria);
+                  const filterText = filterCount > 0 ? ` with ${filterCount} filter${filterCount === 1 ? '' : 's'} set` : '';
+                  
+                  if (hasNextPage) {
+                    return `Showing first ${agistments.length} agistments found${locationText ? ` in ${locationText}` : ''}${filterText}`;
+                  } else {
+                    return `${agistments.length} agistment${agistments.length === 1 ? '' : 's'} found${locationText ? ` in ${locationText}` : ''}${filterText}`;
+                  }
                 })()}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
@@ -223,7 +244,7 @@ const Agistments = () => {
                 <div className="text-center mt-4">
                   <button
                     onClick={() => fetchNextPage()}
-                    className="button-secondary"
+                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                   >
                     Load More
                   </button>
