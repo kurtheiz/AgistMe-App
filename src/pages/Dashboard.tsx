@@ -1,17 +1,14 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { List, MessageSquare, Calendar, Fence, Users, DollarSign, ClipboardList } from 'lucide-react';
+import { List, MessageSquare } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
-import { ListingTypeBadge } from '../components/ListingTypeBadge';
-import { useEnquiries } from '../hooks/useEnquiries';
+import { useUnreadEnquiriesCount } from '../hooks/useEnquiries';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
   const { isLoaded: isAuthLoaded } = useAuth();
   const { user } = useUser();
-  const { data: enquiriesData } = useEnquiries();
-
-  const unreadCount = enquiriesData?.enquiries.filter(e => !e.read).length || 0;
+  const unreadCount = useUnreadEnquiriesCount();
 
   // Scroll to top on mount
   useEffect(() => {
@@ -61,18 +58,20 @@ export const Dashboard = () => {
               <div className="flex items-center">
                 <MessageSquare className="h-8 w-8 text-neutral-600" />
                 <div className="ml-4">
-                  <p className="text-lg font-medium text-gray-900">Enquiries</p>
-                  <p className="text-sm text-gray-500">View and manage enquiries</p>
-                </div>
-                {unreadCount > 0 && (
-                  <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
-                    {unreadCount}
+                  <div className="flex items-center">
+                    <p className="text-lg font-medium text-gray-900">Enquiries</p>
+                    {unreadCount > 0 && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-500 text-white">
+                        {unreadCount}
+                      </span>
+                    )}
                   </div>
-                )}
+                  <p className="text-sm text-gray-500">View and respond to agistment enquiries</p>
+                </div>
               </div>
             </button>
 
-            <div className="bg-white rounded-lg p-6 shadow relative">
+            {/* <div className="bg-white rounded-lg p-6 shadow relative">
               <div className="absolute -top-3 left-4">
                 <ListingTypeBadge type="professional" />
               </div>
@@ -150,7 +149,7 @@ export const Dashboard = () => {
                   <p className="text-sm text-gray-500">Track payments and manage invoices</p>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

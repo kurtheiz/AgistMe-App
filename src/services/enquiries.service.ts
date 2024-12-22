@@ -7,7 +7,15 @@ class EnquiriesService {
   private retryDelay = 1000; // 1 second
 
   constructor() {
-    this.api = createApi(API_BASE_URL);
+    this.api = createApi(API_BASE_URL, async () => {
+      // Wait for Clerk to be available
+      while (!window.Clerk) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      // Wait for session to be initialized
+      await window.Clerk.load();
+      return window.Clerk.session?.getToken() || null;
+    });
   }
 
   private async retryOperation<T>(operation: () => Promise<T>): Promise<T> {
@@ -24,30 +32,10 @@ class EnquiriesService {
     throw lastError;
   }
 
-  private async waitForAuth() {
-    // Wait for Clerk to be available
-    while (!window.Clerk) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-    }
-    // Wait for session to be initialized
-    await window.Clerk.load();
-  }
-
-  private async getAuthHeaders() {
-    await this.waitForAuth();
-    const token = await window.Clerk.session?.getToken();
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    };
-  }
-
   async getEnquiries(): Promise<EnquiriesResponse> {
     return this.retryOperation(async () => {
       try {
-        const authHeaders = await this.getAuthHeaders();
-        const response = await this.api.get<EnquiriesResponse>('v1/protected/enquiries', authHeaders);
+        const response = await this.api.get<EnquiriesResponse>('v1/protected/enquiries');
         return response.data;
       } catch (error) {
         console.error('Failed to get enquiries:', error);
@@ -59,8 +47,7 @@ class EnquiriesService {
   async markEnquiryAsRead(enquiryId: string): Promise<void> {
     return this.retryOperation(async () => {
       try {
-        const authHeaders = await this.getAuthHeaders();
-        await this.api.put(`v1/protected/enquiries/${enquiryId}/read`, {}, authHeaders);
+        await this.api.put(`v1/protected/enquiries/${enquiryId}/read`, {});
       } catch (error) {
         console.error('Failed to mark enquiry as read:', error);
         throw error;
@@ -71,8 +58,7 @@ class EnquiriesService {
   async markEnquiryAsUnread(enquiryId: string): Promise<void> {
     return this.retryOperation(async () => {
       try {
-        const authHeaders = await this.getAuthHeaders();
-        await this.api.put(`v1/protected/enquiries/${enquiryId}/unread`, {}, authHeaders);
+        await this.api.put(`v1/protected/enquiries/${enquiryId}/unread`, {});
       } catch (error) {
         console.error('Failed to mark enquiry as unread:', error);
         throw error;
@@ -83,8 +69,7 @@ class EnquiriesService {
   async getAgistmentEnquiries(agistmentId: string): Promise<EnquiriesResponse> {
     return this.retryOperation(async () => {
       try {
-        const authHeaders = await this.getAuthHeaders();
-        const response = await this.api.get<EnquiriesResponse>(`v1/protected/agistments/${agistmentId}/enquiries`, authHeaders);
+        const response = await this.api.get<EnquiriesResponse>(`v1/protected/agistments/${agistmentId}/enquiries`);
         return response.data;
       } catch (error) {
         console.error('Failed to get agistment enquiries:', error);
@@ -96,8 +81,7 @@ class EnquiriesService {
   async submitEnquiry(agistmentId: string, enquiry: EnquiryRequest): Promise<void> {
     return this.retryOperation(async () => {
       try {
-        const authHeaders = await this.getAuthHeaders();
-        await this.api.post(`v1/protected/agistments/${agistmentId}/enquiries`, enquiry, authHeaders);
+        await this.api.post(`v1/protected/agistments/${agistmentId}/enquiries`, enquiry);
       } catch (error) {
         console.error('Failed to submit enquiry:', error);
         throw error;
@@ -108,8 +92,7 @@ class EnquiriesService {
   async updateEnquiryStatus(enquiryId: string, update: EnquiryStatusUpdate): Promise<void> {
     return this.retryOperation(async () => {
       try {
-        const authHeaders = await this.getAuthHeaders();
-        await this.api.patch(`v1/protected/enquiries/${enquiryId}`, update, authHeaders);
+        await this.api.patch(`v1/protected/enquiries/${enquiryId}`, update);
       } catch (error) {
         console.error('Failed to update enquiry status:', error);
         throw error;

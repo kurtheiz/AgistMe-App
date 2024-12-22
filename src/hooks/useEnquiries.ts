@@ -1,54 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { enquiriesService } from '../services/enquiries.service';
-import { EnquiryRequest, EnquiryStatusUpdate } from '../types/enquiry';
+import { EnquiryRequest, EnquiryStatusUpdate, EnquiriesResponse, EnquiryResponse } from '../types/enquiry';
 import toast from 'react-hot-toast';
-import { useEnquiriesStore } from '../stores/enquiries.store';
-import { useEffect } from 'react';
-import { useAuth } from '@clerk/clerk-react';
 
-export const useEnquiries = () => {
-  const { setEnquiries } = useEnquiriesStore();
-  const { isSignedIn, isLoaded } = useAuth();
-
-  const query = useQuery({
+export const useUnreadEnquiriesCount = () => {
+  const { data } = useQuery({
     queryKey: ['enquiries'],
     queryFn: () => enquiriesService.getEnquiries(),
-    refetchInterval: 1000 * 60 * 15, // 15 minutes
-    refetchIntervalInBackground: true,
-    enabled: isLoaded && isSignedIn, // Only run query if auth is loaded and user is signed in
-    initialData: { enquiries: [] } // Provide initial data to prevent undefined
+    select: (data) => data.enquiries?.filter(enquiry => !enquiry.read).length ?? 0
   });
 
-  // Sync query data with store
-  useEffect(() => {
-    if (query.data) {
-      setEnquiries(query.data.enquiries);
-    }
-  }, [query.data, setEnquiries]);
-
-  return {
-    ...query,
-    data: query.data || { enquiries: [] } // Ensure we always return a valid data structure
-  };
-};
-
-export const useAgistmentEnquiries = (agistmentId: string) => {
-  const { setEnquiries } = useEnquiriesStore();
-
-  const query = useQuery({
-    queryKey: ['agistment-enquiries', agistmentId],
-    queryFn: () => enquiriesService.getAgistmentEnquiries(agistmentId),
-    enabled: !!agistmentId
-  });
-
-  // Sync query data with store
-  useEffect(() => {
-    if (query.data) {
-      setEnquiries(query.data.enquiries);
-    }
-  }, [query.data, setEnquiries]);
-
-  return query;
+  return data ?? 0;
 };
 
 export const useSubmitEnquiry = () => {
@@ -57,57 +19,13 @@ export const useSubmitEnquiry = () => {
   return useMutation({
     mutationFn: ({ agistmentId, enquiry }: { agistmentId: string; enquiry: EnquiryRequest }) => 
       enquiriesService.submitEnquiry(agistmentId, enquiry),
-    onSuccess: (_, { agistmentId }) => {
-      queryClient.invalidateQueries({ queryKey: ['agistment-enquiries', agistmentId] });
+    onSuccess: () => {
+      // Refresh enquiries
       queryClient.invalidateQueries({ queryKey: ['enquiries'] });
       toast.success('Enquiry sent successfully');
     },
     onError: () => {
       toast.error('Failed to send enquiry. Please try again.');
-    }
-  });
-};
-
-export const useMarkEnquiryAsRead = () => {
-  const queryClient = useQueryClient();
-  const { enquiries, setEnquiries } = useEnquiriesStore();
-
-  return useMutation({
-    mutationFn: (enquiryId: string) => enquiriesService.markEnquiryAsRead(enquiryId),
-    onSuccess: (_, enquiryId) => {
-      // Update both enquiries and agistment-enquiries queries
-      queryClient.invalidateQueries({ queryKey: ['enquiries'] });
-      queryClient.invalidateQueries({ 
-        predicate: (query) => query.queryKey[0] === 'agistment-enquiries'
-      });
-
-      // Update the store immediately
-      const updatedEnquiries = enquiries.map(enquiry => 
-        enquiry.id === enquiryId ? { ...enquiry, read: true } : enquiry
-      );
-      setEnquiries(updatedEnquiries);
-    }
-  });
-};
-
-export const useMarkEnquiryAsUnread = () => {
-  const queryClient = useQueryClient();
-  const { enquiries, setEnquiries } = useEnquiriesStore();
-
-  return useMutation({
-    mutationFn: (enquiryId: string) => enquiriesService.markEnquiryAsUnread(enquiryId),
-    onSuccess: (_, enquiryId) => {
-      // Update both enquiries and agistment-enquiries queries
-      queryClient.invalidateQueries({ queryKey: ['enquiries'] });
-      queryClient.invalidateQueries({ 
-        predicate: (query) => query.queryKey[0] === 'agistment-enquiries'
-      });
-
-      // Update the store immediately
-      const updatedEnquiries = enquiries.map(enquiry => 
-        enquiry.id === enquiryId ? { ...enquiry, read: false } : enquiry
-      );
-      setEnquiries(updatedEnquiries);
     }
   });
 };
@@ -118,11 +36,66 @@ export const useUpdateEnquiryStatus = () => {
   return useMutation({
     mutationFn: ({ enquiryId, update }: { enquiryId: string; update: EnquiryStatusUpdate }) =>
       enquiriesService.updateEnquiryStatus(enquiryId, update),
-    onSuccess: () => {
-      // Update both enquiries and agistment-enquiries queries
+    onMutate: async ({ enquiryId, update }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['enquiries'] });
+      await queryClient.cancelQueries({ queryKey: ['agistment-enquiries'] });
+
+      // Snapshot the previous value
+      const previousEnquiries = queryClient.getQueryData<EnquiriesResponse>(['enquiries']);
+
+      // Optimistically update the enquiries
+      if (previousEnquiries?.enquiries) {
+        queryClient.setQueryData(['enquiries'], {
+          ...previousEnquiries,
+          enquiries: previousEnquiries.enquiries.map(enquiry =>
+            enquiry.id === enquiryId ? { ...enquiry, ...update } : enquiry
+          )
+        });
+
+        // Also update agistment-enquiries if they exist
+        const agistmentEnquiriesQueries = queryClient.getQueriesData<EnquiriesResponse>({ 
+          queryKey: ['agistment-enquiries'],
+          exact: true 
+        });
+        agistmentEnquiriesQueries.forEach(([queryKey]) => {
+          const data = queryClient.getQueryData<EnquiriesResponse>(queryKey);
+          if (data?.enquiries) {
+            queryClient.setQueryData<EnquiriesResponse>(queryKey, {
+              ...data,
+              enquiries: data.enquiries.map((enquiry: EnquiryResponse) =>
+                enquiry.id === enquiryId ? { ...enquiry, ...update } : enquiry
+              )
+            });
+          }
+        });
+      }
+
+      return { previousEnquiries };
+    },
+    onSuccess: (_, { update }) => {
+      // Show appropriate success message based on the update
+      let message = 'Status updated successfully';
+      if (update.read !== undefined) {
+        message = update.read ? 'Marked as read' : 'Marked as unread';
+      } else if (update.status === 'ACKNOWLEDGED') {
+        message = 'Enquiry acknowledged';
+      }
+      toast.success(message);
+    },
+    onError: (error, _variables, context) => {
+      // Revert back to the previous value if there's an error
+      if (context?.previousEnquiries) {
+        queryClient.setQueryData(['enquiries'], context.previousEnquiries);
+      }
+      console.error('Error updating enquiry status:', error);
+      toast.error('Failed to update enquiry status. Please try again.');
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we're up to date
       queryClient.invalidateQueries({ queryKey: ['enquiries'] });
       queryClient.invalidateQueries({ 
-        predicate: (query) => query.queryKey[0] === 'agistment-enquiries'
+        queryKey: ['agistment-enquiries']
       });
     }
   });

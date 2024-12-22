@@ -12,6 +12,7 @@ interface EnquiriesState {
   fetchAgistmentEnquiries: (agistmentId: string, queryClient?: QueryClient) => Promise<EnquiriesResponse>;
   markAsRead: (enquiryId: string, queryClient?: QueryClient) => Promise<void>;
   markAsUnread: (enquiryId: string, queryClient?: QueryClient) => Promise<void>;
+  acknowledgeEnquiry: (enquiryId: string, queryClient?: QueryClient) => Promise<void>;
 }
 
 export const useEnquiriesStore = create<EnquiriesState>((set, get) => ({
@@ -21,6 +22,11 @@ export const useEnquiriesStore = create<EnquiriesState>((set, get) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
 
   fetchEnquiries: async (queryClient?: QueryClient) => {
+    const { isLoading } = get();
+    if (isLoading) {
+      return { enquiries: get().enquiries };
+    }
+
     set({ isLoading: true });
     try {
       const response = await enquiriesService.getEnquiries();
@@ -40,6 +46,11 @@ export const useEnquiriesStore = create<EnquiriesState>((set, get) => ({
   },
 
   fetchAgistmentEnquiries: async (agistmentId: string, queryClient?: QueryClient) => {
+    const { isLoading } = get();
+    if (isLoading) {
+      return { enquiries: get().enquiries };
+    }
+
     set({ isLoading: true });
     try {
       const response = await enquiriesService.getAgistmentEnquiries(agistmentId);
@@ -59,25 +70,21 @@ export const useEnquiriesStore = create<EnquiriesState>((set, get) => ({
   },
 
   markAsRead: async (enquiryId: string, queryClient?: QueryClient) => {
+    const { enquiries } = get();
     try {
-      await enquiriesService.markEnquiryAsRead(enquiryId);
-      
+      await enquiriesService.updateEnquiryStatus(enquiryId, { read: true });
+
       // Update local state
-      const updatedEnquiries = get().enquiries.map(enquiry => 
+      const updatedEnquiries = enquiries.map(enquiry =>
         enquiry.id === enquiryId ? { ...enquiry, read: true } : enquiry
       );
       set({ enquiries: updatedEnquiries });
 
-      // Update query cache if available
+      // Update query cache if queryClient is provided
       if (queryClient) {
-        queryClient.setQueryData(['enquiries'], (oldData: any) => {
-          if (!oldData) return oldData;
-          return {
-            ...oldData,
-            enquiries: oldData.enquiries.map((enquiry: EnquiryResponse) =>
-              enquiry.id === enquiryId ? { ...enquiry, read: true } : enquiry
-            )
-          };
+        queryClient.setQueryData(['enquiries'], { enquiries: updatedEnquiries });
+        queryClient.invalidateQueries({ 
+          predicate: (query) => query.queryKey[0] === 'agistment-enquiries'
         });
       }
     } catch (error) {
@@ -87,29 +94,49 @@ export const useEnquiriesStore = create<EnquiriesState>((set, get) => ({
   },
 
   markAsUnread: async (enquiryId: string, queryClient?: QueryClient) => {
+    const { enquiries } = get();
     try {
-      await enquiriesService.markEnquiryAsUnread(enquiryId);
-      
+      await enquiriesService.updateEnquiryStatus(enquiryId, { read: false });
+
       // Update local state
-      const updatedEnquiries = get().enquiries.map(enquiry => 
+      const updatedEnquiries = enquiries.map(enquiry =>
         enquiry.id === enquiryId ? { ...enquiry, read: false } : enquiry
       );
       set({ enquiries: updatedEnquiries });
 
-      // Update query cache if available
+      // Update query cache if queryClient is provided
       if (queryClient) {
-        queryClient.setQueryData(['enquiries'], (oldData: any) => {
-          if (!oldData) return oldData;
-          return {
-            ...oldData,
-            enquiries: oldData.enquiries.map((enquiry: EnquiryResponse) =>
-              enquiry.id === enquiryId ? { ...enquiry, read: false } : enquiry
-            )
-          };
+        queryClient.setQueryData(['enquiries'], { enquiries: updatedEnquiries });
+        queryClient.invalidateQueries({ 
+          predicate: (query) => query.queryKey[0] === 'agistment-enquiries'
         });
       }
     } catch (error) {
       console.error('Error marking enquiry as unread:', error);
+      throw error;
+    }
+  },
+
+  acknowledgeEnquiry: async (enquiryId: string, queryClient?: QueryClient) => {
+    const { enquiries } = get();
+    try {
+      await enquiriesService.updateEnquiryStatus(enquiryId, { status: 'ACKNOWLEDGED' });
+
+      // Update local state
+      const updatedEnquiries = enquiries.map(enquiry =>
+        enquiry.id === enquiryId ? { ...enquiry, status: 'ACKNOWLEDGED' } : enquiry
+      );
+      set({ enquiries: updatedEnquiries });
+
+      // Update query cache if queryClient is provided
+      if (queryClient) {
+        queryClient.setQueryData(['enquiries'], { enquiries: updatedEnquiries });
+        queryClient.invalidateQueries({ 
+          predicate: (query) => query.queryKey[0] === 'agistment-enquiries'
+        });
+      }
+    } catch (error) {
+      console.error('Error acknowledging enquiry:', error);
       throw error;
     }
   }

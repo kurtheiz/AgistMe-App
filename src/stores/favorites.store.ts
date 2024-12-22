@@ -11,6 +11,7 @@ interface FavoritesState {
   setFavorites: (favorites: Favourite[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   toggleFavorite: (agistmentId: string, favorite: Favourite, queryClient?: QueryClient) => Promise<void>;
+  fetchFavorites: () => Promise<void>;
 }
 
 export const useFavoritesStore = create<FavoritesState>((set, get) => ({
@@ -18,6 +19,27 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
   isLoading: false,
   setFavorites: (favorites) => set({ favorites }),
   setIsLoading: (isLoading) => set({ isLoading }),
+
+  fetchFavorites: async () => {
+    const { isLoading } = get();
+    
+    // Don't fetch if already loading
+    if (isLoading) {
+      return;
+    }
+
+    set({ isLoading: true });
+    try {
+      const response = await profileService.getFavourites();
+      set({ favorites: Array.isArray(response) ? response : response.favourites });
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+      toast.error('Failed to load favorites');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   toggleFavorite: async (agistmentId: string, favorite: Favourite, queryClient?: QueryClient) => {
     const { favorites } = get();
     const isFavorited = favorites.some(fav => fav.id === agistmentId);
@@ -49,18 +71,17 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         set((state) => ({
           favorites: [...state.favorites, favorite]
         }));
-        toast.success('Added to favourites');
+        toast.success('Added to favorites');
       } else {
         // Remove from favorites
         set((state) => ({
           favorites: state.favorites.filter(fav => fav.id !== agistmentId)
         }));
-        toast.success('Removed from favourites');
+        toast.success('Removed from favorites');
       }
     } catch (error) {
-      console.error('Failed to toggle favourite:', error);
-      toast.error(isFavorited ? 'Failed to remove favourite' : 'Failed to add favourite');
-      throw error;
+      console.error('Error toggling favorite:', error);
+      toast.error('Failed to update favorite');
     }
-  },
+  }
 }));

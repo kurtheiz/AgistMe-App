@@ -33,5 +33,5 @@ export interface EnquiriesResponse {
 
 export interface EnquiryStatusUpdate {
   read?: boolean;
-  acknowledged?: boolean;
+  status?: string;
 }
