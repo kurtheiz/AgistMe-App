@@ -24,7 +24,7 @@ export class PriceUtils {
   static getPriceDisplay(
     agistment: AgistmentResponse,
     searchCriteria?: { paddockTypes?: ('Private' | 'Shared' | 'Group')[] }
-  ): { price: string; subtext: string } {
+  ): { price: string; subtext: string; minPrice: number; maxPrice: number } {
     // Get paddock types to check - either from search criteria or all types
     const typesToCheck = searchCriteria?.paddockTypes?.length 
       ? searchCriteria.paddockTypes 
@@ -61,17 +61,24 @@ export class PriceUtils {
       })
       .sort((a, b) => a - b);
 
-    if (validPrices.length === 0) {
-      return { price: 'Contact for price', subtext: '' };
-    }
-
     const subtext = 'per week'
+
+    if (validPrices.length === 0) {
+      return { 
+        price: 'Contact for price', 
+        subtext: '',
+        minPrice: -1,
+        maxPrice: -1
+      };
+    }
 
     // If search criteria exists and only one paddock type, show exact price
     if (searchCriteria?.paddockTypes?.length === 1) {
       return { 
         price: `$${formatCurrency(validPrices[0])}`,
-        subtext 
+        subtext,
+        minPrice: validPrices[0],
+        maxPrice: validPrices[0]
       };
     }
 
@@ -79,7 +86,9 @@ export class PriceUtils {
     if (!searchCriteria?.paddockTypes?.length && availablePaddockCount === 1) {
       return { 
         price: `$${formatCurrency(validPrices[0])}`,
-        subtext 
+        subtext,
+        minPrice: validPrices[0],
+        maxPrice: validPrices[0]
       };
     }
 
@@ -87,14 +96,18 @@ export class PriceUtils {
     if (validPrices.length > 1) {
       return { 
         price: `$${formatCurrency(Math.min(...validPrices))} - $${formatCurrency(Math.max(...validPrices))}`,
-        subtext 
+        subtext,
+        minPrice: Math.min(...validPrices),
+        maxPrice: Math.max(...validPrices)
       };
     }
 
     // Default case - show "From" price
     return { 
       price: `From $${formatCurrency(validPrices[0])}`,
-      subtext 
+      subtext,
+      minPrice: validPrices[0],
+      maxPrice: validPrices[0]
     };
   }
 }

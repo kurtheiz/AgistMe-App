@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useAgistor } from '../hooks/useAgistor';
 import { useAuthStore } from '../stores/auth.store';
 import { useSearchStore } from '../stores/search.store';
+import { useEnquiriesStore } from '../stores/enquiries.store';
 import { Search, SquareMenu as Menu } from 'lucide-react';
-import { useEnquiries } from '../hooks/useEnquiries';
 
 export const Header = () => {
   const { user, isSignedIn } = useUser();
@@ -17,9 +17,9 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { setUser, clearAuth } = useAuthStore();
   const { setIsSearchModalOpen } = useSearchStore();
-  const { data: enquiriesData } = useEnquiries();
+  const { enquiries } = useEnquiriesStore();
 
-  const unreadCount = enquiriesData?.enquiries.filter(e => !e.read).length || 0;
+  const unreadCount = enquiries?.filter(e => !e.read).length || 0;
 
   useEffect(() => {
     if (isSignedIn && user) {

@@ -1,52 +1,80 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { enquiriesService } from '../services/enquiries.service';
-import { EnquiryRequest, EnquiryStatusUpdate } from '../types/enquiry';
+import { EnquiryRequest, EnquiryStatusUpdate, EnquiriesResponse } from '../types/enquiry';
 import toast from 'react-hot-toast';
 import { useEnquiriesStore } from '../stores/enquiries.store';
 import { useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import { useAgistor } from './useAgistor';
 
 export const useEnquiries = () => {
   const { setEnquiries } = useEnquiriesStore();
   const { isSignedIn, isLoaded } = useAuth();
+  const { isAgistor } = useAgistor();
+  const queryClient = useQueryClient();
 
-  const query = useQuery({
+  const query = useQuery<EnquiriesResponse>({
     queryKey: ['enquiries'],
-    queryFn: () => enquiriesService.getEnquiries(),
-    refetchInterval: 1000 * 60 * 15, // 15 minutes
-    refetchIntervalInBackground: true,
-    enabled: isLoaded && isSignedIn, // Only run query if auth is loaded and user is signed in
+    queryFn: async () => {
+      const response = await enquiriesService.getEnquiries();
+      return response;
+    },
+    enabled: isLoaded && isSignedIn && isAgistor, // Only run query if user is an agistor
+    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    cacheTime: 1000 * 60 * 30, // Keep data in cache for 30 minutes
+    retry: 3, // Retry failed requests 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
     initialData: { enquiries: [] } // Provide initial data to prevent undefined
   });
 
-  // Sync query data with store
+  // Sync query data with store only if we have valid data
   useEffect(() => {
-    if (query.data) {
+    if (query.data?.enquiries && !query.isError) {
       setEnquiries(query.data.enquiries);
     }
-  }, [query.data, setEnquiries]);
+  }, [query.data?.enquiries, query.isError, setEnquiries]);
 
-  return {
-    ...query,
-    data: query.data || { enquiries: [] } // Ensure we always return a valid data structure
-  };
+  // If auth isn't loaded yet, return loading state
+  if (!isLoaded) {
+    return {
+      ...query,
+      isLoading: true,
+      data: { enquiries: [] }
+    };
+  }
+
+  // If user isn't signed in or isn't an agistor, return empty state
+  if (!isSignedIn || !isAgistor) {
+    return {
+      ...query,
+      isLoading: false,
+      data: { enquiries: [] }
+    };
+  }
+
+  return query;
 };
 
 export const useAgistmentEnquiries = (agistmentId: string) => {
   const { setEnquiries } = useEnquiriesStore();
+  const queryClient = useQueryClient();
 
-  const query = useQuery({
+  const query = useQuery<EnquiriesResponse>({
     queryKey: ['agistment-enquiries', agistmentId],
-    queryFn: () => enquiriesService.getAgistmentEnquiries(agistmentId),
-    enabled: !!agistmentId
+    queryFn: async () => {
+      const response = await enquiriesService.getAgistmentEnquiries(agistmentId);
+      return response;
+    },
+    enabled: !!agistmentId,
+    initialData: { enquiries: [] }
   });
 
-  // Sync query data with store
+  // Sync query data with store only if we have valid data
   useEffect(() => {
-    if (query.data) {
+    if (query.data?.enquiries && !query.isError) {
       setEnquiries(query.data.enquiries);
     }
-  }, [query.data, setEnquiries]);
+  }, [query.data?.enquiries, query.isError, setEnquiries]);
 
   return query;
 };

@@ -10,10 +10,12 @@ import { AnimatedSearchLogo } from '../components/Icons/AnimatedSearchLogo';
 import toast from 'react-hot-toast';
 import { useSearchStore } from '../stores/search.store';
 import { decodeSearchHash } from '../utils/searchHashUtils';
-import { useAgistmentSearch } from '../hooks/useAgistmentSearch';
+import { useAgistmentSearch, SortOption } from '../hooks/useAgistmentSearch';
 import { useSavedSearchesStore } from '../stores/savedSearches.store';
 import { useQueryClient } from '@tanstack/react-query';
 import { PropertyCard } from '../components/PropertyCard';
+import { Menu } from '@headlessui/react';
+import { MapPin, ArrowDownNarrowWide, ArrowUpNarrowWide, ChevronDown } from 'lucide-react';
 
 const Agistments = () => {
   const [searchParams] = useSearchParams();
@@ -29,6 +31,16 @@ const Agistments = () => {
   const [forceResetSearch, setForceResetSearch] = useState(false);
   const searchHash = searchParams.get('q') || '';
 
+  const [sortOption, setSortOption] = useState<SortOption>('default');
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: ['agistments', searchHash]
+    });
+  }, [queryClient, searchHash]);
+
   const {
     data,
     fetchNextPage,
@@ -37,11 +49,9 @@ const Agistments = () => {
     isLoading,
     isError,
     refetch
-  } = useAgistmentSearch(searchHash);
+  } = useAgistmentSearch(searchHash, sortOption);
 
   const agistments = data?.pages.flatMap(page => page.results) ?? [];
-
-  const queryClient = useQueryClient();
 
   const getLocationDisplayText = (criteria: SearchRequest | null) => {
     if (!criteria?.suburbs?.[0]) return '';
@@ -113,13 +123,18 @@ const Agistments = () => {
     }
   }, [searchHash, data]);
 
-  const handleSaveSearch = async () => {
+  const getLocationTextForSave = (criteria: SearchRequest | null) => {
+    if (!criteria) return '';
+    const locationText = criteria.location?.text || '';
+    return locationText;
+  };
+
+  const handleSaveSearch = () => {
     if (!user) {
       toast.error('Please sign in to save searches');
       return;
     }
-    const locationText = getLocationDisplayText(currentCriteria);
-    console.log('Location text for save:', locationText);
+    const locationText = getLocationTextForSave(currentCriteria);
     setIsSaveSearchModalOpen(true);
   };
 
@@ -151,21 +166,86 @@ const Agistments = () => {
       <PageToolbar
         actions={
           <div className="flex justify-between w-full">
-            <button
-              onClick={handleSaveSearch}
-              disabled={!searchHash}
-              className={`button-toolbar ${!searchHash && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
-            >
-              <span>Save Search</span>
-            </button>
-            <button
-              onClick={() => refetch()}
-              disabled={!searchHash || isFetching}
-              className={`button-toolbar ${(!searchHash || isFetching) && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
-            >
-              <RotateCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <Menu as="div" className="relative">
+                <Menu.Button className="button-toolbar">
+                  {sortOption === 'default' && <MapPin className="w-4 h-4" />}
+                  {sortOption === 'low-to-high' && <ArrowUpNarrowWide className="w-4 h-4" />}
+                  {sortOption === 'high-to-low' && <ArrowDownNarrowWide className="w-4 h-4" />}
+                  <span>Sort</span>
+                  <ChevronDown className="w-4 h-4" />
+                </Menu.Button>
+                <Menu.Items className="absolute left-0 mt-2 w-48 origin-top-left bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                  <div className="py-1">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={() => {
+                            setSortOption('default');
+                          }}
+                          className={`${
+                            active ? 'bg-gray-100' : ''
+                          } ${
+                            sortOption === 'default' ? 'text-primary-600' : 'text-gray-900'
+                          } group flex w-full items-center px-4 py-2 text-sm`}
+                        >
+                          Distance
+                        </button>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={() => {
+                            setSortOption('low-to-high');
+                          }}
+                          className={`${
+                            active ? 'bg-gray-100' : ''
+                          } ${
+                            sortOption === 'low-to-high' ? 'text-primary-600' : 'text-gray-900'
+                          } group flex w-full items-center px-4 py-2 text-sm`}
+                        >
+                          Price: Low to High
+                        </button>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={() => {
+                            setSortOption('high-to-low');
+                          }}
+                          className={`${
+                            active ? 'bg-gray-100' : ''
+                          } ${
+                            sortOption === 'high-to-low' ? 'text-primary-600' : 'text-gray-900'
+                          } group flex w-full items-center px-4 py-2 text-sm`}
+                        >
+                          Price: High to Low
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </div>
+                </Menu.Items>
+              </Menu>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveSearch}
+                disabled={!searchHash}
+                className={`button-toolbar ${!searchHash && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+              >
+                <span>Save Search</span>
+              </button>
+              <button
+                onClick={() => refetch()}
+                disabled={!searchHash || isFetching}
+                className={`button-toolbar ${(!searchHash || isFetching) && 'opacity-50 cursor-not-allowed hover:bg-white'}`}
+              >
+                <RotateCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
+            </div>
           </div>
         }
       />
@@ -276,7 +356,7 @@ const Agistments = () => {
         onClose={() => setIsSaveSearchModalOpen(false)}
         onSave={handleSaveSearchComplete}
         searchCriteria={currentCriteria}
-        initialName={getLocationDisplayText(currentCriteria)}
+        initialName={getLocationTextForSave(currentCriteria)}
         initialIsDirty={true}
       />
     </>

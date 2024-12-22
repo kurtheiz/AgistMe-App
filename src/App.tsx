@@ -163,7 +163,16 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
     if (isLoaded && isUserLoaded && userId && user) {
       setUser({
         id: userId,
-        email: user?.primaryEmailAddress?.emailAddress || ''
+        email: user?.primaryEmailAddress?.emailAddress || '',
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        imageUrl: user.imageUrl,
+        role: user.publicMetadata?.role as string,
+        metadata: {
+          ...user.publicMetadata,
+          publicMetadata: user.publicMetadata,
+          unsafeMetadata: user.unsafeMetadata,
+        },
       });
       
       // Load favorites if not in state
@@ -211,8 +220,8 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
           });
       }
 
-      // Only load enquiries if user is fully loaded and is an agistor
-      if (user?.publicMetadata?.role === 'agistor') {
+      // Load enquiries only for agistors
+      if (user.publicMetadata?.role === 'agistor') {
         setEnquiriesLoading(true);
         enquiriesService.getEnquiries()
           .then(response => {
@@ -226,7 +235,9 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
           });
       }
     }
-  }, [isLoaded, isUserLoaded, userId, user]);
+  }, [isLoaded, isUserLoaded, userId, user, setUser, favorites, setFavorites, setFavoritesLoading, 
+      savedSearches, setSavedSearches, setSavedSearchesLoading, bio, setBio, setBioLoading,
+      setEnquiries, setEnquiriesLoading]);
 
   return <>{children}</>;
 };
