@@ -194,7 +194,7 @@ export default function Profile() {
             <SavedSearchesPanel
               savedSearches={savedSearches}
               isLoading={isLoading}
-              isDefaultOpen={searchParams.get('section') === 'saved-searches'}
+              isDefaultOpen={true}
               onNavigate={(searchHash: string) => navigate(`/agistments?q=${searchHash}`)}
               onEdit={(search) => {
                 setEditingSearch(search);
