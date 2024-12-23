@@ -34,6 +34,8 @@ export function MyAgistments() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();

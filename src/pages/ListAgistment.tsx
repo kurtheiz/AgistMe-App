@@ -2,11 +2,13 @@ import { CheckCircle } from 'lucide-react';
 import { ChevronLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { agistmentService } from '../services/agistment.service';
+import { paymentsService } from '../services/payments.service';
+import { CreateCheckoutSessionRequest, ListingType } from '../types/payment';
 import toast from 'react-hot-toast';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useAuthFlow } from '../hooks/useAuthFlow';
 import { PageToolbar } from '../components/PageToolbar';
+import { CreateSubscriptionRequest } from '../types/payment';
 
 const ListAgistment = () => {
   const navigate = useNavigate();
@@ -35,13 +37,15 @@ const ListAgistment = () => {
     }
 
     try {
-      await agistmentService.getBlankAgistment();
-      // Force a new token fetch after the metadata is updated
-      await user?.reload();
-      navigate('/dashboard/agistments', { state: { from: '/listagistment' } });
+      const checkoutRequest: CreateCheckoutSessionRequest = {
+        listing_type: ListingType.STANDARD
+      };
+
+      const response = await paymentsService.createCheckoutSession(checkoutRequest);
+      window.location.href = response.url;
     } catch (error) {
-      console.error('Error creating agistment:', error);
-      toast.error('Failed to create agistment');
+      console.error('Error creating subscription:', error);
+      toast.error('Failed to create subscription');
     }
   };
 
