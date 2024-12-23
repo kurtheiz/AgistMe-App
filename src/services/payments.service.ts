@@ -1,9 +1,7 @@
 import { createApi, API_BASE_URL } from '../hooks/useApi';
 import { 
   CreateCheckoutSessionRequest, 
-  CheckoutSessionResponse, 
-  CreateSubscriptionRequest,
-  SubscriptionResponse
+  CheckoutSessionResponse
 } from '../types/payment';
 
 class PaymentsService {
@@ -33,20 +31,6 @@ class PaymentsService {
       throw error;
     }
   }
-
-  async createSubscription(request: CreateSubscriptionRequest): Promise<SubscriptionResponse> {
-    try {
-      const response = await this.api.post<SubscriptionResponse>(
-        '/payments/subscription', 
-        request
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Failed to create subscription:', error);
-      throw error;
-    }
-  }
 }
-
 // Create a singleton instance
 export const paymentsService = new PaymentsService();

@@ -5,15 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { paymentsService } from '../services/payments.service';
 import { CreateCheckoutSessionRequest, ListingType } from '../types/payment';
 import toast from 'react-hot-toast';
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { useAuthFlow } from '../hooks/useAuthFlow';
 import { PageToolbar } from '../components/PageToolbar';
-import { CreateSubscriptionRequest } from '../types/payment';
 
 const ListAgistment = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
   const { initiateSignIn } = useAuthFlow();
 
   useEffect(() => {
