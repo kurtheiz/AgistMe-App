@@ -100,7 +100,7 @@ export const EnquiryCard = ({ enquiry }: EnquiryCardProps) => {
           <div className="flex items-center gap-2">
             <Mail className="w-4 h-4 text-neutral-400" />
             <a 
-              href={`mailto:${enquiry.email}`} 
+              href={`mailto:${enquiry.email}?subject=${encodeURIComponent(`Thanks for your Enquiry about ${enquiry.agistment_name}`)}`} 
               className="text-sm text-primary-600 hover:text-primary-700"
               onClick={(e) => e.stopPropagation()}
             >
