@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/clerk-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { LogOut } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -21,7 +21,6 @@ export default function Profile() {
   const { isSignedIn } = useAuth();
   const { signOut } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [editingSearch, setEditingSearch] = useState<SavedSearch | null>(null);
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
   const [saveSearchCriteria, setSaveSearchCriteria] = useState<any>(null);
