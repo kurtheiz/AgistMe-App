@@ -159,16 +159,16 @@ export function MyAgistments() {
 
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
     <div className="bg-neutral-50 border-t border-neutral-200">
-      <div className="text-center text-sm text-neutral-600 pt-4 flex items-center justify-center gap-2">
+      <div className="text-lg font-medium text-neutral-800 pt-4 pb-2 text-center flex items-center justify-center gap-2">
         Click on a section below to edit
         <button
           onClick={(e) => {
             e.stopPropagation();
             setIsHelpOpen(true);
           }}
-          className="text-neutral-500 hover:text-neutral-700"
+          className="text-neutral-600 hover:text-neutral-800"
         >
-          <HelpCircle className="w-4 h-4" />
+          <HelpCircle className="w-5 h-5" />
         </button>
       </div>
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -178,7 +178,6 @@ export function MyAgistments() {
         >
           <Sparkles className={'w-4 h-4'} />
           <span>From Text</span>
-          
         </button>
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
@@ -242,6 +241,25 @@ export function MyAgistments() {
         >
           Services
         </button>
+      </div>
+
+      {/* Analytics Summary */}
+      <div className="px-4 pb-4">
+        <div className="text-lg font-medium text-neutral-800 mb-3 text-center">Analytics for the Past 30 Days</div>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <div className="text-2xl font-semibold text-blue-600">{agistment.analyticsSummary?.totalViewCount || 0}</div>
+            <div className="text-sm text-blue-700">Total Views</div>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <div className="text-2xl font-semibold text-blue-600">{agistment.analyticsSummary?.totalFavouritedCount || 0}</div>
+            <div className="text-sm text-blue-700">Total Favorites</div>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <div className="text-2xl font-semibold text-blue-600">{agistment.analyticsSummary?.totalEnquiriesCount || 0}</div>
+            <div className="text-sm text-blue-700">Total Enquiries</div>
+          </div>
+        </div>
       </div>
 
       <div className={`text-sm font-medium text-center py-1.5 ${agistment.status === 'PUBLISHED'
@@ -455,8 +473,6 @@ export function MyAgistments() {
                   </Dialog.Title>
                   <div className="space-y-4">
                     <div>
-                      
-
                       <p className="text-sm text-neutral-600">
                         <i>Sections marked with a <span className="inline-block align-middle"><AlertCircle className="w-4 h-4 text-red-500" /></span> require your attention before your agistment can be made visible in search results.</i>
                       </p>
@@ -464,7 +480,6 @@ export function MyAgistments() {
                     <div className="space-y-2">
                       <p className="font-medium">From Text</p>
                       <div className="text-sm space-y-3">
-
                         <p className="text-neutral-600">Typically used to start your listing from a plain english description, like a social media post.</p>
                       </div>
 
