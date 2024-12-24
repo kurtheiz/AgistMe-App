@@ -9,9 +9,10 @@ import { Photo } from '../../types/agistment';
 
 interface AgistmentPhotosViewProps {
   photos?: Photo[];
+  showThumbnails?: boolean;
 }
 
-export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos = [] }) => {
+export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos = [], showThumbnails = true }) => {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [slides, setSlides] = useState<any[]>([]);
@@ -47,7 +48,7 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
           <Lightbox
             index={index}
             slides={slides}
-            plugins={[Inline, ...(isDesktop ? [Thumbnails] : [])]}
+            plugins={[Inline, ...(isDesktop && showThumbnails ? [Thumbnails] : [])]}
             on={{
               view: updateIndex,
               click: toggleOpen(true),
@@ -60,7 +61,7 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
                 backgroundColor: "black",
               },
             }}
-            thumbnails={isDesktop ? {
+            thumbnails={isDesktop && showThumbnails ? {
               position: "end",
               width: 120,
               height: 80,
@@ -88,7 +89,7 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
             close={() => setOpen(false)}
             index={index}
             slides={slides}
-            plugins={[Zoom, ...(isDesktop ? [Thumbnails] : [])]}
+            plugins={[Zoom, ...(isDesktop && showThumbnails ? [Thumbnails] : [])]}
             on={{ view: updateIndex }}
             animation={{ fade: 0 }}
             controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
@@ -106,10 +107,10 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
             carousel={{
               padding: 0,
               spacing: 0,
-              imageFit: "cover",
+              imageFit: "contain",
             }}
-            thumbnails={isDesktop ? {
-              position: "end",
+            thumbnails={isDesktop && showThumbnails ? {
+              position: "bottom",
               width: 120,
               height: 80,
               border: 1,
@@ -117,20 +118,28 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
               padding: 4,
               gap: 8,
             } : undefined}
+            styles={{
+              container: { 
+                backgroundColor: "black",
+                padding: 0,
+                height: "100vh",
+                width: "100vw",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              },
+              root: { 
+                backgroundColor: "black",
+                '--yarl__color_backdrop': 'rgba(0, 0, 0, 1)',
+              }
+            }}
             inline={{
               style: {
                 width: "100%",
-                height: "300px",
+                height: "100vh",
                 margin: "0 auto",
                 backgroundColor: "black",
               },
-            }}
-            styles={{
-              container: { 
-                backgroundColor: "transparent",
-                padding: 0,
-              },
-              root: { backgroundColor: "transparent" }
             }}
           />
         </>

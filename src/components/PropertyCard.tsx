@@ -101,6 +101,7 @@ const PropertyCard = ({
           <div className="aspect-w-16 aspect-h-9">
             <AgistmentPhotosView 
               photos={agistment.photoGallery?.photos}
+              showThumbnails={false}
             />
             {agistment.status === 'HIDDEN' && (
               <div className="absolute inset-0 bg-white/30" />

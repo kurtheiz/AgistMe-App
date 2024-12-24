@@ -75,7 +75,7 @@ export default function PreviewAgistmentDetail() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-white dark:bg-neutral-900">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-neutral-900">
       <div className="sticky top-0 z-50">
         <PageToolbar
           actions={
@@ -111,8 +111,13 @@ export default function PreviewAgistmentDetail() {
       </div>
 
       {/* Sticky Enquire Now Button */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="text-red-600/20 text-[40px] font-bold select-none whitespace-nowrap">
+            PREVIEW MODE
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center relative">
           <button
             disabled={true}
             className="w-full sm:w-auto min-w-[200px] px-6 py-3 bg-neutral-400 cursor-not-allowed opacity-50 text-white font-medium rounded-lg"
@@ -122,6 +127,7 @@ export default function PreviewAgistmentDetail() {
           <div className="flex gap-4 ml-6">
             {agistment && (
               <>
+
                 <button
                   className="p-2 rounded-lg bg-neutral-100 cursor-not-allowed opacity-50"
                   disabled={true}
@@ -135,6 +141,7 @@ export default function PreviewAgistmentDetail() {
                   <Share2 className="w-5 h-5" />
                 </button>
               </>
+
             )}
           </div>
         </div>
@@ -149,21 +156,17 @@ export default function PreviewAgistmentDetail() {
 
       <div className="pb-20">
         <div className="sm:max-w-7xl mx-auto">
-          <div className="flex flex-col space-y-4 sm:p-4">
+          <div className="flex flex-col space-y-4">
             {/* Photo Gallery Section */}
             <div>
-              <div className="flex justify-center items-center bg-neutral-100 dark:bg-neutral-800 p-4 rounded-lg mb-4">
-                <div className="text-lg font-semibold text-neutral-900 dark:text-white">
-                  PREVIEW
-                </div>
-              </div>
               <AgistmentPhotosView
                 photos={agistment.photoGallery?.photos || []}
               />
             </div>
 
-            {/* Header Section */}
-            <div className="px-4">
+            {/* All content below photo gallery */}
+            <div className="px-4 sm:px-4 flex flex-col space-y-4">
+              {/* Header Section */}
               <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
                 <AgistmentHeader
                   basicInfo={agistment.basicInfo}
@@ -183,66 +186,66 @@ export default function PreviewAgistmentDetail() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Paddocks and Care Options Grid */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-stretch lg:divide-x lg:divide-neutral-200 lg:dark:divide-neutral-800">
-                {/* Paddocks Section */}
-                <div className="lg:sticky lg:top-[120px]">
-                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                    Paddock Management
-                  </h2>
-                  <AgistmentPaddocks
-                    paddocks={agistment.paddocks}
-                  />
-                </div>
+              {/* Paddocks and Care Options Grid */}
+              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-stretch lg:divide-x lg:divide-neutral-200 lg:dark:divide-neutral-800">
+                  {/* Paddocks Section */}
+                  <div className="lg:sticky lg:top-[120px]">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                      Paddock Management
+                    </h2>
+                    <AgistmentPaddocks
+                      paddocks={agistment.paddocks}
+                    />
+                  </div>
 
-                {/* Care Options Section */}
-                <div className="lg:pl-8">
-                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                    Care Options
-                  </h2>
-                  <AgistmentCareOptions
-                    care={agistment.care}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Riding Facilities and Property Facilities Grid */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Riding Facilities Section */}
-                <div className="lg:sticky lg:top-[120px] border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200 dark:border-neutral-800">
-                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                    Riding Facilities
-                  </h2>
-                  <AgistmentRidingFacilities
-                    ridingFacilities={agistment.ridingFacilities}
-                  />
-                </div>
-
-                {/* Property Facilities Section */}
-                <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
-                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                    Property Facilities
-                  </h2>
-                  <AgistmentFacilities
-                    facilities={agistment.facilities}
-                  />
+                  {/* Care Options Section */}
+                  <div className="lg:pl-8">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                      Care Options
+                    </h2>
+                    <AgistmentCareOptions
+                      care={agistment.care}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Services Section */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                Services
-              </h2>
-              <AgistmentServices
-                services={agistment.propertyServices.services}
-              />
+              {/* Riding Facilities and Property Facilities Grid */}
+              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Riding Facilities Section */}
+                  <div className="lg:sticky lg:top-[120px] border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200 dark:border-neutral-800">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                      Riding Facilities
+                    </h2>
+                    <AgistmentRidingFacilities
+                      ridingFacilities={agistment.ridingFacilities}
+                    />
+                  </div>
+
+                  {/* Property Facilities Section */}
+                  <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                      Property Facilities
+                    </h2>
+                    <AgistmentFacilities
+                      facilities={agistment.facilities}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Services Section */}
+              <div>
+                <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                  Services
+                </h2>
+                <AgistmentServices
+                  services={agistment.propertyServices.services}
+                />
+              </div>
             </div>
           </div>
         </div>

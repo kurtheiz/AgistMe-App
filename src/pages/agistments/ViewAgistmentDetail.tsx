@@ -175,7 +175,7 @@ export function ViewAgistmentDetail() {
 
       <div className="pb-20">
         <div className="sm:max-w-7xl mx-auto">
-          <div className="flex flex-col space-y-4 sm:p-4">
+          <div className="flex flex-col space-y-4">
             {/* Photo Gallery Section */}
             <div>
               <AgistmentPhotosView
@@ -183,8 +183,9 @@ export function ViewAgistmentDetail() {
               />
             </div>
 
-            {/* Header Section */}
-            <div className="px-4">
+            {/* All content below photo gallery */}
+            <div className="px-4 sm:px-4 flex flex-col space-y-8">
+              {/* Header Section */}
               <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
                 <AgistmentHeader
                   basicInfo={agistment.basicInfo}
@@ -204,10 +205,8 @@ export function ViewAgistmentDetail() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Paddocks and Care Options Grid */}
-            <div className="px-4">
+              {/* Paddocks and Care Options Grid */}
               <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-stretch lg:divide-x lg:divide-neutral-200 lg:dark:divide-neutral-800">
                   {/* Paddocks Section */}
@@ -231,41 +230,41 @@ export function ViewAgistmentDetail() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Riding Facilities and Property Facilities Grid */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Riding Facilities Section */}
-                <div className="lg:sticky lg:top-[120px] border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200 dark:border-neutral-800">
-                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                    Riding Facilities
-                  </h2>
-                  <AgistmentRidingFacilities
-                    ridingFacilities={agistment.ridingFacilities}
-                  />
-                </div>
+              {/* Riding Facilities and Property Facilities Grid */}
+              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Riding Facilities Section */}
+                  <div className="lg:sticky lg:top-[120px] border-b lg:border-b-0 pb-8 lg:pb-0 border-neutral-200 dark:border-neutral-800">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                      Riding Facilities
+                    </h2>
+                    <AgistmentRidingFacilities
+                      ridingFacilities={agistment.ridingFacilities}
+                    />
+                  </div>
 
-                {/* Property Facilities Section */}
-                <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
-                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                    Property Facilities
-                  </h2>
-                  <AgistmentFacilities
-                    facilities={agistment.facilities}
-                  />
+                  {/* Property Facilities Section */}
+                  <div className="lg:border-l lg:border-neutral-200 lg:dark:border-neutral-800 lg:pl-8">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                      Property Facilities
+                    </h2>
+                    <AgistmentFacilities
+                      facilities={agistment.facilities}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Services Section */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                Services
-              </h2>
-              <AgistmentServices
-                services={agistment.propertyServices.services}
-              />
+              {/* Services Section */}
+              <div>
+                <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                  Services
+                </h2>
+                <AgistmentServices
+                  services={agistment.propertyServices.services}
+                />
+              </div>
             </div>
           </div>
         </div>
