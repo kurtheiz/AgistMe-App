@@ -16,6 +16,12 @@ import { useFavorite } from '../../hooks/useFavorite';
 import { AgistmentMap } from '../../components/Map/AgistmentMap';
 import { EnquiryModal } from '../../components/Agistment/EnquiryModal';
 
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
+
 export function ViewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -37,6 +43,15 @@ export function ViewAgistmentDetail() {
         setLoading(true);
         const data = await agistmentService.getAgistment(id);
         setAgistment(data);
+        
+        // Track page view in Google Analytics
+        window.gtag('event', 'page_view', {
+          page_title: data.basicInfo?.name || 'Agistment Details',
+          page_location: window.location.href,
+          agistment_id: id,
+          agistment_name: data.basicInfo?.name,
+          agistment_location: data.propertyLocation?.location?.suburb
+        });
       } catch (err) {
         console.error('Error loading agistment:', err);
         setError(err instanceof Error ? err.message : 'Failed to load agistment');
