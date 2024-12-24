@@ -29,6 +29,7 @@ export function MyAgistments() {
   const [editModal, setEditModal] = useState<{ type: EditModalType; agistment: AgistmentResponse } | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [flashErrorsId, setFlashErrorsId] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -116,7 +117,8 @@ export function MyAgistments() {
       const hasPhotosErrors = !agistment.photoGallery?.photos || agistment.photoGallery.photos.length === 0;
 
       if (hasBasicInfoErrors || hasPaddocksErrors || hasCareErrors || hasPhotosErrors) {
-        setIsHelpOpen(true);
+        setFlashErrorsId(agistmentId);
+        setTimeout(() => setFlashErrorsId(null), 1000);
         return;
       }
     }
@@ -158,7 +160,7 @@ export function MyAgistments() {
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
     <div className="bg-neutral-50 border-t border-neutral-200">
       <div className="text-center text-sm text-neutral-600 pt-4 flex items-center justify-center gap-2">
-        Edit Help
+        Click on a section below to edit
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -180,7 +182,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'header') ? 'animate-flash' : ''}`}
         >
           Basic Info
           {!checkSectionValidation(agistment, 'header') && (
@@ -191,7 +193,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'paddocks', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'paddocks') ? 'animate-flash' : ''}`}
         >
           Paddocks
           {!checkSectionValidation(agistment, 'paddocks') && (
@@ -214,7 +216,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'care', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'care') ? 'animate-flash' : ''}`}
         >
           Care
           {!checkSectionValidation(agistment, 'care') && (
@@ -225,7 +227,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'photos', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'photos') ? 'animate-flash' : ''}`}
         >
           Photos
           {!checkSectionValidation(agistment, 'photos') && (
@@ -453,9 +455,10 @@ export function MyAgistments() {
                   </Dialog.Title>
                   <div className="space-y-4">
                     <div>
-                      <p className="font-medium mb-1">Edit Help</p>
+                      
+
                       <p className="text-sm text-neutral-600">
-                        Sections marked with a <span className="inline-block align-middle"><AlertCircle className="w-4 h-4 text-red-500" /></span> require your attention before your agistment can be made visible in search results.
+                        <i>Sections marked with a <span className="inline-block align-middle"><AlertCircle className="w-4 h-4 text-red-500" /></span> require your attention before your agistment can be made visible in search results.</i>
                       </p>
                     </div>
                     <div className="space-y-2">

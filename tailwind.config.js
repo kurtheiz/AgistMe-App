@@ -40,6 +40,10 @@ export default {
         'scanning-cursor': {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' }
+        },
+        flash: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5', backgroundColor: 'rgb(239 68 68)' }
         }
       },
       animation: {
@@ -51,7 +55,8 @@ export default {
         'shimmer': 'shimmer 2s infinite',
         'terminal-type': 'terminal-type 0.2s ease-out forwards',
         'terminal-blink': 'terminal-blink 1s step-end infinite',
-        'scanning-cursor': 'scanning-cursor 2s ease-in-out infinite'
+        'scanning-cursor': 'scanning-cursor 2s ease-in-out infinite',
+        'flash': 'flash 1s ease-in-out',
       },
       colors: {
         // Primary colors - Forest Green
