@@ -1,17 +1,19 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, MoreVertical } from 'lucide-react';
+import { ChevronLeft, MoreVertical, RotateCw } from 'lucide-react';
 import { paymentsService } from '../../services/payments.service';
 import toast from 'react-hot-toast';
 import { formatDate } from '../../utils/dates';
 import { formatPrice } from '../../utils/prices';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Menu } from '@headlessui/react';
+import { PageToolbar } from '../../components/PageToolbar';
 
 export const Billing = () => {
   const navigate = useNavigate();
   const { isLoaded: isAuthLoaded, userId } = useAuth();
+  const queryClient = useQueryClient();
 
   // Scroll to top on mount
   useEffect(() => {
@@ -43,31 +45,44 @@ export const Billing = () => {
 
   return (
     <div className="bg-neutral-50">
-      <div className="bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="back-button"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span className="back-button-text">Back</span>
-            </button>
-            <span className="breadcrumb-separator">|</span>
-            <div className="breadcrumb-container">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="breadcrumb-link"
-              >
-                Dashboard
-              </button>
-              <span className="breadcrumb-chevron">&gt;</span>
-              <span>Billing</span>
+      <PageToolbar
+        titleElement={
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center">
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="back-button"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="back-button-text">Back</span>
+                </button>
+                <span className="breadcrumb-separator">|</span>
+                <div className="breadcrumb-container">
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="breadcrumb-link"
+                  >
+                    Dashboard
+                  </button>
+                  <span className="breadcrumb-chevron">&gt;</span>
+                  <span>Billing</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
+        }
+        actions={[
+          <button
+            key="refresh"
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['subscriptions', userId] })}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50"
+          >
+            <RotateCw className="w-4 h-4" />
+            Refresh
+          </button>
+        ]}
+      />
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {isLoading ? (
@@ -115,6 +130,7 @@ export const Billing = () => {
                             {({ active }) => (
                               <button
                                 onClick={() => navigate(`/dashboard/billing/subscriptions/${subscription.id}/invoices`)}
+
                                 className={`${
                                   active ? 'bg-neutral-50' : ''
                                 } block w-full px-4 py-2 text-left text-sm text-neutral-700`}
