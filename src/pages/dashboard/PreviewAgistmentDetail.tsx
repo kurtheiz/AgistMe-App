@@ -112,13 +112,31 @@ export default function PreviewAgistmentDetail() {
 
       {/* Sticky Enquire Now Button */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-center">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <button
             disabled={true}
             className="w-full sm:w-auto min-w-[200px] px-6 py-3 bg-neutral-400 cursor-not-allowed opacity-50 text-white font-medium rounded-lg"
           >
             Enquire Now
           </button>
+          <div className="flex gap-4 ml-6">
+            {agistment && (
+              <>
+                <button
+                  className="p-2 rounded-lg bg-neutral-100 cursor-not-allowed opacity-50"
+                  disabled={true}
+                >
+                  <Heart className="w-5 h-5 stroke-neutral-600" />
+                </button>
+                <button
+                  className="p-2 rounded-lg bg-neutral-100 cursor-not-allowed opacity-50"
+                  disabled={true}
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -129,11 +147,11 @@ export default function PreviewAgistmentDetail() {
         agistmentId={id || ''}
       />
 
-      <div className="w-full pb-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col space-y-8 p-4">
+      <div className="pb-20">
+        <div className="sm:max-w-7xl mx-auto">
+          <div className="flex flex-col space-y-4 sm:p-4">
             {/* Photo Gallery Section */}
-            <div className="w-full max-w-7xl mx-auto border-b border-neutral-200 dark:border-neutral-800 pb-8">
+            <div>
               <div className="flex justify-center items-center bg-neutral-100 dark:bg-neutral-800 p-4 rounded-lg mb-4">
                 <div className="text-lg font-semibold text-neutral-900 dark:text-white">
                   PREVIEW
@@ -145,44 +163,26 @@ export default function PreviewAgistmentDetail() {
             </div>
 
             {/* Header Section */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="mb-4 flex gap-4">
-                {agistment && (
-                  <>
-
-                    <button
-                      className="p-2 rounded-lg bg-neutral-100 cursor-not-allowed opacity-50"
-                      disabled={true}
-                    >
-                      <Heart className="w-5 h-5 stroke-neutral-600" />
-                    </button>
-                    <button
-                      className="p-2 rounded-lg bg-neutral-100 cursor-not-allowed opacity-50"
-                      disabled={true}
-                    >
-                      <Share2 className="w-5 h-5" />
-                    </button>
-                  </>
-
+            <div className="px-4">
+              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+                <AgistmentHeader
+                  basicInfo={agistment.basicInfo}
+                  propertyLocation={agistment.propertyLocation}
+                  contactDetails={agistment.contact}
+                  propertyDescription={agistment.propertyDescription}
+                  socialMedia={agistment.socialMedia}
+                />
+                {agistment.propertyLocation?.location && (
+                  <div className="mt-8">
+                    <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">Location</h2>
+                    <div className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
+                      <AgistmentMap
+                        address={`${agistment.propertyLocation.location.address}, ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}, Australia ${agistment.propertyLocation.location.postcode}`}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
-              <AgistmentHeader
-                basicInfo={agistment.basicInfo}
-                propertyLocation={agistment.propertyLocation}
-                contactDetails={agistment.contact}
-                propertyDescription={agistment.propertyDescription}
-                socialMedia={agistment.socialMedia}
-              />
-              {agistment.propertyLocation?.location && (
-                <div className="mt-8">
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">Location</h2>
-                  <div className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
-                    <AgistmentMap
-                      address={`${agistment.propertyLocation.location.address}, ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}, Australia ${agistment.propertyLocation.location.postcode}`}
-                    />
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Paddocks and Care Options Grid */}

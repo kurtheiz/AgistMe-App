@@ -129,13 +129,40 @@ export function ViewAgistmentDetail() {
 
       {/* Sticky Enquire Now Button */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-center">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <button
             onClick={() => setIsEnquiryModalOpen(true)}
             className="w-full sm:w-auto min-w-[200px] px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
           >
             Enquire Now
           </button>
+          <div className="flex gap-4 ml-6">
+            {agistment && (
+              <>
+                <button
+                  onClick={toggleFavorite}
+                  className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+                  disabled={isFavoriteLoading || !agistment}
+                >
+                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
+                </button>
+                <button
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: 'Agist Me',
+                        text: `Look at what I found on Agist Me.\n${agistment?.basicInfo.name} located in ${agistment?.propertyLocation.location?.suburb}, ${agistment?.propertyLocation.location?.state}`,
+                        url: window.location.href,
+                      });
+                    }
+                  }}
+                  className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -146,87 +173,62 @@ export function ViewAgistmentDetail() {
         agistmentId={id || ''}
       />
 
-      <div className="w-full pb-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col space-y-8 p-4">
+      <div className="pb-20">
+        <div className="sm:max-w-7xl mx-auto">
+          <div className="flex flex-col space-y-4 sm:p-4">
             {/* Photo Gallery Section */}
-            <div className="w-full max-w-7xl mx-auto border-b border-neutral-200 dark:border-neutral-800 pb-8">
+            <div>
               <AgistmentPhotosView
                 photos={agistment.photoGallery?.photos || []}
               />
             </div>
 
             {/* Header Section */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="mb-4 flex gap-4">
-                {agistment && (
-                  <>
-
-                    <button
-                      onClick={toggleFavorite}
-                      className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
-                      disabled={isFavoriteLoading || !agistment}
-                    >
-                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-neutral-600'}`} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (navigator.share) {
-                          navigator.share({
-                            title: 'Agist Me',
-                            text: `Look at what I found on Agist Me.\n${agistment?.basicInfo.name} located in ${agistment?.propertyLocation.location?.suburb}, ${agistment?.propertyLocation.location?.state}`,
-                            url: window.location.href,
-                          });
-                        }
-                      }}
-                      className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
-                    >
-                      <Share2 className="w-5 h-5" />
-                    </button>
-                  </>
-
+            <div className="px-4">
+              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+                <AgistmentHeader
+                  basicInfo={agistment.basicInfo}
+                  propertyLocation={agistment.propertyLocation}
+                  contactDetails={agistment.contact}
+                  propertyDescription={agistment.propertyDescription}
+                  socialMedia={agistment.socialMedia}
+                />
+                {agistment.propertyLocation?.location && (
+                  <div className="mt-8">
+                    <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">Location</h2>
+                    <div className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
+                      <AgistmentMap
+                        address={`${agistment.propertyLocation.location.address}, ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}, Australia ${agistment.propertyLocation.location.postcode}`}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
-              <AgistmentHeader
-                basicInfo={agistment.basicInfo}
-                propertyLocation={agistment.propertyLocation}
-                contactDetails={agistment.contact}
-                propertyDescription={agistment.propertyDescription}
-                socialMedia={agistment.socialMedia}
-              />
-              {agistment.propertyLocation?.location && (
-                <div className="mt-8">
-                  <h2 className="text-xl font-semibold mb-4 text-neutral-900 dark:text-white">Location</h2>
-                  <div className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
-                    <AgistmentMap
-                      address={`${agistment.propertyLocation.location.address}, ${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}, Australia ${agistment.propertyLocation.location.postcode}`}
-                    />
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Paddocks and Care Options Grid */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-stretch lg:divide-x lg:divide-neutral-200 lg:dark:divide-neutral-800">
-                {/* Paddocks Section */}
-                <div className="lg:sticky lg:top-[120px]">
-                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                    Paddock Management
-                  </h2>
-                  <AgistmentPaddocks
-                    paddocks={agistment.paddocks}
-                  />
-                </div>
+            <div className="px-4">
+              <div className="border-b border-neutral-200 dark:border-neutral-800 pb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-stretch lg:divide-x lg:divide-neutral-200 lg:dark:divide-neutral-800">
+                  {/* Paddocks Section */}
+                  <div className="lg:sticky lg:top-[120px]">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                      Paddock Management
+                    </h2>
+                    <AgistmentPaddocks
+                      paddocks={agistment.paddocks}
+                    />
+                  </div>
 
-                {/* Care Options Section */}
-                <div className="lg:pl-8">
-                  <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
-                    Care Options
-                  </h2>
-                  <AgistmentCareOptions
-                    care={agistment.care}
-                  />
+                  {/* Care Options Section */}
+                  <div className="lg:pl-8">
+                    <h2 className="text-xl font-semibold mb-6 text-neutral-900 dark:text-white">
+                      Care Options
+                    </h2>
+                    <AgistmentCareOptions
+                      care={agistment.care}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
