@@ -42,6 +42,7 @@ export const Billing = () => {
       </div>
     );
   }
+  
 
   return (
     <div className="bg-neutral-50">
