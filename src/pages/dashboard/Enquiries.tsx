@@ -34,19 +34,26 @@ export default function EnquiriesPage() {
     <div className="min-h-screen bg-neutral-50">
       <PageToolbar
         titleElement={
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="p-2 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <div className="text-sm text-neutral-500">
-                <div className="flex items-center gap-2">
-                  <span className="breadcrumb-parent">Dashboard</span>
-                  <span className="breadcrumb-separator">/</span>
-                  <span className="breadcrumb-current">Enquiries</span>
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center">
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="back-button"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="back-button-text">Back</span>
+                </button>
+                <span className="breadcrumb-separator">|</span>
+                <div className="breadcrumb-container">
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="breadcrumb-link"
+                  >
+                    Dashboard
+                  </button>
+                  <span className="breadcrumb-chevron">&gt;</span>
+                  <span>Enquiries</span>
                 </div>
               </div>
             </div>

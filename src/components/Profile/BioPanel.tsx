@@ -11,7 +11,7 @@ interface BioPanelProps {
 export function BioPanel({ profile, onEditClick }: BioPanelProps) {
   return (
     <div id="bio-section">
-      <Disclosure>
+      <Disclosure defaultOpen={true}>
         {({ open }) => (
           <div className="bg-white rounded-lg shadow-sm">
             <DisclosureButton className="w-full px-4 py-4 text-left flex justify-between items-center">

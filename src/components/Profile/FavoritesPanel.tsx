@@ -15,7 +15,7 @@ export function FavoritesPanel({
 
   return (
     <div id="favourites-section">
-      <Disclosure>
+      <Disclosure defaultOpen={true}>
         {({ open }) => (
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
             <DisclosureButton className={`w-full px-4 py-4 text-left flex justify-between items-center ${open ? 'rounded-t-lg' : 'rounded-lg'}`}>

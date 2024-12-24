@@ -18,6 +18,7 @@ import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServ
 import { AgistmentPhotosModal } from '../../components/Agistment/AgistmentPhotosModal';
 import { AgistmentFromTextModal } from '../../components/Agistment/AgistmentFromTextModal';
 import toast from 'react-hot-toast';
+import PropertyCard from '../../components/PropertyCard';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
 
@@ -175,7 +176,7 @@ export function MyAgistments() {
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
     <div className="bg-neutral-50 border-t border-neutral-200">
       <div className="text-center text-sm text-neutral-600 pt-4 flex items-center justify-center gap-2">
-        Edit Help
+        Edit
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -341,15 +342,22 @@ export function MyAgistments() {
             </button>
           </div>
         ) : (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="grid grid-cols-1 gap-6">
+          <div className="pb-8 pt-4 md:px-4">
+            <div className="mb-4 text-sm text-neutral-600 px-4">
+              {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {agistments.map((agistment) => (
-                <div key={agistment.id} className="bg-white rounded-lg shadow">
-                  <div className="p-4 bg-primary-500">
-                    <h3 className="text-lg font-medium text-white">
-                      {agistment.basicInfo?.name || 'Unnamed Agistment'}
-                    </h3>
-                  </div>
+                <div key={agistment.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <PropertyCard
+                    agistment={agistment}
+                    onClick={() => navigate(`/dashboard/agistments/${agistment.id}`)}
+                    noShadow
+                    disableFavorite
+                    showStatus
+                  />
+
                   {renderEditButtons(agistment)}
                 </div>
               ))}
