@@ -134,11 +134,11 @@ export const AgistmentPaddocksModal = ({
       }
 
       if (paddock.available < 0) {
-        typeErrors.available = 'Available spots cannot be negative';
+        typeErrors.available = 'Available spaces cannot be negative';
       }
 
       if (paddock.available > paddock.total) {
-        typeErrors.available = 'Available spots cannot exceed total capacity';
+        typeErrors.available = 'Available spaces cannot exceed total capacity';
       }
 
       if (paddock.weeklyPrice < 0) {
@@ -300,8 +300,8 @@ export const AgistmentPaddocksModal = ({
                     </div>
                   )}
                   <div className="text-sm text-neutral-600 text-center mb-4">
-                    <p>How many <span className="font-bold">{title}</span> paddocks do you have?</p>
-                    <p>If you set it to <b>0</b>, the it will display as <span className="chip-unavailable">
+                    <p>How many <span className="font-bold">{title}</span> do you have?</p>
+                    <p>If you set it to <b>0</b>, then it will display as <span className="chip-unavailable">
                   Unavailable</span></p>
                   </div>
                   <div className="text-sm text-neutral-600 text-center mb-2">
@@ -323,13 +323,13 @@ export const AgistmentPaddocksModal = ({
                     </div>
                   </div>
                   <div className="text-sm text-neutral-600 text-center mb-4">
-                    <p>How many horses can your <span className="font-bold">{editForm[type as keyof EditForm].totalPaddocks}</span> paddocks accommodate in total?</p>
+                    <p>How many horses can your <span className="font-bold">{editForm[type as keyof EditForm].totalPaddocks}</span> {editForm[type as keyof EditForm].totalPaddocks === 1 ? 'paddock' : 'paddocks'} accommodate in total?</p>
                   </div>
                   <div className="text-sm text-neutral-600 text-center mb-2">
                     <div className="flex justify-center">
                       <div>
                         <label className="block text-sm font-medium text-neutral-700 mb-1">
-                          Total Horse Spot Capacity
+                          Total Horse Space Capacity
                         </label>
                         <NumberStepper
                           value={editForm[type as keyof EditForm].total}
@@ -345,12 +345,12 @@ export const AgistmentPaddocksModal = ({
                     </div>
                   </div>
                   <div className="text-sm text-neutral-600 text-center mb-2">
-                    <p>How many horse spots are currently vacant?</p>
+                    <p>How many horse spaces are currently vacant?</p>
                   </div>
                   <div className="flex flex-col items-center justify-center space-y-4">
                     <div className="flex flex-col items-center">
                       <label className="block text-sm font-medium leading-6 text-gray-900">
-                        Available Horse Spots
+                        Available Horse Spaces
                       </label>
                       <NumberStepper
                         value={editForm[type as keyof EditForm].available}

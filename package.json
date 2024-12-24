@@ -23,7 +23,6 @@
     "@tanstack/react-query-persist-client": "^5.62.7",
     "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^10.0.0",
-    "aws-rum-web": "^1.19.0",
     "axios": "^1.6.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

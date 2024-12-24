@@ -9,18 +9,10 @@ import {
   ProfileResponse, 
   ProfileUpdateRequest, 
   SavedSearchesResponse, 
-  HorsesResponse, 
   FavouritesResponse,
   SavedSearch,
-  Horse,
   Favourite
 } from '../types/profile';
-
-interface PresignedUrlRequest {
-  filenames: string[];
-  image_type: 'profile' | 'agistment';
-  agistment_id?: string;
-}
 
 interface PresignedUrlResponse {
   url: string;
@@ -117,32 +109,6 @@ class ProfileService {
     });
   }
 
-  async getHorses(): Promise<HorsesResponse> {
-    return this.retryOperation(async () => {
-      try {
-        const response = await this.api.get<HorsesResponse>('v1/protected/profile/horses');
-        return response.data;
-      } catch (error) {
-        console.error('Failed to get horses:', error);
-        throw error;
-      }
-    });
-  }
-
-  async updateHorses(horses: Horse[]): Promise<HorsesResponse> {
-    return this.retryOperation(async () => {
-      try {
-        const response = await this.api.put<HorsesResponse>('v1/protected/profile/horses', {
-          horses
-        });
-        return response.data;
-      } catch (error) {
-        console.error('Failed to update horses:', error);
-        throw error;
-      }
-    });
-  }
-
   async getFavourites(): Promise<FavouritesResponse> {
     return this.retryOperation(async () => {
       try {
@@ -184,17 +150,6 @@ class ProfileService {
     });
   }
 
-  async deleteFavorite(agistmentId: string): Promise<void> {
-    return this.retryOperation(async () => {
-      try {
-        await this.api.delete(`v1/protected/profile/favourites/${agistmentId}`);
-      } catch (error) {
-        console.error('Error deleting favorite:', error);
-        throw error;
-      }
-    });
-  }
-
   async deleteProfile(): Promise<void> {
     return this.retryOperation(async () => {
       try {
@@ -209,12 +164,12 @@ class ProfileService {
   async uploadProfilePhoto(file: File): Promise<string> {
     try {
       // Get presigned URL
-      const response = await this.api.post<PresignedUrlResponse[]>('v1/protected/upload/presigned', {
+      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', {
         filenames: [file.name],
         image_type: 'profile'
       });
 
-      const { url, fields, s3Key } = response.data[0];
+      const { url, fields, publicUrl } = response.data[0];
 
       // Create form data
       const formData = new FormData();
@@ -229,52 +184,13 @@ class ProfileService {
         body: formData
       });
 
-      return s3Key;
+      return publicUrl;
     } catch (error) {
       console.error('Failed to upload profile photo:', error);
       throw error;
     }
   }
 
-  async uploadHorsePhoto(file: File, horseName: string): Promise<string> {
-    try {
-      // Get presigned URL
-      const filename = `${Date.now()}-horse-${horseName}-${file.name}`;
-      const presignedRequest: PresignedUrlRequest = {
-        filenames: [filename],
-        image_type: 'profile'
-      };
-      
-      console.log('Requesting presigned URL for horse photo...');
-      const response = await this.api.post<PresignedUrlResponse[]>('v1/presigned-urls', presignedRequest);
-      const presignedData = response.data[0];
-      console.log('Received presigned URL data:', presignedData);
-
-      // Create form data for S3 upload
-      const formData = new FormData();
-      Object.entries(presignedData.fields).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-      formData.append('file', file);
-
-      console.log('Uploading horse photo to S3...');
-      // Upload to S3
-      const uploadResponse = await fetch(presignedData.url, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error(`Failed to upload horse photo to S3: ${uploadResponse.statusText}`);
-      }
-
-      console.log('Horse photo upload successful');
-      return presignedData.publicUrl;
-    } catch (error) {
-      console.error('Failed to upload horse photo:', error);
-      throw error;
-    }
-  }
 }
 
 // Create a singleton instance

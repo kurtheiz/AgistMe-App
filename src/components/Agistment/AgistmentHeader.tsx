@@ -20,17 +20,13 @@ export const AgistmentHeader = ({
   return (
     <>
       {/* Basic Info Section */}
-      <div className="mb-4">
-      </div>
-      <div className="flex justify-between items-start mb-4">
-        <div className="w-full">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-            {basicInfo?.name || 'Unnamed Agistment'}
-          </h1>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+          {basicInfo?.name || 'Unnamed Agistment'}
+        </h1>
       </div>
       
-      <div className="space-y-6 w-full">
+      <div className="space-y-6 w-full mt-4">
         {/* Location Section */}
         {propertyLocation?.location && (
           <div>

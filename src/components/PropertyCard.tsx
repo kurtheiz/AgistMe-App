@@ -115,8 +115,7 @@ const PropertyCard = ({
               <div className="text-neutral-800 truncate">
               {agistment.propertyLocation.location.address && (
     <><span className="font-semibold">{agistment.propertyLocation.location.address}</span>, </>
-  )}
-  <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
+  )}<span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
               </div>
               {agistment.matchType === 'ADJACENT' && agistment.distance !== undefined && (
                 <div className="text-xs text-neutral-500 mt-1">
@@ -130,7 +129,7 @@ const PropertyCard = ({
               )}
               <div className="text-xs text-neutral-500 mt-1">
                 {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 
-                  ? <>Property is <span className="text-sm font-bold">{agistment.basicInfo.propertySize}</span> acres</>
+                  ? <>Property is <span className="font-bold">{agistment.basicInfo.propertySize}</span> acres</>
                   : 'Property size not specified'
                 }
               </div>
