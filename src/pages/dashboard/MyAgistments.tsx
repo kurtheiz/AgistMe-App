@@ -8,7 +8,6 @@ import { agistmentService } from '../../services/agistment.service';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';
 import { AgistmentResponse } from '../../types/agistment';
-import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 import { AgistmentHeaderModal } from '../../components/Agistment/AgistmentHeaderModal';
 import { AgistmentPaddocksModal } from '../../components/Agistment/AgistmentPaddocksModal';
 import { AgistmentRidingFacilitiesModal } from '../../components/Agistment/AgistmentRidingFacilitiesModal';
@@ -27,7 +26,6 @@ export function MyAgistments() {
   const location = useLocation();
   const [agistments, setAgistments] = useState<AgistmentSearchResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [agistmentToDelete, setAgistmentToDelete] = useState<string | null>(null);
   const [editModal, setEditModal] = useState<{ type: EditModalType; agistment: AgistmentResponse } | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -57,21 +55,6 @@ export function MyAgistments() {
       fetchAgistments();
     }
   }, [userId, location.state]);
-
-  const handleDelete = async () => {
-    if (!agistmentToDelete) return;
-
-    try {
-      await agistmentService.deleteAgistment(agistmentToDelete);
-      setAgistments(agistments.filter(a => a.id !== agistmentToDelete));
-      toast.success('Agistment deleted successfully');
-    } catch (error) {
-      console.error('Error deleting agistment:', error);
-      toast.error('Failed to delete agistment');
-    } finally {
-      setAgistmentToDelete(null);
-    }
-  };
 
   const handleUpdateAgistment = async (agistmentId: string, updatedData: Partial<AgistmentResponse>, keepModalOpen = false) => {
     if (!agistmentId || isUpdating) return;
@@ -282,13 +265,6 @@ export function MyAgistments() {
             <><span>Unhide</span></>
           )}
         </button>
-
-        <button
-          onClick={() => setAgistmentToDelete(agistment.id)}
-          className="button-toolbar text-red-600 ml-auto"
-        >
-          Cancel Subscription
-        </button>
       </div>
     </div>
   );
@@ -342,6 +318,12 @@ export function MyAgistments() {
           </div>
         ) : (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {!isLoading && agistments.length > 0 && (
+              <div className="mb-4 text-sm text-neutral-600">
+                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 gap-6">
               {agistments.map((agistment) => (
                 <div key={agistment.id} className="bg-white rounded-lg shadow">
@@ -357,17 +339,6 @@ export function MyAgistments() {
           </div>
         )}
       </div>
-
-      <ConfirmationModal
-        isOpen={!!agistmentToDelete}
-        onClose={() => setAgistmentToDelete(null)}
-        onConfirm={handleDelete}
-        title="Cancel Agistment"
-        message="Are you sure you want to cancel your subscription for this agistment?"
-        confirmText="Yes, Cancel"
-        cancelText="No, Keep It"
-        disableOutsideClick={true}
-      />
 
       {editModal?.type === 'fromtext' && editModal.agistment && (
         <AgistmentFromTextModal
