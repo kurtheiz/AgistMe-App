@@ -17,10 +17,24 @@ export interface SubscriptionResponse {
   customer: string;
   status: string;
   current_period_end: number;
+  current_period_end_date: string;
   current_period_start: number;
-  metadata: Record<string, any>;
+  current_period_start_date: string;
+  metadata: {
+    "Agistment Listing": string;
+    listing_type: string;
+  };
   trial_end?: number;
+  trial_end_date?: string;
   default_payment_method?: string;
+  agistmentId: string;
+  agistmentName: string | null;
+  price_amount: number;
+  price_currency: string;
+  latest_invoice: string;
+  invoice_count: number;
+  days_until_billing: number;
+  billing_starts: string;
 }
 
 export interface CheckoutSessionResponse {

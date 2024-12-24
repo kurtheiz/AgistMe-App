@@ -11,6 +11,13 @@ export function formatCurrency(value: number): string {
 }
 
 /**
+ * Formats a price with 2 decimal places and dollar sign
+ */
+export function formatPrice(value: number): string {
+  return `$${value.toFixed(2)}`;
+}
+
+/**
  * Calculates the monthly price from a weekly price
  * Assumes 52 weeks per year divided by 12 months (4.333... weeks per month)
  */
