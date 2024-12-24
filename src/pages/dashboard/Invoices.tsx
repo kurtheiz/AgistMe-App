@@ -5,6 +5,7 @@ import { Loader2, ChevronLeft, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { formatDate } from '../../utils/dates';
 import { formatPrice } from '../../utils/prices';
+import { PageToolbar } from '../../components/PageToolbar';
 
 interface Invoice {
   id: string;
@@ -72,40 +73,49 @@ export const Invoices = () => {
 
   return (
     <div className="bg-neutral-50">
-      <div className="bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <button
-              onClick={() => navigate('/dashboard/billing')}
-              className="back-button"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span className="back-button-text">Back</span>
-            </button>
-            <span className="breadcrumb-separator">|</span>
-            <div className="breadcrumb-container">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="breadcrumb-link"
-              >
-                Dashboard
-              </button>
-              <span className="breadcrumb-chevron">&gt;</span>
-              <button
-                onClick={() => navigate('/dashboard/billing')}
-                className="breadcrumb-link"
-              >
-                Billing
-              </button>
-              <span className="breadcrumb-chevron">&gt;</span>
-              <span>Invoices</span>
+      <PageToolbar
+        titleElement={
+          <div className="w-full">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center">
+                <button
+                  onClick={() => navigate('/dashboard/billing')}
+                  className="back-button"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="back-button-text">Back</span>
+                </button>
+                <span className="breadcrumb-separator">|</span>
+                <div className="breadcrumb-container">
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="breadcrumb-link"
+                  >
+                    Dashboard
+                  </button>
+                  <span className="breadcrumb-chevron">&gt;</span>
+                  <button
+                    onClick={() => navigate('/dashboard/billing')}
+                    className="breadcrumb-link"
+                  >
+                    Billing
+                  </button>
+                  <span className="breadcrumb-chevron">&gt;</span>
+                  <span>Invoices</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
+        }
+      />
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {!loading && invoices.length > 0 && (
+            <div className="mb-4 text-sm text-neutral-600">
+              {invoices.length} {invoices.length === 1 ? 'invoice' : 'invoices'}
+            </div>
+          )}
+
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
