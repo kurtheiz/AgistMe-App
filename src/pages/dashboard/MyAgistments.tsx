@@ -364,9 +364,10 @@ export function MyAgistments() {
                         photos={agistment.photoGallery?.photos || []}
                         showThumbnails={false}
                         disableFullscreen={true}
+                        className="cursor-pointer"
                       />
                       {agistment.status === 'HIDDEN' && (
-                        <div className="absolute inset-0 bg-white/30" />
+                        <div className="absolute inset-0 bg-white/10 pointer-events-none" />
                       )}
                     </div>
                   </div>
@@ -561,7 +562,7 @@ export function MyAgistments() {
                   <div className="mt-6">
                     <button
                       type="button"
-                      className="w-full inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                      className="w-full inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                       onClick={() => setIsHelpOpen(false)}
                     >
                       Got it, thanks!
