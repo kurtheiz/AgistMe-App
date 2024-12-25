@@ -268,7 +268,7 @@ export function MyAgistments() {
         } rounded`}>
         {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
       </div>
-      <div className="border-t border-neutral-200 p-4 flex gap-2 bg-white">
+      <div className="border-t border-neutral-200 p-4 flex justify-between bg-white">
         <button
           onClick={() => handlePreview(agistment)}
           className="button-toolbar"
@@ -277,7 +277,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
-          className="button-toolbar"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
         >
           {agistment.status === 'PUBLISHED' ? (
             <><span>Hide</span></>
@@ -337,20 +337,23 @@ export function MyAgistments() {
             </button>
           </div>
         ) : (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-8">
             {!isLoading && agistments.length > 0 && (
-              <div className="mb-4 text-sm text-neutral-600">
+              <div className="mb-4 text-sm text-neutral-600 px-4">
                 {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'}
               </div>
             )}
 
             <div className="grid grid-cols-1 gap-6">
               {agistments.map((agistment) => (
-                <div key={agistment.id} className="bg-white rounded-lg shadow">
-                  <div className="p-4 bg-primary-500">
+                <div key={agistment.id} className="bg-white rounded-none sm:rounded-lg shadow">
+                  <div className="p-4 bg-primary-500 rounded-none sm:rounded-t-lg">
                     <h3 className="text-lg font-medium text-white">
                       {agistment.basicInfo?.name || 'Unnamed Agistment'}
                     </h3>
+                    <p className="text-sm text-white/80 mt-1">
+                      {agistment.propertyLocation?.location?.suburb}, {agistment.propertyLocation?.location?.state}
+                    </p>
                   </div>
                   {renderEditButtons(agistment)}
                 </div>
