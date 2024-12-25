@@ -16,6 +16,7 @@ import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentC
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
 import { AgistmentPhotosModal } from '../../components/Agistment/AgistmentPhotosModal';
 import { AgistmentFromTextModal } from '../../components/Agistment/AgistmentFromTextModal';
+import { AgistmentPhotosView } from '../../components/Agistment/AgistmentPhotosView';
 import toast from 'react-hot-toast';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
@@ -77,7 +78,7 @@ export function MyAgistments() {
       const updatedAgistments = await agistmentService.getMyAgistments();
       setAgistments(updatedAgistments.results || []);
 
-      toast.success('Subscription cancelled successfully');
+      toast.success('Agistment updated successfully');
 
       // Only close modal if keepModalOpen is false
       if (!keepModalOpen) {
@@ -273,7 +274,7 @@ export function MyAgistments() {
           onClick={() => handlePreview(agistment)}
           className="button-toolbar"
         >
-          Preview
+          Preview Listing
         </button>
         <button
           onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
@@ -355,6 +356,43 @@ export function MyAgistments() {
                       {agistment.propertyLocation?.location?.suburb}, {agistment.propertyLocation?.location?.state}
                     </p>
                   </div>
+
+                  {/* Photo Gallery */}
+                  <div className="relative">
+                    <div className="aspect-w-16 aspect-h-9">
+                      <AgistmentPhotosView 
+                        photos={agistment.photoGallery?.photos || []}
+                        showThumbnails={false}
+                        disableFullscreen={true}
+                      />
+                      {agistment.status === 'HIDDEN' && (
+                        <div className="absolute inset-0 bg-white/30" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  {agistment.propertyLocation?.location && (
+                    <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 bg-white">
+                      <div className="flex flex-col min-w-0">
+                        <div className="text-neutral-800 truncate">
+                          {agistment.propertyLocation.location.address && (
+                            <><span className="font-semibold">{agistment.propertyLocation.location.address}</span>, </>
+                          )}
+                          <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, 
+                          <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, 
+                          <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
+                        </div>
+                        <div className="text-xs text-neutral-500 mt-1">
+                          {agistment.basicInfo?.propertySize && agistment.basicInfo.propertySize > 0 
+                            ? <>Property is <span className="font-bold">{agistment.basicInfo.propertySize}</span> acres</>
+                            : 'Property size not specified'
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {renderEditButtons(agistment)}
                 </div>
               ))}

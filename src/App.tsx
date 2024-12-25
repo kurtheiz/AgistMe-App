@@ -31,6 +31,7 @@ import PreviewAgistmentDetail from './pages/dashboard/PreviewAgistmentDetail';
 import { useEffect } from 'react';
 import React from 'react'; 
 import { useQueryClient } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -276,6 +277,44 @@ function App() {
           <div className="min-h-screen bg-neutral-50">
             <ErrorBoundary>
               <RouterProvider router={router} />
+              <Toaster
+                position="top-center"
+                gutter={8}
+                containerStyle={{
+                  top: 20,
+                }}
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#ffffff',
+                    color: '#1e361e',
+                    border: '1px solid #e5ede5',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                  },
+                  success: {
+                    iconTheme: {
+                      primary: '#4a774a',
+                      secondary: '#ffffff',
+                    },
+                    style: {
+                      border: '1px solid #e5ede5',
+                      backgroundColor: '#f3f6f3',
+                    },
+                  },
+                  error: {
+                    iconTheme: {
+                      primary: '#ef4444',
+                      secondary: '#ffffff',
+                    },
+                    style: {
+                      border: '1px solid #fee2e2',
+                      backgroundColor: '#fef2f2',
+                    },
+                  },
+                }}
+              />
             </ErrorBoundary>
           </div>
         </AuthInitializer>

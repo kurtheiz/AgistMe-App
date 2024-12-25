@@ -13,7 +13,6 @@ import { AgistmentCareOptions } from '../../components/Agistment/AgistmentCareOp
 import { AgistmentServices } from '../../components/Agistment/AgistmentServices';
 import { AgistmentPhotosView } from '../../components/Agistment/AgistmentPhotosView';
 import { AgistmentMap } from '../../components/Map/AgistmentMap';
-import { EnquiryModal } from '../../components/Agistment/EnquiryModal';
 
 export default function PreviewAgistmentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +20,6 @@ export default function PreviewAgistmentDetail() {
   const [agistment, setAgistment] = useState<AgistmentResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -127,7 +125,6 @@ export default function PreviewAgistmentDetail() {
           <div className="flex gap-4 ml-6">
             {agistment && (
               <>
-
                 <button
                   className="p-2 rounded-lg bg-neutral-100 cursor-not-allowed opacity-50"
                   disabled={true}
@@ -141,18 +138,10 @@ export default function PreviewAgistmentDetail() {
                   <Share2 className="w-5 h-5" />
                 </button>
               </>
-
             )}
           </div>
         </div>
       </div>
-
-      <EnquiryModal
-        isOpen={isEnquiryModalOpen}
-        onClose={() => setIsEnquiryModalOpen(false)}
-        agistmentName={agistment.basicInfo.name}
-        agistmentId={id || ''}
-      />
 
       <div className="pb-20">
         <div className="sm:max-w-7xl mx-auto">

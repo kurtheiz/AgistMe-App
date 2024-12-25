@@ -10,9 +10,14 @@ import { Photo } from '../../types/agistment';
 interface AgistmentPhotosViewProps {
   photos?: Photo[];
   showThumbnails?: boolean;
+  disableFullscreen?: boolean;
 }
 
-export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos = [], showThumbnails = true }) => {
+export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ 
+  photos = [], 
+  showThumbnails = true,
+  disableFullscreen = false 
+}) => {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [slides, setSlides] = useState<any[]>([]);
@@ -51,7 +56,7 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
             plugins={[Inline, ...(isDesktop && showThumbnails ? [Thumbnails] : [])]}
             on={{
               view: updateIndex,
-              click: toggleOpen(true),
+              click: disableFullscreen ? undefined : toggleOpen(true),
             }}
             inline={{
               style: {
