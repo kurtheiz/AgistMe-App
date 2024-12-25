@@ -82,9 +82,9 @@ class AgistmentService {
     }
   }
 
-  async getAgistment(id: string): Promise<AgistmentResponse> {
+  async getAgistment(id: string, count: boolean=false): Promise<AgistmentResponse> {
     return this.retryOperation(async () => {
-      const response = await this.api.get<AgistmentResponse>(`v1/agistments/${id}`);
+      const response = await this.api.get<AgistmentResponse>(`v1/agistments/${id}?count=${count}`);
       return response.data;
     });
   }

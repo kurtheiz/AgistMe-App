@@ -33,7 +33,7 @@ export default function PreviewAgistmentDetail() {
 
       try {
         setLoading(true);
-        const data = await agistmentService.getAgistment(id);
+        const data = await agistmentService.getAgistment(id, false);
         setAgistment(data);
       } catch (err) {
         console.error('Error loading agistment:', err);

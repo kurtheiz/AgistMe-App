@@ -41,7 +41,7 @@ export function ViewAgistmentDetail() {
 
       try {
         setLoading(true);
-        const data = await agistmentService.getAgistment(id);
+        const data = await agistmentService.getAgistment(id, true);
         setAgistment(data);
         
         // Track page view in Google Analytics
