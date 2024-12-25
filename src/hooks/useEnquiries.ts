@@ -79,7 +79,7 @@ export const useUpdateEnquiryStatus = () => {
       if (update.read !== undefined) {
         message = update.read ? 'Marked as read' : 'Marked as unread';
       } else if (update.status === 'ACKNOWLEDGED') {
-        message = 'Enquiry acknowledged';
+        message = 'Enquiry removed';
       }
       toast.success(message);
     },

@@ -338,10 +338,10 @@ export function MyAgistments() {
             </button>
           </div>
         ) : (
-          <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-8">
+          <div className="pb-8 pt-4 md:px-4">
             {!isLoading && agistments.length > 0 && (
               <div className="mb-4 text-sm text-neutral-600 px-4">
-                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'}
+                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'} listed
               </div>
             )}
 

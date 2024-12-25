@@ -284,7 +284,7 @@ function App() {
                   top: 20,
                 }}
                 toastOptions={{
-                  duration: 4000,
+                  duration: 2000,
                   style: {
                     background: '#ffffff',
                     color: '#1e361e',

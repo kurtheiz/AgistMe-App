@@ -161,7 +161,7 @@ export function Modal({
                   </div>
 
                   {/* Sticky Footer */}
-                  <div className="border-t border-neutral-200 bg-white px-4 py-3 sm:px-6 flex justify-end gap-3">
+                  <div className="border-t border-neutral-200 bg-white px-4 py-3 sm:px-6 flex justify-end gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                     <button
                       type="button"
                       className="flex-1 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 border border-neutral-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"

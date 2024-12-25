@@ -42,7 +42,6 @@ export const Billing = () => {
       </div>
     );
   }
-  
 
   return (
     <div className="bg-neutral-50">
@@ -85,10 +84,10 @@ export const Billing = () => {
         ]}
       />
       <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 pt-4 pb-8">
           {!isLoading && subscriptions.length > 0 && (
-            <div className="mb-4 text-sm text-neutral-600">
-              {subscriptions.length} {subscriptions.length === 1 ? 'subscription' : 'subscriptions'}
+            <div className="mb-4 text-sm text-neutral-600 px-4">
+              {subscriptions.length} {subscriptions.length === 1 ? 'subscription' : 'subscriptions'} active
             </div>
           )}
 
@@ -118,7 +117,7 @@ export const Billing = () => {
                             {subscription.metadata.listing_type?.replace('ListingType.', '')}
                           </span>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            subscription.status === 'active' 
+                            subscription.status === 'active'
                               ? 'bg-green-100 text-green-800'
                               : subscription.status === 'trialing'
                               ? 'bg-blue-100 text-blue-800'
@@ -177,7 +176,7 @@ export const Billing = () => {
                         <span>{formatDate(new Date(subscription.current_period_start_date))}</span>
                       </div>
                       {subscription.status === 'trialing' && (
-                        <>
+                        <div>
                           <div className="flex justify-between text-blue-600">
                             <span>Trial Ends:</span>
                             <span>
@@ -199,7 +198,7 @@ export const Billing = () => {
                               {formatPrice(subscription.price_amount)}/month
                             </span>
                           </div>
-                        </>
+                        </div>
                       )}
                     </div>
                   </div>

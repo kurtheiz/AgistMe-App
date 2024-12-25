@@ -6,6 +6,7 @@ import { EnquiryCard } from './EnquiryCard';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { enquiriesService } from '../../services/enquiries.service';
 
+
 export default function EnquiriesPage() {
   const { userId } = useAuth();
   const navigate = useNavigate();
@@ -71,14 +72,15 @@ export default function EnquiriesPage() {
         ]}
       />
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="text-sm text-neutral-600 mb-4">
+      <div className="flex-grow w-full md:max-w-7xl md:mx-auto">
+      <div className="pb-8 md:px-4">
+        <div className="text-sm text-neutral-600 mb-4 px-4 pt-4">
           Enquiries will be automatically removed after 30 days
         </div>
 
         {!isLoading && enquiries.length > 0 && (
-          <div className="mb-4 text-sm text-neutral-600">
-            {enquiries.length} {enquiries.length === 1 ? 'enquiry' : 'enquiries'}
+          <div className="mb-4 text-sm text-neutral-600 px-4">
+            {enquiries.length} {enquiries.length === 1 ? 'enquiry' : 'enquiries'} received
           </div>
         )}
 
@@ -87,7 +89,7 @@ export default function EnquiriesPage() {
             <Loader2 className="w-6 h-6 animate-spin text-neutral-500" />
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-4 pb-8">
             {enquiries.map((enquiry) => (
               <EnquiryCard key={enquiry.id} enquiry={enquiry} />
             ))}
@@ -99,6 +101,7 @@ export default function EnquiriesPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
