@@ -40,25 +40,6 @@ interface SubscriptionData {
   billing_starts: string;
 }
 
-interface SubscriptionData {
-  id: string;
-  customer: string;
-  status: string;
-  current_period_end_date: string;
-  current_period_start_date: string;
-  metadata: {
-    'Agistment Listing': string;
-    listing_type: 'ListingType.STANDARD' | 'ListingType.PREMIUM';
-  };
-  trial_end_date: string;
-  default_payment_method: string;
-  price_amount: number;
-  price_currency: string;
-  latest_invoice: string;
-  days_until_billing: number;
-  billing_starts: string;
-}
-
 export function MyAgistments() {
   const { userId } = useAuth();
   const navigate = useNavigate();
@@ -323,11 +304,6 @@ export function MyAgistments() {
           >
             {agistment.status === 'PUBLISHED' ? 'Hide' : 'Unhide'}
           </button>
-          <button
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Remove
-          </button>
         </div>
       </div>
 
@@ -335,7 +311,7 @@ export function MyAgistments() {
         {({ open }) => (
           <>
             <Disclosure.Button 
-              className="flex w-full justify-between items-center px-4 py-3 text-sm font-medium text-neutral-700 hover:bg-neutral-50 border-t border-neutral-200"
+              className="flex w-full justify-between items-center px-4 py-3 text-neutral-700 hover:bg-neutral-50 border-t border-neutral-200 bg-white"
               onClick={async () => {
                 if (!open && !subscriptionData[agistment.id]) {
                   setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
@@ -351,13 +327,12 @@ export function MyAgistments() {
                 }
               }}
             >
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                <span>Billing</span>
+              <div className="flex items-center">
+                <span className="text-lg font-medium">Billing</span>
               </div>
               <ChevronDown className={`${open ? 'transform rotate-180' : ''} w-4 h-4 text-neutral-500`} />
             </Disclosure.Button>
-            <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-neutral-50 border-t border-neutral-200">
+            <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-white border-t border-neutral-200">
               {loadingSubscriptions[agistment.id] ? (
                 <div className="flex justify-center py-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-neutral-600"></div>
@@ -413,6 +388,13 @@ export function MyAgistments() {
               ) : (
                 <p className="text-neutral-500">Failed to load subscription information.</p>
               )}
+              <div className="mt-4 flex justify-end">
+                <button
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  Cancel Subscription
+                </button>
+              </div>
             </Disclosure.Panel>
           </>
         )}
