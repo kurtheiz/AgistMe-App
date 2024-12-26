@@ -273,18 +273,21 @@ export function MyAgistments() {
           onClick={() => handlePreview(agistment)}
           className="button-toolbar"
         >
-          Preview Listing
+          Preview
         </button>
-        <button
-          onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-        >
-          {agistment.status === 'PUBLISHED' ? (
-            <><span>Hide</span></>
-          ) : (
-            <><span>Unhide</span></>
-          )}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          >
+            {agistment.status === 'PUBLISHED' ? 'Hide' : 'Unhide'}
+          </button>
+          <button
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Remove
+          </button>
+        </div>
       </div>
     </div>
   );
