@@ -29,7 +29,26 @@ interface SubscriptionData {
   current_period_start_date: string;
   metadata: {
     'Agistment Listing': string;
-    listing_type: string;
+    listing_type: 'ListingType.STANDARD' | 'ListingType.PREMIUM';
+  };
+  trial_end_date: string;
+  default_payment_method: string;
+  price_amount: number;
+  price_currency: string;
+  latest_invoice: string;
+  days_until_billing: number;
+  billing_starts: string;
+}
+
+interface SubscriptionData {
+  id: string;
+  customer: string;
+  status: string;
+  current_period_end_date: string;
+  current_period_start_date: string;
+  metadata: {
+    'Agistment Listing': string;
+    listing_type: 'ListingType.STANDARD' | 'ListingType.PREMIUM';
   };
   trial_end_date: string;
   default_payment_method: string;
@@ -50,7 +69,7 @@ export function MyAgistments() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [flashErrorsId, setFlashErrorsId] = useState<string | null>(null);
-  const [subscriptionData, setSubscriptionData] = useState<{[key: string]: SubscriptionData | null}>({});
+  const [subscriptionData, setSubscriptionData] = useState<{[key: string]: SubscriptionData}>({});
   const [loadingSubscriptions, setLoadingSubscriptions] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
@@ -321,8 +340,8 @@ export function MyAgistments() {
                 if (!open && !subscriptionData[agistment.id]) {
                   setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
                   try {
-                    const response = await agistmentService.api.get(`v1/protected/agistments/${agistment.id}/subscription`);
-                    setSubscriptionData(prev => ({ ...prev, [agistment.id]: response.data }));
+                    const data = await agistmentService.getSubscription(agistment.id);
+                    setSubscriptionData(prev => ({ ...prev, [agistment.id]: data }));
                   } catch (error) {
                     console.error('Failed to load subscription data:', error);
                     toast.error('Failed to load subscription data');
@@ -361,9 +380,9 @@ export function MyAgistments() {
                   <div className="flex justify-between">
                     <span>Plan:</span>
                     <span className="font-medium">
-                      {subscriptionData[agistment.id]?.metadata.listing_type.replace('ListingType.', '')} (
+                      {(subscriptionData[agistment.id]?.metadata?.listing_type || 'ListingType.STANDARD').replace('ListingType.', '')} (
                       {formatPrice(subscriptionData[agistment.id]?.price_amount || 0)}{' '}
-                      {subscriptionData[agistment.id]?.price_currency}/month)
+                      {subscriptionData[agistment.id]?.price_currency || 'AUD'}/month)
                     </span>
                   </div>
                   {subscriptionData[agistment.id]?.status === 'trialing' && (
@@ -371,14 +390,14 @@ export function MyAgistments() {
                       <div className="flex justify-between">
                         <span>Trial Ends:</span>
                         <span className="font-medium">
-                          {formatDate(subscriptionData[agistment.id]?.trial_end_date)}
+                          {formatDate(subscriptionData[agistment.id]?.trial_end_date || '')}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Billing Starts:</span>
                         <span className="font-medium">
-                          {formatDate(subscriptionData[agistment.id]?.billing_starts)} (
-                          {subscriptionData[agistment.id]?.days_until_billing} days)
+                          {formatDate(subscriptionData[agistment.id]?.billing_starts || '')} (
+                          {subscriptionData[agistment.id]?.days_until_billing || 0} days)
                         </span>
                       </div>
                     </>
@@ -386,8 +405,8 @@ export function MyAgistments() {
                   <div className="flex justify-between">
                     <span>Current Period:</span>
                     <span className="font-medium">
-                      {formatDate(subscriptionData[agistment.id]?.current_period_start_date)} - {' '}
-                      {formatDate(subscriptionData[agistment.id]?.current_period_end_date)}
+                      {formatDate(subscriptionData[agistment.id]?.current_period_start_date || '')} - {' '}
+                      {formatDate(subscriptionData[agistment.id]?.current_period_end_date || '')}
                     </span>
                   </div>
                 </div>

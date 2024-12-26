@@ -107,6 +107,17 @@ class AgistmentService {
     }
   }
 
+  async getSubscription(agistmentId: string): Promise<any> {
+    try {
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get(`v1/protected/agistments/${agistmentId}/subscription`, authHeaders);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get subscription:', error);
+      throw error;
+    }
+  }
+
   async updateAgistment(id: string, agistment: Partial<AgistmentResponse>): Promise<AgistmentResponse> {
     try {
       const authHeaders = await this.getAuthHeaders();
