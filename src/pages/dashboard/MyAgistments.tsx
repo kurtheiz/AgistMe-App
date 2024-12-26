@@ -16,7 +16,6 @@ import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentC
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
 import { AgistmentPhotosModal } from '../../components/Agistment/AgistmentPhotosModal';
 import { AgistmentFromTextModal } from '../../components/Agistment/AgistmentFromTextModal';
-import { AgistmentPhotosView } from '../../components/Agistment/AgistmentPhotosView';
 import toast from 'react-hot-toast';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
@@ -347,7 +346,7 @@ export function MyAgistments() {
 
             <div className="grid grid-cols-1 gap-6">
               {agistments.map((agistment) => (
-                <div key={agistment.id} className="bg-white rounded-none sm:rounded-lg shadow">
+                <div key={agistment.id} className="bg-white rounded-none sm:rounded-lg shadow-lg">
                   <div className="p-4 bg-primary-500 rounded-none sm:rounded-t-lg">
                     <h3 className="text-lg font-medium text-white">
                       {agistment.basicInfo?.name || 'Unnamed Agistment'}
@@ -355,21 +354,6 @@ export function MyAgistments() {
                     <p className="text-sm text-white/80 mt-1">
                       {agistment.propertyLocation?.location?.suburb}, {agistment.propertyLocation?.location?.state}
                     </p>
-                  </div>
-
-                  {/* Photo Gallery */}
-                  <div className="relative">
-                    <div className="aspect-w-16 aspect-h-9">
-                      <AgistmentPhotosView 
-                        photos={agistment.photoGallery?.photos || []}
-                        showThumbnails={false}
-                        disableFullscreen={true}
-                        className="cursor-pointer"
-                      />
-                      {agistment.status === 'HIDDEN' && (
-                        <div className="absolute inset-0 bg-white/10 pointer-events-none" />
-                      )}
-                    </div>
                   </div>
 
                   {/* Location */}
