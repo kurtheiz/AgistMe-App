@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, AlertCircle, HelpCircle, Sparkles } from 'lucide-react';
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { ChevronLeft, AlertCircle, HelpCircle, Sparkles, DollarSign, ChevronDown } from 'lucide-react';
+import { Dialog, Transition, Disclosure } from '@headlessui/react';
 import { agistmentService } from '../../services/agistment.service';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';
@@ -16,9 +15,30 @@ import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentC
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
 import { AgistmentPhotosModal } from '../../components/Agistment/AgistmentPhotosModal';
 import { AgistmentFromTextModal } from '../../components/Agistment/AgistmentFromTextModal';
+import { formatPrice } from '../../utils/prices';
+import { formatDate } from '../../utils/dates';
 import toast from 'react-hot-toast';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
+
+interface SubscriptionData {
+  id: string;
+  customer: string;
+  status: string;
+  current_period_end_date: string;
+  current_period_start_date: string;
+  metadata: {
+    'Agistment Listing': string;
+    listing_type: string;
+  };
+  trial_end_date: string;
+  default_payment_method: string;
+  price_amount: number;
+  price_currency: string;
+  latest_invoice: string;
+  days_until_billing: number;
+  billing_starts: string;
+}
 
 export function MyAgistments() {
   const { userId } = useAuth();
@@ -30,6 +50,8 @@ export function MyAgistments() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [flashErrorsId, setFlashErrorsId] = useState<string | null>(null);
+  const [subscriptionData, setSubscriptionData] = useState<{[key: string]: SubscriptionData | null}>({});
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -289,6 +311,93 @@ export function MyAgistments() {
           </button>
         </div>
       </div>
+
+      <Disclosure>
+        {({ open }) => (
+          <>
+            <Disclosure.Button 
+              className="flex w-full justify-between items-center px-4 py-3 text-sm font-medium text-neutral-700 hover:bg-neutral-50 border-t border-neutral-200"
+              onClick={async () => {
+                if (!open && !subscriptionData[agistment.id]) {
+                  setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                  try {
+                    const response = await agistmentService.api.get(`v1/protected/agistments/${agistment.id}/subscription`);
+                    setSubscriptionData(prev => ({ ...prev, [agistment.id]: response.data }));
+                  } catch (error) {
+                    console.error('Failed to load subscription data:', error);
+                    toast.error('Failed to load subscription data');
+                  } finally {
+                    setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                  }
+                }
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                <span>Billing</span>
+              </div>
+              <ChevronDown className={`${open ? 'transform rotate-180' : ''} w-4 h-4 text-neutral-500`} />
+            </Disclosure.Button>
+            <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-neutral-50 border-t border-neutral-200">
+              {loadingSubscriptions[agistment.id] ? (
+                <div className="flex justify-center py-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-neutral-600"></div>
+                </div>
+              ) : subscriptionData[agistment.id] ? (
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span>Status:</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      subscriptionData[agistment.id]?.status === 'trialing' 
+                        ? 'bg-blue-100 text-blue-700'
+                        : subscriptionData[agistment.id]?.status === 'active'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-neutral-100 text-neutral-700'
+                    }`}>
+                      {subscriptionData[agistment.id]?.status.charAt(0).toUpperCase() + 
+                       subscriptionData[agistment.id]?.status.slice(1)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Plan:</span>
+                    <span className="font-medium">
+                      {subscriptionData[agistment.id]?.metadata.listing_type.replace('ListingType.', '')} (
+                      {formatPrice(subscriptionData[agistment.id]?.price_amount || 0)}{' '}
+                      {subscriptionData[agistment.id]?.price_currency}/month)
+                    </span>
+                  </div>
+                  {subscriptionData[agistment.id]?.status === 'trialing' && (
+                    <>
+                      <div className="flex justify-between">
+                        <span>Trial Ends:</span>
+                        <span className="font-medium">
+                          {formatDate(subscriptionData[agistment.id]?.trial_end_date)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Billing Starts:</span>
+                        <span className="font-medium">
+                          {formatDate(subscriptionData[agistment.id]?.billing_starts)} (
+                          {subscriptionData[agistment.id]?.days_until_billing} days)
+                        </span>
+                      </div>
+                    </>
+                  )}
+                  <div className="flex justify-between">
+                    <span>Current Period:</span>
+                    <span className="font-medium">
+                      {formatDate(subscriptionData[agistment.id]?.current_period_start_date)} - {' '}
+                      {formatDate(subscriptionData[agistment.id]?.current_period_end_date)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-neutral-500">Failed to load subscription information.</p>
+              )}
+            </Disclosure.Panel>
+          </>
+        )}
+      </Disclosure>
     </div>
   );
 
