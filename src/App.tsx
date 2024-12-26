@@ -9,7 +9,6 @@ import ListAgistment from './pages/ListAgistment';
 import Profile from './pages/Profile';
 import { Dashboard } from './pages/Dashboard';
 import { MyAgistments } from './pages/dashboard/MyAgistments';
-import { Billing } from './pages/dashboard/Billing';
 import { Invoices } from './pages/dashboard/Invoices';
 import { QueryProvider } from './providers/QueryProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -122,14 +121,6 @@ const router = createBrowserRouter([
           {
             path: 'billing',
             children: [
-              {
-                index: true,
-                element: (
-                  <ProtectedRoute>
-                    <Billing />
-                  </ProtectedRoute>
-                )
-              },
               {
                 path: 'subscriptions/:subscriptionId/invoices',
                 element: (
