@@ -8,14 +8,23 @@ import { enquiriesService } from '../../services/enquiries.service';
 
 
 export default function EnquiriesPage() {
-  const { userId } = useAuth();
+  const { userId, isLoaded } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isLoading, data } = useQuery({
     queryKey: ['enquiries'],
-    queryFn: () => enquiriesService.getEnquiries()
+    queryFn: () => enquiriesService.getEnquiries(),
+    enabled: isLoaded && !!userId
   });
   const enquiries = data?.enquiries || [];
+
+  if (!isLoaded) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-neutral-50">
+        <Loader2 className="w-6 h-6 animate-spin text-neutral-500" />
+      </div>
+    );
+  }
 
   if (!userId) {
     return (

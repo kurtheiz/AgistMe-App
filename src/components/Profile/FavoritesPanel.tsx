@@ -5,17 +5,19 @@ import { useFavoritesStore } from '../../stores/favorites.store';
 interface FavoritesPanelProps {
   onNavigate: (id: string) => void;
   onDelete: (favoriteId: string, e: React.MouseEvent) => void;
+  isDefaultOpen?: boolean;
 }
 
 export function FavoritesPanel({
   onNavigate,
-  onDelete
+  onDelete,
+  isDefaultOpen = true
 }: FavoritesPanelProps) {
   const { favorites, isLoading } = useFavoritesStore();
 
   return (
     <div id="favourites-section">
-      <Disclosure defaultOpen={true}>
+      <Disclosure defaultOpen={isDefaultOpen}>
         {({ open }) => (
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm">
             <DisclosureButton className={`w-full px-4 py-4 text-left flex justify-between items-center ${open ? 'rounded-t-lg' : 'rounded-lg'}`}>

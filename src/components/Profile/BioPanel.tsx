@@ -6,12 +6,13 @@ import { BioView } from '../BioView';
 interface BioPanelProps {
   profile: Profile | null;
   onEditClick: () => void;
+  isDefaultOpen?: boolean;
 }
 
-export function BioPanel({ profile, onEditClick }: BioPanelProps) {
+export function BioPanel({ profile, onEditClick, isDefaultOpen = true }: BioPanelProps) {
   return (
     <div id="bio-section">
-      <Disclosure defaultOpen={true}>
+      <Disclosure defaultOpen={isDefaultOpen}>
         {({ open }) => (
           <div className="bg-white rounded-lg shadow-sm">
             <DisclosureButton className="w-full px-4 py-4 text-left flex justify-between items-center">

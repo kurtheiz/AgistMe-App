@@ -179,6 +179,7 @@ export default function Profile() {
             <BioPanel 
               profile={bio} 
               onEditClick={handleOpenBio} 
+              isDefaultOpen={false}
             />
             <BioModal 
               isOpen={isBioModalOpen}
@@ -188,12 +189,13 @@ export default function Profile() {
             <FavoritesPanel
               onNavigate={(id) => navigate(`/agistments/${id}`)}
               onDelete={handleDeleteFavorite}
+              isDefaultOpen={false}
             />
 
             <SavedSearchesPanel
               savedSearches={savedSearches}
               isLoading={isLoading}
-              isDefaultOpen={true}
+              isDefaultOpen={false}
               onNavigate={(searchHash: string) => navigate(`/agistments?q=${searchHash}`)}
               onEdit={(search) => {
                 setEditingSearch(search);

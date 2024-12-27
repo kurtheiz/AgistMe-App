@@ -180,8 +180,8 @@ export function MyAgistments() {
   };
 
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
-    <div className="bg-neutral-50 border-t border-neutral-200">
-      <div className="text-lg font-medium text-neutral-800 pt-4 pb-2 text-center flex items-center justify-center gap-2">
+    <div className="bg-white border-t border-neutral-200">
+      <div className="text-m font-medium text-neutral-800 pt-4 pb-2 text-center flex items-center justify-center gap-2">
         Click on a section below to edit
         <button
           onClick={(e) => {
@@ -196,14 +196,14 @@ export function MyAgistments() {
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
         <button
           onClick={() => setEditModal({ type: 'fromtext', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           <Sparkles className={'w-4 h-4'} />
           <span>From Text</span>
         </button>
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
-          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'header') ? 'animate-flash' : ''}`}
+          className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'header') ? 'animate-flash' : ''}`}
         >
           Basic Info
           {!checkSectionValidation(agistment, 'header') && (
@@ -214,7 +214,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'paddocks', agistment: agistment as AgistmentResponse })}
-          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'paddocks') ? 'animate-flash' : ''}`}
+          className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'paddocks') ? 'animate-flash' : ''}`}
         >
           Paddocks
           {!checkSectionValidation(agistment, 'paddocks') && (
@@ -225,19 +225,19 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'riding', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           Riding Facilities
         </button>
         <button
           onClick={() => setEditModal({ type: 'facilities', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           Facilities
         </button>
         <button
           onClick={() => setEditModal({ type: 'care', agistment: agistment as AgistmentResponse })}
-          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'care') ? 'animate-flash' : ''}`}
+          className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'care') ? 'animate-flash' : ''}`}
         >
           Care
           {!checkSectionValidation(agistment, 'care') && (
@@ -248,7 +248,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'photos', agistment: agistment as AgistmentResponse })}
-          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'photos') ? 'animate-flash' : ''}`}
+          className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'photos') ? 'animate-flash' : ''}`}
         >
           Photos
           {!checkSectionValidation(agistment, 'photos') && (
@@ -259,52 +259,10 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'services', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           Services
         </button>
-      </div>
-
-      {/* Analytics Summary */}
-      <div className="px-4 pb-4">
-        <div className="text-lg font-medium text-neutral-800 mb-3 text-center">Analytics for the Past 30 Days</div>
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="text-2xl font-semibold text-blue-600">{agistment.analyticsSummary?.totalViewCount || 0}</div>
-            <div className="text-sm text-blue-700">Total Views</div>
-          </div>
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="text-2xl font-semibold text-blue-600">{agistment.analyticsSummary?.totalFavouritedCount || 0}</div>
-            <div className="text-sm text-blue-700">Total Favorites</div>
-          </div>
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="text-2xl font-semibold text-blue-600">{agistment.analyticsSummary?.totalEnquiriesCount || 0}</div>
-            <div className="text-sm text-blue-700">Total Enquiries</div>
-          </div>
-        </div>
-      </div>
-
-      <div className={`text-sm font-medium text-center py-1.5 ${agistment.status === 'PUBLISHED'
-          ? 'bg-emerald-100 text-emerald-700'
-          : 'bg-orange-100 text-orange-700'
-        } rounded`}>
-        {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
-      </div>
-      <div className="border-t border-neutral-200 p-4 flex justify-between bg-white">
-        <button
-          onClick={() => handlePreview(agistment)}
-          className="button-toolbar"
-        >
-          Preview
-        </button>
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-          >
-            {agistment.status === 'PUBLISHED' ? 'Hide' : 'Unhide'}
-          </button>
-        </div>
       </div>
 
       <Disclosure>
@@ -465,33 +423,56 @@ export function MyAgistments() {
                       {agistment.basicInfo?.name || 'Unnamed Agistment'}
                     </h3>
                     <p className="text-sm text-white/80 mt-1">
-                      {agistment.propertyLocation?.location?.suburb}, {agistment.propertyLocation?.location?.state}
+                      {agistment.propertyLocation?.location?.suburb && agistment.propertyLocation?.location?.state
+                        ? `${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}`
+                        : 'No address yet'}
                     </p>
+                    <div className={`inline-block text-xs font-medium px-2 py-1 rounded-full mt-2 ${
+                      agistment.status === 'PUBLISHED'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
+                    </div>
                   </div>
 
-                  {/* Location */}
-                  {agistment.propertyLocation?.location && (
-                    <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 bg-white">
-                      <div className="flex flex-col min-w-0">
-                        <div className="text-neutral-800 truncate">
-                          {agistment.propertyLocation.location.address && (
-                            <><span className="font-semibold">{agistment.propertyLocation.location.address}</span>, </>
-                          )}
-                          <span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, 
-                          <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, 
-                          <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
-                        </div>
-                        <div className="text-xs text-neutral-500 mt-1">
-                          {agistment.basicInfo?.propertySize && agistment.basicInfo.propertySize > 0 
-                            ? <>Property is <span className="font-bold">{agistment.basicInfo.propertySize}</span> acres</>
-                            : 'Property size not specified'
-                          }
-                        </div>
+                  {/* Analytics Summary */}
+                  <div className="px-4 py-3 border-b border-neutral-200 bg-white text-center">
+                    <div className="text-m font-medium text-neutral-800 mb-2">Analytics for the Past 30 Days</div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalViewCount || 0}</div>
+                        <div className="text-xs text-emerald-700">Views</div>
+                      </div>
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalFavouritedCount || 0}</div>
+                        <div className="text-xs text-emerald-700">Favourites</div>
+                      </div>
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalEnquiriesCount || 0}</div>
+                        <div className="text-xs text-emerald-700">Enquiries</div>
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  {renderEditButtons(agistment)}
+                  <div className="flex justify-between px-4 py-3 border-b border-neutral-200 bg-white">
+                    <button
+                      onClick={() => handlePreview(agistment)}
+                      className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
+                    >
+                      Preview
+                    </button>
+                    <button
+                      onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
+                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                      {agistment.status === 'PUBLISHED' ? 'Hide' : 'Unhide'}
+                    </button>
+                  </div>
+
+                  <div className="bg-white">
+                    {renderEditButtons(agistment)}
+                  </div>
                 </div>
               ))}
             </div>

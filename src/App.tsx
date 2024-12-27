@@ -27,10 +27,11 @@ import { profileService } from './services/profile.service';
 import { enquiriesService } from './services/enquiries.service';
 import EnquiriesPage from './pages/dashboard/Enquiries';
 import PreviewAgistmentDetail from './pages/dashboard/PreviewAgistmentDetail';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react'; 
 import { useQueryClient } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
+import { InitializationOverlay } from './components/InitializationOverlay';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -161,6 +162,7 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const { user, isLoaded: isUserLoaded } = useUser();
   const setUser = useAuthStore((state) => state.setUser);
   const queryClient = useQueryClient();
+  const [isInitializing, setIsInitializing] = useState(true);
   
   // Store states
   const { setEnquiries, setIsLoading: setEnquiriesLoading } = useEnquiriesStore();
@@ -249,13 +251,27 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
       }
 
       // Wait for all data to load
-      Promise.all(loadPromises).catch(error => {
-        console.error('Error loading data:', error);
-      });
+      Promise.all(loadPromises)
+        .catch(error => {
+          console.error('Error loading data:', error);
+        })
+        .finally(() => {
+          setIsInitializing(false);
+        });
+    } else if (!isLoaded || !isUserLoaded) {
+      // Still loading auth or user
+      setIsInitializing(true);
+    } else {
+      // No user logged in
+      setIsInitializing(false);
     }
   }, [isLoaded, isUserLoaded, userId, user, setUser, queryClient,
       setSavedSearches, setSavedSearchesLoading, setBio, setBioLoading,
       setEnquiries, setEnquiriesLoading, setFavorites, setFavoritesLoading]);
+
+  if (isInitializing) {
+    return <InitializationOverlay />;
+  }
 
   return <>{children}</>;
 };
