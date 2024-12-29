@@ -3,8 +3,8 @@ export type ListingType = 'STANDARD' | 'PROFESSIONAL';
 export interface Arena {
   comments: string;
   features: string[];
-  length?: number;
-  width?: number;
+  length: number;
+  width: number;
 }
 
 export interface ContactDetails {
@@ -19,7 +19,7 @@ export interface FacilityBase {
 }
 
 export interface PricedFacility extends FacilityBase {
-  monthlyPrice?: number;
+  monthlyPrice: number;
 }
 
 export interface FloatParking extends PricedFacility {}
@@ -61,7 +61,9 @@ export interface SocialMediaLink {
 }
 
 export interface Stables {
-  quantity?: number;
+  available: boolean;
+  quantity: number;
+  comments?: string;
 }
 
 export interface AgistmentBasicInfo {
