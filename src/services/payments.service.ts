@@ -69,20 +69,6 @@ class PaymentsService {
     }
   }
 
-  async getSubscriptions(): Promise<SubscriptionResponse[]> {
-    try {
-      const authHeaders = await this.getAuthHeaders();
-      const response = await this.api.get<SubscriptionResponse[]>(
-        'v1/protected/payments/subscriptions',
-        authHeaders
-      );
-      return response.data || [];
-    } catch (error) {
-      console.error('Failed to fetch subscriptions:', error);
-      throw error;
-    }
-  }
-
   async getSubscriptionInvoices(subscription_id: string) {
     try {
       const authHeaders = await this.getAuthHeaders();
@@ -93,6 +79,34 @@ class PaymentsService {
       return response.data;
     } catch (error) {
       console.error('Failed to fetch subscription invoices:', error);
+      throw error;
+    }
+  }
+
+  async getSubscription(subscription_id: string): Promise<SubscriptionResponse> {
+    try {
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get<SubscriptionResponse>(
+        `/v1/protected/payments/subscriptions/${subscription_id}`,
+        authHeaders
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch subscription:', error);
+      throw error;
+    }
+  }
+
+  async cancelSubscription(subscription_id: string) {
+    try {
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.delete(
+        `/v1/protected/payments/subscriptions/${subscription_id}`,
+        authHeaders
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to cancel subscription:', error);
       throw error;
     }
   }

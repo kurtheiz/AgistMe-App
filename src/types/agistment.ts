@@ -3,8 +3,8 @@ export type ListingType = 'STANDARD' | 'PROFESSIONAL';
 export interface Arena {
   comments: string;
   features: string[];
-  length: number;
-  width: number;
+  length?: number;
+  width?: number;
 }
 
 export interface ContactDetails {
@@ -19,7 +19,7 @@ export interface FacilityBase {
 }
 
 export interface PricedFacility extends FacilityBase {
-  monthlyPrice: number;
+  monthlyPrice?: number;
 }
 
 export interface FloatParking extends PricedFacility {}
@@ -46,8 +46,8 @@ export interface Location {
 }
 
 export interface Photo {
+  comment: string;
   link: string;
-  comment?: string;
 }
 
 export interface RoundYard {
@@ -60,8 +60,8 @@ export interface SocialMediaLink {
   type: string;
 }
 
-export interface Stables extends FacilityBase {
-  quantity: number;
+export interface Stables {
+  quantity?: number;
 }
 
 export interface AgistmentBasicInfo {
@@ -163,5 +163,11 @@ export interface AgistmentResponse {
   distanceFrom?: string;
   matchType?: 'EXACT' | 'ADJACENT';
   analytics: AnalyticsEntry[];
-  analyticsSummary: AnalyticsSummary;
+  analyticsSummary?: AnalyticsSummary;
+  subscription_id?: string;
+  subscription_status?: string;
+}
+
+export interface AgistmentRequest {
+  // ... (no changes made here)
 }

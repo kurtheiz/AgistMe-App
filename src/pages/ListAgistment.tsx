@@ -36,7 +36,8 @@ const ListAgistment = () => {
 
     try {
       const checkoutRequest: CreateCheckoutSessionRequest = {
-        listing_type: ListingType.STANDARD
+        listing_type: ListingType.STANDARD,
+        agistment_id: 'NEW'
       };
 
       const response = await paymentsService.createCheckoutSession(checkoutRequest);

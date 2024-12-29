@@ -4,6 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { ChevronLeft, AlertCircle, HelpCircle, Sparkles, ChevronDown } from 'lucide-react';
 import { Dialog, Transition, Disclosure } from '@headlessui/react';
 import { agistmentService } from '../../services/agistment.service';
+import { paymentsService } from '../../services/payments.service';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';
 import { AgistmentResponse } from '../../types/agistment';
@@ -18,6 +19,7 @@ import { AgistmentFromTextModal } from '../../components/Agistment/AgistmentFrom
 import { formatPrice } from '../../utils/prices';
 import { formatDate } from '../../utils/dates';
 import toast from 'react-hot-toast';
+import { ListingType } from '../../types/payment';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
 
@@ -29,15 +31,18 @@ interface SubscriptionData {
   current_period_start_date: string;
   metadata: {
     'Agistment Listing': string;
-    listing_type: 'ListingType.STANDARD' | 'ListingType.PREMIUM';
+    listing_type: `ListingType.${ListingType}`;
   };
-  trial_end_date: string;
-  default_payment_method: string;
+  trial_end_date: string | null;
+  default_payment_method: string | null;
   price_amount: number;
   price_currency: string;
   latest_invoice: string;
   days_until_billing: number;
   billing_starts: string;
+  cancel_at: string | null;
+  cancel_at_period_end: boolean;
+  canceled_at: string | null;
 }
 
 export function MyAgistments() {
@@ -128,9 +133,9 @@ export function MyAgistments() {
         !agistment.propertyLocation?.location?.region ||
         !agistment.propertyLocation?.location?.postcode;
 
-      const hasPaddocksErrors = !(agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
-        agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
-        agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
+      const hasPaddocksErrors = !((agistment.paddocks?.privatePaddocks?.totalPaddocks ?? 0) > 0 ||
+        (agistment.paddocks?.sharedPaddocks?.totalPaddocks ?? 0) > 0 ||
+        (agistment.paddocks?.groupPaddocks?.totalPaddocks ?? 0) > 0);
 
       const hasCareErrors = !(agistment.care?.selfCare?.available ||
         agistment.care?.partCare?.available ||
@@ -165,9 +170,9 @@ export function MyAgistments() {
           !agistment.propertyLocation?.location?.region ||
           !agistment.propertyLocation?.location?.postcode);
       case 'paddocks':
-        return !!(agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
-          agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
-          agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
+        return !!((agistment.paddocks?.privatePaddocks?.totalPaddocks ?? 0) > 0 ||
+          (agistment.paddocks?.sharedPaddocks?.totalPaddocks ?? 0) > 0 ||
+          (agistment.paddocks?.groupPaddocks?.totalPaddocks ?? 0) > 0);
       case 'care':
         return !!(agistment.care?.selfCare?.available ||
           agistment.care?.partCare?.available ||
@@ -269,12 +274,16 @@ export function MyAgistments() {
         {({ open }) => (
           <>
             <Disclosure.Button 
-              className="flex w-full justify-between items-center px-4 py-3 text-neutral-700 hover:bg-neutral-50 border-t border-neutral-200 bg-white"
-              onClick={async () => {
-                if (!open && !subscriptionData[agistment.id]) {
+              className={`flex w-full justify-between items-center px-4 py-3 text-neutral-700 hover:bg-neutral-50 border-t border-neutral-200 bg-white ${!agistment.subscription_id ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={async (e) => {
+                if (!agistment.subscription_id) {
+                  e.preventDefault();
+                  return;
+                }
+                if (!open && !subscriptionData[agistment.id] && agistment.subscription_id) {
                   setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
                   try {
-                    const data = await agistmentService.getSubscription(agistment.id);
+                    const data = await paymentsService.getSubscription(agistment.subscription_id);
                     setSubscriptionData(prev => ({ ...prev, [agistment.id]: data }));
                   } catch (error) {
                     console.error('Failed to load subscription data:', error);
@@ -313,7 +322,8 @@ export function MyAgistments() {
                   <div className="flex justify-between">
                     <span>Plan:</span>
                     <span className="font-medium">
-                      {(subscriptionData[agistment.id]?.metadata?.listing_type || 'ListingType.STANDARD').replace('ListingType.', '')} (
+                      {subscriptionData[agistment.id]?.metadata?.listing_type === `ListingType.${ListingType.STANDARD}` ? 'Standard' : 
+                       subscriptionData[agistment.id]?.metadata?.listing_type === `ListingType.${ListingType.PROFESSIONAL}` ? 'Professional' : 'Unknown'} (
                       {formatPrice(subscriptionData[agistment.id]?.price_amount || 0)}{' '}
                       {subscriptionData[agistment.id]?.price_currency || 'AUD'}/month)
                     </span>
@@ -342,16 +352,68 @@ export function MyAgistments() {
                       {formatDate(subscriptionData[agistment.id]?.current_period_end_date || '')}
                     </span>
                   </div>
+                  {subscriptionData[agistment.id]?.cancel_at_period_end && (
+                    <>
+                      <div className="mt-3 pt-3 border-t border-neutral-200">
+                        <div className="text-sm font-medium text-red-600 mb-2">Cancellation Details</div>
+                        <div className="flex justify-between">
+                          <span>Cancellation Date:</span>
+                          <span className="font-medium">
+                            {formatDate(subscriptionData[agistment.id]?.canceled_at || '')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Active Until:</span>
+                          <span className="font-medium">
+                            {formatDate(subscriptionData[agistment.id]?.cancel_at || '')}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               ) : (
                 <p className="text-neutral-500">Failed to load subscription information.</p>
               )}
               <div className="mt-4 flex justify-end">
-                <button
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  Cancel Subscription
-                </button>
+                {subscriptionData[agistment.id]?.status === 'canceled' ? (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await paymentsService.createCheckoutSession({
+                          agistment_id: agistment.id,
+                          listing_type: agistment.listing?.listingType as import('../../types/payment').ListingType
+                        });
+                        if (response.url) {
+                          window.location.href = response.url;
+                        }
+                      } catch (error) {
+                        console.error('Failed to create checkout session:', error);
+                        toast.error('Failed to start renewal process');
+                      }
+                    }}
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    Renew Subscription
+                  </button>
+                ) : (agistment.status === 'HIDDEN' || agistment.status === 'PUBLISHED') && (
+                  <button
+                    onClick={async () => {
+                      if (agistment.id && subscriptionData[agistment.id]?.id) {
+                        await paymentsService.cancelSubscription(subscriptionData[agistment.id].id);
+                        setSubscriptionData(prev => ({ ...prev, [agistment.id]: { ...subscriptionData[agistment.id], cancel_at_period_end: true } }));
+                      }
+                    }}
+                    disabled={subscriptionData[agistment.id]?.cancel_at_period_end}
+                    className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                      subscriptionData[agistment.id]?.cancel_at_period_end 
+                        ? 'bg-neutral-400 cursor-not-allowed' 
+                        : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
+                    }`}
+                  >
+                    Cancel Subscription
+                  </button>
+                )}
               </div>
             </Disclosure.Panel>
           </>
