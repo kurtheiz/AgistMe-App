@@ -313,7 +313,7 @@ const Agistments = () => {
                   }
                 })()}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 px-0 md:px-0">
                 {agistments.map((agistment) => (
                   <PropertyCard 
                     key={agistment.id}

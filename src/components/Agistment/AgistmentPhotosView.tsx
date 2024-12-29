@@ -9,9 +9,17 @@ import { Photo } from '../../types/agistment';
 
 interface AgistmentPhotosViewProps {
   photos?: Photo[];
+  showThumbnails?: boolean;
+  disableFullscreen?: boolean;
+  className?: string;
 }
 
-export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos = [] }) => {
+export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ 
+  photos = [], 
+  showThumbnails = true,
+  disableFullscreen = false,
+  className = ""
+}) => {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [slides, setSlides] = useState<any[]>([]);
@@ -36,21 +44,21 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
     }
   }, [photos]);
 
-  const toggleOpen = (state: boolean) => () => setOpen(state);
+  const toggleOpen = (state: boolean) => () => !disableFullscreen && setOpen(state);
 
   const updateIndex = ({ index: current }: { index: number }) => setIndex(current);
 
   return (
-    <div className="w-full">
+    <div className={`w-full ${className}`}>
       {slides.length > 0 ? (
         <>
           <Lightbox
             index={index}
             slides={slides}
-            plugins={[Inline, ...(isDesktop ? [Thumbnails] : [])]}
+            plugins={[Inline]}
             on={{
               view: updateIndex,
-              click: toggleOpen(true),
+              click: disableFullscreen ? undefined : toggleOpen(true),
             }}
             inline={{
               style: {
@@ -60,15 +68,6 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
                 backgroundColor: "black",
               },
             }}
-            thumbnails={isDesktop ? {
-              position: "end",
-              width: 120,
-              height: 80,
-              border: 1,
-              borderRadius: 4,
-              padding: 4,
-              gap: 8,
-            } : undefined}
             styles={{
               container: { 
                 backgroundColor: "transparent", 
@@ -83,60 +82,41 @@ export const AgistmentPhotosView: React.FC<AgistmentPhotosViewProps> = ({ photos
             }}
           />
 
-          <Lightbox
-            open={open}
-            close={() => setOpen(false)}
-            index={index}
-            slides={slides}
-            plugins={[Zoom, ...(isDesktop ? [Thumbnails] : [])]}
-            on={{ view: updateIndex }}
-            animation={{ fade: 0 }}
-            controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
-            zoom={{
-              maxZoomPixelRatio: 1,
-              zoomInMultiplier: 2,
-              doubleTapDelay: 300,
-              doubleClickDelay: 300,
-              doubleClickMaxStops: 2,
-              keyboardMoveDistance: 50,
-              wheelZoomDistanceFactor: 100,
-              pinchZoomDistanceFactor: 100,
-              scrollToZoom: true
-            }}
-            carousel={{
-              padding: 0,
-              spacing: 0,
-              imageFit: "cover",
-            }}
-            thumbnails={isDesktop ? {
-              position: "end",
-              width: 120,
-              height: 80,
-              border: 1,
-              borderRadius: 4,
-              padding: 4,
-              gap: 8,
-            } : undefined}
-            inline={{
-              style: {
-                width: "100%",
-                height: "300px",
-                margin: "0 auto",
-                backgroundColor: "black",
-              },
-            }}
-            styles={{
-              container: { 
-                backgroundColor: "transparent",
-                padding: 0,
-              },
-              root: { backgroundColor: "transparent" }
-            }}
-          />
+          {!disableFullscreen && (
+            <Lightbox
+              open={open}
+              close={() => setOpen(false)}
+              index={index}
+              slides={slides}
+              plugins={[Zoom, ...(isDesktop && showThumbnails ? [Thumbnails] : [])]}
+              on={{ view: updateIndex }}
+              animation={{ fade: 0 }}
+              controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
+              zoom={{
+                maxZoomPixelRatio: 1,
+                zoomInMultiplier: 2,
+                doubleTapDelay: 300,
+                doubleClickDelay: 300,
+                keyboardMoveDistance: 50,
+                wheelZoomDistanceFactor: 100,
+                pinchZoomDistanceFactor: 100,
+                scrollToZoom: false,
+              }}
+              thumbnails={isDesktop && showThumbnails ? {
+                position: "bottom",
+                width: 120,
+                height: 80,
+                border: 1,
+                borderRadius: 4,
+                padding: 4,
+                gap: 8,
+              } : undefined}
+            />
+          )}
         </>
       ) : (
-        <div className="w-full aspect-[3/2] bg-gray-100 flex items-center justify-center">
-          <p className="text-gray-500">No photos available</p>
+        <div className="w-full h-full flex items-center justify-center bg-neutral-100">
+          <span className="text-neutral-400">No photos available</span>
         </div>
       )}
     </div>

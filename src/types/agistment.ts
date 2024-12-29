@@ -46,8 +46,8 @@ export interface Location {
 }
 
 export interface Photo {
+  comment: string;
   link: string;
-  comment?: string;
 }
 
 export interface RoundYard {
@@ -60,8 +60,10 @@ export interface SocialMediaLink {
   type: string;
 }
 
-export interface Stables extends FacilityBase {
+export interface Stables {
+  available: boolean;
   quantity: number;
+  comments?: string;
 }
 
 export interface AgistmentBasicInfo {
@@ -119,6 +121,22 @@ export interface AgistmentCare {
   selfCare: PricedFacility & { comments: string };
 }
 
+export interface AnalyticsEntry {
+  date: string;
+  viewCount: number;
+  favouritedCount: number;
+  enquiriesCount: number;
+}
+
+export interface AnalyticsSummary {
+  totalViewCount: number;
+  totalFavouritedCount: number;
+  totalEnquiriesCount: number;
+  averageViewCount: number;
+  averageFavouritedCount: number;
+  averageEnquiriesCount: number;
+}
+
 export interface AgistmentResponse {
   id: string;
   ridingFacilities: AgistmentRidingFacilities;
@@ -126,8 +144,8 @@ export interface AgistmentResponse {
   createdAt: string | null;
   propertyDescription: AgistmentDescription;
   facilities: AgistmentFacilities;
-  GSI1PK: string;
-  geohash: string;
+  GSI1PK?: string;
+  geohash?: string;
   latitude?: number;
   longitude?: number;
   listing: AgistmentListingType;
@@ -146,4 +164,12 @@ export interface AgistmentResponse {
   distance?: number;
   distanceFrom?: string;
   matchType?: 'EXACT' | 'ADJACENT';
+  analytics: AnalyticsEntry[];
+  analyticsSummary?: AnalyticsSummary;
+  subscription_id?: string;
+  subscription_status?: string;
+}
+
+export interface AgistmentRequest {
+  // ... (no changes made here)
 }

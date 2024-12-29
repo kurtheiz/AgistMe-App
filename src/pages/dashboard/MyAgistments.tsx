@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { ChevronLeft, AlertCircle, HelpCircle, Sparkles } from 'lucide-react';
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { ChevronLeft, AlertCircle, HelpCircle, Sparkles, ChevronDown } from 'lucide-react';
+import { Dialog, Transition, Disclosure } from '@headlessui/react';
 import { agistmentService } from '../../services/agistment.service';
+import { paymentsService } from '../../services/payments.service';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';
 import { AgistmentResponse } from '../../types/agistment';
@@ -16,9 +16,34 @@ import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentC
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
 import { AgistmentPhotosModal } from '../../components/Agistment/AgistmentPhotosModal';
 import { AgistmentFromTextModal } from '../../components/Agistment/AgistmentFromTextModal';
+import { formatPrice } from '../../utils/prices';
+import { formatDate } from '../../utils/dates';
 import toast from 'react-hot-toast';
+import { ListingType } from '../../types/payment';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
+
+interface SubscriptionData {
+  id: string;
+  customer: string;
+  status: string;
+  current_period_end_date: string;
+  current_period_start_date: string;
+  metadata: {
+    'Agistment Listing': string;
+    listing_type: `ListingType.${ListingType}`;
+  };
+  trial_end_date: string | null;
+  default_payment_method: string | null;
+  price_amount: number;
+  price_currency: string;
+  latest_invoice: string;
+  days_until_billing: number;
+  billing_starts: string;
+  cancel_at: string | null;
+  cancel_at_period_end: boolean;
+  canceled_at: string | null;
+}
 
 export function MyAgistments() {
   const { userId } = useAuth();
@@ -30,6 +55,8 @@ export function MyAgistments() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [flashErrorsId, setFlashErrorsId] = useState<string | null>(null);
+  const [subscriptionData, setSubscriptionData] = useState<{[key: string]: SubscriptionData}>({});
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -77,7 +104,7 @@ export function MyAgistments() {
       const updatedAgistments = await agistmentService.getMyAgistments();
       setAgistments(updatedAgistments.results || []);
 
-      toast.success('Subscription cancelled successfully');
+      toast.success('Agistment updated successfully');
 
       // Only close modal if keepModalOpen is false
       if (!keepModalOpen) {
@@ -106,9 +133,9 @@ export function MyAgistments() {
         !agistment.propertyLocation?.location?.region ||
         !agistment.propertyLocation?.location?.postcode;
 
-      const hasPaddocksErrors = !(agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
-        agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
-        agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
+      const hasPaddocksErrors = !((agistment.paddocks?.privatePaddocks?.totalPaddocks ?? 0) > 0 ||
+        (agistment.paddocks?.sharedPaddocks?.totalPaddocks ?? 0) > 0 ||
+        (agistment.paddocks?.groupPaddocks?.totalPaddocks ?? 0) > 0);
 
       const hasCareErrors = !(agistment.care?.selfCare?.available ||
         agistment.care?.partCare?.available ||
@@ -143,9 +170,9 @@ export function MyAgistments() {
           !agistment.propertyLocation?.location?.region ||
           !agistment.propertyLocation?.location?.postcode);
       case 'paddocks':
-        return !!(agistment.paddocks?.privatePaddocks?.totalPaddocks > 0 ||
-          agistment.paddocks?.sharedPaddocks?.totalPaddocks > 0 ||
-          agistment.paddocks?.groupPaddocks?.totalPaddocks > 0);
+        return !!((agistment.paddocks?.privatePaddocks?.totalPaddocks ?? 0) > 0 ||
+          (agistment.paddocks?.sharedPaddocks?.totalPaddocks ?? 0) > 0 ||
+          (agistment.paddocks?.groupPaddocks?.totalPaddocks ?? 0) > 0);
       case 'care':
         return !!(agistment.care?.selfCare?.available ||
           agistment.care?.partCare?.available ||
@@ -158,31 +185,30 @@ export function MyAgistments() {
   };
 
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
-    <div className="bg-neutral-50 border-t border-neutral-200">
-      <div className="text-center text-sm text-neutral-600 pt-4 flex items-center justify-center gap-2">
+    <div className="bg-white border-t border-neutral-200">
+      <div className="text-m font-medium text-neutral-800 pt-4 pb-2 text-center flex items-center justify-center gap-2">
         Click on a section below to edit
         <button
           onClick={(e) => {
             e.stopPropagation();
             setIsHelpOpen(true);
           }}
-          className="text-neutral-500 hover:text-neutral-700"
+          className="text-neutral-600 hover:text-neutral-800"
         >
-          <HelpCircle className="w-4 h-4" />
+          <HelpCircle className="w-5 h-5" />
         </button>
       </div>
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
         <button
           onClick={() => setEditModal({ type: 'fromtext', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           <Sparkles className={'w-4 h-4'} />
           <span>From Text</span>
-          
         </button>
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
-          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'header') ? 'animate-flash' : ''}`}
+          className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'header') ? 'animate-flash' : ''}`}
         >
           Basic Info
           {!checkSectionValidation(agistment, 'header') && (
@@ -193,7 +219,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'paddocks', agistment: agistment as AgistmentResponse })}
-          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'paddocks') ? 'animate-flash' : ''}`}
+          className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'paddocks') ? 'animate-flash' : ''}`}
         >
           Paddocks
           {!checkSectionValidation(agistment, 'paddocks') && (
@@ -204,19 +230,19 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'riding', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           Riding Facilities
         </button>
         <button
           onClick={() => setEditModal({ type: 'facilities', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           Facilities
         </button>
         <button
           onClick={() => setEditModal({ type: 'care', agistment: agistment as AgistmentResponse })}
-          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'care') ? 'animate-flash' : ''}`}
+          className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'care') ? 'animate-flash' : ''}`}
         >
           Care
           {!checkSectionValidation(agistment, 'care') && (
@@ -227,7 +253,7 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'photos', agistment: agistment as AgistmentResponse })}
-          className={`button-toolbar ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'photos') ? 'animate-flash' : ''}`}
+          className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'photos') ? 'animate-flash' : ''}`}
         >
           Photos
           {!checkSectionValidation(agistment, 'photos') && (
@@ -238,36 +264,213 @@ export function MyAgistments() {
         </button>
         <button
           onClick={() => setEditModal({ type: 'services', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar"
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           Services
         </button>
       </div>
 
-      <div className={`text-sm font-medium text-center py-1.5 ${agistment.status === 'PUBLISHED'
-          ? 'bg-emerald-100 text-emerald-700'
-          : 'bg-orange-100 text-orange-700'
-        } rounded`}>
-        {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
-      </div>
-      <div className="border-t border-neutral-200 p-4 flex gap-2 bg-white">
-        <button
-          onClick={() => handlePreview(agistment)}
-          className="button-toolbar"
-        >
-          Preview
-        </button>
-        <button
-          onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
-          className="button-toolbar"
-        >
-          {agistment.status === 'PUBLISHED' ? (
-            <><span>Hide</span></>
-          ) : (
-            <><span>Unhide</span></>
-          )}
-        </button>
-      </div>
+      <Disclosure>
+        {({ open }) => (
+          <>
+            <Disclosure.Button 
+              className={`flex w-full justify-between items-center px-4 py-3 text-neutral-700 hover:bg-neutral-50 border-t border-neutral-200 bg-white ${!agistment.subscription_id ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={async (e) => {
+                if (!agistment.subscription_id) {
+                  e.preventDefault();
+                  return;
+                }
+                if (!open && !subscriptionData[agistment.id] && agistment.subscription_id) {
+                  setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                  try {
+                    const data = await paymentsService.getSubscription(agistment.subscription_id);
+                    setSubscriptionData(prev => ({ ...prev, [agistment.id]: data }));
+                  } catch (error) {
+                    console.error('Failed to load subscription data:', error);
+                    toast.error('Failed to load subscription data');
+                  } finally {
+                    setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                  }
+                }
+              }}
+            >
+              <div className="flex items-center">
+                <span className="text-lg font-medium">Billing</span>
+              </div>
+              <ChevronDown className={`${open ? 'transform rotate-180' : ''} w-4 h-4 text-neutral-500`} />
+            </Disclosure.Button>
+            <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-white border-t border-neutral-200">
+              {loadingSubscriptions[agistment.id] ? (
+                <div className="flex justify-center py-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-900"></div>
+                </div>
+              ) : subscriptionData[agistment.id] ? (
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span>Status:</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      subscriptionData[agistment.id]?.status === 'trialing' 
+                        ? 'bg-blue-100 text-blue-700'
+                        : subscriptionData[agistment.id]?.status === 'active'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-neutral-100 text-neutral-700'
+                    }`}>
+                      {subscriptionData[agistment.id]?.status.charAt(0).toUpperCase() + 
+                       subscriptionData[agistment.id]?.status.slice(1)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Plan:</span>
+                    <span className="font-medium">
+                      {subscriptionData[agistment.id]?.metadata?.listing_type === `ListingType.${ListingType.STANDARD}` ? 'Standard' : 
+                       subscriptionData[agistment.id]?.metadata?.listing_type === `ListingType.${ListingType.PROFESSIONAL}` ? 'Professional' : 'Unknown'} (
+                      {formatPrice(subscriptionData[agistment.id]?.price_amount || 0)}{' '}
+                      {subscriptionData[agistment.id]?.price_currency || 'AUD'}/month)
+                    </span>
+                  </div>
+                  {subscriptionData[agistment.id]?.status === 'trialing' && (
+                    <>
+                      <div className="flex justify-between">
+                        <span>Trial Ends:</span>
+                        <span className="font-medium">
+                          {formatDate(subscriptionData[agistment.id]?.trial_end_date || '')}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Billing Starts:</span>
+                        <span className="font-medium">
+                          {formatDate(subscriptionData[agistment.id]?.billing_starts || '')} (
+                          {subscriptionData[agistment.id]?.days_until_billing || 0} days)
+                        </span>
+                      </div>
+                    </>
+                  )}
+                  <div className="flex justify-between">
+                    <span>Current Period:</span>
+                    <span className="font-medium">
+                      {formatDate(subscriptionData[agistment.id]?.current_period_start_date || '')} - {' '}
+                      {formatDate(subscriptionData[agistment.id]?.current_period_end_date || '')}
+                    </span>
+                  </div>
+                  {subscriptionData[agistment.id]?.cancel_at_period_end && (
+                    <>
+                      <div className="mt-3 pt-3 border-t border-neutral-200">
+                        <div className="text-sm font-medium text-red-600 mb-2">Cancellation Details</div>
+                        <div className="flex justify-between">
+                          <span>Cancellation Date:</span>
+                          <span className="font-medium">
+                            {formatDate(subscriptionData[agistment.id]?.canceled_at || '')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Active Until:</span>
+                          <span className="font-medium">
+                            {formatDate(subscriptionData[agistment.id]?.cancel_at || '')}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p className="text-neutral-500">Failed to load subscription information.</p>
+              )}
+              <div className="mt-4 flex justify-end">
+                {subscriptionData[agistment.id]?.cancel_at_period_end && subscriptionData[agistment.id]?.status === 'active' ? (
+                  <button
+                    onClick={async () => {
+                      if (agistment.id && subscriptionData[agistment.id]?.id) {
+                        try {
+                          if (subscriptionData[agistment.id].cancel_at_period_end && subscriptionData[agistment.id].status === 'active') {
+                            const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                            toast.success('Subscription will continue');
+
+                            // Refresh the subscription data
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                            try {
+                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                            } finally {
+                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                            }
+                          } else {
+                            const response = await paymentsService.cancelSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                            toast.success('Subscription will be cancelled at the end of the billing period');
+
+                            // Refresh the subscription data
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                            try {
+                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                            } finally {
+                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                            }
+                          }
+                        } catch (error) {
+                          console.error('Error updating subscription:', error);
+                          toast.error('Failed to update subscription');
+                        }
+                      }
+                    }}
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    Continue Subscription
+                  </button>
+                ) : (agistment.status === 'HIDDEN' || agistment.status === 'PUBLISHED') && (
+                  <button
+                    onClick={async () => {
+                      if (agistment.id && subscriptionData[agistment.id]?.id) {
+                        try {
+                          if (subscriptionData[agistment.id].cancel_at_period_end && subscriptionData[agistment.id].status === 'active') {
+                            const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                            toast.success('Subscription will continue');
+
+                            // Refresh the subscription data
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                            try {
+                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                            } finally {
+                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                            }
+                          } else {
+                            const response = await paymentsService.cancelSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                            toast.success('Subscription will be cancelled at the end of the billing period');
+
+                            // Refresh the subscription data
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                            try {
+                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                            } finally {
+                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                            }
+                          }
+                        } catch (error) {
+                          console.error('Error updating subscription:', error);
+                          toast.error('Failed to update subscription');
+                        }
+                      }
+                    }}
+                    disabled={!subscriptionData[agistment.id]?.id}
+                    className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                      !subscriptionData[agistment.id]?.id
+                        ? 'bg-neutral-400 cursor-not-allowed'
+                        : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
+                    }`}
+                  >
+                    Cancel Subscription
+                  </button>
+                )}
+              </div>
+            </Disclosure.Panel>
+          </>
+        )}
+      </Disclosure>
     </div>
   );
 
@@ -319,22 +522,71 @@ export function MyAgistments() {
             </button>
           </div>
         ) : (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="pb-8 pt-4 md:px-4">
             {!isLoading && agistments.length > 0 && (
-              <div className="mb-4 text-sm text-neutral-600">
-                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'}
+              <div className="mb-4 text-sm text-neutral-600 px-4">
+                {agistments.length} {agistments.length === 1 ? 'agistment' : 'agistments'} listed
               </div>
             )}
 
             <div className="grid grid-cols-1 gap-6">
               {agistments.map((agistment) => (
-                <div key={agistment.id} className="bg-white rounded-lg shadow">
-                  <div className="p-4 bg-primary-500">
+                <div key={agistment.id} className="bg-white rounded-none sm:rounded-lg shadow-lg">
+                  <div className="p-4 bg-primary-500 rounded-none sm:rounded-t-lg">
                     <h3 className="text-lg font-medium text-white">
                       {agistment.basicInfo?.name || 'Unnamed Agistment'}
                     </h3>
+                    <p className="text-sm text-white/80 mt-1">
+                      {agistment.propertyLocation?.location?.suburb && agistment.propertyLocation?.location?.state
+                        ? `${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}`
+                        : 'No address yet'}
+                    </p>
+                    <div className={`inline-block text-xs font-medium px-2 py-1 rounded-full mt-2 ${
+                      agistment.status === 'PUBLISHED'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
+                    </div>
                   </div>
-                  {renderEditButtons(agistment)}
+
+                  {/* Analytics Summary */}
+                  <div className="px-4 py-3 border-b border-neutral-200 bg-white text-center">
+                    <div className="text-m font-medium text-neutral-800 mb-2">Analytics for the Past 30 Days</div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalViewCount || 0}</div>
+                        <div className="text-xs text-emerald-700">Views</div>
+                      </div>
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalFavouritedCount || 0}</div>
+                        <div className="text-xs text-emerald-700">Favourites</div>
+                      </div>
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalEnquiriesCount || 0}</div>
+                        <div className="text-xs text-emerald-700">Enquiries</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between px-4 py-3 border-b border-neutral-200 bg-white">
+                    <button
+                      onClick={() => handlePreview(agistment)}
+                      className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
+                    >
+                      Preview
+                    </button>
+                    <button
+                      onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
+                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                      {agistment.status === 'PUBLISHED' ? 'Hide' : 'Unhide'}
+                    </button>
+                  </div>
+
+                  <div className="bg-white">
+                    {renderEditButtons(agistment)}
+                  </div>
                 </div>
               ))}
             </div>
@@ -455,8 +707,6 @@ export function MyAgistments() {
                   </Dialog.Title>
                   <div className="space-y-4">
                     <div>
-                      
-
                       <p className="text-sm text-neutral-600">
                         <i>Sections marked with a <span className="inline-block align-middle"><AlertCircle className="w-4 h-4 text-red-500" /></span> require your attention before your agistment can be made visible in search results.</i>
                       </p>
@@ -464,7 +714,6 @@ export function MyAgistments() {
                     <div className="space-y-2">
                       <p className="font-medium">From Text</p>
                       <div className="text-sm space-y-3">
-
                         <p className="text-neutral-600">Typically used to start your listing from a plain english description, like a social media post.</p>
                       </div>
 
@@ -505,7 +754,7 @@ export function MyAgistments() {
                   <div className="mt-6">
                     <button
                       type="button"
-                      className="w-full inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                      className="w-full inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                       onClick={() => setIsHelpOpen(false)}
                     >
                       Got it, thanks!

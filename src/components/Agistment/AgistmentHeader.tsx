@@ -49,13 +49,16 @@ export const AgistmentHeader = ({
 
         {/* Contact Section */}
         {contactDetails?.contactDetails && (
-          <div>
-            <div className="space-y-2">
-              {contactDetails.contactDetails.name && (
-                <div className="text-neutral-900 dark:text-neutral-100">
-                  <span>{contactDetails.contactDetails.name}</span>
-                </div>
-              )}
+          <div className="space-y-3">
+            {/* Name on its own line */}
+            {contactDetails.contactDetails.name && (
+              <div className="text-neutral-900 dark:text-neutral-100">
+                <span>{contactDetails.contactDetails.name}</span>
+              </div>
+            )}
+            
+            {/* Contact details and social media in single line */}
+            <div className="flex flex-wrap items-center gap-4">
               {contactDetails.contactDetails.email && (
                 <div className="flex items-center text-neutral-900 dark:text-neutral-100">
                   <Mail className="w-4 h-4 mr-2" />
@@ -78,56 +81,51 @@ export const AgistmentHeader = ({
                   </a>
                 </div>
               )}
+              {/* Social Media Links */}
+              {socialMedia && socialMedia.map((social) => (
+                <div key={social.type} className="flex items-center text-neutral-900 dark:text-neutral-100">
+                  {social.type === 'facebook' && (
+                    <>
+                      <Facebook className="w-4 h-4 mr-2" />
+                      <a 
+                        href={social.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary-600"
+                      >
+                        Facebook Page
+                      </a>
+                    </>
+                  )}
+                  {social.type === 'instagram' && (
+                    <>
+                      <Instagram className="w-4 h-4 mr-2" />
+                      <a 
+                        href={social.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary-600"
+                      >
+                        Instagram Page
+                      </a>
+                    </>
+                  )}
+                  {(social.type === 'web' || social.type === 'website') && (
+                    <>
+                      <Globe className="w-4 h-4 mr-2" />
+                      <a 
+                        href={social.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary-600"
+                      >
+                        Website
+                      </a>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          </div>
-        )}
-
-        {/* Social Media Links */}
-        {socialMedia && socialMedia.length > 0 && (
-          <div className="space-y-2">
-            {socialMedia.map((social) => (
-              <div key={social.type} className="flex items-center text-neutral-900 dark:text-neutral-100">
-                {social.type === 'facebook' && (
-                  <>
-                    <Facebook className="w-4 h-4 mr-2" />
-                    <a 
-                      href={social.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-primary-600"
-                    >
-                      Facebook Page
-                    </a>
-                  </>
-                )}
-                {social.type === 'instagram' && (
-                  <>
-                    <Instagram className="w-4 h-4 mr-2" />
-                    <a 
-                      href={social.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-primary-600"
-                    >
-                      Instagram Page
-                    </a>
-                  </>
-                )}
-                {(social.type === 'web' || social.type === 'website') && (
-                  <>
-                    <Globe className="w-4 h-4 mr-2" />
-                    <a 
-                      href={social.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-primary-600"
-                    >
-                      Website
-                    </a>
-                  </>
-                )}
-              </div>
-            ))}
           </div>
         )}
       </div>

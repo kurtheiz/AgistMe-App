@@ -82,9 +82,9 @@ class AgistmentService {
     }
   }
 
-  async getAgistment(id: string): Promise<AgistmentResponse> {
+  async getAgistment(id: string, count: boolean=false): Promise<AgistmentResponse> {
     return this.retryOperation(async () => {
-      const response = await this.api.get<AgistmentResponse>(`v1/agistments/${id}`);
+      const response = await this.api.get<AgistmentResponse>(`v1/agistments/${id}?count=${count}`);
       return response.data;
     });
   }
@@ -103,6 +103,17 @@ class AgistmentService {
       return response.data;
     } catch (error: unknown) {
       console.error('Failed to get blank agistment:', error);
+      throw error;
+    }
+  }
+
+  async getSubscription(agistmentId: string): Promise<any> {
+    try {
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.get(`v1/protected/agistments/${agistmentId}/subscription`, authHeaders);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get subscription:', error);
       throw error;
     }
   }

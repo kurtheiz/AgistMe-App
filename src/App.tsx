@@ -9,7 +9,6 @@ import ListAgistment from './pages/ListAgistment';
 import Profile from './pages/Profile';
 import { Dashboard } from './pages/Dashboard';
 import { MyAgistments } from './pages/dashboard/MyAgistments';
-import { Billing } from './pages/dashboard/Billing';
 import { Invoices } from './pages/dashboard/Invoices';
 import { QueryProvider } from './providers/QueryProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -28,9 +27,11 @@ import { profileService } from './services/profile.service';
 import { enquiriesService } from './services/enquiries.service';
 import EnquiriesPage from './pages/dashboard/Enquiries';
 import PreviewAgistmentDetail from './pages/dashboard/PreviewAgistmentDetail';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react'; 
 import { useQueryClient } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
+import { InitializationOverlay } from './components/InitializationOverlay';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -122,14 +123,6 @@ const router = createBrowserRouter([
             path: 'billing',
             children: [
               {
-                index: true,
-                element: (
-                  <ProtectedRoute>
-                    <Billing />
-                  </ProtectedRoute>
-                )
-              },
-              {
                 path: 'subscriptions/:subscriptionId/invoices',
                 element: (
                   <ProtectedRoute>
@@ -169,6 +162,7 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const { user, isLoaded: isUserLoaded } = useUser();
   const setUser = useAuthStore((state) => state.setUser);
   const queryClient = useQueryClient();
+  const [isInitializing, setIsInitializing] = useState(true);
   
   // Store states
   const { setEnquiries, setIsLoading: setEnquiriesLoading } = useEnquiriesStore();
@@ -257,13 +251,27 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
       }
 
       // Wait for all data to load
-      Promise.all(loadPromises).catch(error => {
-        console.error('Error loading data:', error);
-      });
+      Promise.all(loadPromises)
+        .catch(error => {
+          console.error('Error loading data:', error);
+        })
+        .finally(() => {
+          setIsInitializing(false);
+        });
+    } else if (!isLoaded || !isUserLoaded) {
+      // Still loading auth or user
+      setIsInitializing(true);
+    } else {
+      // No user logged in
+      setIsInitializing(false);
     }
   }, [isLoaded, isUserLoaded, userId, user, setUser, queryClient,
       setSavedSearches, setSavedSearchesLoading, setBio, setBioLoading,
       setEnquiries, setEnquiriesLoading, setFavorites, setFavoritesLoading]);
+
+  if (isInitializing) {
+    return <InitializationOverlay />;
+  }
 
   return <>{children}</>;
 };
@@ -276,6 +284,44 @@ function App() {
           <div className="min-h-screen bg-neutral-50">
             <ErrorBoundary>
               <RouterProvider router={router} />
+              <Toaster
+                position="top-center"
+                gutter={8}
+                containerStyle={{
+                  top: 20,
+                }}
+                toastOptions={{
+                  duration: 2000,
+                  style: {
+                    background: '#ffffff',
+                    color: '#1e361e',
+                    border: '1px solid #e5ede5',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                  },
+                  success: {
+                    iconTheme: {
+                      primary: '#4a774a',
+                      secondary: '#ffffff',
+                    },
+                    style: {
+                      border: '1px solid #e5ede5',
+                      backgroundColor: '#f3f6f3',
+                    },
+                  },
+                  error: {
+                    iconTheme: {
+                      primary: '#ef4444',
+                      secondary: '#ffffff',
+                    },
+                    style: {
+                      border: '1px solid #fee2e2',
+                      backgroundColor: '#fef2f2',
+                    },
+                  },
+                }}
+              />
             </ErrorBoundary>
           </div>
         </AuthInitializer>

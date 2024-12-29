@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { List, MessageSquare, CreditCard } from 'lucide-react';
+import { List, MessageSquare } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useUnreadEnquiriesCount } from '../hooks/useEnquiries';
 
@@ -67,19 +67,6 @@ export const Dashboard = () => {
                     )}
                   </div>
                   <p className="text-sm text-gray-500">View and respond to agistment enquiries</p>
-                </div>
-              </div>
-            </button>
-
-            <button 
-              className="bg-white rounded-lg p-6 shadow hover:bg-neutral-50 transition-colors text-left focus:outline-none"
-              onClick={() => navigate('/dashboard/billing')}
-            >
-              <div className="flex items-center">
-                <CreditCard className="h-8 w-8 text-neutral-600" />
-                <div className="ml-4">
-                  <p className="text-lg font-medium text-gray-900">Billing</p>
-                  <p className="text-sm text-gray-500">Manage your subscription and payments</p>
                 </div>
               </div>
             </button>

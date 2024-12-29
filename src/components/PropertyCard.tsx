@@ -82,10 +82,10 @@ const PropertyCard = ({
 
   return (
     <div 
-      className={`bg-white rounded-lg ${noShadow ? '' : 'shadow-xl hover:shadow-2xl'} transition-shadow duration-300 ${!disableClick ? 'cursor-pointer' : ''} ${agistment.status === 'HIDDEN' ? 'grayscale' : ''}`}
+      className={`bg-white rounded-none sm:rounded-lg ${noShadow ? '' : 'shadow-xl hover:shadow-2xl'} transition-shadow duration-300 ${!disableClick ? 'cursor-pointer' : ''} ${agistment.status === 'HIDDEN' ? 'grayscale' : ''}`}
       onClick={!disableClick ? handleClick : undefined}
     >
-      <div className="relative bg-white border border-neutral-200 rounded-lg overflow-hidden">
+      <div className="relative bg-white border-y border-neutral-200 sm:border sm:rounded-lg overflow-hidden">
         {/* Property Name Header */}
         <div className="title-header relative">
           <div className="flex justify-between items-start relative z-10 py-1">
@@ -101,6 +101,7 @@ const PropertyCard = ({
           <div className="aspect-w-16 aspect-h-9">
             <AgistmentPhotosView 
               photos={agistment.photoGallery?.photos}
+              showThumbnails={false}
             />
             {agistment.status === 'HIDDEN' && (
               <div className="absolute inset-0 bg-white/30" />
