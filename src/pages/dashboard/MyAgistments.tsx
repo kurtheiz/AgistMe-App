@@ -380,8 +380,38 @@ export function MyAgistments() {
                   <button
                     onClick={async () => {
                       if (agistment.id && subscriptionData[agistment.id]?.id) {
-                        await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
-                        setSubscriptionData(prev => ({ ...prev, [agistment.id]: { ...subscriptionData[agistment.id], cancel_at_period_end: false } }));
+                        try {
+                          if (subscriptionData[agistment.id].cancel_at_period_end && subscriptionData[agistment.id].status === 'active') {
+                            const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                            toast.success('Subscription will continue');
+
+                            // Refresh the subscription data
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                            try {
+                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                            } finally {
+                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                            }
+                          } else {
+                            const response = await paymentsService.cancelSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                            toast.success('Subscription will be cancelled at the end of the billing period');
+
+                            // Refresh the subscription data
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                            try {
+                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                            } finally {
+                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                            }
+                          }
+                        } catch (error) {
+                          console.error('Error updating subscription:', error);
+                          toast.error('Failed to update subscription');
+                        }
                       }
                     }}
                     className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
@@ -392,8 +422,38 @@ export function MyAgistments() {
                   <button
                     onClick={async () => {
                       if (agistment.id && subscriptionData[agistment.id]?.id) {
-                        await paymentsService.cancelSubscription(subscriptionData[agistment.id].id);
-                        setSubscriptionData(prev => ({ ...prev, [agistment.id]: { ...subscriptionData[agistment.id], cancel_at_period_end: true } }));
+                        try {
+                          if (subscriptionData[agistment.id].cancel_at_period_end && subscriptionData[agistment.id].status === 'active') {
+                            const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                            toast.success('Subscription will continue');
+
+                            // Refresh the subscription data
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                            try {
+                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                            } finally {
+                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                            }
+                          } else {
+                            const response = await paymentsService.cancelSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                            toast.success('Subscription will be cancelled at the end of the billing period');
+
+                            // Refresh the subscription data
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                            try {
+                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                            } finally {
+                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
+                            }
+                          }
+                        } catch (error) {
+                          console.error('Error updating subscription:', error);
+                          toast.error('Failed to update subscription');
+                        }
                       }
                     }}
                     disabled={!subscriptionData[agistment.id]?.id}

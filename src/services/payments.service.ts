@@ -100,13 +100,29 @@ class PaymentsService {
   async cancelSubscription(subscription_id: string) {
     try {
       const authHeaders = await this.getAuthHeaders();
-      const response = await this.api.delete(
+      const response = await this.api.patch<SubscriptionResponse>(
         `/v1/protected/payments/subscriptions/${subscription_id}`,
-        authHeaders
+        null,
+        { ...authHeaders, params: { cancel: true } }
       );
       return response.data;
     } catch (error) {
       console.error('Failed to cancel subscription:', error);
+      throw error;
+    }
+  }
+
+  async reactivateSubscription(subscription_id: string) {
+    try {
+      const authHeaders = await this.getAuthHeaders();
+      const response = await this.api.patch<SubscriptionResponse>(
+        `/v1/protected/payments/subscriptions/${subscription_id}`,
+        null,
+        { ...authHeaders, params: { cancel: false } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to reactivate subscription:', error);
       throw error;
     }
   }
