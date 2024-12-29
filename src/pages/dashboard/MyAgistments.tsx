@@ -302,7 +302,7 @@ export function MyAgistments() {
             <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-white border-t border-neutral-200">
               {loadingSubscriptions[agistment.id] ? (
                 <div className="flex justify-center py-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-neutral-600"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-900"></div>
                 </div>
               ) : subscriptionData[agistment.id] ? (
                 <div className="space-y-3">
@@ -376,25 +376,17 @@ export function MyAgistments() {
                 <p className="text-neutral-500">Failed to load subscription information.</p>
               )}
               <div className="mt-4 flex justify-end">
-                {subscriptionData[agistment.id]?.status === 'canceled' ? (
+                {subscriptionData[agistment.id]?.cancel_at_period_end && subscriptionData[agistment.id]?.status === 'active' ? (
                   <button
                     onClick={async () => {
-                      try {
-                        const response = await paymentsService.createCheckoutSession({
-                          agistment_id: agistment.id,
-                          listing_type: agistment.listing?.listingType as import('../../types/payment').ListingType
-                        });
-                        if (response.url) {
-                          window.location.href = response.url;
-                        }
-                      } catch (error) {
-                        console.error('Failed to create checkout session:', error);
-                        toast.error('Failed to start renewal process');
+                      if (agistment.id && subscriptionData[agistment.id]?.id) {
+                        await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
+                        setSubscriptionData(prev => ({ ...prev, [agistment.id]: { ...subscriptionData[agistment.id], cancel_at_period_end: false } }));
                       }
                     }}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                   >
-                    Renew Subscription
+                    Continue Subscription
                   </button>
                 ) : (agistment.status === 'HIDDEN' || agistment.status === 'PUBLISHED') && (
                   <button
@@ -404,10 +396,10 @@ export function MyAgistments() {
                         setSubscriptionData(prev => ({ ...prev, [agistment.id]: { ...subscriptionData[agistment.id], cancel_at_period_end: true } }));
                       }
                     }}
-                    disabled={subscriptionData[agistment.id]?.cancel_at_period_end}
+                    disabled={!subscriptionData[agistment.id]?.id}
                     className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                      subscriptionData[agistment.id]?.cancel_at_period_end 
-                        ? 'bg-neutral-400 cursor-not-allowed' 
+                      !subscriptionData[agistment.id]?.id
+                        ? 'bg-neutral-400 cursor-not-allowed'
                         : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
                     }`}
                   >
