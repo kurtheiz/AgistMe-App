@@ -376,12 +376,12 @@ export function MyAgistments() {
                 <p className="text-neutral-500">Failed to load subscription information.</p>
               )}
               <div className="mt-4 flex justify-end">
-                {subscriptionData[agistment.id]?.cancel_at_period_end && subscriptionData[agistment.id]?.status === 'active' ? (
+                {subscriptionData[agistment.id]?.cancel_at_period_end && (subscriptionData[agistment.id]?.status === 'active' || subscriptionData[agistment.id]?.status === 'trialing') ? (
                   <button
                     onClick={async () => {
                       if (agistment.id && subscriptionData[agistment.id]?.id) {
                         try {
-                          if (subscriptionData[agistment.id].cancel_at_period_end && subscriptionData[agistment.id].status === 'active') {
+                          if (subscriptionData[agistment.id].cancel_at_period_end && (subscriptionData[agistment.id].status === 'active' || subscriptionData[agistment.id].status === 'trialing')) {
                             const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
                             setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
                             toast.success('Subscription will continue');
