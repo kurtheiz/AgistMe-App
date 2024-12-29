@@ -20,6 +20,7 @@ import { formatPrice } from '../../utils/prices';
 import { formatDate } from '../../utils/dates';
 import toast from 'react-hot-toast';
 import { ListingType } from '../../types/payment';
+import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
 
@@ -57,6 +58,7 @@ export function MyAgistments() {
   const [flashErrorsId, setFlashErrorsId] = useState<string | null>(null);
   const [subscriptionData, setSubscriptionData] = useState<{[key: string]: SubscriptionData}>({});
   const [loadingSubscriptions, setLoadingSubscriptions] = useState<{[key: string]: boolean}>({});
+  const [showCancelConfirmation, setShowCancelConfirmation] = useState<{ agistmentId: string; endDate: string } | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -111,8 +113,8 @@ export function MyAgistments() {
         setEditModal(null);
       }
     } catch (error) {
-      console.error('Error cancelling subscription:', error);
-      toast.error('Failed to cancel subscription');
+      console.error('Error updating agistment:', error);
+      toast.error('Failed to update agistment');
     } finally {
       setIsUpdating(false);
     }
@@ -375,38 +377,23 @@ export function MyAgistments() {
               ) : (
                 <p className="text-neutral-500">Failed to load subscription information.</p>
               )}
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex justify-center">
                 {subscriptionData[agistment.id]?.cancel_at_period_end && (subscriptionData[agistment.id]?.status === 'active' || subscriptionData[agistment.id]?.status === 'trialing') ? (
                   <button
                     onClick={async () => {
                       if (agistment.id && subscriptionData[agistment.id]?.id) {
                         try {
-                          if (subscriptionData[agistment.id].cancel_at_period_end && (subscriptionData[agistment.id].status === 'active' || subscriptionData[agistment.id].status === 'trialing')) {
-                            const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
-                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
-                            toast.success('Subscription will continue');
+                          const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
+                          setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
+                          toast.success('Subscription will continue');
 
-                            // Refresh the subscription data
-                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
-                            try {
-                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
-                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
-                            } finally {
-                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
-                            }
-                          } else {
-                            const response = await paymentsService.cancelSubscription(subscriptionData[agistment.id].id);
-                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
-                            toast.success('Subscription will be cancelled at the end of the billing period');
-
-                            // Refresh the subscription data
-                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
-                            try {
-                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
-                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
-                            } finally {
-                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
-                            }
+                          // Refresh the subscription data
+                          setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
+                          try {
+                            const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
+                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
+                          } finally {
+                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
                           }
                         } catch (error) {
                           console.error('Error updating subscription:', error);
@@ -420,40 +407,12 @@ export function MyAgistments() {
                   </button>
                 ) : (agistment.status === 'HIDDEN' || agistment.status === 'PUBLISHED') && (
                   <button
-                    onClick={async () => {
+                    onClick={() => {
                       if (agistment.id && subscriptionData[agistment.id]?.id) {
-                        try {
-                          if (subscriptionData[agistment.id].cancel_at_period_end && subscriptionData[agistment.id].status === 'active') {
-                            const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
-                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
-                            toast.success('Subscription will continue');
-
-                            // Refresh the subscription data
-                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
-                            try {
-                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
-                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
-                            } finally {
-                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
-                            }
-                          } else {
-                            const response = await paymentsService.cancelSubscription(subscriptionData[agistment.id].id);
-                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
-                            toast.success('Subscription will be cancelled at the end of the billing period');
-
-                            // Refresh the subscription data
-                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
-                            try {
-                              const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
-                              setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
-                            } finally {
-                              setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
-                            }
-                          }
-                        } catch (error) {
-                          console.error('Error updating subscription:', error);
-                          toast.error('Failed to update subscription');
-                        }
+                        setShowCancelConfirmation({
+                          agistmentId: agistment.id,
+                          endDate: subscriptionData[agistment.id].current_period_end_date
+                        });
                       }
                     }}
                     disabled={!subscriptionData[agistment.id]?.id}
@@ -475,7 +434,7 @@ export function MyAgistments() {
   );
 
   return (
-    <>
+    <div className="min-h-screen bg-neutral-50">
       <PageToolbar
         actions={
           <div className="w-full">
@@ -533,60 +492,39 @@ export function MyAgistments() {
               {agistments.map((agistment) => (
                 <div key={agistment.id} className="bg-white rounded-none sm:rounded-lg shadow-lg">
                   <div className="p-4 bg-primary-500 rounded-none sm:rounded-t-lg">
-                    <h3 className="text-lg font-medium text-white">
-                      {agistment.basicInfo?.name || 'Unnamed Agistment'}
-                    </h3>
-                    <p className="text-sm text-white/80 mt-1">
-                      {agistment.propertyLocation?.location?.suburb && agistment.propertyLocation?.location?.state
-                        ? `${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}`
-                        : 'No address yet'}
-                    </p>
-                    <div className={`inline-block text-xs font-medium px-2 py-1 rounded-full mt-2 ${
-                      agistment.status === 'PUBLISHED'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-red-100 text-red-700'
-                    }`}>
-                      {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
-                    </div>
-                  </div>
-
-                  {/* Analytics Summary */}
-                  <div className="px-4 py-3 border-b border-neutral-200 bg-white text-center">
-                    <div className="text-m font-medium text-neutral-800 mb-2">Analytics for the Past 30 Days</div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-emerald-50 p-2 rounded-lg">
-                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalViewCount || 0}</div>
-                        <div className="text-xs text-emerald-700">Views</div>
+                    <div>
+                      <h3 className="text-lg font-medium text-white">
+                        {agistment.basicInfo?.name || 'Unnamed Agistment'}
+                      </h3>
+                      <p className="text-sm text-white/80 mt-1">
+                        {agistment.propertyLocation?.location?.suburb && agistment.propertyLocation?.location?.state
+                          ? `${agistment.propertyLocation.location.suburb}, ${agistment.propertyLocation.location.state}`
+                          : 'No address yet'}
+                      </p>
+                      <div className={`inline-block text-xs font-medium px-2 py-1 rounded-full mt-2 ${
+                        agistment.status === 'PUBLISHED'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {agistment.status === 'PUBLISHED' ? 'Available in search results' : 'Hidden from search results'}
                       </div>
-                      <div className="bg-emerald-50 p-2 rounded-lg">
-                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalFavouritedCount || 0}</div>
-                        <div className="text-xs text-emerald-700">Favourites</div>
-                      </div>
-                      <div className="bg-emerald-50 p-2 rounded-lg">
-                        <div className="text-xl font-semibold text-emerald-700">{agistment.analyticsSummary?.totalEnquiriesCount || 0}</div>
-                        <div className="text-xs text-emerald-700">Enquiries</div>
+                      <div className="flex gap-2 mt-4">
+                        <button
+                          onClick={() => handlePreview(agistment)}
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        >
+                          Preview
+                        </button>
+                        <button
+                          onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        >
+                          {agistment.status === 'PUBLISHED' ? 'Hide' : 'Show'}
+                        </button>
                       </div>
                     </div>
                   </div>
-
-                  <div className="flex justify-between px-4 py-3 border-b border-neutral-200 bg-white">
-                    <button
-                      onClick={() => handlePreview(agistment)}
-                      className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
-                    >
-                      Preview
-                    </button>
-                    <button
-                      onClick={() => handleVisibilityToggle(agistment.id, agistment.status)}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                    >
-                      {agistment.status === 'PUBLISHED' ? 'Hide' : 'Unhide'}
-                    </button>
-                  </div>
-
-                  <div className="bg-white">
-                    {renderEditButtons(agistment)}
-                  </div>
+                  {renderEditButtons(agistment)}
                 </div>
               ))}
             </div>
@@ -673,6 +611,38 @@ export function MyAgistments() {
           disableOutsideClick={true}
         />
       )}
+
+      <ConfirmationModal
+        isOpen={!!showCancelConfirmation}
+        onClose={() => setShowCancelConfirmation(null)}
+        onConfirm={async () => {
+          if (showCancelConfirmation?.agistmentId && subscriptionData[showCancelConfirmation.agistmentId]?.id) {
+            try {
+              const response = await paymentsService.cancelSubscription(subscriptionData[showCancelConfirmation.agistmentId].id);
+              setSubscriptionData(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: response }));
+              toast.success('Subscription will be cancelled at the end of the billing period');
+
+              // Refresh the subscription data
+              setLoadingSubscriptions(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: true }));
+              try {
+                const refreshedData = await paymentsService.getSubscription(subscriptionData[showCancelConfirmation.agistmentId].id);
+                setSubscriptionData(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: refreshedData }));
+              } finally {
+                setLoadingSubscriptions(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: false }));
+              }
+            } catch (error) {
+              console.error('Error updating subscription:', error);
+              toast.error('Failed to update subscription');
+            }
+          }
+        }}
+        title="Cancel Subscription"
+        message={`Your subscription will continue until ${formatDate(showCancelConfirmation?.endDate || '')}. You can reactivate your subscription at any time before this date.\n\nYour agistment will not be deleted.\n\nWould you like to proceed with cancellation?`}
+        confirmText="Yes, Cancel Subscription"
+        cancelText="No, Keep Subscription"
+        confirmStyle="bg-red-600 hover:bg-red-700 focus-visible:ring-red-500"
+      />
+
       <Transition appear show={isHelpOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={() => setIsHelpOpen(false)}>
           <Transition.Child
@@ -766,7 +736,7 @@ export function MyAgistments() {
           </div>
         </Dialog>
       </Transition>
-    </>
+    </div>
   );
 }
 
