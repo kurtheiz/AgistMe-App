@@ -26,23 +26,23 @@ interface SubscriptionData {
 }
 
 export const useAgistmentSubscription = () => {
-  const [subscriptionData, setSubscriptionData] = useState<{[key: string]: SubscriptionData}>({});
-  const [loadingSubscriptions, setLoadingSubscriptions] = useState<{[key: string]: boolean}>({});
+  const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState<boolean>(false);
 
   const loadSubscriptionForAgistment = async (subscription_id: string) => {
-    if (!subscription_id || loadingSubscriptions[subscription_id]) return;
+    if (!subscription_id || loadingSubscriptions) return;
 
-    setLoadingSubscriptions(prev => ({ ...prev, [subscription_id]: true }));
+    setLoadingSubscriptions(true);
     try {
       const response = await paymentsService.getSubscription(subscription_id);
       if (response) {
-        setSubscriptionData(prev => ({ ...prev, [subscription_id]: response }));
+        setSubscriptionData(response);
       }
       return response;
     } catch (error) {
       console.error('Error loading subscription:', error);
     } finally {
-      setLoadingSubscriptions(prev => ({ ...prev, [subscription_id]: false }));
+      setLoadingSubscriptions(false);
     }
   };
 
@@ -51,6 +51,7 @@ export const useAgistmentSubscription = () => {
     try {
       const response = await paymentsService.cancelSubscription(subscription_id);
       toast.success('Subscription will be cancelled at the end of the billing period');
+      setSubscriptionData(response);
       return response;
     } catch (error) {
       console.error('Error cancelling subscription:', error);
@@ -63,6 +64,7 @@ export const useAgistmentSubscription = () => {
     try {
       const response = await paymentsService.reactivateSubscription(subscription_id);
       toast.success('Subscription will continue');
+      setSubscriptionData(response);
       return response;
     } catch (error) {
       console.error('Error reactivating subscription:', error);

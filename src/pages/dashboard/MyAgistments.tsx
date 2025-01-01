@@ -36,16 +36,16 @@ export function MyAgistments() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [flashErrorsId, setFlashErrorsId] = useState<string | null>(null);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState<{ agistmentId: string; endDate: string } | null>(null);
-  const {subscriptionData, setSubscriptionData, loadingSubscriptions, loadSubscriptionForAgistment, handleCancelSubscription, handleContinueSubscription} = useAgistmentSubscription();
+  const {subscriptionData, loadingSubscriptions, loadSubscriptionForAgistment, handleCancelSubscription, handleContinueSubscription} = useAgistmentSubscription();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  
+
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
         setAgistments(response.results || []);
-  
+
         // Automatically show help dialog if first agistment is new and coming from listagistment
         const fromListAgistment = location.state?.from === '/listagistment';
         if (fromListAgistment && response.results?.[0]?.basicInfo?.name === 'New Agistment') {
@@ -58,7 +58,7 @@ export function MyAgistments() {
         setIsLoading(false);
       }
     };
-  
+
     if (userId) {
       fetchAgistments();
     }
@@ -225,7 +225,7 @@ export function MyAgistments() {
                   e.preventDefault();
                   return;
                 }
-                if (!open && !subscriptionData[agistment.subscription_id]) {
+                if (!open && !subscriptionData?.id) {
                   await loadSubscriptionForAgistment(agistment.subscription_id);
                 }
               }}
@@ -236,45 +236,45 @@ export function MyAgistments() {
               <ChevronDown className={`${open ? 'transform rotate-180' : ''} w-4 h-4 text-neutral-500`} />
             </Disclosure.Button>
             <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-white border-t border-neutral-200">
-              {loadingSubscriptions && agistment.subscription_id && loadingSubscriptions[agistment.subscription_id] ? (
+              {loadingSubscriptions ? (
                 <div className="flex justify-center py-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-900"></div>
                 </div>
-              ) : (subscriptionData && agistment.subscription_id && subscriptionData[agistment.subscription_id]) ? (
+              ) : (agistment.subscription_id && subscriptionData?.id === agistment.subscription_id) ? (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span>Status:</span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      subscriptionData[agistment.subscription_id]?.status === 'trialing' 
+                      subscriptionData?.status === 'trialing' 
                         ? 'bg-blue-100 text-blue-700'
-                        : subscriptionData[agistment.subscription_id]?.status === 'active'
+                        : subscriptionData?.status === 'active'
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-neutral-100 text-neutral-700'
                     }`}>
-                      {subscriptionData[agistment.subscription_id]?.status?.charAt(0).toUpperCase() + 
-                       subscriptionData[agistment.subscription_id]?.status?.slice(1)}
+                      {subscriptionData?.status?.charAt(0).toUpperCase() + 
+                       subscriptionData?.status?.slice(1)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Plan:</span>
                     <span className="font-medium">
-                      {subscriptionData[agistment.subscription_id]?.metadata?.listing_type?.replace('ListingType.', '') === 'STANDARD' ? 'Standard' : 
-                       subscriptionData[agistment.subscription_id]?.metadata?.listing_type?.replace('ListingType.', '') === 'PROFESSIONAL' ? 'Professional' : 'Unknown'}
+                      {subscriptionData?.metadata?.listing_type?.replace('ListingType.', '') === 'STANDARD' ? 'Standard' : 
+                       subscriptionData?.metadata?.listing_type?.replace('ListingType.', '') === 'PROFESSIONAL' ? 'Professional' : 'Unknown'}
                     </span>
                   </div>
-                  {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.status === 'trialing' && (
+                  {subscriptionData?.status === 'trialing' && (
                     <>
                       <div className="flex justify-between">
                         <span>Trial Ends:</span>
                         <span className="font-medium">
-                          {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.trial_end_date || '')}
+                          {formatDate(subscriptionData?.trial_end_date || '')}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Billing Starts:</span>
                         <span className="font-medium">
-                          {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.billing_starts || '')} (
-                          {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.days_until_billing || 0} days)
+                          {formatDate(subscriptionData?.billing_starts || '')} (
+                          {subscriptionData?.days_until_billing || 0} days)
                         </span>
                       </div>
                     </>
@@ -282,24 +282,23 @@ export function MyAgistments() {
                   <div className="flex justify-between">
                     <span>Current Period:</span>
                     <span className="font-medium">
-                      {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.current_period_start_date || '')} - {' '}
-                      {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.current_period_end_date || '')}
+                      {formatDate(subscriptionData?.current_period_start_date || '')} - {formatDate(subscriptionData?.current_period_end_date || '')}
                     </span>
                   </div>
-                  {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at_period_end && (
+                  {subscriptionData?.cancel_at_period_end && (
                     <>
                       <div className="mt-3 pt-3 border-t border-neutral-200">
                         <div className="text-sm font-medium text-red-600 mb-2">Cancellation Details</div>
                         <div className="flex justify-between">
                           <span>Cancellation Date:</span>
                           <span className="font-medium">
-                            {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.canceled_at || '')}
+                            {formatDate(subscriptionData?.canceled_at || '')}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span>Active Until:</span>
                           <span className="font-medium">
-                            {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at || '')}
+                            {formatDate(subscriptionData?.cancel_at || '')}
                           </span>
                         </div>
                       </div>
@@ -310,72 +309,70 @@ export function MyAgistments() {
                 <p className="text-neutral-500">Failed to load subscription information.</p>
               )}
               <div className="mt-4 flex justify-center">
-                {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at_period_end && (subscriptionData[agistment.subscription_id]?.status === 'active' || subscriptionData[agistment.subscription_id]?.status === 'trialing') ? (
-                  <button
-                  onClick={async () => {
-                    if (agistment.subscription_id) {
-                      const response = await handleContinueSubscription(agistment.subscription_id);
-                      if (response) {
-                        setSubscriptionData(prev => {
-                          const newData = { ...prev };
-                          if (agistment.subscription_id) {
-                            newData[agistment.subscription_id] = response;
+                {agistment.subscription_id && (
+                  <div className="mt-3">
+                    {subscriptionData?.status === 'canceled' ? (
+                      // Renew button for canceled subscriptions
+                      <button
+                        onClick={async () => {
+                          try {
+                            const response = await paymentsService.createCheckoutSession({
+                              agistment_id: agistment.id,
+                              listing_type: agistment.listing.listingType,
+                              successUrl: `${window.location.origin}/dashboard/myagistments`,
+                              cancelUrl: `${window.location.origin}/dashboard/myagistments`
+                            });
+                            window.location.href = response.url;
+                          } catch (error) {
+                            console.error('Error creating subscription:', error);
+                            toast.error('Failed to create subscription');
                           }
-                          return newData;
-                        });
-                      }
-                    }
-                  }}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                  >
-                    Continue Subscription
-                  </button>
-                ) : agistment.subscription_status === 'canceled' ? (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const response = await paymentsService.createCheckoutSession({
-                          agistment_id: agistment.id,
-                          listing_type: agistment.listing.listingType as ListingType,
-                          successUrl: `${window.location.origin}/dashboard/myagistments`,
-                          cancelUrl: `${window.location.origin}/dashboard/myagistments`,
-                        });
-                        
-                        if (response.url) {
-                          window.location.href = response.url;
-                        }
-                      } catch (error) {
-                        console.error('Error renewing subscription:', error);
-                        toast.error('Failed to renew subscription');
-                      }
-                    }}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                  >
-                    Renew Subscription
-                  </button>
-                ) : (agistment.status === 'HIDDEN' || agistment.status === 'PUBLISHED') && agistment.subscription_id && (
-                  <button
-                    onClick={() => {
-                      if (agistment.subscription_id) {
-                        setShowCancelConfirmation({
-                          agistmentId: agistment.subscription_id,
-                          endDate: subscriptionData[agistment.subscription_id]?.current_period_end_date
-                        });
-                      }
-                    }}
-                    disabled={!agistment.subscription_id}
-                    className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                      !agistment.subscription_id
-                        ? 'bg-neutral-400 cursor-not-allowed'
-                        : 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500'
-                    }`}
-                  >
-                    Cancel Subscription
-                  </button>
+                        }}
+                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      >
+                        Renew Subscription
+                      </button>
+                    ) : (subscriptionData?.status === 'active' || subscriptionData?.status === 'trialing') && (
+                      subscriptionData?.cancel_at_period_end ? (
+                        // Continue subscription button for active/trialing with cancel_at_period_end
+                        <button
+                          onClick={async () => {
+                            if (agistment.subscription_id) {
+                              const response = await handleContinueSubscription(agistment.subscription_id);
+                              if (response) {
+                                setSubscriptionData(prev => {
+                                  const newData = { ...prev };
+                                  if (agistment.subscription_id) {
+                                    newData[agistment.subscription_id] = response;
+                                  }
+                                  return newData;
+                                });
+                              }
+                            }
+                          }}
+                          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        >
+                          Continue Subscription
+                        </button>
+                      ) : (
+                        // Cancel button for active/trialing without cancel_at_period_end
+                        <button
+                          onClick={() => setShowCancelConfirmation({ 
+                            agistmentId: agistment.subscription_id,
+                            endDate: subscriptionData?.current_period_end_date ?? ''
+                          })}
+                          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >
+                          Cancel Subscription
+                        </button>
+                      )
+                    )}
+                  </div>
                 )}
               </div>
             </Disclosure.Panel>
           </>
+
         )}
       </Disclosure>
     </div>
