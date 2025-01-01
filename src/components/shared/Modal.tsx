@@ -129,7 +129,7 @@ export function Modal({
               }
             >
               <DialogPanel 
-                className={`w-full transform overflow-hidden h-[100dvh] md:h-auto md:max-h-[95vh] ${sizeClasses[size]} rounded-none md:rounded-2xl bg-white shadow-xl flex flex-col`}
+                className={`w-full transform overflow-hidden bg-white shadow-xl flex flex-col ${sizeClasses[size]} rounded-none md:rounded-2xl h-[100dvh] md:h-[800px]`}
               >
                 <div className="flex flex-col h-full flex-grow">
                   {/* Header */}
@@ -154,14 +154,14 @@ export function Modal({
                   )}
 
                   {/* Content */}
-                  <div className="flex-1 overflow-y-auto">
+                  <div className="flex-1 overflow-y-auto min-h-0">
                     <div className="p-6">
                       {children}
                     </div>
                   </div>
 
                   {/* Sticky Footer */}
-                  <div className="border-t border-neutral-200 bg-white px-4 py-3 sm:px-6 flex justify-end gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                  <div className="flex-none border-t border-neutral-200 bg-white px-4 py-3 sm:px-6 flex justify-end gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                     <button
                       type="button"
                       className="flex-1 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 border border-neutral-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"

@@ -1,7 +1,4 @@
-export enum ListingType {
-  STANDARD = "STANDARD",
-  PROFESSIONAL = "PROFESSIONAL"
-}
+export type ListingType = "STANDARD" | "PROFESSIONAL";
 
 /**
  * Request model for creating a checkout session.
@@ -11,6 +8,10 @@ export interface CreateCheckoutSessionRequest {
   listing_type: ListingType;
   /** ID of the agistment to create subscription for */
   agistment_id: string;
+  /** URL to redirect to after successful payment */
+  successUrl: string;
+  /** URL to redirect to if user cancels */
+  cancelUrl: string;
 }
 
 
