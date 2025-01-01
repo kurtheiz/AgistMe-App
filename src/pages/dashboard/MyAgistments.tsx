@@ -21,30 +21,10 @@ import { formatDate } from '../../utils/dates';
 import toast from 'react-hot-toast';
 import { ListingType } from '../../types/payment';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
+import { validateBasicInfo, validatePaddocks, validateCare, validatePhotos, validateSection } from '../../utils/agistmentValidation';
+import { useAgistmentSubscription } from '../../hooks/useAgistmentSubscription';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
-
-interface SubscriptionData {
-  id: string;
-  customer: string;
-  status: string;
-  current_period_end_date: string;
-  current_period_start_date: string;
-  metadata: {
-    'Agistment Listing': string;
-    listing_type: `ListingType.${ListingType}`;
-  };
-  trial_end_date: string | null;
-  default_payment_method: string | null;
-  price_amount: number;
-  price_currency: string;
-  latest_invoice: string;
-  days_until_billing: number;
-  billing_starts: string;
-  cancel_at: string | null;
-  cancel_at_period_end: boolean;
-  canceled_at: string | null;
-}
 
 export function MyAgistments() {
   const { userId } = useAuth();
@@ -56,18 +36,17 @@ export function MyAgistments() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [flashErrorsId, setFlashErrorsId] = useState<string | null>(null);
-  const [subscriptionData, setSubscriptionData] = useState<{[key: string]: SubscriptionData}>({});
-  const [loadingSubscriptions, setLoadingSubscriptions] = useState<{[key: string]: boolean}>({});
   const [showCancelConfirmation, setShowCancelConfirmation] = useState<{ agistmentId: string; endDate: string } | null>(null);
+  const {subscriptionData, setSubscriptionData, loadingSubscriptions, loadSubscriptionForAgistment, handleCancelSubscription, handleContinueSubscription} = useAgistmentSubscription();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
+  
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
         setAgistments(response.results || []);
-
+  
         // Automatically show help dialog if first agistment is new and coming from listagistment
         const fromListAgistment = location.state?.from === '/listagistment';
         if (fromListAgistment && response.results?.[0]?.basicInfo?.name === 'New Agistment') {
@@ -80,7 +59,7 @@ export function MyAgistments() {
         setIsLoading(false);
       }
     };
-
+  
     if (userId) {
       fetchAgistments();
     }
@@ -126,24 +105,10 @@ export function MyAgistments() {
       const agistment = agistments.find(a => a.id === agistmentId);
       if (!agistment) return;
 
-      // Check if there are any validation errors
-      const hasBasicInfoErrors = !agistment.basicInfo?.name ||
-        agistment.basicInfo.name.length < 3 ||
-        agistment.basicInfo.name === 'New Agistment' ||
-        !agistment.propertyLocation?.location?.suburb ||
-        !agistment.propertyLocation?.location?.state ||
-        !agistment.propertyLocation?.location?.region ||
-        !agistment.propertyLocation?.location?.postcode;
-
-      const hasPaddocksErrors = !((agistment.paddocks?.privatePaddocks?.totalPaddocks ?? 0) > 0 ||
-        (agistment.paddocks?.sharedPaddocks?.totalPaddocks ?? 0) > 0 ||
-        (agistment.paddocks?.groupPaddocks?.totalPaddocks ?? 0) > 0);
-
-      const hasCareErrors = !(agistment.care?.selfCare?.available ||
-        agistment.care?.partCare?.available ||
-        agistment.care?.fullCare?.available);
-
-      const hasPhotosErrors = !agistment.photoGallery?.photos || agistment.photoGallery.photos.length === 0;
+      const hasBasicInfoErrors = !validateBasicInfo(agistment);
+      const hasPaddocksErrors = !validatePaddocks(agistment);
+      const hasCareErrors = !validateCare(agistment);
+      const hasPhotosErrors = !validatePhotos(agistment);
 
       if (hasBasicInfoErrors || hasPaddocksErrors || hasCareErrors || hasPhotosErrors) {
         setFlashErrorsId(agistmentId);
@@ -162,28 +127,7 @@ export function MyAgistments() {
   };
 
   const checkSectionValidation = (agistment: AgistmentSearchResponse, section: 'header' | 'paddocks' | 'care' | 'photos') => {
-    switch (section) {
-      case 'header':
-        return !(!agistment.basicInfo?.name ||
-          agistment.basicInfo.name.length < 3 ||
-          agistment.basicInfo.name === 'New Agistment' ||
-          !agistment.propertyLocation?.location?.suburb ||
-          !agistment.propertyLocation?.location?.state ||
-          !agistment.propertyLocation?.location?.region ||
-          !agistment.propertyLocation?.location?.postcode);
-      case 'paddocks':
-        return !!((agistment.paddocks?.privatePaddocks?.totalPaddocks ?? 0) > 0 ||
-          (agistment.paddocks?.sharedPaddocks?.totalPaddocks ?? 0) > 0 ||
-          (agistment.paddocks?.groupPaddocks?.totalPaddocks ?? 0) > 0);
-      case 'care':
-        return !!(agistment.care?.selfCare?.available ||
-          agistment.care?.partCare?.available ||
-          agistment.care?.fullCare?.available);
-      case 'photos':
-        return !!(agistment.photoGallery?.photos && agistment.photoGallery.photos.length > 0);
-      default:
-        return true;
-    }
+    return validateSection(agistment, section);
   };
 
   const renderEditButtons = (agistment: AgistmentSearchResponse) => (
@@ -276,23 +220,14 @@ export function MyAgistments() {
         {({ open }) => (
           <>
             <Disclosure.Button 
-              className={`flex w-full justify-between items-center px-4 py-3 text-neutral-700 hover:bg-neutral-50 border-t border-neutral-200 bg-white ${!agistment.subscription_id ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex w-full justify-between rounded-lg bg-white px-4 py-4 text-left text-sm font-medium focus:outline-none focus-visible:ring focus-visible:ring-opacity-75 ${open ? 'shadow-none border-b border-neutral-200' : 'shadow-sm'}`}
               onClick={async (e) => {
                 if (!agistment.subscription_id) {
                   e.preventDefault();
                   return;
                 }
-                if (!open && !subscriptionData[agistment.id] && agistment.subscription_id) {
-                  setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
-                  try {
-                    const data = await paymentsService.getSubscription(agistment.subscription_id);
-                    setSubscriptionData(prev => ({ ...prev, [agistment.id]: data }));
-                  } catch (error) {
-                    console.error('Failed to load subscription data:', error);
-                    toast.error('Failed to load subscription data');
-                  } finally {
-                    setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
-                  }
+                if (!open && !subscriptionData[agistment.subscription_id]) {
+                  await loadSubscriptionForAgistment(agistment.subscription_id);
                 }
               }}
             >
@@ -302,47 +237,47 @@ export function MyAgistments() {
               <ChevronDown className={`${open ? 'transform rotate-180' : ''} w-4 h-4 text-neutral-500`} />
             </Disclosure.Button>
             <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-white border-t border-neutral-200">
-              {loadingSubscriptions[agistment.id] ? (
+              {loadingSubscriptions[agistment.subscription_id] ? (
                 <div className="flex justify-center py-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-900"></div>
                 </div>
-              ) : subscriptionData[agistment.id] ? (
+              ) : subscriptionData[agistment.subscription_id] ? (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span>Status:</span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      subscriptionData[agistment.id]?.status === 'trialing' 
+                      subscriptionData[agistment.subscription_id]?.status === 'trialing' 
                         ? 'bg-blue-100 text-blue-700'
-                        : subscriptionData[agistment.id]?.status === 'active'
+                        : subscriptionData[agistment.subscription_id]?.status === 'active'
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-neutral-100 text-neutral-700'
                     }`}>
-                      {subscriptionData[agistment.id]?.status.charAt(0).toUpperCase() + 
-                       subscriptionData[agistment.id]?.status.slice(1)}
+                      {subscriptionData?.[agistment.subscription_id]?.status.charAt(0).toUpperCase() + 
+                       subscriptionData?.[agistment.subscription_id]?.status.slice(1)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Plan:</span>
                     <span className="font-medium">
-                      {subscriptionData[agistment.id]?.metadata?.listing_type === `ListingType.${ListingType.STANDARD}` ? 'Standard' : 
-                       subscriptionData[agistment.id]?.metadata?.listing_type === `ListingType.${ListingType.PROFESSIONAL}` ? 'Professional' : 'Unknown'} (
-                      {formatPrice(subscriptionData[agistment.id]?.price_amount || 0)}{' '}
-                      {subscriptionData[agistment.id]?.price_currency || 'AUD'}/month)
+                      {subscriptionData[agistment.subscription_id]?.metadata?.listing_type === `ListingType.${ListingType.STANDARD}` ? 'Standard' : 
+                       subscriptionData[agistment.subscription_id]?.metadata?.listing_type === `ListingType.${ListingType.PROFESSIONAL}` ? 'Professional' : 'Unknown'} (
+                      {formatPrice(subscriptionData[agistment.subscription_id]?.price_amount || 0)}{' '}
+                      {subscriptionData[agistment.subscription_id]?.price_currency || 'AUD'}/month)
                     </span>
                   </div>
-                  {subscriptionData[agistment.id]?.status === 'trialing' && (
+                  {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.status === 'trialing' && (
                     <>
                       <div className="flex justify-between">
                         <span>Trial Ends:</span>
                         <span className="font-medium">
-                          {formatDate(subscriptionData[agistment.id]?.trial_end_date || '')}
+                          {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.trial_end_date || '')}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Billing Starts:</span>
                         <span className="font-medium">
-                          {formatDate(subscriptionData[agistment.id]?.billing_starts || '')} (
-                          {subscriptionData[agistment.id]?.days_until_billing || 0} days)
+                          {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.billing_starts || '')} (
+                          {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.days_until_billing || 0} days)
                         </span>
                       </div>
                     </>
@@ -350,24 +285,24 @@ export function MyAgistments() {
                   <div className="flex justify-between">
                     <span>Current Period:</span>
                     <span className="font-medium">
-                      {formatDate(subscriptionData[agistment.id]?.current_period_start_date || '')} - {' '}
-                      {formatDate(subscriptionData[agistment.id]?.current_period_end_date || '')}
+                      {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.current_period_start_date || '')} - {' '}
+                      {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.current_period_end_date || '')}
                     </span>
                   </div>
-                  {subscriptionData[agistment.id]?.cancel_at_period_end && (
+                  {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at_period_end && (
                     <>
                       <div className="mt-3 pt-3 border-t border-neutral-200">
                         <div className="text-sm font-medium text-red-600 mb-2">Cancellation Details</div>
                         <div className="flex justify-between">
                           <span>Cancellation Date:</span>
                           <span className="font-medium">
-                            {formatDate(subscriptionData[agistment.id]?.canceled_at || '')}
+                            {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.canceled_at || '')}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span>Active Until:</span>
                           <span className="font-medium">
-                            {formatDate(subscriptionData[agistment.id]?.cancel_at || '')}
+                            {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at || '')}
                           </span>
                         </div>
                       </div>
@@ -378,48 +313,58 @@ export function MyAgistments() {
                 <p className="text-neutral-500">Failed to load subscription information.</p>
               )}
               <div className="mt-4 flex justify-center">
-                {subscriptionData[agistment.id]?.cancel_at_period_end && (subscriptionData[agistment.id]?.status === 'active' || subscriptionData[agistment.id]?.status === 'trialing') ? (
+                {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at_period_end && (subscriptionData[agistment.subscription_id]?.status === 'active' || subscriptionData[agistment.subscription_id]?.status === 'trialing') ? (
                   <button
-                    onClick={async () => {
-                      if (agistment.id && subscriptionData[agistment.id]?.id) {
-                        try {
-                          const response = await paymentsService.reactivateSubscription(subscriptionData[agistment.id].id);
-                          setSubscriptionData(prev => ({ ...prev, [agistment.id]: response }));
-                          toast.success('Subscription will continue');
-
-                          // Refresh the subscription data
-                          setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: true }));
-                          try {
-                            const refreshedData = await paymentsService.getSubscription(subscriptionData[agistment.id].id);
-                            setSubscriptionData(prev => ({ ...prev, [agistment.id]: refreshedData }));
-                          } finally {
-                            setLoadingSubscriptions(prev => ({ ...prev, [agistment.id]: false }));
-                          }
-                        } catch (error) {
-                          console.error('Error updating subscription:', error);
-                          toast.error('Failed to update subscription');
-                        }
+                  onClick={async () => {
+                    if (agistment.subscription_id) {
+                      const response = await handleContinueSubscription(agistment.subscription_id);
+                      if (response) {
+                        setSubscriptionData(prev => ({ ...prev, [agistment.subscription_id]: response }));
                       }
-                    }}
+                    }
+                  }}
                     className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                   >
                     Continue Subscription
                   </button>
-                ) : (agistment.status === 'HIDDEN' || agistment.status === 'PUBLISHED') && (
+                ) : agistment.subscription_status === 'canceled' ? (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await paymentsService.createCheckoutSession({
+                          agistment_id: agistment.id,
+                          listing_type: agistment.listing.listingType,
+                          successUrl: `${window.location.origin}/dashboard/myagistments`,
+                          cancelUrl: `${window.location.origin}/dashboard/myagistments`,
+                        });
+                        
+                        if (response.url) {
+                          window.location.href = response.url;
+                        }
+                      } catch (error) {
+                        console.error('Error renewing subscription:', error);
+                        toast.error('Failed to renew subscription');
+                      }
+                    }}
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    Renew Subscription
+                  </button>
+                ) : (agistment.status === 'HIDDEN' || agistment.status === 'PUBLISHED') && agistment.subscription_id && (
                   <button
                     onClick={() => {
-                      if (agistment.id && subscriptionData[agistment.id]?.id) {
+                      if (agistment.subscription_id) {
                         setShowCancelConfirmation({
-                          agistmentId: agistment.id,
-                          endDate: subscriptionData[agistment.id].current_period_end_date
+                          agistmentId: agistment.subscription_id,
+                          endDate: subscriptionData[agistment.subscription_id]?.current_period_end_date
                         });
                       }
                     }}
-                    disabled={!subscriptionData[agistment.id]?.id}
+                    disabled={!agistment.subscription_id}
                     className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                      !subscriptionData[agistment.id]?.id
+                      !agistment.subscription_id
                         ? 'bg-neutral-400 cursor-not-allowed'
-                        : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
+                        : 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500'
                     }`}
                   >
                     Cancel Subscription
@@ -616,25 +561,13 @@ export function MyAgistments() {
         isOpen={!!showCancelConfirmation}
         onClose={() => setShowCancelConfirmation(null)}
         onConfirm={async () => {
-          if (showCancelConfirmation?.agistmentId && subscriptionData[showCancelConfirmation.agistmentId]?.id) {
-            try {
-              const response = await paymentsService.cancelSubscription(subscriptionData[showCancelConfirmation.agistmentId].id);
+          if (showCancelConfirmation?.agistmentId) {
+            const response = await handleCancelSubscription(showCancelConfirmation.agistmentId);
+            if (response) {
               setSubscriptionData(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: response }));
-              toast.success('Subscription will be cancelled at the end of the billing period');
-
-              // Refresh the subscription data
-              setLoadingSubscriptions(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: true }));
-              try {
-                const refreshedData = await paymentsService.getSubscription(subscriptionData[showCancelConfirmation.agistmentId].id);
-                setSubscriptionData(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: refreshedData }));
-              } finally {
-                setLoadingSubscriptions(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: false }));
-              }
-            } catch (error) {
-              console.error('Error updating subscription:', error);
-              toast.error('Failed to update subscription');
             }
           }
+          setShowCancelConfirmation(null);
         }}
         title="Cancel Subscription"
         message={`Your subscription will continue until ${formatDate(showCancelConfirmation?.endDate || '')}. You can reactivate your subscription at any time before this date.\n\nYour agistment will not be deleted.\n\nWould you like to proceed with cancellation?`}
