@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { ChevronLeft, AlertCircle, HelpCircle, Sparkles, ChevronDown } from 'lucide-react';
 import { Dialog, Transition, Disclosure } from '@headlessui/react';
+import { ListingType } from '../../types/payment';
 import { agistmentService } from '../../services/agistment.service';
 import { paymentsService } from '../../services/payments.service';
 import { PageToolbar } from '../../components/PageToolbar';
@@ -16,10 +17,8 @@ import { AgistmentCareOptionsModal } from '../../components/Agistment/AgistmentC
 import { AgistmentServicesModal } from '../../components/Agistment/AgistmentServicesModal';
 import { AgistmentPhotosModal } from '../../components/Agistment/AgistmentPhotosModal';
 import { AgistmentFromTextModal } from '../../components/Agistment/AgistmentFromTextModal';
-import { formatPrice } from '../../utils/prices';
 import { formatDate } from '../../utils/dates';
 import toast from 'react-hot-toast';
-import { ListingType } from '../../types/payment';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 import { validateBasicInfo, validatePaddocks, validateCare, validatePhotos, validateSection } from '../../utils/agistmentValidation';
 import { useAgistmentSubscription } from '../../hooks/useAgistmentSubscription';
@@ -237,11 +236,11 @@ export function MyAgistments() {
               <ChevronDown className={`${open ? 'transform rotate-180' : ''} w-4 h-4 text-neutral-500`} />
             </Disclosure.Button>
             <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-white border-t border-neutral-200">
-              {loadingSubscriptions[agistment.subscription_id] ? (
+              {loadingSubscriptions && agistment.subscription_id && loadingSubscriptions[agistment.subscription_id] ? (
                 <div className="flex justify-center py-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-900"></div>
                 </div>
-              ) : subscriptionData[agistment.subscription_id] ? (
+              ) : (subscriptionData && agistment.subscription_id && subscriptionData[agistment.subscription_id]) ? (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span>Status:</span>
@@ -252,17 +251,15 @@ export function MyAgistments() {
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-neutral-100 text-neutral-700'
                     }`}>
-                      {subscriptionData?.[agistment.subscription_id]?.status.charAt(0).toUpperCase() + 
-                       subscriptionData?.[agistment.subscription_id]?.status.slice(1)}
+                      {subscriptionData[agistment.subscription_id]?.status?.charAt(0).toUpperCase() + 
+                       subscriptionData[agistment.subscription_id]?.status?.slice(1)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Plan:</span>
                     <span className="font-medium">
-                      {subscriptionData[agistment.subscription_id]?.metadata?.listing_type === `ListingType.${ListingType.STANDARD}` ? 'Standard' : 
-                       subscriptionData[agistment.subscription_id]?.metadata?.listing_type === `ListingType.${ListingType.PROFESSIONAL}` ? 'Professional' : 'Unknown'} (
-                      {formatPrice(subscriptionData[agistment.subscription_id]?.price_amount || 0)}{' '}
-                      {subscriptionData[agistment.subscription_id]?.price_currency || 'AUD'}/month)
+                      {subscriptionData[agistment.subscription_id]?.metadata?.listing_type?.replace('ListingType.', '') === 'STANDARD' ? 'Standard' : 
+                       subscriptionData[agistment.subscription_id]?.metadata?.listing_type?.replace('ListingType.', '') === 'PROFESSIONAL' ? 'Professional' : 'Unknown'}
                     </span>
                   </div>
                   {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.status === 'trialing' && (
@@ -319,7 +316,13 @@ export function MyAgistments() {
                     if (agistment.subscription_id) {
                       const response = await handleContinueSubscription(agistment.subscription_id);
                       if (response) {
-                        setSubscriptionData(prev => ({ ...prev, [agistment.subscription_id]: response }));
+                        setSubscriptionData(prev => {
+                          const newData = { ...prev };
+                          if (agistment.subscription_id) {
+                            newData[agistment.subscription_id] = response;
+                          }
+                          return newData;
+                        });
                       }
                     }
                   }}
@@ -333,7 +336,7 @@ export function MyAgistments() {
                       try {
                         const response = await paymentsService.createCheckoutSession({
                           agistment_id: agistment.id,
-                          listing_type: agistment.listing.listingType,
+                          listing_type: agistment.listing.listingType as ListingType,
                           successUrl: `${window.location.origin}/dashboard/myagistments`,
                           cancelUrl: `${window.location.origin}/dashboard/myagistments`,
                         });
@@ -564,7 +567,13 @@ export function MyAgistments() {
           if (showCancelConfirmation?.agistmentId) {
             const response = await handleCancelSubscription(showCancelConfirmation.agistmentId);
             if (response) {
-              setSubscriptionData(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: response }));
+              setSubscriptionData(prev => {
+                const newData = { ...prev };
+                if (showCancelConfirmation.agistmentId) {
+                  newData[showCancelConfirmation.agistmentId] = response;
+                }
+                return newData;
+              });
             }
           }
           setShowCancelConfirmation(null);

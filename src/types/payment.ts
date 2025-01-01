@@ -1,7 +1,4 @@
-export enum ListingType {
-  STANDARD = "STANDARD",
-  PROFESSIONAL = "PROFESSIONAL"
-}
+export type ListingType = "STANDARD" | "PROFESSIONAL";
 
 /**
  * Request model for creating a checkout session.
