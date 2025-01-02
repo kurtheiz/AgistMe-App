@@ -208,12 +208,18 @@ export function AgistmentPhotosModal({
         <div className="space-y-2">
           <div className="text-sm text-neutral-600 dark:text-neutral-400">
             <div className="mb-1">
-              <p className="font-medium">Photo Requirements:</p>
-              <ul className="list-disc list-inside text-xs space-y-0.5">
+              <p className="text-sm font-medium mb-2">Upload photos that showcase your property's best features:</p>
+              <ul className="list-disc list-inside text-sm space-y-0.5 mb-4">
+                <li>Main paddock areas and fencing</li>
+                <li>Water sources and facilities</li>
+                <li>Shelter and shade areas</li>
+                <li>Access points and gates</li>
+              </ul>
+              <p className="text-sm font-medium">Photo Requirements:</p>
+              <ul className="list-disc list-inside text-sm space-y-0.5">
+                <li>Minimum 1 photo required, maximum 5 photos allowed</li>
                 <li>Recommended size: 1800 x 1200 pixels (3:2 ratio)</li>
-                <li>Minimum size: 1200 x 800 pixels</li>
                 <li>Maximum file size: 5MB</li>
-                <li>Format: JPEG</li>
               </ul>
             </div>
           </div>
@@ -227,7 +233,7 @@ export function AgistmentPhotosModal({
               onDragEnd={handleDragEnd}
             >
               <SortableContext items={localAgistment.photoGallery?.photos?.map(p => p.link) || []} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 max-w-[840px] mx-auto">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-2 max-w-[840px] mx-auto">
                   {localAgistment.photoGallery?.photos?.map((photo, index) => (
                     <SortablePhoto
                       key={photo.link}
@@ -261,7 +267,7 @@ export function AgistmentPhotosModal({
                         ) : (
                           <>
                             <Image className="w-6 h-6 text-neutral-400" />
-                            <span className="text-xs text-neutral-500">Upload Photo</span>
+                            <span className="text-sm text-neutral-500">Upload Photo</span>
                           </>
                         )}
                       </button>
