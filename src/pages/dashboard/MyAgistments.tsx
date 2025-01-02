@@ -5,7 +5,6 @@ import { ChevronLeft, AlertCircle, HelpCircle, Sparkles, ChevronDown } from 'luc
 import { Dialog, Transition, Disclosure } from '@headlessui/react';
 import { agistmentService } from '../../services/agistment.service';
 import { paymentsService } from '../../services/payments.service';
-import { ListingType } from '../../types/payment';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';
 import { AgistmentResponse } from '../../types/agistment';
