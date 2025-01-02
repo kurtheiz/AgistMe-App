@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { ChevronLeft, AlertCircle, HelpCircle, Sparkles, ChevronDown } from 'lucide-react';
 import { Dialog, Transition, Disclosure } from '@headlessui/react';
-import { ListingType } from '../../types/payment';
 import { agistmentService } from '../../services/agistment.service';
 import { paymentsService } from '../../services/payments.service';
 import { PageToolbar } from '../../components/PageToolbar';
@@ -21,9 +20,23 @@ import { formatDate } from '../../utils/dates';
 import toast from 'react-hot-toast';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 import { validateBasicInfo, validatePaddocks, validateCare, validatePhotos, validateSection } from '../../utils/agistmentValidation';
-import { useAgistmentSubscription } from '../../hooks/useAgistmentSubscription';
 
 type EditModalType = 'fromtext' | 'header' | 'paddocks' | 'riding' | 'facilities' | 'care' | 'services' | 'photos' | null;
+
+interface SubscriptionData {
+  status: string;
+  current_period_start_date: string;
+  current_period_end_date: string;
+  trial_end_date: string | null;
+  billing_starts: string;
+  days_until_billing: number;
+  canceled_at: string | null;
+  cancel_at: string | null;
+  cancel_at_period_end: boolean;
+  metadata: {
+    listing_type: string;
+  };
+}
 
 export function MyAgistments() {
   const { userId } = useAuth();
@@ -36,16 +49,17 @@ export function MyAgistments() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [flashErrorsId, setFlashErrorsId] = useState<string | null>(null);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState<{ agistmentId: string; endDate: string } | null>(null);
-  const {subscriptionData, setSubscriptionData, loadingSubscriptions, loadSubscriptionForAgistment, handleCancelSubscription, handleContinueSubscription} = useAgistmentSubscription();
+  const [subscriptionData, setSubscriptionData] = useState<Record<string, SubscriptionData>>({});
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  
+
     const fetchAgistments = async () => {
       try {
         const response = await agistmentService.getMyAgistments();
         setAgistments(response.results || []);
-  
+
         // Automatically show help dialog if first agistment is new and coming from listagistment
         const fromListAgistment = location.state?.from === '/listagistment';
         if (fromListAgistment && response.results?.[0]?.basicInfo?.name === 'New Agistment') {
@@ -58,7 +72,7 @@ export function MyAgistments() {
         setIsLoading(false);
       }
     };
-  
+
     if (userId) {
       fetchAgistments();
     }
@@ -218,15 +232,21 @@ export function MyAgistments() {
       <Disclosure>
         {({ open }) => (
           <>
-            <Disclosure.Button 
-              className={`flex w-full justify-between rounded-lg bg-white px-4 py-4 text-left text-sm font-medium focus:outline-none focus-visible:ring focus-visible:ring-opacity-75 ${open ? 'shadow-none border-b border-neutral-200' : 'shadow-sm'}`}
-              onClick={async (e) => {
-                if (!agistment.subscription_id) {
-                  e.preventDefault();
-                  return;
-                }
-                if (!open && !subscriptionData[agistment.subscription_id]) {
-                  await loadSubscriptionForAgistment(agistment.subscription_id);
+            <Disclosure.Button
+              className="w-full flex justify-between items-center px-4 py-3 bg-neutral-50 hover:bg-neutral-100 transition-colors"
+              onClick={async () => {
+                if (!open && agistment.subscription_id && !subscriptionData[agistment.subscription_id]) {
+                  const subId = agistment.subscription_id;
+                  setLoadingSubscriptions(prev => ({ ...prev, [subId]: true }));
+                  try {
+                    const data = await paymentsService.getSubscription(subId);
+                    setSubscriptionData(prev => ({ ...prev, [subId]: data }));
+                  } catch (error) {
+                    console.error('Error loading subscription:', error);
+                    toast.error('Failed to load subscription details');
+                  } finally {
+                    setLoadingSubscriptions(prev => ({ ...prev, [subId]: false }));
+                  }
                 }
               }}
             >
@@ -236,146 +256,145 @@ export function MyAgistments() {
               <ChevronDown className={`${open ? 'transform rotate-180' : ''} w-4 h-4 text-neutral-500`} />
             </Disclosure.Button>
             <Disclosure.Panel className="px-4 py-3 text-sm text-neutral-600 bg-white border-t border-neutral-200">
-              {loadingSubscriptions && agistment.subscription_id && loadingSubscriptions[agistment.subscription_id] ? (
+              {agistment.subscription_id && loadingSubscriptions[agistment.subscription_id] ? (
                 <div className="flex justify-center py-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-900"></div>
                 </div>
-              ) : (subscriptionData && agistment.subscription_id && subscriptionData[agistment.subscription_id]) ? (
+              ) : (agistment.subscription_id && subscriptionData[agistment.subscription_id]) ? (
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span>Status:</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      subscriptionData[agistment.subscription_id]?.status === 'trialing' 
-                        ? 'bg-blue-100 text-blue-700'
-                        : subscriptionData[agistment.subscription_id]?.status === 'active'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-neutral-100 text-neutral-700'
-                    }`}>
-                      {subscriptionData[agistment.subscription_id]?.status?.charAt(0).toUpperCase() + 
-                       subscriptionData[agistment.subscription_id]?.status?.slice(1)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Plan:</span>
-                    <span className="font-medium">
-                      {subscriptionData[agistment.subscription_id]?.metadata?.listing_type?.replace('ListingType.', '') === 'STANDARD' ? 'Standard' : 
-                       subscriptionData[agistment.subscription_id]?.metadata?.listing_type?.replace('ListingType.', '') === 'PROFESSIONAL' ? 'Professional' : 'Unknown'}
-                    </span>
-                  </div>
-                  {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.status === 'trialing' && (
-                    <>
-                      <div className="flex justify-between">
-                        <span>Trial Ends:</span>
-                        <span className="font-medium">
-                          {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.trial_end_date || '')}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Billing Starts:</span>
-                        <span className="font-medium">
-                          {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.billing_starts || '')} (
-                          {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.days_until_billing || 0} days)
-                        </span>
-                      </div>
-                    </>
-                  )}
-                  <div className="flex justify-between">
-                    <span>Current Period:</span>
-                    <span className="font-medium">
-                      {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.current_period_start_date || '')} - {' '}
-                      {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.current_period_end_date || '')}
-                    </span>
-                  </div>
-                  {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at_period_end && (
-                    <>
-                      <div className="mt-3 pt-3 border-t border-neutral-200">
-                        <div className="text-sm font-medium text-red-600 mb-2">Cancellation Details</div>
-                        <div className="flex justify-between">
-                          <span>Cancellation Date:</span>
-                          <span className="font-medium">
-                            {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.canceled_at || '')}
+                  {(() => {
+                    const subscription = subscriptionData[agistment.subscription_id];
+                    return (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span>Status:</span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            subscription.status === 'trialing' 
+                              ? 'bg-blue-100 text-blue-700'
+                              : subscription.status === 'active'
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-neutral-100 text-neutral-700'
+                          }`}>
+                            {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Active Until:</span>
+                          <span>Type:</span>
                           <span className="font-medium">
-                            {formatDate(agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at || '')}
+                            {subscription.metadata.listing_type.replace('ListingType.', '') === 'STANDARD' ? 'Standard' : 
+                             subscription.metadata.listing_type.replace('ListingType.', '') === 'PROFESSIONAL' ? 'Professional' : 'Unknown'}
                           </span>
                         </div>
-                      </div>
-                    </>
-                  )}
+                        {subscription.status === 'trialing' && (
+                          <>
+                            <div className="flex justify-between">
+                              <span>Trial Ends:</span>
+                              <span className="font-medium">
+                                {formatDate(subscription.trial_end_date || '')}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Billing Starts:</span>
+                              <span className="font-medium">
+                                {formatDate(subscription.billing_starts || '')} ({subscription.days_until_billing || 0} days)
+                              </span>
+                            </div>
+                          </>
+                        )}
+                        <div className="flex justify-between">
+                          <span>Current Period:</span>
+                          <span className="font-medium">
+                            {formatDate(subscription.current_period_start_date || '')} - {formatDate(subscription.current_period_end_date || '')}
+                          </span>
+                        </div>
+                        {subscription.cancel_at_period_end && (
+                          <>
+                            <div className="mt-3 pt-3 border-t border-neutral-200">
+                              <div className="text-sm font-medium text-red-600 mb-2">Cancellation Details</div>
+                              <div className="flex justify-between">
+                                <span>Cancellation Date:</span>
+                                <span className="font-medium">
+                                  {formatDate(subscription.canceled_at || '')}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Access Until:</span>
+                                <span className="font-medium">
+                                  {formatDate(subscription.cancel_at || '')}
+                                </span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
-              ) : (
-                <p className="text-neutral-500">Failed to load subscription information.</p>
-              )}
+              ) : null}
               <div className="mt-4 flex justify-center">
-                {agistment.subscription_id && subscriptionData[agistment.subscription_id]?.cancel_at_period_end && (subscriptionData[agistment.subscription_id]?.status === 'active' || subscriptionData[agistment.subscription_id]?.status === 'trialing') ? (
-                  <button
-                  onClick={async () => {
-                    if (agistment.subscription_id) {
-                      const response = await handleContinueSubscription(agistment.subscription_id);
-                      if (response) {
-                        setSubscriptionData(prev => {
-                          const newData = { ...prev };
-                          if (agistment.subscription_id) {
-                            newData[agistment.subscription_id] = response;
-                          }
-                          return newData;
-                        });
-                      }
-                    }
-                  }}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                  >
-                    Continue Subscription
-                  </button>
-                ) : agistment.subscription_status === 'canceled' ? (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const response = await paymentsService.createCheckoutSession({
-                          agistment_id: agistment.id,
-                          listing_type: agistment.listing.listingType as ListingType,
-                          successUrl: `${window.location.origin}/dashboard/myagistments`,
-                          cancelUrl: `${window.location.origin}/dashboard/myagistments`,
-                        });
-                        
-                        if (response.url) {
-                          window.location.href = response.url;
-                        }
-                      } catch (error) {
-                        console.error('Error renewing subscription:', error);
-                        toast.error('Failed to renew subscription');
-                      }
-                    }}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                  >
-                    Renew Subscription
-                  </button>
-                ) : (agistment.status === 'HIDDEN' || agistment.status === 'PUBLISHED') && agistment.subscription_id && (
-                  <button
-                    onClick={() => {
-                      if (agistment.subscription_id) {
-                        setShowCancelConfirmation({
-                          agistmentId: agistment.subscription_id,
-                          endDate: subscriptionData[agistment.subscription_id]?.current_period_end_date
-                        });
-                      }
-                    }}
-                    disabled={!agistment.subscription_id}
-                    className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                      !agistment.subscription_id
-                        ? 'bg-neutral-400 cursor-not-allowed'
-                        : 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500'
-                    }`}
-                  >
-                    Cancel Subscription
-                  </button>
-                )}
+                {agistment.subscription_id && subscriptionData[agistment.subscription_id] && (() => {
+                  const subscription = subscriptionData[agistment.subscription_id];
+                  return (
+                    <div className="mt-3">
+                      {subscription.status === 'canceled' ? (
+                        // Renew button for canceled subscriptions
+                        <button
+                          onClick={async () => {
+                            try {
+                              await paymentsService.reactivateSubscription(agistment.subscription_id || '');
+                              toast.success('Subscription reactivated successfully');
+                              // Refresh subscription data
+                              const data = await paymentsService.getSubscription(agistment.subscription_id || '');
+                              setSubscriptionData(prev => ({ ...prev, [agistment.subscription_id || '']: data }));
+                            } catch (error) {
+                              console.error('Error reactivating subscription:', error);
+                              toast.error('Failed to reactivate subscription');
+                            }
+                          }}
+                          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                        >
+                          Reactivate Subscription
+                        </button>
+                      ) : (subscription.status === 'active' || subscription.status === 'trialing') && (
+                        subscription.cancel_at_period_end ? (
+                          // Continue subscription button for active/trialing with cancel_at_period_end
+                          <button
+                            onClick={async () => {
+                              try {
+                                await paymentsService.reactivateSubscription(agistment.subscription_id || '');
+                                toast.success('Subscription will continue');
+                                // Refresh subscription data
+                                const data = await paymentsService.getSubscription(agistment.subscription_id || '');
+                                setSubscriptionData(prev => ({ ...prev, [agistment.subscription_id || '']: data }));
+                              } catch (error) {
+                                console.error('Error continuing subscription:', error);
+                                toast.error('Failed to continue subscription');
+                              }
+                            }}
+                            className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                          >
+                            Continue Subscription
+                          </button>
+                        ) : (
+                          // Cancel subscription button for active/trialing without cancel_at_period_end
+                          <button
+                            onClick={() => setShowCancelConfirmation({ 
+                              agistmentId: agistment.subscription_id || '',
+                              endDate: subscription.current_period_end_date ?? ''
+                            })}
+                            className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            Cancel Subscription
+                          </button>
+                        )
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </Disclosure.Panel>
           </>
+
         )}
       </Disclosure>
     </div>
@@ -565,18 +584,20 @@ export function MyAgistments() {
         onClose={() => setShowCancelConfirmation(null)}
         onConfirm={async () => {
           if (showCancelConfirmation?.agistmentId) {
-            const response = await handleCancelSubscription(showCancelConfirmation.agistmentId);
-            if (response) {
-              setSubscriptionData(prev => {
-                const newData = { ...prev };
-                if (showCancelConfirmation.agistmentId) {
-                  newData[showCancelConfirmation.agistmentId] = response;
-                }
-                return newData;
-              });
+            setLoadingSubscriptions(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: true }));
+            try {
+              const response = await paymentsService.cancelSubscription(showCancelConfirmation.agistmentId);
+              if (response) {
+                setSubscriptionData(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: response }));
+              }
+            } catch (error) {
+              console.error('Error cancelling subscription:', error);
+              toast.error('Failed to cancel subscription');
+            } finally {
+              setLoadingSubscriptions(prev => ({ ...prev, [showCancelConfirmation.agistmentId]: false }));
             }
+            setShowCancelConfirmation(null);
           }
-          setShowCancelConfirmation(null);
         }}
         title="Cancel Subscription"
         message={`Your subscription will continue until ${formatDate(showCancelConfirmation?.endDate || '')}. You can reactivate your subscription at any time before this date.\n\nYour agistment will not be deleted.\n\nWould you like to proceed with cancellation?`}

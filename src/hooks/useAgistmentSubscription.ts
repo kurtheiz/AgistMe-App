@@ -26,8 +26,8 @@ interface SubscriptionData {
 }
 
 export const useAgistmentSubscription = () => {
-  const [subscriptionData, setSubscriptionData] = useState<{[key: string]: SubscriptionData}>({});
-  const [loadingSubscriptions, setLoadingSubscriptions] = useState<{[key: string]: boolean}>({});
+  const [subscriptionData, setSubscriptionData] = useState<Record<string, SubscriptionData>>({});
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState<Record<string, boolean>>({});
 
   const loadSubscriptionForAgistment = async (subscription_id: string) => {
     if (!subscription_id || loadingSubscriptions[subscription_id]) return;
@@ -51,6 +51,7 @@ export const useAgistmentSubscription = () => {
     try {
       const response = await paymentsService.cancelSubscription(subscription_id);
       toast.success('Subscription will be cancelled at the end of the billing period');
+      setSubscriptionData(prev => ({ ...prev, [subscription_id]: response }));
       return response;
     } catch (error) {
       console.error('Error cancelling subscription:', error);
@@ -63,6 +64,7 @@ export const useAgistmentSubscription = () => {
     try {
       const response = await paymentsService.reactivateSubscription(subscription_id);
       toast.success('Subscription will continue');
+      setSubscriptionData(prev => ({ ...prev, [subscription_id]: response }));
       return response;
     } catch (error) {
       console.error('Error reactivating subscription:', error);
