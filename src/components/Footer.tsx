@@ -25,7 +25,7 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Support</h3>
             <div className="flex flex-col space-y-2">
-              <Link to="/faq" className="text-sm">FAQ</Link>
+              
               <Link to="/contact" className="text-sm">Contact Us</Link>
             </div>
           </div>

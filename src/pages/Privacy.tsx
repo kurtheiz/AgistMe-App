@@ -149,10 +149,9 @@ const Privacy: React.FC = () => {
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">13. Contact Information</h2>
-          <p className="mb-4">For privacy-related inquiries, please contact:</p>
+          <p className="mb-4">For privacy-related enquiries, please contact:</p>
           <div className="mb-4">
-            <p>heizlogic</p>
-            <p>Email: privacy@agist.me</p>
+            <p>Email: <a href="mailto:privacy@agist.me">privacy@agist.me</a></p>
           </div>
         </section>
       </div>

@@ -28,7 +28,7 @@ export const About = () => {
             <li>Comprehensive agistment listings across Australia</li>
             <li>Easy-to-use search functionality with detailed filters</li>
             <li>Direct communication with agistment providers</li>
-            <li>Secure platform for managing your listings and inquiries</li>
+            <li>Secure platform for managing your listings and enquiries</li>
             <li>AI-powered listing creation from text descriptions</li>
           </ul>
         </section>
@@ -69,7 +69,7 @@ export const About = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-gray-900">Contact Us</h2>
           <p className="text-gray-600">
-            For inquiries about Agist Me, please contact us at{' '}
+            For enquiries about Agist Me, please contact us at{' '}
             <a href="mailto:info@agist.me" className="text-blue-600 hover:underline">
               info@agist.me
             </a>
