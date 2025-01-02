@@ -341,19 +341,19 @@ export function MyAgistments() {
                         <button
                           onClick={async () => {
                             try {
-                              await paymentsService.renewSubscription(agistment.subscription_id || '');
-                              toast.success('Subscription renewed successfully');
+                              await paymentsService.reactivateSubscription(agistment.subscription_id || '');
+                              toast.success('Subscription reactivated successfully');
                               // Refresh subscription data
                               const data = await paymentsService.getSubscription(agistment.subscription_id || '');
                               setSubscriptionData(prev => ({ ...prev, [agistment.subscription_id || '']: data }));
                             } catch (error) {
-                              console.error('Error renewing subscription:', error);
-                              toast.error('Failed to renew subscription');
+                              console.error('Error reactivating subscription:', error);
+                              toast.error('Failed to reactivate subscription');
                             }
                           }}
                           className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
                         >
-                          Renew Subscription
+                          Reactivate Subscription
                         </button>
                       ) : (subscription.status === 'active' || subscription.status === 'trialing') && (
                         subscription.cancel_at_period_end ? (
