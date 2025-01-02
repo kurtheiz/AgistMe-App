@@ -5,6 +5,7 @@ import { ChevronLeft, AlertCircle, HelpCircle, Sparkles, ChevronDown } from 'luc
 import { Dialog, Transition, Disclosure } from '@headlessui/react';
 import { agistmentService } from '../../services/agistment.service';
 import { paymentsService } from '../../services/payments.service';
+import { ListingType } from '../../types/payment';
 import { PageToolbar } from '../../components/PageToolbar';
 import { AgistmentSearchResponse } from '../../types/search';
 import { AgistmentResponse } from '../../types/agistment';
@@ -269,7 +270,7 @@ export function MyAgistments() {
                         <div className="flex justify-between items-center">
                           <span>Status:</span>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            subscription.status === 'trialing' 
+                            subscription.status === 'trialing'
                               ? 'bg-blue-100 text-blue-700'
                               : subscription.status === 'active'
                               ? 'bg-emerald-100 text-emerald-700'
@@ -281,7 +282,7 @@ export function MyAgistments() {
                         <div className="flex justify-between">
                           <span>Type:</span>
                           <span className="font-medium">
-                            {subscription.metadata.listing_type.replace('ListingType.', '') === 'STANDARD' ? 'Standard' : 
+                            {subscription.metadata.listing_type.replace('ListingType.', '') === 'STANDARD' ? 'Standard' :
                              subscription.metadata.listing_type.replace('ListingType.', '') === 'PROFESSIONAL' ? 'Professional' : 'Unknown'}
                           </span>
                         </div>
@@ -337,17 +338,18 @@ export function MyAgistments() {
                   return (
                     <div className="mt-3">
                       {subscription.status === 'canceled' ? (
-                        // Renew button for canceled subscriptions
                         <button
                           onClick={async () => {
                             try {
-                              await paymentsService.reactivateSubscription(agistment.subscription_id || '');
-                              toast.success('Subscription reactivated successfully');
-                              // Refresh subscription data
-                              const data = await paymentsService.getSubscription(agistment.subscription_id || '');
-                              setSubscriptionData(prev => ({ ...prev, [agistment.subscription_id || '']: data }));
+                              const session = await paymentsService.createCheckoutSession({
+                                listing_type: subscription.metadata.listing_type as ListingType,
+                                agistment_id: agistment.id,
+                                successUrl: `${window.location.origin}/dashboard/my-agistments?success=true`,
+                                cancelUrl: `${window.location.origin}/dashboard/my-agistments?canceled=true`
+                              });
+                              window.location.href = session.url;
                             } catch (error) {
-                              console.error('Error reactivating subscription:', error);
+                              console.error('Error creating checkout session:', error);
                               toast.error('Failed to reactivate subscription');
                             }
                           }}
@@ -357,7 +359,6 @@ export function MyAgistments() {
                         </button>
                       ) : (subscription.status === 'active' || subscription.status === 'trialing') && (
                         subscription.cancel_at_period_end ? (
-                          // Continue subscription button for active/trialing with cancel_at_period_end
                           <button
                             onClick={async () => {
                               try {
@@ -376,9 +377,8 @@ export function MyAgistments() {
                             Continue Subscription
                           </button>
                         ) : (
-                          // Cancel subscription button for active/trialing without cancel_at_period_end
                           <button
-                            onClick={() => setShowCancelConfirmation({ 
+                            onClick={() => setShowCancelConfirmation({
                               agistmentId: agistment.subscription_id || '',
                               endDate: subscription.current_period_end_date ?? ''
                             })}
@@ -394,7 +394,6 @@ export function MyAgistments() {
               </div>
             </Disclosure.Panel>
           </>
-
         )}
       </Disclosure>
     </div>
