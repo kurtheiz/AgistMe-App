@@ -342,7 +342,7 @@ export function MyAgistments() {
                           onClick={async () => {
                             try {
                               const session = await paymentsService.createCheckoutSession({
-                                listing_type: subscription.metadata.listing_type as ListingType,
+                                listing_type: agistment.listing.listingType,
                                 agistment_id: agistment.id,
                                 successUrl: `${window.location.origin}/dashboard/my-agistments?success=true`,
                                 cancelUrl: `${window.location.origin}/dashboard/my-agistments?canceled=true`
