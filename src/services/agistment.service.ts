@@ -205,6 +205,26 @@ class AgistmentService {
     }
   }
 
+  async getAgistmentCount(): Promise<number> {
+    try {
+      const response = await this.api.get<{ count: number }>('v1/agistments/count');
+      return response.data.count;
+    } catch (error: unknown) {
+      console.error('Failed to get agistment count:', error);
+      return 0;
+    }
+  }
+
+  async registerForNotifications(email: string): Promise<{ message: string; email: string }> {
+    try {
+      const response = await this.api.post<{ message: string; email: string }>('v1/agistments/notify', { email });
+      return response.data;
+    } catch (error: unknown) {
+      console.error('Failed to register for notifications:', error);
+      throw error;
+    }
+  }
+
   async uploadAgistmentPhoto(file: File, agistmentId: string): Promise<string> {
     try {
       // Get presigned URL

@@ -17,7 +17,7 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { setUser, clearAuth } = useAuthStore();
   const { setIsSearchModalOpen } = useSearchStore();
-  const unreadCount = useUnreadEnquiriesCount();
+  const unreadCount = isSignedIn && isAgistor ? useUnreadEnquiriesCount() : 0;
 
   useEffect(() => {
     if (isSignedIn && user) {

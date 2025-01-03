@@ -3,10 +3,55 @@ import { SearchModal } from '../components/Search/SearchModal';
 import { Search } from 'lucide-react';
 import { List } from 'lucide-react';
 import { useSearchStore } from '../stores/search.store';
+import { agistmentService } from '../services/agistment.service';
+import { useEffect, useState } from 'react';
+import { Bell } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export const Home = () => {
   const navigate = useNavigate();
   const { setIsSearchModalOpen, isSearchModalOpen } = useSearchStore();
+  const [agistmentCount, setAgistmentCount] = useState<number>(0);
+  const [isNotifying, setIsNotifying] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      const count = await agistmentService.getAgistmentCount();
+      setAgistmentCount(count);
+    };
+    fetchCount();
+  }, []);
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const handleNotifyClick = async () => {
+    if (!email) {
+      setEmailError('Please enter your email address');
+      return;
+    }
+    if (!validateEmail(email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    
+    setEmailError('');
+    setIsNotifying(true);
+    
+    try {
+      const response = await agistmentService.registerForNotifications(email);
+      setEmail(''); // Clear the email after successful subscription
+      toast.success(response.message);
+    } catch (error) {
+      toast.error('Failed to register for notifications. Please try again.');
+    } finally {
+      setIsNotifying(false);
+    }
+  };
 
   return (
     <div className="flex-1 relative flex flex-col items-center bg-white">
@@ -19,6 +64,56 @@ export const Home = () => {
           <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white text-center max-w-3xl">
             Find the perfect home for your horse
           </h1>
+        </div>
+      </div>
+
+      {/* Launch Announcement */}
+      <div className="w-full bg-primary-50 dark:bg-primary-900/10 border-y border-primary-100">
+        <div className="max-w-7xl mx-auto px-6 py-8 md:py-10">
+          <div className="flex flex-col items-center space-y-2">
+            <div className="text-2xl md:text-3xl font-semibold text-primary-700 dark:text-primary-300">
+              🎉 We've Just Launched!
+            </div>
+            <div className="text-lg md:text-xl text-center text-primary-600 dark:text-primary-400">
+              Our community is growing with{' '}
+              <span className="font-bold text-primary-700 dark:text-primary-300">
+                {agistmentCount} propert{agistmentCount === 1 ? 'y' : 'ies'}
+              </span>{' '}
+              currently listed
+            </div>
+            <div className="text-base md:text-lg text-center text-primary-600 dark:text-primary-400">
+              Join us in building Australia's largest agistment marketplace
+            </div>
+            <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-md mx-auto">
+              <div className="relative w-full">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError('');
+                  }}
+                  placeholder="Enter your email"
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all
+                    ${emailError ? 'border-red-500' : 'border-gray-300'}`}
+                />
+                {emailError && (
+                  <p className="absolute top-full left-0 right-0 mt-1 text-sm text-red-500 text-center">
+                    {emailError}
+                  </p>
+                )}
+              </div>
+              <div className="h-6" /> {/* Spacer for error message */}
+              <button
+                onClick={handleNotifyClick}
+                disabled={isNotifying}
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white rounded-lg font-medium transition-all whitespace-nowrap w-full sm:w-auto"
+              >
+                <Bell className="h-4 w-4" />
+                {isNotifying ? 'Subscribing...' : 'Notify Me of New Properties'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
