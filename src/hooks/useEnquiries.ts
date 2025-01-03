@@ -2,12 +2,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { enquiriesService } from '../services/enquiries.service';
 import { EnquiryRequest, EnquiryStatusUpdate, EnquiriesResponse, EnquiryResponse } from '../types/enquiry';
 import toast from 'react-hot-toast';
+import { useUser } from '@clerk/clerk-react';
+import { useAgistor } from './useAgistor';
 
 export const useUnreadEnquiriesCount = () => {
+  const { isSignedIn } = useUser();
+  const { isAgistor } = useAgistor();
+
   const { data } = useQuery({
     queryKey: ['enquiries'],
     queryFn: () => enquiriesService.getEnquiries(),
-    select: (data) => data.enquiries?.filter(enquiry => !enquiry.read).length ?? 0
+    select: (data) => data.enquiries?.filter(enquiry => !enquiry.read).length ?? 0,
+    enabled: isSignedIn && isAgistor // Only run the query if user is signed in and is an agistor
   });
 
   return data ?? 0;

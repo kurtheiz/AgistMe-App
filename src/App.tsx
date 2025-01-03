@@ -233,7 +233,8 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
       );
 
       // Load enquiries only for agistors
-      if (user.publicMetadata?.role === 'agistor') {
+      const userRole = user.publicMetadata?.role as string;
+      if (userRole === 'agistor') {
         setEnquiriesLoading(true);
         loadPromises.push(
           enquiriesService.getEnquiries()
