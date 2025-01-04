@@ -12,7 +12,6 @@ import {
 import { Check, X, HandHeart, Heart } from 'lucide-react';
 import { AgistmentResponse } from '../types/agistment';
 import { formatCurrency } from '../utils/prices';
-import { formatRelativeDate } from '../utils/dates';
 import { useFavorite } from '../hooks/useFavorite';
 import { buildCareOptionsString } from '../utils/careOptions';
 import { AgistmentPhotosView } from './Agistment/AgistmentPhotosView';

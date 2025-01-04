@@ -5,7 +5,7 @@ import { List } from 'lucide-react';
 import { useSearchStore } from '../stores/search.store';
 import { agistmentService } from '../services/agistment.service';
 import { useEffect, useState } from 'react';
-import { Bell, HelpCircle } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Popover } from '@headlessui/react';
 
