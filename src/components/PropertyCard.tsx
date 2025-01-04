@@ -114,7 +114,7 @@ const PropertyCard = ({
             <div className="text-neutral-800 truncate">
               {agistment.propertyLocation.location.address && (
                 <><span className="font-semibold">{agistment.propertyLocation.location.address}</span>, </>
-              )}<span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
+              )}<span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
             </div>
             <div className="flex flex-col mt-0.5">
               <div className="flex justify-between items-center">

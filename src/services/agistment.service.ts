@@ -225,6 +225,14 @@ class AgistmentService {
     }
   }
 
+  async unregisterFromNotifications(email: string, category: string): Promise<{ message: string }> {
+    const response = await this.api.post('/v1/agistments/unnotify', {
+      email,
+      category
+    });
+    return response.data;
+  }
+
   async uploadAgistmentPhoto(file: File, agistmentId: string): Promise<string> {
     try {
       // Get presigned URL
