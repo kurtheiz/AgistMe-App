@@ -32,6 +32,7 @@ import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { InitializationOverlay } from './components/InitializationOverlay';
+import { Unsubscribe } from './pages/Unsubscribe';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
             element: <ViewAgistmentDetail />
           }
         ]
+      },
+      {
+        path: 'unsubscribe',
+        element: <Unsubscribe />
       },
       {
         path: 'dashboard',
