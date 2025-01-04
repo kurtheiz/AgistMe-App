@@ -5,8 +5,9 @@ import { List } from 'lucide-react';
 import { useSearchStore } from '../stores/search.store';
 import { agistmentService } from '../services/agistment.service';
 import { useEffect, useState } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, HelpCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Popover } from '@headlessui/react';
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ export const Home = () => {
       {/* Hero Section */}
       <div className="relative w-full h-[70vh] min-h-[500px]">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-[url('/am-mobile.png')] md:bg-[url('/am.png')]"/>
+          className="absolute inset-0 bg-cover bg-center bg-[url('https://images.agist.me/assets/am-mobile.png')] md:bg-[url('https://images.agist.me/assets/am.png')]"/>
         <div className="absolute inset-0" />
         <div className="absolute inset-0 flex flex-col items-center justify-start pt-12 p-6">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white text-center max-w-3xl">
@@ -97,21 +98,31 @@ export const Home = () => {
                   className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all
                     ${emailError ? 'border-red-500' : 'border-gray-300'}`}
                 />
-                {emailError && (
-                  <p className="absolute top-full left-0 right-0 mt-1 text-sm text-red-500 text-center">
-                    {emailError}
-                  </p>
-                )}
               </div>
-              <div className="h-6" /> {/* Spacer for error message */}
-              <button
-                onClick={handleNotifyClick}
-                disabled={isNotifying}
-                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white rounded-lg font-medium transition-all whitespace-nowrap w-full sm:w-auto"
-              >
-                <Bell className="h-4 w-4" />
-                {isNotifying ? 'Subscribing...' : 'Notify Me of New Properties'}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleNotifyClick}
+                  disabled={isNotifying}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white rounded-lg font-medium transition-all whitespace-nowrap w-full sm:w-auto"
+                >
+                  {isNotifying ? 'Subscribing...' : 'Notify Me of New Properties'}
+                </button>
+                <Popover className="relative">
+                  <Popover.Button className="text-gray-500 hover:text-gray-700">
+                    <HelpCircle className="h-5 w-5" />
+                  </Popover.Button>
+                  <Popover.Panel className="absolute z-10 w-72 -right-2 mt-2 transform px-4 py-3 bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <p className="text-sm text-gray-600">
+                      You'll receive a daily digest email when new properties are listed.
+                    </p>
+                  </Popover.Panel>
+                </Popover>
+              </div>
+              {emailError && (
+                <p className="text-sm text-red-500 text-center">
+                  {emailError}
+                </p>
+              )}
             </div>
           </div>
         </div>

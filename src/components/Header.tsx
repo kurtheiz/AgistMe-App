@@ -84,7 +84,7 @@ export const Header = () => {
                 className="flex items-center space-x-2 sm:space-x-3 text-lg sm:text-xl font-bold"
               >
                 <div className="rounded-full bg-white p-1.5">
-                  <img src="/amlogo.png" alt="Agist Me Logo" className="h-9 w-9 sm:h-10 sm:w-10" />
+                  <img src="https://images.agist.me/assets/amlogo.png" alt="Agist Me Logo" className="h-9 w-9 sm:h-10 sm:w-10" />
                 </div>
                 <span>Agist Me</span>
               </Link>

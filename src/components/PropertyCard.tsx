@@ -82,7 +82,7 @@ const PropertyCard = ({
 
   return (
     <div 
-      className={`bg-white rounded-none sm:rounded-lg ${noShadow ? '' : 'shadow-xl hover:shadow-2xl'} transition-shadow duration-300 ${!disableClick ? 'cursor-pointer' : ''} ${agistment.status === 'HIDDEN' ? 'grayscale' : ''}`}
+      className={`bg-white rounded-none sm:rounded-lg ${noShadow ? '' : 'shadow hover:shadow-lg'} transition-shadow duration-300 ${!disableClick ? 'cursor-pointer' : ''} ${agistment.status === 'HIDDEN' ? 'grayscale' : ''}`}
       onClick={!disableClick ? handleClick : undefined}
     >
       <div className="relative bg-white border-y border-neutral-200 sm:border sm:rounded-lg overflow-hidden">
@@ -295,7 +295,7 @@ const PropertyCard = ({
         </div>
       </div>
       {/* Footer */}
-      <div className="px-4 py-3 bg-primary-50 border-t border-primary-100 text-primary-800">
+      <div className="px-4 py-3 bg-white border-t border-primary-100 text-primary-800">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             {/* Favorite Button */}

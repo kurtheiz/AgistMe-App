@@ -233,7 +233,7 @@ export function MyAgistments() {
         {({ open }) => (
           <>
             <Disclosure.Button
-              className="w-full flex justify-between items-center px-4 py-3 bg-neutral-50 hover:bg-neutral-100 transition-colors"
+              className="w-full flex justify-between items-center px-4 py-3 bg-white hover:bg-neutral-100 transition-colors"
               onClick={async () => {
                 if (!open && agistment.subscription_id && !subscriptionData[agistment.subscription_id]) {
                   const subId = agistment.subscription_id;
@@ -455,7 +455,7 @@ export function MyAgistments() {
 
             <div className="grid grid-cols-1 gap-6">
               {agistments.map((agistment) => (
-                <div key={agistment.id} className="bg-white rounded-none sm:rounded-lg shadow-lg">
+                <div key={agistment.id} className="bg-white rounded-none sm:rounded-lg shadow-md">
                   <div className="p-4 bg-primary-500 rounded-none sm:rounded-t-lg">
                     <div>
                       <h3 className="text-lg font-medium text-white">
