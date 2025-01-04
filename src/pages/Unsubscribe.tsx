@@ -6,7 +6,6 @@ export const Unsubscribe = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
-  const [decodedToken, setDecodedToken] = useState<{ email: string; category: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [responseMessage, setResponseMessage] = useState<string>('');
@@ -18,7 +17,6 @@ export const Unsubscribe = () => {
         const paddedBase64 = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
         const decodedStr = atob(paddedBase64);
         const decoded = JSON.parse(decodedStr);
-        setDecodedToken(decoded);
         
         agistmentService.unregisterFromNotifications(decoded.email, decoded.category)
           .then((response) => {
