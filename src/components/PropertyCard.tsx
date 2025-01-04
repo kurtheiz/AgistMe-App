@@ -111,12 +111,36 @@ const PropertyCard = ({
 
         {/* Location */}
         {agistment.propertyLocation.location && (
-          <div className="flex items-center gap-2 px-5 py-4 border-b border-neutral-200 bg-white">
-            <div className="flex flex-col min-w-0">
-              <div className="text-neutral-800 truncate">
+          <div className="px-5 py-4 border-b border-neutral-200 bg-white">
+            <div className="text-neutral-800 truncate">
               {agistment.propertyLocation.location.address && (
-    <><span className="font-semibold">{agistment.propertyLocation.location.address}</span>, </>
-  )}<span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
+                <><span className="font-semibold">{agistment.propertyLocation.location.address}</span>, </>
+              )}<span className="font-semibold">{agistment.propertyLocation.location.suburb}</span>, <span className="font-semibold">{agistment.propertyLocation.location.region}</span>, <span className="font-semibold">{agistment.propertyLocation.location.state}</span>
+            </div>
+            <div className="flex flex-col mt-0.5">
+              <div className="flex justify-between items-center">
+                <div className="text-xs text-neutral-500">
+                  {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 
+                    ? <>Property is <span className="font-bold">{agistment.basicInfo.propertySize}</span> acres</>
+                    : 'Property size not specified'
+                  }
+                </div>
+                <button
+                  onClick={(e) => {
+                    if (!disableFavorite) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleFavorite();
+                    }
+                  }}
+                  className={`p-1.5 rounded-md transition-colors duration-200 ${
+                    disableFavorite ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-100'
+                  }`}
+                  disabled={!!disableFavorite}
+                  title="Add to favorites"
+                >
+                  <Heart className={`w-5 h-5 stroke-neutral-600 ${isFavorite ? 'fill-red-600' : ''}`} />
+                </button>
               </div>
               {agistment.matchType === 'ADJACENT' && agistment.distance !== undefined && (
                 <div className="text-xs text-neutral-500 mt-1">
@@ -128,12 +152,6 @@ const PropertyCard = ({
                    Exact location match
                 </div>
               )}
-              <div className="text-xs text-neutral-500 mt-1">
-                {agistment.basicInfo.propertySize && agistment.basicInfo.propertySize > 0 
-                  ? <>Property is <span className="font-bold">{agistment.basicInfo.propertySize}</span> acres</>
-                  : 'Property size not specified'
-                }
-              </div>
             </div>
           </div>
         )}
@@ -291,33 +309,6 @@ const PropertyCard = ({
                 </span>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-      {/* Footer */}
-      <div className="px-4 py-3 bg-white border-t border-primary-100 text-primary-800">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            {/* Favorite Button */}
-            <button
-              onClick={(e) => {
-                if (!disableFavorite) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleFavorite();
-                }
-              }}
-              className={`p-2 rounded-md transition-colors duration-200 ${
-                disableFavorite ? 'opacity-50 cursor-not-allowed' : 'hover:bg-secondary-50'
-              }`}
-              disabled={!!disableFavorite}
-              title="Add to favorites"
-            >
-              <Heart className={`w-5 h-5 stroke-neutral-600 ${isFavorite ? 'fill-red-600' : ''}`} />
-            </button>
-          </div>
-          <div className="text-xs sm:text-sm">
-            Last updated: {formatRelativeDate(agistment.modifiedAt)}
           </div>
         </div>
       </div>
