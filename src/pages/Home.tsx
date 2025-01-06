@@ -137,7 +137,7 @@ export const Home = () => {
               Finding the perfect home for your horse shouldn't be a wild goose chase. Whether you're seeking private paddocks, shared arrangements, or full-care options, our smart search helps you discover properties that match your needs – from lit arenas and round yards to secure tack rooms and float parking.
             </p>
             <ul className="space-y-3 mb-8">
-              {['Search by multiple locations and radius', 'Filter by what you need and your budget', 'Direct owner contact',  'Save searches', 'Add favourites'].map((item) => (
+              {['Search by multiple locations and radius', 'Filter by what you need and set your budget', 'Direct owner contact',  'Save searches', 'Add favourites','Create a bio'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-gray-700 min-h-[28px]">
                   <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
                   {item}
@@ -171,7 +171,11 @@ export const Home = () => {
               ))}
               <li className="flex items-center gap-2 text-gray-900 font-bold min-h-[28px]">
                 <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
-                List for FREE until 31st March 2025, then only $4.50/month thereafter
+                List for FREE until 30 June 2025, then only $4.50/month thereafter.
+              </li>
+              <li className="flex items-center gap-2 text-gray-900 font-bold min-h-[28px]">
+                <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
+                Cancel anytime.
               </li>
             </ul>
             <div className="flex justify-center md:justify-start">
