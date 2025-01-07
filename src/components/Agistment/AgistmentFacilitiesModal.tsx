@@ -44,7 +44,15 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
   // Set initial hash when modal opens or props change
   useEffect(() => {
     if (isOpen) {
-      const initialFacilities = agistment.facilities || DEFAULT_FACILITIES;
+      const initialFacilities = {
+        ...DEFAULT_FACILITIES,
+        ...agistment.facilities,
+        stables: {
+          available: agistment.facilities?.stables?.available ?? false,
+          quantity: agistment.facilities?.stables?.quantity ?? 0,
+          comments: agistment.facilities?.stables?.comments ?? ''
+        }
+      };
       setEditableFacilities(initialFacilities);
       setInitialHash(calculateHash(initialFacilities));
       setIsDirty(false);
@@ -157,7 +165,11 @@ export const AgistmentFacilitiesModal: React.FC<AgistmentFacilitiesModalProps> =
                   {key === 'stables' && (
                     <NumberStepper
                       value={(facility as Stables).quantity}
-                      onChange={(value) => updateFacility('stables', { available: true, comments: facility.comments, quantity: value } as Stables)}
+                      onChange={(value) => updateFacility('stables', { 
+                        available: facility.available ?? false,
+                        comments: facility.comments ?? '',
+                        quantity: value 
+                      } as Stables)}
                       min={0}
                       label="Number of Stables"
                       disabled={!facility.available}
