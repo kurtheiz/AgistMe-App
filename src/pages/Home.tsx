@@ -171,11 +171,11 @@ export const Home = () => {
               ))}
               <li className="flex items-center gap-2 text-gray-900 font-bold min-h-[28px]">
                 <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
-                List for FREE until 30 June 2025, then only $4.50/month thereafter.
+                List for FREE until 30 June 2025, then only $4.50/month thereafter
               </li>
               <li className="flex items-center gap-2 text-gray-900 font-bold min-h-[28px]">
                 <span className="h-2 w-2 bg-primary-600 rounded-full flex-shrink-0" />
-                Cancel anytime.
+                Cancel anytime
               </li>
             </ul>
             <div className="flex justify-center md:justify-start">
