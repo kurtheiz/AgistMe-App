@@ -151,7 +151,7 @@ const Privacy: React.FC = () => {
           <h2 className="text-2xl font-semibold mb-4">13. Contact Information</h2>
           <p className="mb-4">For privacy-related enquiries, please contact:</p>
           <div className="mb-4">
-            <p>Email: <a href="mailto:privacy@agist.me">privacy@agist.me</a></p>
+            <p>Email: <a href="mailto:support@agist.me?subject=Privacy%20Enquiry">support@agist.me</a></p>
           </div>
         </section>
       </div>

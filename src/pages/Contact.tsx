@@ -53,7 +53,7 @@ const Contact: React.FC = () => {
                 For support enquiries, please email us at:
               </p>
               <a 
-                href="mailto:support@agist.me"
+                href="mailto:support@agist.me?subject=Support Enquiry"
                 className="text-lg font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
               >
                 support@agist.me
