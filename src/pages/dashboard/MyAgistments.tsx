@@ -157,14 +157,16 @@ export function MyAgistments() {
           <HelpCircle className="w-5 h-5" />
         </button>
       </div>
-      <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
-        <button
+      <div className="text-m font-medium text-neutral-800 pt-4 pb-2 text-center flex items-center justify-center gap-2">
+      <button
           onClick={() => setEditModal({ type: 'fromtext', agistment: agistment as AgistmentResponse })}
           className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
         >
           <Sparkles className={'w-4 h-4'} />
           <span>From Text</span>
         </button>
+        </div>
+      <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
         <button
           onClick={() => setEditModal({ type: 'header', agistment: agistment as AgistmentResponse })}
           className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'header') ? 'animate-flash' : ''}`}
@@ -188,18 +190,6 @@ export function MyAgistments() {
           )}
         </button>
         <button
-          onClick={() => setEditModal({ type: 'riding', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
-        >
-          Riding Facilities
-        </button>
-        <button
-          onClick={() => setEditModal({ type: 'facilities', agistment: agistment as AgistmentResponse })}
-          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
-        >
-          Facilities
-        </button>
-        <button
           onClick={() => setEditModal({ type: 'care', agistment: agistment as AgistmentResponse })}
           className={`button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100 ${flashErrorsId === agistment.id && !checkSectionValidation(agistment, 'care') ? 'animate-flash' : ''}`}
         >
@@ -221,6 +211,21 @@ export function MyAgistments() {
             </div>
           )}
         </button>
+        <button
+          onClick={() => setEditModal({ type: 'riding', agistment: agistment as AgistmentResponse })}
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
+        >
+          Riding Facilities
+        </button>
+        
+        <button
+          onClick={() => setEditModal({ type: 'facilities', agistment: agistment as AgistmentResponse })}
+          className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
+        >
+          Facilities
+        </button>
+        
+        
         <button
           onClick={() => setEditModal({ type: 'services', agistment: agistment as AgistmentResponse })}
           className="button-toolbar bg-neutral-50 border border-neutral-200 hover:bg-neutral-100"
@@ -659,14 +664,6 @@ export function MyAgistments() {
                           <p className="text-neutral-600">Add at least one paddock type (private, shared, or group)</p>
                         </div>
                         <div>
-                          <p className="font-medium text-neutral-800">Riding Facilities</p>
-                          <p className="text-neutral-600">Optional: Add any available riding facilities</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-neutral-800">Facilities</p>
-                          <p className="text-neutral-600">Optional: Add any additional facilities</p>
-                        </div>
-                        <div>
                           <p className="font-medium text-neutral-800">Care</p>
                           <p className="text-neutral-600">Enable at least one care option (self, part, or full care)</p>
                         </div>
@@ -674,6 +671,16 @@ export function MyAgistments() {
                           <p className="font-medium text-neutral-800">Photos</p>
                           <p className="text-neutral-600">Upload at least one photo of your property</p>
                         </div>
+                        <div>
+                          <p className="font-medium text-neutral-800">Riding Facilities</p>
+                          <p className="text-neutral-600">Optional: Add any available riding facilities</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-neutral-800">Facilities</p>
+                          <p className="text-neutral-600">Optional: Add any additional facilities</p>
+                        </div>
+                        
+                        
                         <div>
                           <p className="font-medium text-neutral-800">Services</p>
                           <p className="text-neutral-600">Optional: Additional services you offer</p>
