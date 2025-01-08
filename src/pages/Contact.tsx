@@ -50,14 +50,28 @@ const Contact: React.FC = () => {
                 Email Us
               </h2>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                For support enquiries, please email us at:
+                For information, feedback and suggestions, please contact us at:
               </p>
               <a 
-                href="mailto:support@agist.me?subject=Support Enquiry"
+                href="mailto:info@agist.me"
                 className="text-lg font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
               >
-                support@agist.me
+                info@agist.me
               </a>
+            </div>
+
+            <div className="w-full border-t border-gray-200 dark:border-neutral-700 pt-6 mt-6">
+              <div className="text-center">
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  For support enquiries, please email us at:
+                </p>
+                <a 
+                  href="mailto:support@agist.me?subject=Support Enquiry"
+                  className="text-lg font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                >
+                  support@agist.me
+                </a>
+              </div>
             </div>
 
             <div className="w-full border-t border-gray-200 dark:border-neutral-700 pt-6 mt-6">
