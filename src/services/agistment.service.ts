@@ -200,7 +200,7 @@ class AgistmentService {
       const response = await this.api.get<SearchResponse>('v1/protected/agistments/favourites', authHeaders);
       return response.data;
     } catch (error: unknown) {
-      console.error('Failed to get favorite agistments:', error);
+      console.error('Failed to get favourite agistments:', error);
       throw error;
     }
   }

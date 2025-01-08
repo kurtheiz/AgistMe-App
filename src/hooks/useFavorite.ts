@@ -70,7 +70,7 @@ export function useFavorite(agistment: AgistmentResponse) {
 
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      toast.error('Failed to update favorite status');
+      toast.error('Failed to update favourite status');
     } finally {
       setIsLoading(false);
     }

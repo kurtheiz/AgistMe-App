@@ -80,8 +80,8 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         toast.success('Removed from favorites');
       }
     } catch (error) {
-      console.error('Error toggling favorite:', error);
-      toast.error('Failed to update favorite');
+      console.error('Error toggling favourite:', error);
+      toast.error('Failed to update favourite');
     }
   }
 }));
