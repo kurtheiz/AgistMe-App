@@ -7,4 +7,4 @@ Allow: /
 User-agent: Adsbot-Google
 Allow: /
 
-Sitemap: https://agistme.com/sitemap.xml
+Sitemap: https://agist.me/sitemap.xml
